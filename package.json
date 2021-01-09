@@ -1,0 +1,26 @@
+{
+  "name": "@topce/ngx-chessground",
+  "version": "1.0.0",
+  "description": "angular wrapper for ornicar/chessground",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/topce/ngx-chessground.git"
+  },
+  "keywords": [
+    "chess",
+    "pgn",
+    "fen",
+    "chessground",
+    "chess.js"
+  ],
+  "author": "topce",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/topce/ngx-chessground/issues"
+  },
+  "homepage": "https://github.com/topce/ngx-chessground#readme"
+}
