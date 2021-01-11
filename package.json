@@ -1,6 +1,6 @@
 {
   "name": "ngx-chessground",
-  "version": "!!.0.&",
+  "version": "11.0.6",
   "description": "angular wrapper for ornicar/chessground",
   "scripts": {
     "ng": "ng",
