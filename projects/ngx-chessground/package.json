@@ -16,5 +16,22 @@
     "chessground": "7.9.3",
     "snabbdom": "2.1.0",
     "@types/chess.js": "0.10.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/topce/ngx-chessground.git"
+  },
+  "keywords": [
+    "chess",
+    "pgn",
+    "fen",
+    "chessground",
+    "chess.js"
+  ],
+  "author": "topce",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/topce/ngx-chessground/issues"
+  },
+  "homepage": "https://github.com/topce/ngx-chessground#readme"
 }
