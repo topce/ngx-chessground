@@ -1,0 +1,29 @@
+.leftmenu {
+  grid-area: leftmenu;
+}
+.main {
+  grid-area: main;
+}
+.rightmenu {
+  grid-area: rightmenu;
+}
+.grid-container {
+  display: grid;
+  grid-template-areas: 'leftmenu main main main main rightmenu';
+  grid-gap: 10px;
+  padding: 10px;
+  place-items: center;
+}
+
+.grid-container > div {
+  text-align: center;
+  padding: 2px 0;
+  font-size: 12px;
+}
+nav {
+  border-bottom: 1px solid black;
+}
+
+h1 {
+  text-align: center;
+}

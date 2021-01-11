@@ -1,0 +1,30 @@
+<h1>{{title}}</h1>
+<div class="grid-container">
+  <div class="leftmenu">
+    <nav>
+      <ol>
+        <ul *ngFor="let item of list">
+          <button (click)="onClick(item.name, item.run)">
+            {{ item.name }}
+          </button>
+        </ul>
+      </ol>
+    </nav>
+  </div>
+  <div class="main">
+    <main>
+      <lib-ngx-chessground #chess></lib-ngx-chessground>
+    </main>
+  </div>
+  <div class="rightmenu">
+    <nav>
+      <ol>
+        <ul *ngFor="let item of newList">
+          <button (click)="onClick(item.name, item.run)">
+            {{ item.name }}
+          </button>
+        </ul>
+      </ol>
+    </nav>
+  </div>
+</div>
