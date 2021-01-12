@@ -29,6 +29,11 @@ yarn install
 yarn start    
 ```
 
+# License
+NgxChessground is distributed under the GPL-3.0 license (or any later version, at your option). When you use NgxChessground for your website, your combined work may be distributed only under the GPL. You must release your source code to the users of your website.
+
+Please read more about GPL for JavaScript on greendrake.info/#nfy0.
+
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.6.
 
