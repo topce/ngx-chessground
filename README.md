@@ -13,6 +13,9 @@ one second per move,
 real time, 
 in one minute proportionally
 
+you can see running application on 
+https://topce.github.io/ngx-chessground/
+
 There  I beat strong grandmaster
 in 3 minutes by playing first 8 moves with  pawns ;-)
 probably most original game in lichess:
@@ -34,6 +37,7 @@ NgxChessground is distributed under the GPL-3.0 license (or any later version, a
 
 Please read more about GPL for JavaScript on greendrake.info/#nfy0.
 
+# Angular CLI stuff
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.6.
 
