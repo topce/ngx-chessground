@@ -65,7 +65,7 @@ export class AppComponent implements AfterViewInit {
   title = 'ngx-chessground-example';
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
   ngAfterViewInit(): void {
-    this.ngxChessgroundComponent.runFn = play.initial.run;
+    this.ngxChessgroundComponent.runFn = pgn.loadPgnProportionalTime.run;
   }
   public onClick(name: string, runFn: (el: HTMLElement) => Api) {
     this.ngxChessgroundComponent.runFn = runFn;
