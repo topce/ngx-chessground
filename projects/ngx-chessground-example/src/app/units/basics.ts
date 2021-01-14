@@ -36,7 +36,7 @@ export const checkHighlight: Unit = {
   run(el) {
     const fen = 'r1bqkbnr/1ppppBpp/p1n5/8/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 0 1';
     const cg = Chessground(el, {
-      fen: fen,
+      fen,
       turnColor: 'black',
       highlight: {
         check: true,

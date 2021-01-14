@@ -32,7 +32,7 @@ export const castling: Unit = {
 
     const chess = new Chess(fen);
     const cg = Chessground(el, {
-      fen: fen,
+      fen,
       turnColor: toColor(chess),
       movable: {
         color: 'white',
@@ -82,7 +82,9 @@ export const fullRandom: Unit = {
       },
     });
     function makeMove() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       const moves = chess.moves({ verbose: true });
       const move = moves[Math.floor(Math.random() * moves.length)];
       chess.move(move.san);

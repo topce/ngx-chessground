@@ -25,7 +25,9 @@ export const autoSwitch: Unit = {
     const delay = 2000;
     let it = 0;
     function run() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       cg.set(configs[++it % configs.length]());
       setTimeout(run, delay);
     }

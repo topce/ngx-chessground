@@ -32,7 +32,9 @@ export const lastMoveDrop: Unit = {
     const delay = 2000;
     let it = 0;
     function run() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       const config = configs[++it % configs.length];
       console.log(config);
       cg.set(config());

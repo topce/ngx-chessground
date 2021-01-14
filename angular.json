@@ -36,9 +36,7 @@
               "projects/ngx-chessground/tsconfig.lib.json",
               "projects/ngx-chessground/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         }
       }
@@ -63,9 +61,7 @@
               "projects/ngx-chessground-example/src/favicon.ico",
               "projects/ngx-chessground-example/src/assets"
             ],
-            "styles": [
-              "projects/ngx-chessground-example/src/styles.css"
-            ],
+            "styles": ["projects/ngx-chessground-example/src/styles.css"],
             "scripts": []
           },
           "configurations": {
@@ -126,9 +122,7 @@
               "projects/ngx-chessground-example/src/favicon.ico",
               "projects/ngx-chessground-example/src/assets"
             ],
-            "styles": [
-              "projects/ngx-chessground-example/src/styles.css"
-            ],
+            "styles": ["projects/ngx-chessground-example/src/styles.css"],
             "scripts": []
           }
         },
@@ -140,9 +134,7 @@
               "projects/ngx-chessground-example/tsconfig.spec.json",
               "projects/ngx-chessground-example/e2e/tsconfig.json"
             ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         },
         "e2e": {

@@ -15,7 +15,9 @@ export const changingShapesHigh: Unit = {
     const sets = [shapeSet1, shapeSet2, shapeSet3];
     let i = 0;
     function run() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       cg.setShapes(sets[++i % sets.length]);
       setTimeout(run, delay);
     }
@@ -32,7 +34,9 @@ export const changingShapesLow: Unit = {
     const sets = [shapeSet1, shapeSet1b, shapeSet1c];
     let i = 0;
     function run() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       cg.setShapes(sets[++i % sets.length]);
       setTimeout(run, delay);
     }
@@ -60,7 +64,9 @@ export const brushModifiers: Unit = {
     const delay = 1000;
     let i = 0;
     function run() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       cg.setShapes(sets()[++i % sets().length]);
       setTimeout(run, delay);
     }
@@ -88,7 +94,9 @@ export const autoShapes: Unit = {
     const delay = 1000;
     let i = 0;
     function run() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       cg.setAutoShapes(sets()[++i % sets().length]);
       setTimeout(run, delay);
     }

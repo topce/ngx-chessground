@@ -17,12 +17,12 @@ import { NgxChessgroundService } from './ngx-chessground.service';
 })
 export class NgxChessgroundComponent implements AfterViewInit {
   @Input()
-  private _runFn!: (el: HTMLElement) => Api;
+  private runFunction!: (el: HTMLElement) => Api;
   public get runFn(): (el: HTMLElement) => Api {
-    return this._runFn;
+    return this.runFunction;
   }
   public set runFn(value: (el: HTMLElement) => Api) {
-    this._runFn = value;
+    this.runFunction = value;
     this.redraw();
   }
   @ViewChild('chessboard')

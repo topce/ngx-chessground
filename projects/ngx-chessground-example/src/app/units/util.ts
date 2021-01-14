@@ -9,11 +9,12 @@ export function toDests(chess: ChessInstance): Map<Key, Key[]> {
   const dests = new Map();
   chess.SQUARES.forEach((s) => {
     const ms = chess.moves({ square: s, verbose: true });
-    if (ms.length)
+    if (ms.length) {
       dests.set(
         s,
         ms.map((m) => m.to)
       );
+    }
   });
   return dests;
 }

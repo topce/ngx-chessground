@@ -19,7 +19,9 @@ export const fullRandom: Unit = {
       },
     });
     function makeMove() {
-      if (!cg.state.dom.elements.board.offsetParent) return;
+      if (!cg.state.dom.elements.board.offsetParent) {
+        return;
+      }
       const moves = chess.moves({ verbose: true });
       const move = moves[Math.floor(Math.random() * moves.length)];
       chess.move(move.san);

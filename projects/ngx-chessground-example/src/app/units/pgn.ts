@@ -50,12 +50,12 @@ export const loadPgnRealTime: Unit = {
     let blackThinkTime = 0;
 
     for (let j = 0; j < comments.length; j++) {
-      let minutes = parseInt(comments[j].comment.substring(9, 11), 10);
-      let seconds = parseInt(comments[j].comment.substring(12, 14), 10);
-      let tiöeLeft = minutes * 60 + seconds;
-      let thinkTime = 180 - tiöeLeft;
+      const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
+      const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
+      const tiöeLeft = minutes * 60 + seconds;
+      const thinkTime = 180 - tiöeLeft;
 
-      if (j % 2 == 0) {
+      if (j % 2 === 0) {
         blackThinkTime = thinkTime;
       } else {
         whiteThinkTime = thinkTime;
@@ -65,7 +65,9 @@ export const loadPgnRealTime: Unit = {
 
     for (let i = 0; i < hhistory.length; i++) {
       setTimeout(() => {
-        if (!cg.state.dom.elements.board.offsetParent) return;
+        if (!cg.state.dom.elements.board.offsetParent) {
+          return;
+        }
         cg.move(hhistory[i].from, hhistory[i].to);
       }, timeOuts[i] * 1000);
     }
@@ -93,7 +95,9 @@ export const loadPgnOneSecondPerMove: Unit = {
 
     for (let i = 0; i < hhistory.length; i++) {
       setTimeout(() => {
-        if (!cg.state.dom.elements.board.offsetParent) return;
+        if (!cg.state.dom.elements.board.offsetParent) {
+          return;
+        }
         cg.move(hhistory[i].from, hhistory[i].to);
       }, i * 1000);
     }
@@ -125,12 +129,12 @@ export const loadPgnProportionalTime: Unit = {
     let blackThinkTime = 0;
 
     for (let j = 0; j < comments.length; j++) {
-      let minutes = parseInt(comments[j].comment.substring(9, 11), 10);
-      let seconds = parseInt(comments[j].comment.substring(12, 14), 10);
-      let tiöeLeft = minutes * 60 + seconds;
-      let thinkTime = 180 - tiöeLeft;
+      const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
+      const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
+      const timeLeft = minutes * 60 + seconds;
+      const thinkTime = 180 - timeLeft;
 
-      if (j % 2 == 0) {
+      if (j % 2 === 0) {
         blackThinkTime = thinkTime;
       } else {
         whiteThinkTime = thinkTime;
@@ -140,7 +144,9 @@ export const loadPgnProportionalTime: Unit = {
 
     for (let i = 0; i < hhistory.length; i++) {
       setTimeout(() => {
-        if (!cg.state.dom.elements.board.offsetParent) return;
+        if (!cg.state.dom.elements.board.offsetParent) {
+          return;
+        }
         cg.move(hhistory[i].from, hhistory[i].to);
       }, timeOuts[i] * (30 / 180) * 1000);
     }
