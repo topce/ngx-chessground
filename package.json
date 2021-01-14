@@ -9,6 +9,7 @@
     "start": "ng serve -o",
     "build": "ng build",
     "build:lib:prod": "ng build ngx-chessground --prod",
+    "build:app:prod": "ng build --prod --output-path docs --base-href /ngx-chessground/",
     "test": "ng test",
     "lint": "ng lint  --format=msbuild",
     "lint:fix": "ng lint  --format=msbuild --fix",
