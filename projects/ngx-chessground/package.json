@@ -22,11 +22,13 @@
     "url": "git+https://github.com/topce/ngx-chessground.git"
   },
   "keywords": [
+    "angular",
     "chess",
     "pgn",
     "fen",
     "chessground",
-    "chess.js"
+    "chess.js",
+    "lichess"
   ],
   "author": "topce",
   "license": "GPL-3.0-or-later",
