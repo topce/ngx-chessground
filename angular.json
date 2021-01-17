@@ -59,7 +59,12 @@
             "aot": true,
             "assets": [
               "projects/ngx-chessground-example/src/favicon.ico",
-              "projects/ngx-chessground-example/src/assets"
+              "projects/ngx-chessground-example/src/assets",
+              {
+                "glob": "**/*",
+                "input": "./projects/ngx-chessground/assets",
+                "output": "/assets/"
+              }
             ],
             "styles": ["projects/ngx-chessground-example/src/styles.css"],
             "scripts": []
