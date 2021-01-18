@@ -51,6 +51,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": ["chessground"],
             "outputPath": "dist/ngx-chessground-example",
             "index": "projects/ngx-chessground-example/src/index.html",
             "main": "projects/ngx-chessground-example/src/main.ts",

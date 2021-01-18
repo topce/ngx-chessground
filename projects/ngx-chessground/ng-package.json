@@ -3,6 +3,14 @@
   "dest": "../../dist/ngx-chessground",
   "assets": ["./assets"],
   "lib": {
-    "entryFile": "src/public-api.ts"
+    "entryFile": "src/public-api.ts",
+    "umdModuleIds": {
+      "snabbdom/build/package/h": "h",
+      "snabbdom/build/package/init": "init",
+      "snabbdom/build/package/modules/class": "_class",
+      "snabbdom/build/package/modules/attributes": "attributes",
+      "snabbdom/build/package/modules/eventlisteners": "eventlisteners",
+      "chessground": "chessground"
+    }
   }
 }
