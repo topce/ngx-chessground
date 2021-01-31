@@ -10,7 +10,7 @@ import { Api } from 'chessground/api';
 import { NgxChessgroundService } from './ngx-chessground.service';
 
 @Component({
-  selector: 'lib-ngx-chessground',
+  selector: 'ngx-chessground',
   templateUrl: './ngx-chessground.component.html',
   styleUrls: ['./ngx-chessground.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
