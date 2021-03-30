@@ -9,9 +9,7 @@ import { eventListenersModule } from 'snabbdom/build/package/modules/eventlisten
 import { Chessground } from 'chessground';
 import { Api } from 'chessground/api';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class NgxChessgroundService {
   private patch = init([classModule, attributesModule, eventListenersModule]);
   private vnode!: VNode;

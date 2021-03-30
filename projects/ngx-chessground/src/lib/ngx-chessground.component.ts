@@ -14,6 +14,7 @@ import { NgxChessgroundService } from './ngx-chessground.service';
   templateUrl: './ngx-chessground.component.html',
   styleUrls: ['./ngx-chessground.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [NgxChessgroundService]
 })
 export class NgxChessgroundComponent implements AfterViewInit {
   @Input()
