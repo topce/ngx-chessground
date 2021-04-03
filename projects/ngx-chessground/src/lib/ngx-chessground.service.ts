@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { h } from 'snabbdom/build/package/h';
-import { init } from 'snabbdom/build/package/init';
+import { h } from 'snabbdom';
+import { init } from 'snabbdom';
 
-import { VNode } from 'snabbdom/build/package/vnode';
-import { classModule } from 'snabbdom/build/package/modules/class';
-import { attributesModule } from 'snabbdom/build/package/modules/attributes';
-import { eventListenersModule } from 'snabbdom/build/package/modules/eventlisteners';
+import { VNode } from 'snabbdom';
+import { classModule } from 'snabbdom';
+import { attributesModule } from 'snabbdom';
+import { eventListenersModule } from 'snabbdom';
 import { Chessground } from 'chessground';
 import { Api } from 'chessground/api';
 
