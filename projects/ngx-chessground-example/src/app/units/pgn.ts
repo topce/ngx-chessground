@@ -43,6 +43,13 @@ export const loadPgnRealTime: Unit = {
     // @ts-ignorets
     const comments: { fen: string; comment: string }[] = chess.get_comments();
     const header = chess.header();
+    const timeControl = header['TimeControl']?.split('+');
+    let  timeControlInSeconds = 180;
+    if (timeControl) {
+      const total = parseInt(timeControl[0], 10);
+      const increment = parseInt(timeControl[1], 10);
+      timeControlInSeconds= total + increment * (comments.length /2)
+    }
 
     const timeOuts: number[] = [];
 
@@ -52,8 +59,8 @@ export const loadPgnRealTime: Unit = {
     for (let j = 0; j < comments.length; j++) {
       const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
       const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
-      const tiöeLeft = minutes * 60 + seconds;
-      const thinkTime = 180 - tiöeLeft;
+      const timeLeft = minutes * 60 + seconds;
+      const thinkTime = timeControlInSeconds - timeLeft;
 
       if (j % 2 === 0) {
         blackThinkTime = thinkTime;
