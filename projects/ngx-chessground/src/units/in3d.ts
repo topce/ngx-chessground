@@ -2,7 +2,7 @@ import { Chessground } from 'chessground';
 import { Unit } from './unit';
 import { aiPlay, toDests, Chess } from './util';
 
-export const defaults: Unit = {
+export const in3dDefaults: Unit = {
   name: '3D theme',
   run(cont) {
     const el = wrapped(cont);

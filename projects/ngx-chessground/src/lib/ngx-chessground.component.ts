@@ -14,9 +14,11 @@ import { NgxChessgroundService } from './ngx-chessground.service';
   templateUrl: './ngx-chessground.component.html',
   styleUrls: ['./ngx-chessground.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [NgxChessgroundService]
+  providers: [NgxChessgroundService],
 })
 export class NgxChessgroundComponent implements AfterViewInit {
+  @ViewChild('chessboard')
+  elementView!: ElementRef;
   @Input()
   private runFunction!: (el: HTMLElement) => Api;
   public get runFn(): (el: HTMLElement) => Api {
@@ -26,8 +28,7 @@ export class NgxChessgroundComponent implements AfterViewInit {
     this.runFunction = value;
     this.redraw();
   }
-  @ViewChild('chessboard')
-  elementView!: ElementRef;
+
   constructor(private ngxChessgroundService: NgxChessgroundService) {}
 
   ngAfterViewInit() {

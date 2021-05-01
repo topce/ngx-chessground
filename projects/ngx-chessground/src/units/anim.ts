@@ -77,6 +77,7 @@ export const notSameRole: Unit = {
 
 export const whileHolding: Unit = {
   name: 'Animation: while holding',
+
   run(el) {
     const cg = Chessground(el, {
       fen: '8/8/5p2/4P3/4K3/8/8/8',

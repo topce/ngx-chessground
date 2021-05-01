@@ -7,7 +7,7 @@ describe('NgxChessgroundService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [NgxChessgroundService]
+      providers: [NgxChessgroundService],
     });
     service = TestBed.inject(NgxChessgroundService);
   });

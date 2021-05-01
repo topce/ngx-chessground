@@ -2,7 +2,7 @@ import { Chessground } from 'chessground';
 import { Unit } from './unit';
 import { Chess } from './util';
 
-export const fullRandom: Unit = {
+export const viewOnlyFullRandom: Unit = {
   name: 'View only: 2 random AIs',
   run(el) {
     const chess = new Chess();

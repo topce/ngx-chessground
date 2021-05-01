@@ -1,22 +1,45 @@
 import { Component } from '@angular/core';
 import { Api } from 'chessground/api';
 
-import * as basics from './units/basics';
-import * as play from './units/play';
-import * as perf from './units/perf';
-import * as zh from './units/zh';
-import * as anim from './units/anim';
-import * as svg from './units/svg';
-import * as in3d from './units/in3d';
-import * as fen from './units/fen';
-import * as viewOnly from './units/viewOnly';
-import * as pgn from './units/pgn';
-import { Unit } from './units/unit';
 import { AfterViewInit } from '@angular/core';
-
 import { ViewChild } from '@angular/core';
 import { ChangeDetectionStrategy } from '@angular/core';
-import { NgxChessgroundComponent } from 'ngx-chessground';
+import {
+  autoShapes,
+  autoSwitch,
+  brushModifiers,
+  castling,
+  changingShapesHigh,
+  changingShapesLow,
+  checkHighlight,
+  conflictingAnim,
+  conflictingHold,
+  defaults,
+  enabledFalse,
+  fromFen,
+  fullRandom,
+  initial,
+  lastMoveCrazyhouse,
+  lastMoveDrop,
+  loadPgnOneSecondPerMove,
+  loadPgnProportionalTime,
+  loadPgnRealTime,
+  move,
+  NgxChessgroundComponent,
+  notSameRole,
+  playFullRandom,
+  playVsRandom,
+  presetUserShapes,
+  select,
+  slowAnim,
+  Unit,
+  viewOnlyFullRandom,
+  visibleFalse,
+  vsRandom,
+  whileHolding,
+  withSameRole,
+} from 'ngx-chessground';
+import { in3dDefaults } from '../../../ngx-chessground/src/units/in3d';
 
 @Component({
   selector: 'app-root',
@@ -25,47 +48,47 @@ import { NgxChessgroundComponent } from 'ngx-chessground';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements AfterViewInit {
+  @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
   list: Unit[] = [
-    basics.defaults,
-    basics.fromFen,
-    basics.lastMoveCrazyhouse,
-    basics.checkHighlight,
-    play.initial,
-    play.castling,
-    play.vsRandom,
-    play.fullRandom,
-    play.slowAnim,
-    play.conflictingHold,
-    perf.move,
-    perf.select,
-    anim.conflictingAnim,
-    anim.withSameRole,
-    anim.notSameRole,
-    anim.whileHolding,
-    zh.lastMoveDrop,
-    svg.presetUserShapes,
-    svg.changingShapesHigh,
-    svg.changingShapesLow,
-    svg.brushModifiers,
-    svg.autoShapes,
-    svg.visibleFalse,
-    svg.enabledFalse,
-    in3d.defaults,
-    in3d.vsRandom,
-    in3d.fullRandom,
-    fen.autoSwitch,
-    viewOnly.fullRandom,
+    defaults,
+    fromFen,
+    lastMoveCrazyhouse,
+    checkHighlight,
+    initial,
+    castling,
+    playVsRandom,
+    playFullRandom,
+    slowAnim,
+    conflictingHold,
+    move,
+    select,
+    conflictingAnim,
+    withSameRole,
+    notSameRole,
+    whileHolding,
+    lastMoveDrop,
+    presetUserShapes,
+    changingShapesHigh,
+    changingShapesLow,
+    brushModifiers,
+    autoShapes,
+    visibleFalse,
+    enabledFalse,
+    in3dDefaults,
+    vsRandom,
+    fullRandom,
+    autoSwitch,
+    viewOnlyFullRandom,
   ];
   newList: Unit[] = [
-    pgn.loadPgnRealTime,
-    pgn.loadPgnOneSecondPerMove,
-    pgn.loadPgnProportionalTime,
+    loadPgnRealTime,
+    loadPgnOneSecondPerMove,
+    loadPgnProportionalTime,
   ];
 
   title = 'ngx-chessground-example';
-  @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
   ngAfterViewInit(): void {
-    this.ngxChessgroundComponent.runFn = pgn.loadPgnProportionalTime.run;
+    this.ngxChessgroundComponent.runFn = initial.run;
   }
   public onClick(name: string, runFn: (el: HTMLElement) => Api) {
     this.ngxChessgroundComponent.runFn = runFn;

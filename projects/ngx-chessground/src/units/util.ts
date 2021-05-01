@@ -3,6 +3,7 @@ import { Color, Key } from 'chessground/types';
 import * as ChessJS from 'chess.js';
 import { ChessInstance, Square } from 'chess.js';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 export function toDests(chess: ChessInstance): Map<Key, Key[]> {

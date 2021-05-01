@@ -47,7 +47,7 @@ export const castling: Unit = {
   },
 };
 
-export const vsRandom: Unit = {
+export const playVsRandom: Unit = {
   name: 'Play vs random AI',
   run(el) {
     const chess = new Chess();
@@ -69,7 +69,7 @@ export const vsRandom: Unit = {
   },
 };
 
-export const fullRandom: Unit = {
+export const playFullRandom: Unit = {
   name: 'Watch 2 random AIs',
   run(el) {
     const chess = new Chess();

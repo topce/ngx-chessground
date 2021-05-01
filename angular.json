@@ -7,7 +7,7 @@
       "projectType": "library",
       "root": "projects/ngx-chessground",
       "sourceRoot": "projects/ngx-chessground/src",
-      "prefix": "lib",
+      "prefix": "ngx-chessgroung",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
@@ -30,13 +30,12 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "projects/ngx-chessground/tsconfig.lib.json",
-              "projects/ngx-chessground/tsconfig.spec.json"
-            ],
-            "exclude": ["**/node_modules/**"]
+            "lintFilePatterns": [
+              "projects/ngx-chessground/**/*.ts",
+              "projects/ngx-chessground/**/*.html"
+            ]
           }
         }
       }
@@ -133,14 +132,12 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "projects/ngx-chessground-example/tsconfig.app.json",
-              "projects/ngx-chessground-example/tsconfig.spec.json",
-              "projects/ngx-chessground-example/e2e/tsconfig.json"
-            ],
-            "exclude": ["**/node_modules/**"]
+            "lintFilePatterns": [
+              "projects/ngx-chessground-example/**/*.ts",
+              "projects/ngx-chessground-example/**/*.html"
+            ]
           }
         },
         "e2e": {
@@ -158,5 +155,8 @@
       }
     }
   },
-  "defaultProject": "ngx-chessground"
+  "defaultProject": "ngx-chessground",
+  "cli": {
+    "defaultCollection": "@angular-eslint/schematics"
+  }
 }
