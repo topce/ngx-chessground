@@ -93,4 +93,8 @@ export class AppComponent implements AfterViewInit {
   public onClick(name: string, runFn: (el: HTMLElement) => Api) {
     this.ngxChessgroundComponent.runFn = runFn;
   }
+  
+  public toggleOrientation() {
+    this.ngxChessgroundComponent.toggleOrientation();
+  }
 }

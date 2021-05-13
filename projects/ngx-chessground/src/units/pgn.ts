@@ -39,7 +39,7 @@ export const loadPgnRealTime: Unit = {
         free: false,
       },
     });
-    const hhistory: Move[] = chess.history({ verbose: true });
+    const history: Move[] = chess.history({ verbose: true });
     // @ts-ignorets
     const comments: { fen: string; comment: string }[] = chess.get_comments();
     const header = chess.header();
@@ -70,12 +70,12 @@ export const loadPgnRealTime: Unit = {
       timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
     }
 
-    for (let i = 0; i < hhistory.length; i++) {
+    for (let i = 0; i < history.length; i++) {
       setTimeout(() => {
         if (!cg.state.dom.elements.board.offsetParent) {
           return;
         }
-        cg.move(hhistory[i].from, hhistory[i].to);
+        cg.move(history[i].from, history[i].to);
       }, timeOuts[i] * 1000);
     }
 

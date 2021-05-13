@@ -2,6 +2,7 @@ import { Chessground } from 'chessground';
 import { aiPlay, playOtherSide, toColor, toDests } from './util';
 import { Unit } from './unit';
 import { Chess } from './util';
+import { Key, Piece } from 'chessground/types';
 
 export const initial: Unit = {
   name: 'Play legal moves from initial position',
@@ -15,6 +16,13 @@ export const initial: Unit = {
       },
       draggable: {
         showGhost: true,
+      },
+      events: {
+        move: (orig: Key, dest: Key, capturedPiece?: Piece) => {
+          console.log(orig);
+          console.log(dest);
+          console.log(capturedPiece);
+        },
       },
     });
     cg.set({

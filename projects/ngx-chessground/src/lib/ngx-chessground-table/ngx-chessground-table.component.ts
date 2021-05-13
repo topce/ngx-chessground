@@ -1,4 +1,9 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ViewChild,
+} from '@angular/core';
 import { NgxChessgroundComponent } from '../ngx-chessground.component';
 import * as play from '../../units/play';
 
@@ -6,6 +11,7 @@ import * as play from '../../units/play';
   selector: 'ngx-chessground-table',
   templateUrl: './ngx-chessground-table.component.html',
   styleUrls: ['./ngx-chessground-table.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgxChessgroundTableComponent implements AfterViewInit {
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;

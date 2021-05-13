@@ -23,6 +23,9 @@ export class NgxChessgroundService {
     this.vnode = this.patch(this.vnode || element, this.render());
   }
 
+  public toggleOrientation() {
+    this.cg.toggleOrientation();
+  }
   private render(): VNode {
     return h('div#chessground-examples', [
       h('section.blue.merida', [

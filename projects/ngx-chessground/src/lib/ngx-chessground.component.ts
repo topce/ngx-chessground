@@ -42,4 +42,8 @@ export class NgxChessgroundComponent implements AfterViewInit {
       );
     }
   }
+
+  public toggleOrientation() {
+    this.ngxChessgroundService.toggleOrientation();
+  }
 }
