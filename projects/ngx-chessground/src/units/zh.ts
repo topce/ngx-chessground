@@ -7,18 +7,15 @@ export const lastMoveDrop: Unit = {
   run(cont) {
     const configs: Array<() => { fen: string; lastMove: Key[] }> = [
       () => ({
-        fen:
-          'Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22',
+        fen: 'Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22',
         lastMove: ['e5', 'd4'],
       }),
       () => ({
-        fen:
-          'Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22',
+        fen: 'Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22',
         lastMove: ['f4'],
       }),
       () => ({
-        fen:
-          'Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22',
+        fen: 'Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22',
         lastMove: ['e1'],
       }),
     ];

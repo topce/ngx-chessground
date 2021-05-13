@@ -56,7 +56,6 @@
             "main": "projects/ngx-chessground-example/src/main.ts",
             "polyfills": "projects/ngx-chessground-example/src/polyfills.ts",
             "tsConfig": "projects/ngx-chessground-example/tsconfig.app.json",
-            "aot": true,
             "assets": [
               "projects/ngx-chessground-example/src/favicon.ico",
               "projects/ngx-chessground-example/src/assets",
@@ -67,7 +66,13 @@
               }
             ],
             "styles": ["projects/ngx-chessground-example/src/styles.css"],
-            "scripts": []
+            "scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
