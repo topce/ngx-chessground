@@ -13,6 +13,9 @@
   </div>
   <div class="main">
     <main>
+      <p>Play against yourself like Robert James Fischer</p>
+      <ngx-chessground-chess-table #chess1 (moves)="onMove($event)"></ngx-chessground-chess-table>
+      <p>My evergreen antichess game</p>
       <ngx-chessground #chess></ngx-chessground>
       <!-- <ngx-chessground-table></ngx-chessground-table> -->
     </main>

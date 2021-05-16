@@ -12,6 +12,7 @@ import {
   changingShapesHigh,
   changingShapesLow,
   checkHighlight,
+  ChessTableComponent,
   conflictingAnim,
   conflictingHold,
   defaults,
@@ -49,6 +50,7 @@ import { in3dDefaults } from '../../../ngx-chessground/src/units/in3d';
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
+  @ViewChild('chess1') chessTableComponent!: ChessTableComponent;
   list: Unit[] = [
     defaults,
     fromFen,
@@ -88,13 +90,20 @@ export class AppComponent implements AfterViewInit {
 
   title = 'ngx-chessground-example';
   ngAfterViewInit(): void {
-    this.ngxChessgroundComponent.runFn = initial.run;
+    this.ngxChessgroundComponent.runFn = loadPgnRealTime.run;
   }
   public onClick(name: string, runFn: (el: HTMLElement) => Api) {
     this.ngxChessgroundComponent.runFn = runFn;
   }
 
   public toggleOrientation() {
-    this.ngxChessgroundComponent.toggleOrientation();
+    this.chessTableComponent.toggleOrientation();
+  }
+  public onMove(moveValue: string) {
+    console.log(moveValue);
+    // play against yourself
+    this.toggleOrientation();
+    // play sicilian
+    // this.chessTableComponent.move('c7', 'c5');
   }
 }
