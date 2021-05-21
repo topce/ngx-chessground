@@ -4,7 +4,7 @@ Angular wrapper for ornicar/chessground
 
 Two Angular projects are inside :
 
-ngx-chessground Angular library ( tiny wrapper ) for best open source chess ui library <https://github.com/ornicar/chessground>
+ngx-chessground Angular library ( tiny wrapper ) for best open source chess UI library <https://github.com/ornicar/chessground>
 
 ngx-chessground-example copy of <https://github.com/ornicar/chessground-examples>
 all examples in original repo works
