@@ -13,6 +13,7 @@ all examples in original repo works
 - one second per move,
 - real time,
 - in one minute proportionally
+- add option to play against yourself like legendary Robert James Fischer 
 
 you can see running application on
 <https://topce.github.io/ngx-chessground/>
