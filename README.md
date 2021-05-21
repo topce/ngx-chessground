@@ -35,7 +35,7 @@ yarn compodoc
 FUTURE ROADMAP:
 
 - create Angular components for online playing (piece promotion need to be done)
-- create Angular png viewer
+- create Angular pgn viewer
 - document library
-- iprove ugly demo app ngx-chessground-example
+- improve ugly demo app ngx-chessground-example
 - refactor delete not used and eliminate duplicate code
