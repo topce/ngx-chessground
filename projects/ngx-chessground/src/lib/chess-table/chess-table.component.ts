@@ -20,6 +20,7 @@ import { Api } from 'chessground/api';
 
 import { Key, Piece } from 'chessground/types';
 import { Chess, playOtherSide, toDests } from '../../units/util';
+import { Square } from 'chess.js';
 @Component({
   selector: 'ngx-chessground-chess-table',
   templateUrl: './chess-table.component.html',
@@ -54,10 +55,35 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
           move: (orig: Key, dest: Key, capturedPiece?: Piece) => {
             this.moves.emit(orig.toString() + dest.toString());
 
-            console.log(capturedPiece);
-            console.log(this.chess.ascii());
-            console.log(this.chess.fen());
-            console.log(this.chess.pgn());
+            const playedMove = this.chess.move({
+              from: orig as Square,
+              to: dest as Square,
+            });
+            if (playedMove === null) {
+              let promotedPiece = window.prompt('Promote to Q,N,R or B', 'Q');
+              if (promotedPiece !== null) {
+                promotedPiece = promotedPiece.toLowerCase();
+              }
+              let newPiece: 'b' | 'n' | 'r' | 'q' = 'q';
+              if (
+                promotedPiece === 'b' ||
+                promotedPiece === 'n' ||
+                promotedPiece === 'r'
+              ) {
+                newPiece = promotedPiece;
+              }
+              this.chess.move({
+                from: orig as Square,
+                to: dest as Square,
+                promotion: newPiece,
+              });
+            }
+            // console.log(capturedPiece);
+            // console.log(this.chess.ascii());
+            // console.log(this.chess.fen());
+            // console.log(this.chess.pgn());
+            // console.log(this.chess.history());
+            this.cg.set({ fen: this.chess.fen() });
           },
         },
       });
