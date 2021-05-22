@@ -68,6 +68,8 @@ export class AppComponent implements AfterViewInit {
     withSameRole,
     notSameRole,
     whileHolding,
+  ];
+  newList: Unit[] = [
     lastMoveDrop,
     presetUserShapes,
     changingShapesHigh,
@@ -81,8 +83,6 @@ export class AppComponent implements AfterViewInit {
     fullRandom,
     autoSwitch,
     viewOnlyFullRandom,
-  ];
-  newList: Unit[] = [
     loadPgnRealTime,
     loadPgnOneSecondPerMove,
     loadPgnProportionalTime,

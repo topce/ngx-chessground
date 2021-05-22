@@ -7,7 +7,7 @@ import {
   Input,
 } from '@angular/core';
 import { Api } from 'chessground/api';
-import { NgxChessgroundService } from './ngx-chessground.service';
+import { NgxChessgroundService } from '../ngx-chessground.service';
 
 @Component({
   selector: 'ngx-chessground',

@@ -4,7 +4,7 @@ import {
   Component,
   ViewChild,
 } from '@angular/core';
-import { NgxChessgroundComponent } from '../ngx-chessground.component';
+import { NgxChessgroundComponent } from '../ngx-chessground/ngx-chessground.component';
 import * as play from '../../units/play';
 
 @Component({

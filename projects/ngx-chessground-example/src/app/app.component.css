@@ -9,10 +9,10 @@
 }
 .grid-container {
   display: grid;
-  grid-template-areas: "leftmenu main main main main rightmenu";
-  grid-gap: 10px;
-  padding: 10px;
-  place-items: center;
+  grid-template-areas: "leftmenu main main main main main main rightmenu";
+  grid-gap: 5px;
+  padding: 5px;
+  place-items: top;
 }
 
 .grid-container > div {

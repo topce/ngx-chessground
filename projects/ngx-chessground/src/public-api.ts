@@ -3,7 +3,7 @@
  */
 export * from './lib/chess-table/chess-table.component';
 export * from './lib/ngx-chessground-table/ngx-chessground-table.component';
-export * from './lib/ngx-chessground.component';
+export * from './lib/ngx-chessground/ngx-chessground.component';
 export * from './lib/ngx-chessground.module';
 export * from './units/anim';
 export * from './units/basics';
