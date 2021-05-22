@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Api } from 'chessground/api';
-
 import { AfterViewInit } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { ChangeDetectionStrategy } from '@angular/core';

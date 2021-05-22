@@ -1,15 +1,14 @@
-<h1>{{ title }}</h1>
+<h1>
+  <mat-card-title>{{ title }}</mat-card-title>
+</h1>
 <div class="grid-container">
   <div class="leftmenu">
-    <nav>
-      <ol>
-        <ul *ngFor="let item of list">
-          <button (click)="onClick(item.name, item.run)">
-            {{ item.name }}
-          </button>
-        </ul>
-      </ol>
-    </nav>
+    <mat-action-list *ngFor="let item of list">
+      <button (click)="onClick(item.name, item.run)">
+        {{ item.name }}
+      </button>
+      <mat-divider></mat-divider>
+    </mat-action-list>
   </div>
   <div class="main">
     <main>
@@ -18,21 +17,17 @@
         #chess1
         (moves)="onMove($event)"
       ></ngx-chessground-chess-table> -->
-      <p>My evergreen antichess game</p>
       <ngx-chessground #chess></ngx-chessground>
       <!-- <ngx-chessground-table></ngx-chessground-table> -->
     </main>
   </div>
   <div class="rightmenu">
     <!-- <button (click)="toggleOrientation()">toggleOrientation</button> -->
-    <nav>
-      <ol>
-        <ul *ngFor="let item of newList">
-          <button (click)="onClick(item.name, item.run)">
-            {{ item.name }}
-          </button>
-        </ul>
-      </ol>
-    </nav>
+    <mat-action-list *ngFor="let item of newList">
+      <button (click)="onClick(item.name, item.run)">
+        {{ item.name }}
+      </button>
+      <mat-divider></mat-divider>
+    </mat-action-list>
   </div>
 </div>

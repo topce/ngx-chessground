@@ -12,7 +12,7 @@
   grid-template-areas: "leftmenu main main main main main main rightmenu";
   grid-gap: 5px;
   padding: 5px;
-  place-items: top;
+  place-items: center;
 }
 
 .grid-container > div {
@@ -20,10 +20,12 @@
   padding: 2px 0;
   font-size: 12px;
 }
-nav {
-  border-bottom: 1px solid black;
-}
 
 h1 {
   text-align: center;
+}
+
+h1 > mat-card-title {
+  text-align: center;
+  font-size: 200%;
 }

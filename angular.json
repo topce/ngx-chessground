@@ -65,7 +65,10 @@
                 "output": "/assets/"
               }
             ],
-            "styles": ["projects/ngx-chessground-example/src/styles.css"],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+              "projects/ngx-chessground-example/src/styles.css"
+            ],
             "scripts": [],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -132,7 +135,10 @@
               "projects/ngx-chessground-example/src/favicon.ico",
               "projects/ngx-chessground-example/src/assets"
             ],
-            "styles": ["projects/ngx-chessground-example/src/styles.css"],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+              "projects/ngx-chessground-example/src/styles.css"
+            ],
             "scripts": []
           }
         },
