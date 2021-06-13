@@ -40,6 +40,7 @@ import {
   withSameRole,
 } from 'ngx-chessground';
 import { in3dDefaults } from '../../../ngx-chessground/src/units/in3d';
+import { ShortMove } from 'chess.js';
 
 @Component({
   selector: 'app-root',
@@ -98,7 +99,7 @@ export class AppComponent implements AfterViewInit {
   public toggleOrientation() {
     this.chessTableComponent.toggleOrientation();
   }
-  public onMove(moveValue: string) {
+  public onMove(moveValue: ShortMove) {
     console.log(moveValue);
     // play against yourself
     this.toggleOrientation();
