@@ -44,7 +44,7 @@ export class NgxChessgroundService {
     el.className = 'cg-wrap';
     this.cg = Chessground(el);
     // @ts-ignore
-    window.cg = this.cg;
+    // window.cg = this.cg;
     return this.runFn(el);
   };
 }

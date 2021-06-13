@@ -20,7 +20,7 @@ import { Api } from 'chessground/api';
 
 import { Key, Piece } from 'chessground/types';
 import { Chess, playOtherSide, toDests } from '../../units/util';
-import { Square } from 'chess.js';
+import { Square, ShortMove } from 'chess.js';
 @Component({
   selector: 'ngx-chessground-chess-table',
   templateUrl: './chess-table.component.html',
@@ -97,8 +97,9 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.redraw();
   }
-  public move(orig: Key, dest: Key) {
-    this.cg.move(orig, dest);
+  public move(move: ShortMove) {
+    this.chess.move(move);
+    this.cg.set({ fen: this.chess.fen() });
   }
   public toggleOrientation() {
     this.cg.toggleOrientation();
