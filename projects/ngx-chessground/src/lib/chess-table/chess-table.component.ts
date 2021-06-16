@@ -86,11 +86,6 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
                 to: dest as Square,
               });
             }
-            // console.log(capturedPiece);
-            // console.log(this.chess.ascii());
-            // console.log(this.chess.fen());
-            // console.log(this.chess.pgn());
-            // console.log(this.chess.history());
             this.cg.set({ fen: this.chess.fen() });
           },
         },
@@ -108,6 +103,13 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
   public move(move: ShortMove) {
     this.chess.move(move);
     this.cg.set({ fen: this.chess.fen() });
+    console.log(this.chess.history().length % 2 === 1 ? 'black' : 'white');
+    this.cg.set({
+      turnColor: this.chess.history().length % 2 === 1 ? 'black' : 'white',
+    });
+    this.cg.set({
+      movable: { events: { after: playOtherSide(this.cg, this.chess) } },
+    });
   }
   public toggleOrientation() {
     this.cg.toggleOrientation();
