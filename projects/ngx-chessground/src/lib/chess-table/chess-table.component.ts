@@ -19,7 +19,7 @@ import { Chessground } from 'chessground';
 import { Api } from 'chessground/api';
 
 import { Key, Piece } from 'chessground/types';
-import { Chess, playOtherSide, toDests } from '../../units/util';
+import { Chess, playOtherSide, toColor, toDests } from '../../units/util';
 import { Square, ShortMove } from 'chess.js';
 @Component({
   selector: 'ngx-chessground-chess-table',
@@ -103,16 +103,19 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
   public move(move: ShortMove) {
     this.chess.move(move);
     this.cg.set({ fen: this.chess.fen() });
-    const color = this.chess.history().length % 2 === 1 ? 'black' : 'white';
+    // const color = this.chess.history().length % 2 === 1 ? 'black' : 'white';
     this.cg.set({
       movable: {
-        color,
+        color: toColor(this.chess),
         free: false,
         dests: toDests(this.chess),
       },
       draggable: {
         showGhost: true,
       },
+    });
+    this.cg.set({
+      movable: { events: { after: playOtherSide(this.cg, this.chess) } },
     });
   }
   public toggleOrientation() {
