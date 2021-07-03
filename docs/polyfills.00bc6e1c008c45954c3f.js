@@ -1,1 +1,0 @@
-(self.webpackChunkngx_chessground=self.webpackChunkngx_chessground||[]).push([[429],{877:()=>{}},s=>{"use strict";s(s.s=877)}]);
