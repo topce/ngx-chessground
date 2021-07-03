@@ -105,6 +105,7 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
     this.cg.set({ fen: this.chess.fen() });
     // const color = this.chess.history().length % 2 === 1 ? 'black' : 'white';
     this.cg.set({
+      turnColor: toColor(this.chess),
       movable: {
         color: toColor(this.chess),
         free: false,
@@ -113,9 +114,6 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
       draggable: {
         showGhost: true,
       },
-    });
-    this.cg.set({
-      movable: { events: { after: playOtherSide(this.cg, this.chess) } },
     });
   }
   public toggleOrientation() {
