@@ -91,8 +91,8 @@ export class AppComponent implements AfterViewInit {
   title = 'ngx-chessground-example';
   ngAfterViewInit(): void {
     this.ngxChessgroundComponent.runFn = loadPgnRealTime.run;
-    this.chessTableComponent.move({ from: 'e2', to: 'e4' });
-    this.chessTableComponent.move({ from: 'c7', to: 'c5' });
+    // this.chessTableComponent.move({ from: 'e2', to: 'e4' });
+    // this.chessTableComponent.move({ from: 'c7', to: 'c5' });
   }
   public onClick(name: string, runFn: (el: HTMLElement) => Api) {
     this.ngxChessgroundComponent.runFn = runFn;
@@ -104,7 +104,7 @@ export class AppComponent implements AfterViewInit {
   public onMove(moveValue: ShortMove) {
     console.log(moveValue);
     // play against yourself
-    // this.toggleOrientation();
+    this.toggleOrientation();
     // play sicilian
     // this.chessTableComponent.move({ from: 'c7', to: 'c5' });
   }

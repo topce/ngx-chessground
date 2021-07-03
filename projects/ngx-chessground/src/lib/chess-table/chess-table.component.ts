@@ -103,12 +103,16 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
   public move(move: ShortMove) {
     this.chess.move(move);
     this.cg.set({ fen: this.chess.fen() });
-    console.log(this.chess.history().length % 2 === 1 ? 'black' : 'white');
+    const color = this.chess.history().length % 2 === 1 ? 'black' : 'white';
     this.cg.set({
-      turnColor: this.chess.history().length % 2 === 1 ? 'black' : 'white',
-    });
-    this.cg.set({
-      movable: { events: { after: playOtherSide(this.cg, this.chess) } },
+      movable: {
+        color,
+        free: false,
+        dests: toDests(this.chess),
+      },
+      draggable: {
+        showGhost: true,
+      },
     });
   }
   public toggleOrientation() {
