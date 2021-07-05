@@ -76,6 +76,7 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
                 to: dest as Square,
                 promotion: newPiece,
               });
+              this.cg.set({ fen: this.chess.fen() });
               this.moves.emit({
                 // eslint-disable-next-line object-shorthand
                 color: color,
@@ -86,6 +87,7 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
                 },
               });
             } else {
+              this.cg.set({ fen: this.chess.fen() });
               this.moves.emit({
                 // eslint-disable-next-line object-shorthand
                 color: color,
@@ -95,7 +97,6 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
                 },
               });
             }
-            this.cg.set({ fen: this.chess.fen() });
           },
         },
       });
