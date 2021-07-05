@@ -111,8 +111,10 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
     this.redraw();
   }
   public cancelMove() {
-    this.chess.undo();
-    this.refreshChessGround();
+    setTimeout(() => {
+      this.chess.undo();
+      this.refreshChessGround();
+    }, 100);
   }
 
   public move(move: ShortMove) {
