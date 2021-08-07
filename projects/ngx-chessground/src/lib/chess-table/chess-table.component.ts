@@ -111,10 +111,8 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
     this.redraw();
   }
   public cancelMove() {
-    setTimeout(() => {
-      this.chess.undo();
-      this.refreshChessGround();
-    }, 100);
+    this.chess.undo();
+    this.refreshChessGround();
   }
 
   public move(move: ShortMove) {
@@ -126,15 +124,17 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
   }
 
   private refreshChessGround() {
-    this.cg.set({ fen: this.chess.fen() });
+    const movableColor = toColor(this.chess);
     this.cg.set({
-      turnColor: toColor(this.chess),
+      fen: this.chess.fen(),
+      turnColor: movableColor,
       movable: {
-        color: toColor(this.chess),
+        color: movableColor,
         free: false,
         dests: toDests(this.chess),
       },
       draggable: {
+        enabled: true,
         showGhost: true,
       },
     });
