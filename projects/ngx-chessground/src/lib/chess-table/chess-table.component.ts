@@ -7,6 +7,7 @@ import {
   ElementRef,
   Output,
   EventEmitter,
+  Input,
 } from '@angular/core';
 import { h } from 'snabbdom';
 import { init } from 'snabbdom';
@@ -31,6 +32,7 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
   @ViewChild('chessboard')
   elementView!: ElementRef;
   @Output() moves = new EventEmitter<{ color: string; move: ShortMove }>();
+  @Input() playOtherSide = true;
 
   private patch = init([classModule, attributesModule, eventListenersModule]);
   private vnode!: VNode;
@@ -100,9 +102,11 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
           },
         },
       });
-      this.cg.set({
-        movable: { events: { after: playOtherSide(this.cg, this.chess) } },
-      });
+      if (this.playOtherSide) {
+        this.cg.set({
+          movable: { events: { after: playOtherSide(this.cg, this.chess) } },
+        });
+      }
       return this.cg;
     };
   }

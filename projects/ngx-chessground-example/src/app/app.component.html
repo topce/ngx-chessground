@@ -15,6 +15,7 @@
        <ngx-chessground-chess-table
         #chess1
         (moves)="onMove($event)"
+        [playOtherSide]="false"
       ></ngx-chessground-chess-table>
       <mat-divider></mat-divider>
       <ngx-chessground #chess></ngx-chessground>
