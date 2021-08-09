@@ -1,6 +1,6 @@
 {
   "name": "ngx-chessground",
-  "version": "12.2.0",
+  "version": "12.2.1",
   "description": "angular wrapper for ornicar/chessground",
   "scripts": {
     "tsc-lib": "tsc --project ./projects/ngx-chessground/tsconfig.lib.json",
