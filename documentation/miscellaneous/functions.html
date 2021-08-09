@@ -8,7 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
-	      <link rel="stylesheet" href="../styles/style.css">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css" media="(prefers-color-scheme: dark)">
     </head>
     <body>
 
@@ -58,19 +59,19 @@
                 <td class="col-md-4">
                     <ul class="index-list">
                         <li>
-                            <a href="#aiPlay" title="projects/ngx-chessground/src/units/util.ts"><b>aiPlay</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
+                            <a href="#aiPlay" title="projects/ngx-chessground/src/units/util.ts" ><b>aiPlay</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
                         </li>
                         <li>
-                            <a href="#playOtherSide" title="projects/ngx-chessground/src/units/util.ts"><b>playOtherSide</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
+                            <a href="#playOtherSide" title="projects/ngx-chessground/src/units/util.ts" ><b>playOtherSide</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
                         </li>
                         <li>
-                            <a href="#toColor" title="projects/ngx-chessground/src/units/util.ts"><b>toColor</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
+                            <a href="#toColor" title="projects/ngx-chessground/src/units/util.ts" ><b>toColor</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
                         </li>
                         <li>
-                            <a href="#toDests" title="projects/ngx-chessground/src/units/util.ts"><b>toDests</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
+                            <a href="#toDests" title="projects/ngx-chessground/src/units/util.ts" ><b>toDests</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
                         </li>
                         <li>
-                            <a href="#wrapped" title="projects/ngx-chessground/src/units/in3d.ts"><b>wrapped</b>&nbsp;&nbsp;&nbsp;(projects/.../in3d.ts)</a>
+                            <a href="#wrapped" title="projects/ngx-chessground/src/units/in3d.ts" ><b>wrapped</b>&nbsp;&nbsp;&nbsp;(projects/.../in3d.ts)</a>
                         </li>
                     </ul>
                 </td>
@@ -87,16 +88,14 @@
                 <td class="col-md-4">
                     <a name="aiPlay"></a>
                     <span class="name">
-                        <b>
-                            aiPlay
-                        </b>
+                        <span ><b>aiPlay</b></span>
                         <a href="#aiPlay"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>aiPlay(cg, chess, delay, firstMove: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
+<code>aiPlay(cg, chess, delay, firstMove)</code>
                 </td>
             </tr>
 
@@ -112,15 +111,12 @@
                             <thead>
                                 <tr>
                                     <td>Name</td>
-                                    <td>Type</td>
                                     <td>Optional</td>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>cg</td>
-                                    <td>
-                                    </td>
 
                                     <td>
                                         No
@@ -130,8 +126,6 @@
                                 </tr>
                                 <tr>
                                     <td>chess</td>
-                                    <td>
-                                    </td>
 
                                     <td>
                                         No
@@ -141,8 +135,6 @@
                                 </tr>
                                 <tr>
                                     <td>delay</td>
-                                    <td>
-                                    </td>
 
                                     <td>
                                         No
@@ -152,9 +144,6 @@
                                 </tr>
                                 <tr>
                                     <td>firstMove</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-                                    </td>
 
                                     <td>
                                         No
@@ -177,9 +166,7 @@
                 <td class="col-md-4">
                     <a name="playOtherSide"></a>
                     <span class="name">
-                        <b>
-                            playOtherSide
-                        </b>
+                        <span ><b>playOtherSide</b></span>
                         <a href="#playOtherSide"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
@@ -239,9 +226,7 @@
                 <td class="col-md-4">
                     <a name="toColor"></a>
                     <span class="name">
-                        <b>
-                            toColor
-                        </b>
+                        <span ><b>toColor</b></span>
                         <a href="#toColor"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
@@ -299,9 +284,7 @@
                 <td class="col-md-4">
                     <a name="toDests"></a>
                     <span class="name">
-                        <b>
-                            toDests
-                        </b>
+                        <span ><b>toDests</b></span>
                         <a href="#toDests"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
@@ -361,9 +344,7 @@
                 <td class="col-md-4">
                     <a name="wrapped"></a>
                     <span class="name">
-                        <b>
-                            wrapped
-                        </b>
+                        <span ><b>wrapped</b></span>
                         <a href="#wrapped"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
@@ -434,9 +415,9 @@
 
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="../js/menu-wc.js" defer></script>
+       
+       <script type="module" src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
 
        <script src="../js/libs/bootstrap-native.js"></script>
 

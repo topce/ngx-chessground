@@ -8,7 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
-	      <link rel="stylesheet" href="./styles/style.css">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css" media="(prefers-color-scheme: dark)">
     </head>
     <body>
 
@@ -73,7 +74,7 @@
             <td>ChessTableComponent</td>
             <td align="right" data-sort="0">
                 <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/16)</span>
+                <span class="coverage-count">(0/19)</span>
             </td>
         </tr>
         <tr class="low">
@@ -91,18 +92,6 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./components/NgxChessgroundComponent.html">projects/ngx-chessground/src/lib/ngx-chessground.component.ts</a>
-            </td>
-            <td>component</td>
-            <td>NgxChessgroundComponent</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/7)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
                 <a href="./injectables/NgxChessgroundService.html">projects/ngx-chessground/src/lib/ngx-chessground.service.ts</a>
             </td>
             <td>injectable</td>
@@ -110,6 +99,18 @@
             <td align="right" data-sort="0">
                 <span class="coverage-percent">0 %</span>
                 <span class="coverage-count">(0/10)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./components/NgxChessgroundComponent.html">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>NgxChessgroundComponent</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/7)</span>
             </td>
         </tr>
         <tr class="low">
@@ -223,7 +224,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href=".//functions.html#wrapped">projects/ngx-chessground/src/units/in3d.ts</a>
+                <a href="./miscellaneous/functions.html#wrapped">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>function</td>
             <td>wrapped</td>
@@ -571,7 +572,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href=".//functions.html#aiPlay">projects/ngx-chessground/src/units/util.ts</a>
+                <a href="./miscellaneous/functions.html#aiPlay">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>aiPlay</td>
@@ -583,7 +584,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href=".//functions.html#playOtherSide">projects/ngx-chessground/src/units/util.ts</a>
+                <a href="./miscellaneous/functions.html#playOtherSide">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>playOtherSide</td>
@@ -595,7 +596,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href=".//functions.html#toColor">projects/ngx-chessground/src/units/util.ts</a>
+                <a href="./miscellaneous/functions.html#toColor">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>toColor</td>
@@ -607,7 +608,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href=".//functions.html#toDests">projects/ngx-chessground/src/units/util.ts</a>
+                <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>toDests</td>
@@ -684,9 +685,9 @@
 
        <script src="./js/libs/custom-elements.min.js"></script>
        <script src="./js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="./js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="./js/menu-wc.js" defer></script>
+       
+       <script type="module" src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
 
        <script src="./js/libs/bootstrap-native.js"></script>
 

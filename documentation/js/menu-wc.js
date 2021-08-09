@@ -57,27 +57,24 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                         </a>
                         <ul class="links collapse " ${ isNormalMode ? 'id="modules-links"' : 'id="xs-modules-links"' }>
                             <li class="link">
-                                <a href="modules/NgxChessgroundModule.html" data-type="entity-link">NgxChessgroundModule</a>
+                                <a href="modules/NgxChessgroundModule.html" data-type="entity-link" >NgxChessgroundModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-toggle="collapse" ${ isNormalMode ?
-                                            'data-target="#components-links-module-NgxChessgroundModule-181f859cf5eb23ae0f429fe3b6d7cdf2"' : 'data-target="#xs-components-links-module-NgxChessgroundModule-181f859cf5eb23ae0f429fe3b6d7cdf2"' }>
+                                            'data-target="#components-links-module-NgxChessgroundModule-02ec4fd5ef348d69d93e71583997ad61"' : 'data-target="#xs-components-links-module-NgxChessgroundModule-02ec4fd5ef348d69d93e71583997ad61"' }>
                                             <span class="icon ion-md-cog"></span>
                                             <span>Components</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="components-links-module-NgxChessgroundModule-181f859cf5eb23ae0f429fe3b6d7cdf2"' :
-                                            'id="xs-components-links-module-NgxChessgroundModule-181f859cf5eb23ae0f429fe3b6d7cdf2"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="components-links-module-NgxChessgroundModule-02ec4fd5ef348d69d93e71583997ad61"' :
+                                            'id="xs-components-links-module-NgxChessgroundModule-02ec4fd5ef348d69d93e71583997ad61"' }>
                                             <li class="link">
-                                                <a href="components/ChessTableComponent.html"
-                                                    data-type="entity-link" data-context="sub-entity" data-context-id="modules">ChessTableComponent</a>
+                                                <a href="components/ChessTableComponent.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >ChessTableComponent</a>
                                             </li>
                                             <li class="link">
-                                                <a href="components/NgxChessgroundComponent.html"
-                                                    data-type="entity-link" data-context="sub-entity" data-context-id="modules">NgxChessgroundComponent</a>
+                                                <a href="components/NgxChessgroundComponent.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >NgxChessgroundComponent</a>
                                             </li>
                                             <li class="link">
-                                                <a href="components/NgxChessgroundTableComponent.html"
-                                                    data-type="entity-link" data-context="sub-entity" data-context-id="modules">NgxChessgroundTableComponent</a>
+                                                <a href="components/NgxChessgroundTableComponent.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >NgxChessgroundTableComponent</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -93,7 +90,7 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </div>
                             <ul class="links collapse " ${ isNormalMode ? 'id="injectables-links"' : 'id="xs-injectables-links"' }>
                                 <li class="link">
-                                    <a href="injectables/NgxChessgroundService.html" data-type="entity-link">NgxChessgroundService</a>
+                                    <a href="injectables/NgxChessgroundService.html" data-type="entity-link" >NgxChessgroundService</a>
                                 </li>
                             </ul>
                         </li>
@@ -106,7 +103,7 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                         </div>
                         <ul class="links collapse " ${ isNormalMode ? ' id="interfaces-links"' : 'id="xs-interfaces-links"' }>
                             <li class="link">
-                                <a href="interfaces/Unit.html" data-type="entity-link">Unit</a>
+                                <a href="interfaces/Unit.html" data-type="entity-link" >Unit</a>
                             </li>
                         </ul>
                     </li>

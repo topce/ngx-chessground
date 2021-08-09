@@ -8,7 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
-	      <link rel="stylesheet" href="./styles/style.css">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css" media="(prefers-color-scheme: dark)">
     </head>
     <body>
 
@@ -33,13 +34,16 @@
 <h1 id="ngxchessground">NgxChessground</h1>
 <p>Angular wrapper for ornicar/chessground</p>
 <p>Two Angular projects are inside :</p>
-<p>ngx-chessground Angular library ( tiny wrapper ) for best open source chess ui library <a href="https://github.com/ornicar/chessground">https://github.com/ornicar/chessground</a></p>
+<p>ngx-chessground Angular library ( tiny wrapper ) for best open source chess UI library <a href="https://github.com/ornicar/chessground">https://github.com/ornicar/chessground</a></p>
 <p>ngx-chessground-example copy of <a href="https://github.com/ornicar/chessground-examples">https://github.com/ornicar/chessground-examples</a>
 all examples in original repo works</p>
-<p>add examples to replay game:
-one second per move,
-real time,
-in one minute proportionally</p>
+<ul>
+<li>add examples to replay game:</li>
+<li>one second per move,</li>
+<li>real time,</li>
+<li>in one minute proportionally</li>
+<li>add option to play against yourself like legendary Robert James Fischer</li>
+</ul>
 <p>you can see running application on
 <a href="https://topce.github.io/ngx-chessground/">https://topce.github.io/ngx-chessground/</a></p>
 <p>It uses Angular CLI
@@ -48,11 +52,13 @@ to install and run</p>
 yarn start</code></pre></div><p>To see documentation</p>
 <div><pre class="line-numbers"><code class="language-console">yarn install
 yarn compodoc</code></pre></div><p>FUTURE ROADMAP:</p>
-<p>create Angular components for online playing (piece promotion need to be done)
-create Angular png viewer
-document library
-iprove ugly demo app ngx-chessground-example
-refactor delete not used and eliminate duplicate code</p>
+<ul>
+<li>create Angular components for online playing (piece promotion need to be done)</li>
+<li>create Angular pgn viewer</li>
+<li>document library</li>
+<li>improve ugly demo app ngx-chessground-example</li>
+<li>refactor delete not used and eliminate duplicate code</li>
+</ul>
 
 
 
@@ -95,9 +101,9 @@ refactor delete not used and eliminate duplicate code</p>
 
        <script src="./js/libs/custom-elements.min.js"></script>
        <script src="./js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="./js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="./js/menu-wc.js" defer></script>
+       
+       <script type="module" src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
 
        <script src="./js/libs/bootstrap-native.js"></script>
 

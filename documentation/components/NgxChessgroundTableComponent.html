@@ -8,7 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
-	      <link rel="stylesheet" href="../styles/style.css">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css" media="(prefers-color-scheme: dark)">
     </head>
     <body>
 
@@ -35,7 +36,9 @@
 
 <ol class="breadcrumb">
   <li>Components</li>
-  <li>NgxChessgroundTableComponent</li>
+  <li
+  >
+  NgxChessgroundTableComponent</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -63,6 +66,7 @@
 <p class="comment">
     <code>projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts</code>
 </p>
+
 
 
 
@@ -134,7 +138,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#ngxChessgroundComponent">ngxChessgroundComponent</a>
+                                <a href="#ngxChessgroundComponent" >ngxChessgroundComponent</a>
                             </li>
                         </ul>
                     </td>
@@ -149,7 +153,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#ngAfterViewInit">ngAfterViewInit</a>
+                                <a href="#ngAfterViewInit" >ngAfterViewInit</a>
                             </li>
                         </ul>
                     </td>
@@ -179,9 +183,7 @@
                 <td class="col-md-4">
                     <a name="ngAfterViewInit"></a>
                     <span class="name">
-                        <b>
-                            ngAfterViewInit
-                        </b>
+                        <span ><b>ngAfterViewInit</b></span>
                         <a href="#ngAfterViewInit"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
@@ -215,45 +217,44 @@
 </section>
     <section>
     
-        <h3 id="inputs">
-            Properties
-        </h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngxChessgroundComponent"></a>
+                    <span class="name">
+                        <span ><b>ngxChessgroundComponent</b></span>
+                        <a href="#ngxChessgroundComponent"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
                 <tr>
                     <td class="col-md-4">
-                        <a name="ngxChessgroundComponent"></a>
-                        <span class="name">
-                            <b>
-                            ngxChessgroundComponent</b>
-                            <a href="#ngxChessgroundComponent"><span class="icon ion-ios-link"></span></a>
-                        </span>
+                        <i>Type : </i>        <code><a href="../components/NgxChessgroundComponent.html" target="_self" >NgxChessgroundComponent</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ViewChild(&#x27;chess&#x27;)<br />
+                        </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="../components/NgxChessgroundComponent.html" target="_self" >NgxChessgroundComponent</a></code>
-
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:17</a></div>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <b>Decorators : </b>
-                            <br />
-                            <code>
-                                @ViewChild(&#x27;chess&#x27;)<br />
-                            </code>
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:17</a></div>
-                            </td>
-                        </tr>
 
 
-            </tbody>
-        </table>
+        </tbody>
+    </table>
 </section>
 
 </div>
@@ -266,7 +267,7 @@
   Component,
   ViewChild,
 } from &#x27;@angular/core&#x27;;
-import { NgxChessgroundComponent } from &#x27;../ngx-chessground.component&#x27;;
+import { NgxChessgroundComponent } from &#x27;../ngx-chessground/ngx-chessground.component&#x27;;
 import * as play from &#x27;../../units/play&#x27;;
 
 @Component({
@@ -365,9 +366,9 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="../js/menu-wc.js" defer></script>
+       
+       <script type="module" src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
 
        <script src="../js/libs/bootstrap-native.js"></script>
 
