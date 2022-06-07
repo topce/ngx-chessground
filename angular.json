@@ -166,8 +166,9 @@
       }
     }
   },
-  "defaultProject": "ngx-chessground",
   "cli": {
-    "defaultCollection": "@angular-eslint/schematics"
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }

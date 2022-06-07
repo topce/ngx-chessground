@@ -2,27 +2,27 @@
 # yarn lockfile v1
 
 
-"@types/chess.js@0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@types/chess.js/-/chess.js-0.10.1.tgz#441f0c379ef6d37e3991dcbf3d5db00b44fdb891"
-  integrity sha512-cuFMyrUYOWpKm5PRayvk22jLV3BOuWs7iJ7Q4PZJXMWoF7uhjWEojMS4GPk441gn4Ki9BHxbKsll7mrwJ3KT3g==
+"@types/chess.js@0.13.1":
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/@types/chess.js/-/chess.js-0.13.1.tgz#dda08630957a87375fbadbee1ad3484b8316e1ab"
+  integrity sha512-g5+1ClE0exhD+U7LCcclzBons3d/7ensY61pIoPIdh1VGWMrfMjW0RlI3AYZOXjvc+9Y4KM6lfDiBhXhb7FZag==
 
-chess.js@0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/chess.js/-/chess.js-0.11.0.tgz#e1802179b944eab5daf11b5d4bce08cdcadbeffa"
-  integrity sha512-yTpi6XbRMkBtnjSvbt6wEp9Y7JzhJl1MC3GNn67q5ClyccXxCRf5cMPSUg4OblrUapg1kLHm7WzxxEVp20NK1Q==
+chess.js@0.13.2:
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/chess.js/-/chess.js-0.13.2.tgz#a917667a5bc79c5de325fe7da8c479e3959b30fd"
+  integrity sha512-MVr9IfU1ZhyPMAW4BfwsgeSyB9sliREiWhpimNDZN0Q6JMmb9W0drGlUvemqheqkVGa+/FgypLv/FexUBLBTow==
 
-chessground@7.11.1:
-  version "7.11.1"
-  resolved "https://registry.yarnpkg.com/chessground/-/chessground-7.11.1.tgz#7e126d660d63025f9bf27371a8778e2baeeb1b57"
-  integrity sha512-IwGSEZBsQlquHyudv1Y5EwlfTXrz0CEWisJuEim2W3eX07IBpYUsr0ChTD35du+Cr0x1+e6GbCLY3hVejKG7ow==
+chessground@8.2.1:
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/chessground/-/chessground-8.2.1.tgz#0cb686c0c88f78cc18b931ae3564e3d571156ca7"
+  integrity sha512-cM79y/kC0yI+S89XN6q7CXROi/YSrU3yPTEisNJNbXMuNoqfg6cmk9/9ulCXDR6U+bnVSsrgtorgoP9PGlZTuQ==
 
-snabbdom@3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-3.0.1.tgz#9355339e7c970be7fcd54128ccde9ee57301f222"
-  integrity sha512-H4gKokDT1HPe3dlGyTihNw0NtEH9FxZy55MXp3ODM4O30NBRe+11veox1wf/CP9NfGcbStDM3BmO1DFC9/5wRw==
+snabbdom@3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-3.5.0.tgz#e75acbdedb26ea327c75028a433ba064db0ccf6e"
+  integrity sha512-Ff5BKG18KrrPuskHJlA9aujPHqEabItaDl96l7ZZndF4zt5AYSczz7ZjjgQAX5IBd5cd25lw9NfgX21yVUJ+9g==
 
-tslib@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.2.0.tgz#fb2c475977e35e241311ede2693cee1ec6698f5c"
-  integrity sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==
+tslib@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
+  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
