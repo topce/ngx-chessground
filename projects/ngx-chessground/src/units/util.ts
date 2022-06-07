@@ -8,6 +8,7 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 export function toDests(chess: ChessInstance): Map<Key, Key[]> {
   const dests = new Map();
+  // @ts-ignore
   chess.SQUARES.forEach((s) => {
     const ms = chess.moves({ square: s, verbose: true });
     if (ms.length) {
