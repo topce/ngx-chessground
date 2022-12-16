@@ -1,7 +1,7 @@
-import { NgModule } from '@angular/core';
-import { NgxChessgroundComponent } from './ngx-chessground/ngx-chessground.component';
-import { NgxChessgroundTableComponent } from './ngx-chessground-table/ngx-chessground-table.component';
-import { ChessTableComponent } from './chess-table/chess-table.component';
+import { NgModule } from "@angular/core";
+import { NgxChessgroundComponent } from "./ngx-chessground/ngx-chessground.component";
+import { NgxChessgroundTableComponent } from "./ngx-chessground-table/ngx-chessground-table.component";
+import { ChessTableComponent } from "./chess-table/chess-table.component";
 
 @NgModule({
   declarations: [

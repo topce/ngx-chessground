@@ -1,21 +1,21 @@
 {
   "name": "ngx-chessground",
-  "version": "14.0.0",
+  "version": "15.0.0",
   "peerDependencies": {
-    "@angular/common": "14.0.0",
-    "@angular/core": "14.0.0",
-    "chess.js": "0.13.2",
-    "chessground": "8.2.1",
-    "snabbdom": "3.5.0"
+    "@angular/common": "15.0.4",
+    "@angular/core": "15.0.4",
+    "chess.js": "0.13.4",
+    "chessground": "8.3.5",
+    "snabbdom": "3.5.1"
   },
   "dependencies": {
-    "tslib": "2.4.0"
+    "tslib": "2.4.1"
   },
   "devDependencies": {
-    "chess.js": "0.13.2",
-    "chessground": "8.2.1",
-    "snabbdom": "3.5.0",
-    "@types/chess.js": "0.13.1"
+    "chess.js": "0.13.4",
+    "chessground": "8.3.5",
+    "snabbdom": "3.5.1",
+    "@types/chess.js": "0.13.4"
   },
   "repository": {
     "type": "git",
