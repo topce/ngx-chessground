@@ -1,7 +1,7 @@
-import { Chessground } from 'chessground';
-import { Unit } from './unit';
-import { Chess } from './util';
-import { ChessInstance, Move } from 'chess.js';
+import { Chessground } from "chessground";
+import { Unit } from "./unit";
+import { Chess } from "./util";
+import { ChessInstance, Move } from "chess.js";
 
 const pgn = `[Event "Rated Blitz game"]
 [Site "https://lichess.org/hvB20kxq"]
@@ -27,137 +27,137 @@ const pgn = `[Event "Rated Blitz game"]
 
 `;
 export const loadPgnRealTime: Unit = {
-  name: 'replay pgn game in real time',
-  run(el) {
-    const chess: ChessInstance = new Chess();
-    chess.load_pgn(pgn);
-    const cg = Chessground(el, {
-      animation: {
-        duration: 500,
-      },
-      movable: {
-        free: false,
-      },
-    });
-    const history: Move[] = chess.history({ verbose: true });
-    // @ts-ignorets
-    const comments: { fen: string; comment: string }[] = chess.get_comments();
-    const header = chess.header();
-    const timeControl = header.TimeControl?.split('+');
-    let timeControlInSeconds = 180;
-    if (timeControl) {
-      const total = parseInt(timeControl[0], 10);
-      const increment = parseInt(timeControl[1], 10);
-      timeControlInSeconds = total + increment * (comments.length / 2);
-    }
+	name: "replay pgn game in real time",
+	run(el) {
+		const chess: ChessInstance = new Chess();
+		chess.load_pgn(pgn);
+		const cg = Chessground(el, {
+			animation: {
+				duration: 500,
+			},
+			movable: {
+				free: false,
+			},
+		});
+		const history: Move[] = chess.history({ verbose: true });
 
-    const timeOuts: number[] = [];
+		const comments: { fen: string; comment: string }[] = chess.get_comments();
+		const header = chess.header();
+		const timeControl = header.TimeControl?.split("+");
+		let timeControlInSeconds = 180;
+		if (timeControl) {
+			const total = parseInt(timeControl[0], 10);
+			const increment = parseInt(timeControl[1], 10);
+			timeControlInSeconds = total + increment * (comments.length / 2);
+		}
 
-    let whiteThinkTime = 0;
-    let blackThinkTime = 0;
+		const timeOuts: number[] = [];
 
-    for (let j = 0; j < comments.length; j++) {
-      const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
-      const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
-      const timeLeft = minutes * 60 + seconds;
-      const thinkTime = timeControlInSeconds - timeLeft;
+		let whiteThinkTime = 0;
+		let blackThinkTime = 0;
 
-      if (j % 2 === 0) {
-        blackThinkTime = thinkTime;
-      } else {
-        whiteThinkTime = thinkTime;
-      }
-      timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
-    }
+		for (let j = 0; j < comments.length; j++) {
+			const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
+			const timeLeft = minutes * 60 + seconds;
+			const thinkTime = timeControlInSeconds - timeLeft;
 
-    for (let i = 0; i < history.length; i++) {
-      setTimeout(() => {
-        if (!cg.state.dom.elements.board.offsetParent) {
-          return;
-        }
-        cg.move(history[i].from, history[i].to);
-      }, timeOuts[i] * 1000);
-    }
+			if (j % 2 === 0) {
+				blackThinkTime = thinkTime;
+			} else {
+				whiteThinkTime = thinkTime;
+			}
+			timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
+		}
 
-    return cg;
-  },
+		for (let i = 0; i < history.length; i++) {
+			setTimeout(() => {
+				if (!cg.state.dom.elements.board.offsetParent) {
+					return;
+				}
+				cg.move(history[i].from, history[i].to);
+			}, timeOuts[i] * 1000);
+		}
+
+		return cg;
+	},
 };
 export const loadPgnOneSecondPerMove: Unit = {
-  name: 'replay pgn game one second per move',
-  run(el) {
-    const chess: ChessInstance = new Chess();
-    chess.load_pgn(pgn);
-    const cg = Chessground(el, {
-      animation: {
-        duration: 500,
-      },
-      movable: {
-        free: false,
-      },
-    });
-    const history: Move[] = chess.history({ verbose: true });
-    // @ts-ignorets
-    const comments: { fen: string; comment: string }[] = chess.get_comments();
-    const header = chess.header();
+	name: "replay pgn game one second per move",
+	run(el) {
+		const chess: ChessInstance = new Chess();
+		chess.load_pgn(pgn);
+		const cg = Chessground(el, {
+			animation: {
+				duration: 500,
+			},
+			movable: {
+				free: false,
+			},
+		});
+		const history: Move[] = chess.history({ verbose: true });
 
-    for (let i = 0; i < history.length; i++) {
-      setTimeout(() => {
-        if (!cg.state.dom.elements.board.offsetParent) {
-          return;
-        }
-        cg.move(history[i].from, history[i].to);
-      }, i * 1000);
-    }
+		const comments: { fen: string; comment: string }[] = chess.get_comments();
+		const header = chess.header();
 
-    return cg;
-  },
+		for (let i = 0; i < history.length; i++) {
+			setTimeout(() => {
+				if (!cg.state.dom.elements.board.offsetParent) {
+					return;
+				}
+				cg.move(history[i].from, history[i].to);
+			}, i * 1000);
+		}
+
+		return cg;
+	},
 };
 export const loadPgnProportionalTime: Unit = {
-  name: 'replay pgn game in proprtional time 1 minute',
-  run(el) {
-    const chess: ChessInstance = new Chess();
-    chess.load_pgn(pgn);
-    const cg = Chessground(el, {
-      animation: {
-        duration: 500,
-      },
-      movable: {
-        free: false,
-      },
-    });
-    const history: Move[] = chess.history({ verbose: true });
-    // @ts-ignorets
-    const comments: { fen: string; comment: string }[] = chess.get_comments();
-    const header = chess.header();
+	name: "replay pgn game in proprtional time 1 minute",
+	run(el) {
+		const chess: ChessInstance = new Chess();
+		chess.load_pgn(pgn);
+		const cg = Chessground(el, {
+			animation: {
+				duration: 500,
+			},
+			movable: {
+				free: false,
+			},
+		});
+		const history: Move[] = chess.history({ verbose: true });
 
-    const timeOuts: number[] = [];
+		const comments: { fen: string; comment: string }[] = chess.get_comments();
+		const header = chess.header();
 
-    let whiteThinkTime = 0;
-    let blackThinkTime = 0;
+		const timeOuts: number[] = [];
 
-    for (let j = 0; j < comments.length; j++) {
-      const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
-      const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
-      const timeLeft = minutes * 60 + seconds;
-      const thinkTime = 180 - timeLeft;
+		let whiteThinkTime = 0;
+		let blackThinkTime = 0;
 
-      if (j % 2 === 0) {
-        blackThinkTime = thinkTime;
-      } else {
-        whiteThinkTime = thinkTime;
-      }
-      timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
-    }
+		for (let j = 0; j < comments.length; j++) {
+			const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
+			const timeLeft = minutes * 60 + seconds;
+			const thinkTime = 180 - timeLeft;
 
-    for (let i = 0; i < history.length; i++) {
-      setTimeout(() => {
-        if (!cg.state.dom.elements.board.offsetParent) {
-          return;
-        }
-        cg.move(history[i].from, history[i].to);
-      }, timeOuts[i] * (30 / 180) * 1000);
-    }
+			if (j % 2 === 0) {
+				blackThinkTime = thinkTime;
+			} else {
+				whiteThinkTime = thinkTime;
+			}
+			timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
+		}
 
-    return cg;
-  },
+		for (let i = 0; i < history.length; i++) {
+			setTimeout(() => {
+				if (!cg.state.dom.elements.board.offsetParent) {
+					return;
+				}
+				cg.move(history[i].from, history[i].to);
+			}, timeOuts[i] * (30 / 180) * 1000);
+		}
+
+		return cg;
+	},
 };

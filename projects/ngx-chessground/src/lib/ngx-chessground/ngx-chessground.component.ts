@@ -1,13 +1,13 @@
 import {
-  Component,
-  ChangeDetectionStrategy,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  Input,
-} from '@angular/core';
-import { Api } from 'chessground/api';
-import { NgxChessgroundService } from '../ngx-chessground.service';
+	Component,
+	ChangeDetectionStrategy,
+	ViewChild,
+	ElementRef,
+	AfterViewInit,
+	Input,
+} from "@angular/core";
+import { Api } from "chessground/api";
+import { NgxChessgroundService } from "../ngx-chessground.service";
 
 @Component({
   selector: 'ngx-chessground',
@@ -17,34 +17,34 @@ import { NgxChessgroundService } from '../ngx-chessground.service';
   providers: [NgxChessgroundService],
 })
 export class NgxChessgroundComponent implements AfterViewInit {
-  @ViewChild('chessboard')
-  elementView!: ElementRef;
-  @Input()
-  private runFunction!: (el: HTMLElement) => Api;
-  public get runFn(): (el: HTMLElement) => Api {
-    return this.runFunction;
-  }
-  public set runFn(value: (el: HTMLElement) => Api) {
-    this.runFunction = value;
-    this.redraw();
-  }
+	@ViewChild('chessboard')
+	elementView!: ElementRef;
+	@Input()
+	private runFunction!: (el: HTMLElement) => Api;
+	public get runFn(): (el: HTMLElement) => Api {
+		return this.runFunction;
+	}
+	public set runFn(value: (el: HTMLElement) => Api) {
+		this.runFunction = value;
+		this.redraw();
+	}
 
-  constructor(private ngxChessgroundService: NgxChessgroundService) {}
+	constructor(private ngxChessgroundService: NgxChessgroundService) {}
 
-  ngAfterViewInit() {
-    this.redraw();
-  }
+	ngAfterViewInit() {
+		this.redraw();
+	}
 
-  public toggleOrientation() {
-    this.ngxChessgroundService.toggleOrientation();
-  }
+	public toggleOrientation() {
+		this.ngxChessgroundService.toggleOrientation();
+	}
 
-  private redraw() {
-    if (this.elementView.nativeElement && this.runFn) {
-      this.ngxChessgroundService.redraw(
-        this.elementView.nativeElement,
-        this.runFn
-      );
-    }
-  }
+	private redraw() {
+		if (this.elementView.nativeElement && this.runFn) {
+			this.ngxChessgroundService.redraw(
+				this.elementView.nativeElement,
+				this.runFn,
+			);
+		}
+	}
 }
