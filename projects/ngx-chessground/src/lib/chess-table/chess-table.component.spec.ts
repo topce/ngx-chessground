@@ -8,7 +8,7 @@ describe("ChessTableComponent", () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ChessTableComponent],
+			imports: [ChessTableComponent],
 		}).compileComponents();
 	});
 

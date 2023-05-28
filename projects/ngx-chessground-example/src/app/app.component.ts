@@ -41,16 +41,27 @@ import {
 } from "ngx-chessground";
 import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
 import { ShortMove } from "chess.js";
+import { MatListModule } from "@angular/material/list";
+import { NgFor } from "@angular/common";
+import { MatCardModule } from "@angular/material/card";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: true,
+	selector: "app-root",
+	templateUrl: "./app.component.html",
+	styleUrls: ["./app.component.css"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [
+		NgFor,
+		MatListModule,
+		MatCardModule,
+		NgxChessgroundComponent,
+		ChessTableComponent,
+	],
 })
 export class AppComponent implements AfterViewInit {
-	@ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
-	@ViewChild('chess1') chessTableComponent!: ChessTableComponent;
+	@ViewChild("chess") ngxChessgroundComponent!: NgxChessgroundComponent;
+	@ViewChild("chess1") chessTableComponent!: ChessTableComponent;
 	list: Unit[] = [
 		defaults,
 		fromFen,

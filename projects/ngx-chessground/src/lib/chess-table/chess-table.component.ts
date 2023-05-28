@@ -23,13 +23,14 @@ import { Key, Piece } from "chessground/types";
 import { Chess, playOtherSide, toColor, toDests } from "../../units/util";
 import { Square, ShortMove } from "chess.js";
 @Component({
-  selector: 'ngx-chessground-chess-table',
-  templateUrl: './chess-table.component.html',
-  styleUrls: ['./chess-table.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+	selector: "ngx-chessground-chess-table",
+	templateUrl: "./chess-table.component.html",
+	styleUrls: ["./chess-table.component.css"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: true,
 })
 export class ChessTableComponent implements OnInit, AfterViewInit {
-	@ViewChild('chessboard')
+	@ViewChild("chessboard")
 	elementView!: ElementRef;
 	@Output() moves = new EventEmitter<{ color: string; move: ShortMove }>();
 	@Input() playOtherSide = true;
@@ -39,8 +40,6 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
 	private cg!: Api;
 	private runFn!: (el: HTMLElement) => Api;
 	private chess = new Chess();
-
-	constructor() {}
 
 	ngOnInit(): void {
 		this.runFn = (el) => {

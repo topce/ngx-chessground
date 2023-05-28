@@ -8,13 +8,15 @@ import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.comp
 import * as play from "../../units/play";
 
 @Component({
-  selector: 'ngx-chessground-table',
-  templateUrl: './ngx-chessground-table.component.html',
-  styleUrls: ['./ngx-chessground-table.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+	selector: "ngx-chessground-table",
+	templateUrl: "./ngx-chessground-table.component.html",
+	styleUrls: ["./ngx-chessground-table.component.css"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: true,
+	imports: [NgxChessgroundComponent],
 })
 export class NgxChessgroundTableComponent implements AfterViewInit {
-	@ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
+	@ViewChild("chess") ngxChessgroundComponent!: NgxChessgroundComponent;
 	ngAfterViewInit(): void {
 		this.ngxChessgroundComponent.runFn = play.initial.run;
 	}
