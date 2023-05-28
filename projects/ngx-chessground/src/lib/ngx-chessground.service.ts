@@ -15,8 +15,6 @@ export class NgxChessgroundService {
 	private vnode!: VNode;
 	private cg!: Api;
 	private runFn!: (el: HTMLElement) => Api;
-
-	constructor() {}
 	public redraw(element: HTMLElement, runFn: (el: HTMLElement) => Api) {
 		this.cg = Chessground(element);
 		this.runFn = runFn;

@@ -1,13 +1,25 @@
-import { enableProdMode } from "@angular/core";
-import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
+import { enableProdMode, importProvidersFrom } from "@angular/core";
 
-import { AppModule } from "./app/app.module";
 import { environment } from "./environments/environment";
+import { AppComponent } from "./app/app.component";
+import { MatCardModule } from "@angular/material/card";
+import { MatListModule } from "@angular/material/list";
+import { provideAnimations } from "@angular/platform-browser/animations";
+import { AppRoutingModule } from "./app/app-routing.module";
+import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
 
 if (environment.production) {
 	enableProdMode();
 }
 
-platformBrowserDynamic()
-	.bootstrapModule(AppModule, { ngZone: "noop" })
-	.catch((err) => console.error(err));
+bootstrapApplication(AppComponent, {
+	providers: [
+		importProvidersFrom(
+			BrowserModule,
+			AppRoutingModule,
+			MatListModule,
+			MatCardModule,
+		),
+		provideAnimations(),
+	],
+}).catch((err) => console.error(err));

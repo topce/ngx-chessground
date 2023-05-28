@@ -9,11 +9,11 @@
 
         <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
 	   <link rel="stylesheet" href="../styles/style.css">
-        <link rel="stylesheet" href="../styles/dark.css" media="(prefers-color-scheme: dark)">
+        <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
 
-        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
             <a href="../" class="navbar-brand">ngx-chessground documentation</a>
             <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
@@ -44,14 +44,16 @@
 
 
 
-                   
+
+
+
 
 <ol class="breadcrumb">
-  <li>Miscellaneous</li>
-  <li>Variables</li>
+  <li class="breadcrumb-item">Miscellaneous</li>
+  <li class="breadcrumb-item">Variables</li>
 </ol>
 
-<section>
+<section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -183,7 +185,7 @@
 </section>
 
     <h3>projects/ngx-chessground/src/units/svg.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -204,33 +206,33 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Autoshapes&#x27;,
-  run(el) {
-    function sets() {
-      return [shapeSet1, shapeSet1b, shapeSet1c].map((set) &#x3D;&gt;
-        set.map((shape) &#x3D;&gt; {
-          shape.modifiers &#x3D; Math.round(Math.random())
-            ? undefined
-            : {
-                lineWidth: 2 + Math.round(Math.random() * 3) * 4,
-              };
-          return shape;
-        })
-      );
-    }
-    const cg &#x3D; Chessground(el);
-    const delay &#x3D; 1000;
-    let i &#x3D; 0;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      cg.setAutoShapes(sets()[++i % sets().length]);
-      setTimeout(run, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;Autoshapes&quot;,
+	run(el) {
+		function sets() {
+			return [shapeSet1, shapeSet1b, shapeSet1c].map((set) &#x3D;&gt;
+				set.map((shape) &#x3D;&gt; {
+					shape.modifiers &#x3D; Math.round(Math.random())
+						? undefined
+						: {
+								lineWidth: 2 + Math.round(Math.random() * 3) * 4,
+						  };
+					return shape;
+				}),
+			);
+		}
+		const cg &#x3D; Chessground(el);
+		const delay &#x3D; 1000;
+		let i &#x3D; 0;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			cg.setAutoShapes(sets()[++i % sets().length]);
+			setTimeout(run, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -258,33 +260,33 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Brush modifiers&#x27;,
-  run(el) {
-    function sets() {
-      return [shapeSet1, shapeSet1b, shapeSet1c].map((set) &#x3D;&gt;
-        set.map((shape) &#x3D;&gt; {
-          shape.modifiers &#x3D; Math.round(Math.random())
-            ? undefined
-            : {
-                lineWidth: 2 + Math.round(Math.random() * 3) * 4,
-              };
-          return shape;
-        })
-      );
-    }
-    const cg &#x3D; Chessground(el, { drawable: { shapes: sets()[0] } });
-    const delay &#x3D; 1000;
-    let i &#x3D; 0;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      cg.setShapes(sets()[++i % sets().length]);
-      setTimeout(run, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;Brush modifiers&quot;,
+	run(el) {
+		function sets() {
+			return [shapeSet1, shapeSet1b, shapeSet1c].map((set) &#x3D;&gt;
+				set.map((shape) &#x3D;&gt; {
+					shape.modifiers &#x3D; Math.round(Math.random())
+						? undefined
+						: {
+								lineWidth: 2 + Math.round(Math.random() * 3) * 4,
+						  };
+					return shape;
+				}),
+			);
+		}
+		const cg &#x3D; Chessground(el, { drawable: { shapes: sets()[0] } });
+		const delay &#x3D; 1000;
+		let i &#x3D; 0;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			cg.setShapes(sets()[++i % sets().length]);
+			setTimeout(run, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -312,22 +314,22 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Automatically changing shapes (high diff)&#x27;,
-  run(el) {
-    const cg &#x3D; Chessground(el, { drawable: { shapes: shapeSet1 } });
-    const delay &#x3D; 1000;
-    const sets &#x3D; [shapeSet1, shapeSet2, shapeSet3];
-    let i &#x3D; 0;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      cg.setShapes(sets[++i % sets.length]);
-      setTimeout(run, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;Automatically changing shapes (high diff)&quot;,
+	run(el) {
+		const cg &#x3D; Chessground(el, { drawable: { shapes: shapeSet1 } });
+		const delay &#x3D; 1000;
+		const sets &#x3D; [shapeSet1, shapeSet2, shapeSet3];
+		let i &#x3D; 0;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			cg.setShapes(sets[++i % sets.length]);
+			setTimeout(run, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -355,22 +357,22 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Automatically changing shapes (low diff)&#x27;,
-  run(el) {
-    const cg &#x3D; Chessground(el, { drawable: { shapes: shapeSet1 } });
-    const delay &#x3D; 1000;
-    const sets &#x3D; [shapeSet1, shapeSet1b, shapeSet1c];
-    let i &#x3D; 0;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      cg.setShapes(sets[++i % sets.length]);
-      setTimeout(run, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;Automatically changing shapes (low diff)&quot;,
+	run(el) {
+		const cg &#x3D; Chessground(el, { drawable: { shapes: shapeSet1 } });
+		const delay &#x3D; 1000;
+		const sets &#x3D; [shapeSet1, shapeSet1b, shapeSet1c];
+		let i &#x3D; 0;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			cg.setShapes(sets[++i % sets.length]);
+			setTimeout(run, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -398,14 +400,14 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Shapes not enabled, but visible&#x27;,
-  run: (el) &#x3D;&gt;
-    Chessground(el, {
-      drawable: {
-        enabled: false,
-        shapes: shapeSet1,
-      },
-    }),
+	name: &quot;Shapes not enabled, but visible&quot;,
+	run: (el) &#x3D;&gt;
+		Chessground(el, {
+			drawable: {
+				enabled: false,
+				shapes: shapeSet1,
+			},
+		}),
 }</code>
                     </td>
                 </tr>
@@ -433,8 +435,8 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Preset user shapes&#x27;,
-  run: (el) &#x3D;&gt; Chessground(el, { drawable: { shapes: shapeSet1 } }),
+	name: &quot;Preset user shapes&quot;,
+	run: (el) &#x3D;&gt; Chessground(el, { drawable: { shapes: shapeSet1 } }),
 }</code>
                     </td>
                 </tr>
@@ -462,30 +464,30 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>[
-  { orig: &#x27;a3&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;a4&#x27;, brush: &#x27;blue&#x27; },
-  { orig: &#x27;a5&#x27;, brush: &#x27;yellow&#x27; },
-  { orig: &#x27;a6&#x27;, brush: &#x27;red&#x27; },
-  { orig: &#x27;e2&#x27;, dest: &#x27;e4&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;a6&#x27;, dest: &#x27;c8&#x27;, brush: &#x27;blue&#x27; },
-  { orig: &#x27;f8&#x27;, dest: &#x27;f4&#x27;, brush: &#x27;yellow&#x27; },
-  {
-    orig: &#x27;h5&#x27;,
-    brush: &#x27;green&#x27;,
-    piece: {
-      color: &#x27;white&#x27;,
-      role: &#x27;knight&#x27;,
-    },
-  },
-  {
-    orig: &#x27;h6&#x27;,
-    brush: &#x27;red&#x27;,
-    piece: {
-      color: &#x27;black&#x27;,
-      role: &#x27;queen&#x27;,
-      scale: 0.6,
-    },
-  },
+	{ orig: &quot;a3&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;a4&quot;, brush: &quot;blue&quot; },
+	{ orig: &quot;a5&quot;, brush: &quot;yellow&quot; },
+	{ orig: &quot;a6&quot;, brush: &quot;red&quot; },
+	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;a6&quot;, dest: &quot;c8&quot;, brush: &quot;blue&quot; },
+	{ orig: &quot;f8&quot;, dest: &quot;f4&quot;, brush: &quot;yellow&quot; },
+	{
+		orig: &quot;h5&quot;,
+		brush: &quot;green&quot;,
+		piece: {
+			color: &quot;white&quot;,
+			role: &quot;knight&quot;,
+		},
+	},
+	{
+		orig: &quot;h6&quot;,
+		brush: &quot;red&quot;,
+		piece: {
+			color: &quot;black&quot;,
+			role: &quot;queen&quot;,
+			scale: 0.6,
+		},
+	},
 ]</code>
                     </td>
                 </tr>
@@ -513,29 +515,29 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>[
-  { orig: &#x27;a3&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;a5&#x27;, brush: &#x27;yellow&#x27; },
-  { orig: &#x27;a6&#x27;, brush: &#x27;red&#x27; },
-  { orig: &#x27;e2&#x27;, dest: &#x27;e4&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;a6&#x27;, dest: &#x27;c8&#x27;, brush: &#x27;blue&#x27; },
-  { orig: &#x27;f8&#x27;, dest: &#x27;f4&#x27;, brush: &#x27;yellow&#x27; },
-  {
-    orig: &#x27;h5&#x27;,
-    brush: &#x27;green&#x27;,
-    piece: {
-      color: &#x27;white&#x27;,
-      role: &#x27;knight&#x27;,
-    },
-  },
-  {
-    orig: &#x27;h6&#x27;,
-    brush: &#x27;red&#x27;,
-    piece: {
-      color: &#x27;black&#x27;,
-      role: &#x27;queen&#x27;,
-      scale: 0.6,
-    },
-  },
+	{ orig: &quot;a3&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;a5&quot;, brush: &quot;yellow&quot; },
+	{ orig: &quot;a6&quot;, brush: &quot;red&quot; },
+	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;a6&quot;, dest: &quot;c8&quot;, brush: &quot;blue&quot; },
+	{ orig: &quot;f8&quot;, dest: &quot;f4&quot;, brush: &quot;yellow&quot; },
+	{
+		orig: &quot;h5&quot;,
+		brush: &quot;green&quot;,
+		piece: {
+			color: &quot;white&quot;,
+			role: &quot;knight&quot;,
+		},
+	},
+	{
+		orig: &quot;h6&quot;,
+		brush: &quot;red&quot;,
+		piece: {
+			color: &quot;black&quot;,
+			role: &quot;queen&quot;,
+			scale: 0.6,
+		},
+	},
 ]</code>
                     </td>
                 </tr>
@@ -563,30 +565,30 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>[
-  { orig: &#x27;a3&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;a5&#x27;, brush: &#x27;yellow&#x27; },
-  { orig: &#x27;a6&#x27;, brush: &#x27;red&#x27; },
-  { orig: &#x27;e2&#x27;, dest: &#x27;e4&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;a6&#x27;, dest: &#x27;c8&#x27;, brush: &#x27;blue&#x27; },
-  { orig: &#x27;b6&#x27;, dest: &#x27;d8&#x27;, brush: &#x27;blue&#x27; },
-  { orig: &#x27;f8&#x27;, dest: &#x27;f4&#x27;, brush: &#x27;yellow&#x27; },
-  {
-    orig: &#x27;h5&#x27;,
-    brush: &#x27;green&#x27;,
-    piece: {
-      color: &#x27;white&#x27;,
-      role: &#x27;knight&#x27;,
-    },
-  },
-  {
-    orig: &#x27;h6&#x27;,
-    brush: &#x27;red&#x27;,
-    piece: {
-      color: &#x27;black&#x27;,
-      role: &#x27;queen&#x27;,
-      scale: 0.6,
-    },
-  },
+	{ orig: &quot;a3&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;a5&quot;, brush: &quot;yellow&quot; },
+	{ orig: &quot;a6&quot;, brush: &quot;red&quot; },
+	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;a6&quot;, dest: &quot;c8&quot;, brush: &quot;blue&quot; },
+	{ orig: &quot;b6&quot;, dest: &quot;d8&quot;, brush: &quot;blue&quot; },
+	{ orig: &quot;f8&quot;, dest: &quot;f4&quot;, brush: &quot;yellow&quot; },
+	{
+		orig: &quot;h5&quot;,
+		brush: &quot;green&quot;,
+		piece: {
+			color: &quot;white&quot;,
+			role: &quot;knight&quot;,
+		},
+	},
+	{
+		orig: &quot;h6&quot;,
+		brush: &quot;red&quot;,
+		piece: {
+			color: &quot;black&quot;,
+			role: &quot;queen&quot;,
+			scale: 0.6,
+		},
+	},
 ]</code>
                     </td>
                 </tr>
@@ -614,21 +616,21 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>[
-  { orig: &#x27;c1&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;d1&#x27;, brush: &#x27;blue&#x27; },
-  { orig: &#x27;e1&#x27;, brush: &#x27;yellow&#x27; },
-  { orig: &#x27;e2&#x27;, dest: &#x27;e4&#x27;, brush: &#x27;green&#x27; },
-  { orig: &#x27;h6&#x27;, dest: &#x27;h8&#x27;, brush: &#x27;blue&#x27; },
-  { orig: &#x27;b3&#x27;, dest: &#x27;d6&#x27;, brush: &#x27;red&#x27; },
-  { orig: &#x27;a1&#x27;, dest: &#x27;e1&#x27;, brush: &#x27;red&#x27; },
-  {
-    orig: &#x27;f5&#x27;,
-    brush: &#x27;green&#x27;,
-    piece: {
-      color: &#x27;black&#x27;,
-      role: &#x27;bishop&#x27;,
-    },
-  },
+	{ orig: &quot;c1&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;d1&quot;, brush: &quot;blue&quot; },
+	{ orig: &quot;e1&quot;, brush: &quot;yellow&quot; },
+	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
+	{ orig: &quot;h6&quot;, dest: &quot;h8&quot;, brush: &quot;blue&quot; },
+	{ orig: &quot;b3&quot;, dest: &quot;d6&quot;, brush: &quot;red&quot; },
+	{ orig: &quot;a1&quot;, dest: &quot;e1&quot;, brush: &quot;red&quot; },
+	{
+		orig: &quot;f5&quot;,
+		brush: &quot;green&quot;,
+		piece: {
+			color: &quot;black&quot;,
+			role: &quot;bishop&quot;,
+		},
+	},
 ]</code>
                     </td>
                 </tr>
@@ -655,7 +657,7 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>[{ orig: &#x27;e5&#x27;, brush: &#x27;blue&#x27; }]</code>
+                        <i>Default value : </i><code>[{ orig: &quot;e5&quot;, brush: &quot;blue&quot; }]</code>
                     </td>
                 </tr>
 
@@ -682,14 +684,14 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Shapes not visible&#x27;,
-  run: (el) &#x3D;&gt;
-    Chessground(el, {
-      drawable: {
-        visible: false,
-        shapes: shapeSet1,
-      },
-    }),
+	name: &quot;Shapes not visible&quot;,
+	run: (el) &#x3D;&gt;
+		Chessground(el, {
+			drawable: {
+				visible: false,
+				shapes: shapeSet1,
+			},
+		}),
 }</code>
                     </td>
                 </tr>
@@ -699,7 +701,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/fen.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -720,33 +722,33 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;FEN: switch (puzzle bug)&#x27;,
-  run(cont) {
-    const configs: Array&lt;() &#x3D;&gt; { fen: string; lastMove: Key[] }&gt; &#x3D; [
-      () &#x3D;&gt; ({
-        orientation: &#x27;black&#x27;,
-        fen: &#x27;rnbqkb1r/pp1ppppp/5n2/8/3N1B2/8/PPP1PPPP/RN1QKB1R b KQkq - 0 4&#x27;,
-        lastMove: [&#x27;f3&#x27;, &#x27;d4&#x27;],
-      }),
-      () &#x3D;&gt; ({
-        orientation: &#x27;white&#x27;,
-        fen: &#x27;2r2rk1/4bp1p/pp2p1p1/4P3/4bP2/PqN1B2Q/1P3RPP/2R3K1 w - - 1 23&#x27;,
-        lastMove: [&#x27;b4&#x27;, &#x27;b3&#x27;],
-      }),
-    ];
-    const cg &#x3D; Chessground(cont, configs[0]());
-    const delay &#x3D; 2000;
-    let it &#x3D; 0;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      cg.set(configs[++it % configs.length]());
-      setTimeout(run, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;FEN: switch (puzzle bug)&quot;,
+	run(cont) {
+		const configs: Array&lt;() &#x3D;&gt; { fen: string; lastMove: Key[] }&gt; &#x3D; [
+			() &#x3D;&gt; ({
+				orientation: &quot;black&quot;,
+				fen: &quot;rnbqkb1r/pp1ppppp/5n2/8/3N1B2/8/PPP1PPPP/RN1QKB1R b KQkq - 0 4&quot;,
+				lastMove: [&quot;f3&quot;, &quot;d4&quot;],
+			}),
+			() &#x3D;&gt; ({
+				orientation: &quot;white&quot;,
+				fen: &quot;2r2rk1/4bp1p/pp2p1p1/4P3/4bP2/PqN1B2Q/1P3RPP/2R3K1 w - - 1 23&quot;,
+				lastMove: [&quot;b4&quot;, &quot;b3&quot;],
+			}),
+		];
+		const cg &#x3D; Chessground(cont, configs[0]());
+		const delay &#x3D; 2000;
+		let it &#x3D; 0;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			cg.set(configs[++it % configs.length]());
+			setTimeout(run, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -756,7 +758,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/play.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -777,26 +779,26 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Castling&#x27;,
-  run(el) {
-    const fen &#x3D;
-      &#x27;rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4&#x27;;
+	name: &quot;Castling&quot;,
+	run(el) {
+		const fen &#x3D;
+			&quot;rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4&quot;;
 
-    const chess &#x3D; new Chess(fen);
-    const cg &#x3D; Chessground(el, {
-      fen,
-      turnColor: toColor(chess),
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-        dests: toDests(chess),
-      },
-    });
-    cg.set({
-      movable: { events: { after: playOtherSide(cg, chess) } },
-    });
-    return cg;
-  },
+		const chess &#x3D; new Chess(fen);
+		const cg &#x3D; Chessground(el, {
+			fen,
+			turnColor: toColor(chess),
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+				dests: toDests(chess),
+			},
+		});
+		cg.set({
+			movable: { events: { after: playOtherSide(cg, chess) } },
+		});
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -824,29 +826,29 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Conflicting hold/premove&#x27;,
-  run(el) {
-    const cg &#x3D; Chessground(el, {
-      fen: &#x27;8/8/5p2/4P3/8/8/8/8&#x27;,
-      turnColor: &#x27;black&#x27;,
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-        dests: new Map([[&#x27;e5&#x27;, [&#x27;f6&#x27;]]]),
-      },
-    });
-    setTimeout(() &#x3D;&gt; {
-      cg.move(&#x27;f6&#x27;, &#x27;e5&#x27;);
-      cg.playPremove();
-      cg.set({
-        turnColor: &#x27;white&#x27;,
-        movable: {
-          dests: undefined,
-        },
-      });
-    }, 1000);
-    return cg;
-  },
+	name: &quot;Conflicting hold/premove&quot;,
+	run(el) {
+		const cg &#x3D; Chessground(el, {
+			fen: &quot;8/8/5p2/4P3/8/8/8/8&quot;,
+			turnColor: &quot;black&quot;,
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+				dests: new Map([[&quot;e5&quot;, [&quot;f6&quot;]]]),
+			},
+		});
+		setTimeout(() &#x3D;&gt; {
+			cg.move(&quot;f6&quot;, &quot;e5&quot;);
+			cg.playPremove();
+			cg.set({
+				turnColor: &quot;white&quot;,
+				movable: {
+					dests: undefined,
+				},
+			});
+		}, 1000);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -874,31 +876,31 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Play legal moves from initial position&#x27;,
-  run(el) {
-    const chess &#x3D; new Chess();
-    const cg &#x3D; Chessground(el, {
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-        dests: toDests(chess),
-      },
-      draggable: {
-        showGhost: true,
-      },
-      events: {
-        move: (orig: Key, dest: Key, capturedPiece?: Piece) &#x3D;&gt; {
-          console.log(orig);
-          console.log(dest);
-          console.log(capturedPiece);
-        },
-      },
-    });
-    cg.set({
-      movable: { events: { after: playOtherSide(cg, chess) } },
-    });
-    return cg;
-  },
+	name: &quot;Play legal moves from initial position&quot;,
+	run(el) {
+		const chess &#x3D; new Chess();
+		const cg &#x3D; Chessground(el, {
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+				dests: toDests(chess),
+			},
+			draggable: {
+				showGhost: true,
+			},
+			events: {
+				move: (orig: Key, dest: Key, capturedPiece?: Piece) &#x3D;&gt; {
+					console.log(orig);
+					console.log(dest);
+					console.log(capturedPiece);
+				},
+			},
+		});
+		cg.set({
+			movable: { events: { after: playOtherSide(cg, chess) } },
+		});
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -926,30 +928,30 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Watch 2 random AIs&#x27;,
-  run(el) {
-    const chess &#x3D; new Chess();
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 1000,
-      },
-      movable: {
-        free: false,
-      },
-    });
-    function makeMove() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      const moves &#x3D; chess.moves({ verbose: true });
-      const move &#x3D; moves[Math.floor(Math.random() * moves.length)];
-      chess.move(move.san);
-      cg.move(move.from, move.to);
-      setTimeout(makeMove, 700);
-    }
-    setTimeout(makeMove, 700);
-    return cg;
-  },
+	name: &quot;Watch 2 random AIs&quot;,
+	run(el) {
+		const chess &#x3D; new Chess();
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 1000,
+			},
+			movable: {
+				free: false,
+			},
+		});
+		function makeMove() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			const moves &#x3D; chess.moves({ verbose: true });
+			const move &#x3D; moves[Math.floor(Math.random() * moves.length)];
+			chess.move(move.san);
+			cg.move(move.from, move.to);
+			setTimeout(makeMove, 700);
+		}
+		setTimeout(makeMove, 700);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -977,25 +979,25 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Play vs random AI&#x27;,
-  run(el) {
-    const chess &#x3D; new Chess();
-    const cg &#x3D; Chessground(el, {
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-        dests: toDests(chess),
-      },
-    });
-    cg.set({
-      movable: {
-        events: {
-          after: aiPlay(cg, chess, 1000, false),
-        },
-      },
-    });
-    return cg;
-  },
+	name: &quot;Play vs random AI&quot;,
+	run(el) {
+		const chess &#x3D; new Chess();
+		const cg &#x3D; Chessground(el, {
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+				dests: toDests(chess),
+			},
+		});
+		cg.set({
+			movable: {
+				events: {
+					after: aiPlay(cg, chess, 1000, false),
+				},
+			},
+		});
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1023,28 +1025,28 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Play vs random AI; slow animations&#x27;,
-  run(el) {
-    const chess &#x3D; new Chess();
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 5000,
-      },
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-        dests: toDests(chess),
-      },
-    });
-    cg.set({
-      movable: {
-        events: {
-          after: aiPlay(cg, chess, 1000, false),
-        },
-      },
-    });
-    return cg;
-  },
+	name: &quot;Play vs random AI; slow animations&quot;,
+	run(el) {
+		const chess &#x3D; new Chess();
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 5000,
+			},
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+				dests: toDests(chess),
+			},
+		});
+		cg.set({
+			movable: {
+				events: {
+					after: aiPlay(cg, chess, 1000, false),
+				},
+			},
+		});
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1054,7 +1056,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/basics.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1075,21 +1077,21 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Highlight king in check&#x27;,
-  run(el) {
-    const fen &#x3D; &#x27;r1bqkbnr/1ppppBpp/p1n5/8/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 0 1&#x27;;
-    const cg &#x3D; Chessground(el, {
-      fen,
-      turnColor: &#x27;black&#x27;,
-      highlight: {
-        check: true,
-      },
-    });
-    cg.set({
-      check: true,
-    });
-    return cg;
-  },
+	name: &quot;Highlight king in check&quot;,
+	run(el) {
+		const fen &#x3D; &quot;r1bqkbnr/1ppppBpp/p1n5/8/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 0 1&quot;;
+		const cg &#x3D; Chessground(el, {
+			fen,
+			turnColor: &quot;black&quot;,
+			highlight: {
+				check: true,
+			},
+		});
+		cg.set({
+			check: true,
+		});
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1117,10 +1119,10 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Default configuration&#x27;,
-  run(el) {
-    return Chessground(el);
-  },
+	name: &quot;Default configuration&quot;,
+	run(el) {
+		return Chessground(el);
+	},
 }</code>
                     </td>
                 </tr>
@@ -1148,13 +1150,13 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;From FEN, from black POV&#x27;,
-  run(el) {
-    return Chessground(el, {
-      fen: &#x27;2r3k1/pp2Qpbp/4b1p1/3p4/3n1PP1/2N4P/Pq6/R2K1B1R w -&#x27;,
-      orientation: &#x27;black&#x27;,
-    });
-  },
+	name: &quot;From FEN, from black POV&quot;,
+	run(el) {
+		return Chessground(el, {
+			fen: &quot;2r3k1/pp2Qpbp/4b1p1/3p4/3n1PP1/2N4P/Pq6/R2K1B1R w -&quot;,
+			orientation: &quot;black&quot;,
+		});
+	},
 }</code>
                     </td>
                 </tr>
@@ -1182,16 +1184,16 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Last move: crazyhouse&#x27;,
-  run(el) {
-    const cg &#x3D; Chessground(el);
-    setTimeout(() &#x3D;&gt; {
-      cg.set({ lastMove: [&#x27;e2&#x27;, &#x27;e4&#x27;] });
-      setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&#x27;g6&#x27;] }), 1000);
-      setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&#x27;e1&#x27;] }), 2000);
-    });
-    return cg;
-  },
+	name: &quot;Last move: crazyhouse&quot;,
+	run(el) {
+		const cg &#x3D; Chessground(el);
+		setTimeout(() &#x3D;&gt; {
+			cg.set({ lastMove: [&quot;e2&quot;, &quot;e4&quot;] });
+			setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&quot;g6&quot;] }), 1000);
+			setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&quot;e1&quot;] }), 2000);
+		});
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1201,7 +1203,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/util.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1215,7 +1217,7 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>typeof ChessJS &#x3D;&#x3D;&#x3D; &#x27;function&#x27; ? ChessJS : ChessJS.Chess</code>
+                        <i>Default value : </i><code>typeof ChessJS &#x3D;&#x3D;&#x3D; &quot;function&quot; ? ChessJS : ChessJS.Chess</code>
                     </td>
                 </tr>
 
@@ -1224,7 +1226,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/anim.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1245,31 +1247,31 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Animation: conflict&#x27;,
-  run(el) {
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 500,
-      },
-      fen: &#x27;8/8/5p2/4P3/4K3/8/8/8&#x27;,
-      turnColor: &#x27;black&#x27;,
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-      },
-    });
-    setTimeout(() &#x3D;&gt; {
-      cg.move(&#x27;f6&#x27;, &#x27;e5&#x27;);
-      cg.set({
-        turnColor: &#x27;white&#x27;,
-        movable: {
-          dests: new Map([[&#x27;e4&#x27;, [&#x27;e5&#x27;, &#x27;d5&#x27;, &#x27;f5&#x27;]]]),
-        },
-      });
-      cg.playPremove();
-    }, 2000);
-    return cg;
-  },
+	name: &quot;Animation: conflict&quot;,
+	run(el) {
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 500,
+			},
+			fen: &quot;8/8/5p2/4P3/4K3/8/8/8&quot;,
+			turnColor: &quot;black&quot;,
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+			},
+		});
+		setTimeout(() &#x3D;&gt; {
+			cg.move(&quot;f6&quot;, &quot;e5&quot;);
+			cg.set({
+				turnColor: &quot;white&quot;,
+				movable: {
+					dests: new Map([[&quot;e4&quot;, [&quot;e5&quot;, &quot;d5&quot;, &quot;f5&quot;]]]),
+				},
+			});
+			cg.playPremove();
+		}, 2000);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1297,26 +1299,26 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Animation: different role&#x27;,
-  run(el) {
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 2000,
-      },
-      highlight: {
-        lastMove: false,
-      },
-      fen: &#x27;8/8/4n3/5p2/4P3/8/8/8&#x27;,
-      turnColor: &#x27;white&#x27;,
-    });
-    setTimeout(() &#x3D;&gt; {
-      cg.move(&#x27;e4&#x27;, &#x27;f5&#x27;);
-      setTimeout(() &#x3D;&gt; {
-        cg.move(&#x27;e6&#x27;, &#x27;f5&#x27;);
-      }, 500);
-    }, 200);
-    return cg;
-  },
+	name: &quot;Animation: different role&quot;,
+	run(el) {
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 2000,
+			},
+			highlight: {
+				lastMove: false,
+			},
+			fen: &quot;8/8/4n3/5p2/4P3/8/8/8&quot;,
+			turnColor: &quot;white&quot;,
+		});
+		setTimeout(() &#x3D;&gt; {
+			cg.move(&quot;e4&quot;, &quot;f5&quot;);
+			setTimeout(() &#x3D;&gt; {
+				cg.move(&quot;e6&quot;, &quot;f5&quot;);
+			}, 500);
+		}, 200);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1344,33 +1346,33 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Animation: while holding&#x27;,
+	name: &quot;Animation: while holding&quot;,
 
-  run(el) {
-    const cg &#x3D; Chessground(el, {
-      fen: &#x27;8/8/5p2/4P3/4K3/8/8/8&#x27;,
-      turnColor: &#x27;black&#x27;,
-      animation: {
-        duration: 5000,
-      },
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-        showDests: false,
-      },
-    });
-    setTimeout(() &#x3D;&gt; {
-      cg.move(&#x27;f6&#x27;, &#x27;e5&#x27;);
-      cg.set({
-        turnColor: &#x27;white&#x27;,
-        movable: {
-          dests: new Map([[&#x27;e4&#x27;, [&#x27;e5&#x27;, &#x27;d5&#x27;, &#x27;f5&#x27;]]]),
-        },
-      });
-      cg.playPremove();
-    }, 3000);
-    return cg;
-  },
+	run(el) {
+		const cg &#x3D; Chessground(el, {
+			fen: &quot;8/8/5p2/4P3/4K3/8/8/8&quot;,
+			turnColor: &quot;black&quot;,
+			animation: {
+				duration: 5000,
+			},
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+				showDests: false,
+			},
+		});
+		setTimeout(() &#x3D;&gt; {
+			cg.move(&quot;f6&quot;, &quot;e5&quot;);
+			cg.set({
+				turnColor: &quot;white&quot;,
+				movable: {
+					dests: new Map([[&quot;e4&quot;, [&quot;e5&quot;, &quot;d5&quot;, &quot;f5&quot;]]]),
+				},
+			});
+			cg.playPremove();
+		}, 3000);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1398,26 +1400,26 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Animation: same role&#x27;,
-  run(el) {
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 2000,
-      },
-      highlight: {
-        lastMove: false,
-      },
-      fen: &#x27;8/8/4p3/5p2/4B3/8/8/8&#x27;,
-      turnColor: &#x27;white&#x27;,
-    });
-    setTimeout(() &#x3D;&gt; {
-      cg.move(&#x27;e4&#x27;, &#x27;f5&#x27;);
-      setTimeout(() &#x3D;&gt; {
-        cg.move(&#x27;e6&#x27;, &#x27;f5&#x27;);
-      }, 500);
-    }, 200);
-    return cg;
-  },
+	name: &quot;Animation: same role&quot;,
+	run(el) {
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 2000,
+			},
+			highlight: {
+				lastMove: false,
+			},
+			fen: &quot;8/8/4p3/5p2/4B3/8/8/8&quot;,
+			turnColor: &quot;white&quot;,
+		});
+		setTimeout(() &#x3D;&gt; {
+			cg.move(&quot;e4&quot;, &quot;f5&quot;);
+			setTimeout(() &#x3D;&gt; {
+				cg.move(&quot;e6&quot;, &quot;f5&quot;);
+			}, 500);
+		}, 200);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1427,7 +1429,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/in3d.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1448,33 +1450,33 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;3D theme: watch 2 random AIs&#x27;,
-  run(cont) {
-    const el &#x3D; wrapped(cont);
+	name: &quot;3D theme: watch 2 random AIs&quot;,
+	run(cont) {
+		const el &#x3D; wrapped(cont);
 
-    const chess &#x3D; new Chess();
-    const delay &#x3D; 300;
-    const cg &#x3D; Chessground(el, {
-      orientation: &#x27;black&#x27;,
-      addPieceZIndex: true,
-      movable: {
-        free: false,
-      },
-    });
-    cg.redrawAll();
-    function makeMove() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      const moves &#x3D; chess.moves({ verbose: true });
-      const move &#x3D; moves[Math.floor(Math.random() * moves.length)];
-      chess.move(move.san);
-      cg.move(move.from, move.to);
-      setTimeout(makeMove, delay);
-    }
-    setTimeout(makeMove, delay);
-    return cg;
-  },
+		const chess &#x3D; new Chess();
+		const delay &#x3D; 300;
+		const cg &#x3D; Chessground(el, {
+			orientation: &quot;black&quot;,
+			addPieceZIndex: true,
+			movable: {
+				free: false,
+			},
+		});
+		cg.redrawAll();
+		function makeMove() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			const moves &#x3D; chess.moves({ verbose: true });
+			const move &#x3D; moves[Math.floor(Math.random() * moves.length)];
+			chess.move(move.san);
+			cg.move(move.from, move.to);
+			setTimeout(makeMove, delay);
+		}
+		setTimeout(makeMove, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1502,15 +1504,15 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;3D theme&#x27;,
-  run(cont) {
-    const el &#x3D; wrapped(cont);
-    const cg &#x3D; Chessground(el, {
-      addPieceZIndex: true,
-    });
-    cg.redrawAll();
-    return cg;
-  },
+	name: &quot;3D theme&quot;,
+	run(cont) {
+		const el &#x3D; wrapped(cont);
+		const cg &#x3D; Chessground(el, {
+			addPieceZIndex: true,
+		});
+		cg.redrawAll();
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1538,30 +1540,30 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;3D theme: play vs random AI&#x27;,
-  run(cont) {
-    const el &#x3D; wrapped(cont);
+	name: &quot;3D theme: play vs random AI&quot;,
+	run(cont) {
+		const el &#x3D; wrapped(cont);
 
-    const chess &#x3D; new Chess();
-    const cg &#x3D; Chessground(el, {
-      orientation: &#x27;black&#x27;,
-      addPieceZIndex: true,
-      movable: {
-        color: &#x27;white&#x27;,
-        free: false,
-        dests: toDests(chess),
-      },
-    });
-    cg.redrawAll();
-    cg.set({
-      movable: {
-        events: {
-          after: aiPlay(cg, chess, 1000, false),
-        },
-      },
-    });
-    return cg;
-  },
+		const chess &#x3D; new Chess();
+		const cg &#x3D; Chessground(el, {
+			orientation: &quot;black&quot;,
+			addPieceZIndex: true,
+			movable: {
+				color: &quot;white&quot;,
+				free: false,
+				dests: toDests(chess),
+			},
+		});
+		cg.redrawAll();
+		cg.set({
+			movable: {
+				events: {
+					after: aiPlay(cg, chess, 1000, false),
+				},
+			},
+		});
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1571,7 +1573,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/zh.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1592,37 +1594,37 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Crazyhouse: lastMove &#x3D; drop&#x27;,
-  run(cont) {
-    const configs: Array&lt;() &#x3D;&gt; { fen: string; lastMove: Key[] }&gt; &#x3D; [
-      () &#x3D;&gt; ({
-        fen: &#x27;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&#x27;,
-        lastMove: [&#x27;e5&#x27;, &#x27;d4&#x27;],
-      }),
-      () &#x3D;&gt; ({
-        fen: &#x27;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&#x27;,
-        lastMove: [&#x27;f4&#x27;],
-      }),
-      () &#x3D;&gt; ({
-        fen: &#x27;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&#x27;,
-        lastMove: [&#x27;e1&#x27;],
-      }),
-    ];
-    const cg &#x3D; Chessground(cont, configs[0]());
-    const delay &#x3D; 2000;
-    let it &#x3D; 0;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      const config &#x3D; configs[++it % configs.length];
-      console.log(config);
-      cg.set(config());
-      setTimeout(run, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;Crazyhouse: lastMove &#x3D; drop&quot;,
+	run(cont) {
+		const configs: Array&lt;() &#x3D;&gt; { fen: string; lastMove: Key[] }&gt; &#x3D; [
+			() &#x3D;&gt; ({
+				fen: &quot;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&quot;,
+				lastMove: [&quot;e5&quot;, &quot;d4&quot;],
+			}),
+			() &#x3D;&gt; ({
+				fen: &quot;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&quot;,
+				lastMove: [&quot;f4&quot;],
+			}),
+			() &#x3D;&gt; ({
+				fen: &quot;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&quot;,
+				lastMove: [&quot;e1&quot;],
+			}),
+		];
+		const cg &#x3D; Chessground(cont, configs[0]());
+		const delay &#x3D; 2000;
+		let it &#x3D; 0;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			const config &#x3D; configs[++it % configs.length];
+			console.log(config);
+			cg.set(config());
+			setTimeout(run, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1632,7 +1634,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/pgn.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1653,34 +1655,34 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;replay pgn game one second per move&#x27;,
-  run(el) {
-    const chess: ChessInstance &#x3D; new Chess();
-    chess.load_pgn(pgn);
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 500,
-      },
-      movable: {
-        free: false,
-      },
-    });
-    const history: Move[] &#x3D; chess.history({ verbose: true });
-    // @ts-ignorets
-    const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
-    const header &#x3D; chess.header();
+	name: &quot;replay pgn game one second per move&quot;,
+	run(el) {
+		const chess: ChessInstance &#x3D; new Chess();
+		chess.load_pgn(pgn);
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 500,
+			},
+			movable: {
+				free: false,
+			},
+		});
+		const history: Move[] &#x3D; chess.history({ verbose: true });
 
-    for (let i &#x3D; 0; i &lt; history.length; i++) {
-      setTimeout(() &#x3D;&gt; {
-        if (!cg.state.dom.elements.board.offsetParent) {
-          return;
-        }
-        cg.move(history[i].from, history[i].to);
-      }, i * 1000);
-    }
+		const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
+		const header &#x3D; chess.header();
 
-    return cg;
-  },
+		for (let i &#x3D; 0; i &lt; history.length; i++) {
+			setTimeout(() &#x3D;&gt; {
+				if (!cg.state.dom.elements.board.offsetParent) {
+					return;
+				}
+				cg.move(history[i].from, history[i].to);
+			}, i * 1000);
+		}
+
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1708,53 +1710,53 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;replay pgn game in proprtional time 1 minute&#x27;,
-  run(el) {
-    const chess: ChessInstance &#x3D; new Chess();
-    chess.load_pgn(pgn);
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 500,
-      },
-      movable: {
-        free: false,
-      },
-    });
-    const history: Move[] &#x3D; chess.history({ verbose: true });
-    // @ts-ignorets
-    const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
-    const header &#x3D; chess.header();
+	name: &quot;replay pgn game in proprtional time 1 minute&quot;,
+	run(el) {
+		const chess: ChessInstance &#x3D; new Chess();
+		chess.load_pgn(pgn);
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 500,
+			},
+			movable: {
+				free: false,
+			},
+		});
+		const history: Move[] &#x3D; chess.history({ verbose: true });
 
-    const timeOuts: number[] &#x3D; [];
+		const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
+		const header &#x3D; chess.header();
 
-    let whiteThinkTime &#x3D; 0;
-    let blackThinkTime &#x3D; 0;
+		const timeOuts: number[] &#x3D; [];
 
-    for (let j &#x3D; 0; j &lt; comments.length; j++) {
-      const minutes &#x3D; parseInt(comments[j].comment.substring(9, 11), 10);
-      const seconds &#x3D; parseInt(comments[j].comment.substring(12, 14), 10);
-      const timeLeft &#x3D; minutes * 60 + seconds;
-      const thinkTime &#x3D; 180 - timeLeft;
+		let whiteThinkTime &#x3D; 0;
+		let blackThinkTime &#x3D; 0;
 
-      if (j % 2 &#x3D;&#x3D;&#x3D; 0) {
-        blackThinkTime &#x3D; thinkTime;
-      } else {
-        whiteThinkTime &#x3D; thinkTime;
-      }
-      timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
-    }
+		for (let j &#x3D; 0; j &lt; comments.length; j++) {
+			const minutes &#x3D; parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds &#x3D; parseInt(comments[j].comment.substring(12, 14), 10);
+			const timeLeft &#x3D; minutes * 60 + seconds;
+			const thinkTime &#x3D; 180 - timeLeft;
 
-    for (let i &#x3D; 0; i &lt; history.length; i++) {
-      setTimeout(() &#x3D;&gt; {
-        if (!cg.state.dom.elements.board.offsetParent) {
-          return;
-        }
-        cg.move(history[i].from, history[i].to);
-      }, timeOuts[i] * (30 / 180) * 1000);
-    }
+			if (j % 2 &#x3D;&#x3D;&#x3D; 0) {
+				blackThinkTime &#x3D; thinkTime;
+			} else {
+				whiteThinkTime &#x3D; thinkTime;
+			}
+			timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
+		}
 
-    return cg;
-  },
+		for (let i &#x3D; 0; i &lt; history.length; i++) {
+			setTimeout(() &#x3D;&gt; {
+				if (!cg.state.dom.elements.board.offsetParent) {
+					return;
+				}
+				cg.move(history[i].from, history[i].to);
+			}, timeOuts[i] * (30 / 180) * 1000);
+		}
+
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1782,60 +1784,60 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;replay pgn game in real time&#x27;,
-  run(el) {
-    const chess: ChessInstance &#x3D; new Chess();
-    chess.load_pgn(pgn);
-    const cg &#x3D; Chessground(el, {
-      animation: {
-        duration: 500,
-      },
-      movable: {
-        free: false,
-      },
-    });
-    const history: Move[] &#x3D; chess.history({ verbose: true });
-    // @ts-ignorets
-    const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
-    const header &#x3D; chess.header();
-    const timeControl &#x3D; header.TimeControl?.split(&#x27;+&#x27;);
-    let timeControlInSeconds &#x3D; 180;
-    if (timeControl) {
-      const total &#x3D; parseInt(timeControl[0], 10);
-      const increment &#x3D; parseInt(timeControl[1], 10);
-      timeControlInSeconds &#x3D; total + increment * (comments.length / 2);
-    }
+	name: &quot;replay pgn game in real time&quot;,
+	run(el) {
+		const chess: ChessInstance &#x3D; new Chess();
+		chess.load_pgn(pgn);
+		const cg &#x3D; Chessground(el, {
+			animation: {
+				duration: 500,
+			},
+			movable: {
+				free: false,
+			},
+		});
+		const history: Move[] &#x3D; chess.history({ verbose: true });
 
-    const timeOuts: number[] &#x3D; [];
+		const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
+		const header &#x3D; chess.header();
+		const timeControl &#x3D; header.TimeControl?.split(&quot;+&quot;);
+		let timeControlInSeconds &#x3D; 180;
+		if (timeControl) {
+			const total &#x3D; parseInt(timeControl[0], 10);
+			const increment &#x3D; parseInt(timeControl[1], 10);
+			timeControlInSeconds &#x3D; total + increment * (comments.length / 2);
+		}
 
-    let whiteThinkTime &#x3D; 0;
-    let blackThinkTime &#x3D; 0;
+		const timeOuts: number[] &#x3D; [];
 
-    for (let j &#x3D; 0; j &lt; comments.length; j++) {
-      const minutes &#x3D; parseInt(comments[j].comment.substring(9, 11), 10);
-      const seconds &#x3D; parseInt(comments[j].comment.substring(12, 14), 10);
-      const timeLeft &#x3D; minutes * 60 + seconds;
-      const thinkTime &#x3D; timeControlInSeconds - timeLeft;
+		let whiteThinkTime &#x3D; 0;
+		let blackThinkTime &#x3D; 0;
 
-      if (j % 2 &#x3D;&#x3D;&#x3D; 0) {
-        blackThinkTime &#x3D; thinkTime;
-      } else {
-        whiteThinkTime &#x3D; thinkTime;
-      }
-      timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
-    }
+		for (let j &#x3D; 0; j &lt; comments.length; j++) {
+			const minutes &#x3D; parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds &#x3D; parseInt(comments[j].comment.substring(12, 14), 10);
+			const timeLeft &#x3D; minutes * 60 + seconds;
+			const thinkTime &#x3D; timeControlInSeconds - timeLeft;
 
-    for (let i &#x3D; 0; i &lt; history.length; i++) {
-      setTimeout(() &#x3D;&gt; {
-        if (!cg.state.dom.elements.board.offsetParent) {
-          return;
-        }
-        cg.move(history[i].from, history[i].to);
-      }, timeOuts[i] * 1000);
-    }
+			if (j % 2 &#x3D;&#x3D;&#x3D; 0) {
+				blackThinkTime &#x3D; thinkTime;
+			} else {
+				whiteThinkTime &#x3D; thinkTime;
+			}
+			timeOuts.push(whiteThinkTime + blackThinkTime + j / 1000);
+		}
 
-    return cg;
-  },
+		for (let i &#x3D; 0; i &lt; history.length; i++) {
+			setTimeout(() &#x3D;&gt; {
+				if (!cg.state.dom.elements.board.offsetParent) {
+					return;
+				}
+				cg.move(history[i].from, history[i].to);
+			}, timeOuts[i] * 1000);
+		}
+
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1887,7 +1889,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/perf.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1908,25 +1910,25 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Perf: piece move&#x27;,
-  run(cont) {
-    const cg &#x3D; Chessground(cont, {
-      animation: { duration: 500 },
-    });
-    const delay &#x3D; 400;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      cg.move(&#x27;e2&#x27;, &#x27;a8&#x27;);
-      setTimeout(() &#x3D;&gt; {
-        cg.move(&#x27;a8&#x27;, &#x27;e2&#x27;);
-        setTimeout(run, delay);
-      }, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;Perf: piece move&quot;,
+	run(cont) {
+		const cg &#x3D; Chessground(cont, {
+			animation: { duration: 500 },
+		});
+		const delay &#x3D; 400;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			cg.move(&quot;e2&quot;, &quot;a8&quot;);
+			setTimeout(() &#x3D;&gt; {
+				cg.move(&quot;a8&quot;, &quot;e2&quot;);
+				setTimeout(run, delay);
+			}, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1954,28 +1956,28 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;Perf: square select&#x27;,
-  run(cont) {
-    const cg &#x3D; Chessground(cont, {
-      movable: {
-        free: false,
-        dests: new Map([[&#x27;e2&#x27;, [&#x27;e3&#x27;, &#x27;e4&#x27;, &#x27;d3&#x27;, &#x27;f3&#x27;]]]),
-      },
-    });
-    const delay &#x3D; 500;
-    function run() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      cg.selectSquare(&#x27;e2&#x27;);
-      setTimeout(() &#x3D;&gt; {
-        cg.selectSquare(&#x27;d4&#x27;);
-        setTimeout(run, delay);
-      }, delay);
-    }
-    setTimeout(run, delay);
-    return cg;
-  },
+	name: &quot;Perf: square select&quot;,
+	run(cont) {
+		const cg &#x3D; Chessground(cont, {
+			movable: {
+				free: false,
+				dests: new Map([[&quot;e2&quot;, [&quot;e3&quot;, &quot;e4&quot;, &quot;d3&quot;, &quot;f3&quot;]]]),
+			},
+		});
+		const delay &#x3D; 500;
+		function run() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			cg.selectSquare(&quot;e2&quot;);
+			setTimeout(() &#x3D;&gt; {
+				cg.selectSquare(&quot;d4&quot;);
+				setTimeout(run, delay);
+			}, delay);
+		}
+		setTimeout(run, delay);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -1985,7 +1987,7 @@
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/viewOnly.ts</h3>
-    <section>
+    <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2006,34 +2008,34 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-  name: &#x27;View only: 2 random AIs&#x27;,
-  run(el) {
-    const chess &#x3D; new Chess();
-    const cg &#x3D; Chessground(el, {
-      viewOnly: true,
-      animation: {
-        duration: 1000,
-      },
-      movable: {
-        free: false,
-      },
-      drawable: {
-        visible: false,
-      },
-    });
-    function makeMove() {
-      if (!cg.state.dom.elements.board.offsetParent) {
-        return;
-      }
-      const moves &#x3D; chess.moves({ verbose: true });
-      const move &#x3D; moves[Math.floor(Math.random() * moves.length)];
-      chess.move(move.san);
-      cg.move(move.from, move.to);
-      setTimeout(makeMove, 700);
-    }
-    setTimeout(makeMove, 700);
-    return cg;
-  },
+	name: &quot;View only: 2 random AIs&quot;,
+	run(el) {
+		const chess &#x3D; new Chess();
+		const cg &#x3D; Chessground(el, {
+			viewOnly: true,
+			animation: {
+				duration: 1000,
+			},
+			movable: {
+				free: false,
+			},
+			drawable: {
+				visible: false,
+			},
+		});
+		function makeMove() {
+			if (!cg.state.dom.elements.board.offsetParent) {
+				return;
+			}
+			const moves &#x3D; chess.moves({ verbose: true });
+			const move &#x3D; moves[Math.floor(Math.random() * moves.length)];
+			chess.move(move.san);
+			cg.move(move.from, move.to);
+			setTimeout(makeMove, 700);
+		}
+		setTimeout(makeMove, 700);
+		return cg;
+	},
 }</code>
                     </td>
                 </tr>
@@ -2047,7 +2049,7 @@
 
                    </div><div class="search-results">
     <div class="has-results">
-        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
         <ul class="search-results-list"></ul>
     </div>
     <div class="no-results">
@@ -2059,6 +2061,15 @@
            </div>
        </div>
 
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'miscellaneous-variables';
@@ -2068,8 +2079,8 @@
 
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
-       
-       <script type="module" src="../js/menu-wc.js" defer></script>
+
+       <script src="../js/menu-wc.js" defer></script>
        <script nomodule src="../js/menu-wc_es5.js" defer></script>
 
        <script src="../js/libs/bootstrap-native.js"></script>

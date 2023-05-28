@@ -8,7 +8,7 @@ describe("NgxChessgroundTableComponent", () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [NgxChessgroundTableComponent],
+			imports: [NgxChessgroundTableComponent],
 		}).compileComponents();
 	});
 

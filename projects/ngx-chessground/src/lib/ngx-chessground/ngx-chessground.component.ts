@@ -10,14 +10,15 @@ import { Api } from "chessground/api";
 import { NgxChessgroundService } from "../ngx-chessground.service";
 
 @Component({
-  selector: 'ngx-chessground',
-  templateUrl: './ngx-chessground.component.html',
-  styleUrls: ['./ngx-chessground.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [NgxChessgroundService],
+	selector: "ngx-chessground",
+	templateUrl: "./ngx-chessground.component.html",
+	styleUrls: ["./ngx-chessground.component.css"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	providers: [NgxChessgroundService],
+	standalone: true,
 })
 export class NgxChessgroundComponent implements AfterViewInit {
-	@ViewChild('chessboard')
+	@ViewChild("chessboard")
 	elementView!: ElementRef;
 	@Input()
 	private runFunction!: (el: HTMLElement) => Api;
