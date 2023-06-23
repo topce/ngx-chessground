@@ -37,7 +37,7 @@ export class NgxChessgroundService {
 		]);
 	}
 
-	private runUnit = (vnode: VNode) => {
+	private runUnit = (vnode: VNode , _ignore?: VNode) => {
 		const el = vnode.elm as HTMLElement;
 		el.className = "cg-wrap";
 		this.cg = Chessground(el);
