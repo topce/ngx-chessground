@@ -1,9 +1,16 @@
 import { Component, viewChild } from "@angular/core";
-import type { Api } from "chessground/api";
 import type { AfterViewInit } from "@angular/core";
+import type { Api } from "chessground/api";
 
+import { NgFor } from "@angular/common";
 import { ChangeDetectionStrategy } from "@angular/core";
+import { MatCardModule } from "@angular/material/card";
+import { MatListModule } from "@angular/material/list";
+import type { ShortMove } from "chess.js";
 import {
+	ChessTableComponent,
+	NgxChessgroundComponent,
+	type Unit,
 	autoShapes,
 	autoSwitch,
 	brushModifiers,
@@ -11,7 +18,6 @@ import {
 	changingShapesHigh,
 	changingShapesLow,
 	checkHighlight,
-	ChessTableComponent,
 	conflictingAnim,
 	conflictingHold,
 	defaults,
@@ -25,14 +31,12 @@ import {
 	loadPgnProportionalTime,
 	loadPgnRealTime,
 	move,
-	NgxChessgroundComponent,
 	notSameRole,
 	playFullRandom,
 	playVsRandom,
 	presetUserShapes,
 	select,
 	slowAnim,
-	type Unit,
 	viewOnlyFullRandom,
 	visibleFalse,
 	vsRandom,
@@ -40,10 +44,6 @@ import {
 	withSameRole,
 } from "ngx-chessground";
 import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
-import type { ShortMove } from "chess.js";
-import { MatListModule } from "@angular/material/list";
-import { NgFor } from "@angular/common";
-import { MatCardModule } from "@angular/material/card";
 
 @Component({
 	selector: "app-root",

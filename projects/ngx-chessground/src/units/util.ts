@@ -1,7 +1,7 @@
+import * as ChessJS from "chess.js";
+import type { ChessInstance, Move, Square } from "chess.js";
 import type { Api } from "chessground/api";
 import type { Color, Key } from "chessground/types";
-import * as ChessJS from "chess.js";
-import type { ChessInstance, Square, Move } from "chess.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Chess = typeof ChessJS === "function" ? ChessJS : ChessJS.Chess;
@@ -9,7 +9,7 @@ export const Chess = typeof ChessJS === "function" ? ChessJS : ChessJS.Chess;
 export function toDests(chess: ChessInstance): Map<Key, Key[]> {
 	const dests = new Map();
 
-	ChessJS.SQUARES.forEach((s: Square) => {
+	for (const s of ChessJS.SQUARES) {
 		const ms = chess.moves({ square: s, verbose: true });
 		if (ms.length) {
 			dests.set(
@@ -17,7 +17,7 @@ export function toDests(chess: ChessInstance): Map<Key, Key[]> {
 				ms.map((m: Move) => m.to),
 			);
 		}
-	});
+	}
 	return dests;
 }
 

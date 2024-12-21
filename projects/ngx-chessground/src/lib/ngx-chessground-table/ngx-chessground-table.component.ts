@@ -4,8 +4,8 @@ import {
 	Component,
 	viewChild,
 } from "@angular/core";
-import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 import * as play from "../../units/play";
+import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 
 @Component({
 	selector: "ngx-chessground-table",

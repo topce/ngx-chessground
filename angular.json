@@ -21,14 +21,6 @@
             }
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/ngx-chessground/src/test.ts",
-            "tsConfig": "projects/ngx-chessground/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-chessground/karma.conf.js"
-          }
-        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
@@ -50,7 +42,9 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "allowedCommonJsDependencies": ["chessground"],
+            "allowedCommonJsDependencies": [
+              "chessground"
+            ],
             "outputPath": {
               "base": "dist/ngx-chessground-example",
               "browser": "browser"
@@ -125,24 +119,6 @@
             "buildTarget": "ngx-chessground-example:build"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/ngx-chessground-example/src/test.ts",
-            "polyfills": "projects/ngx-chessground-example/src/polyfills.ts",
-            "tsConfig": "projects/ngx-chessground-example/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-chessground-example/karma.conf.js",
-            "assets": [
-              "projects/ngx-chessground-example/src/favicon.ico",
-              "projects/ngx-chessground-example/src/assets"
-            ],
-            "styles": [
-              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-              "projects/ngx-chessground-example/src/styles.css"
-            ],
-            "scripts": []
-          }
-        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
@@ -150,18 +126,6 @@
               "projects/ngx-chessground-example/**/*.ts",
               "projects/ngx-chessground-example/**/*.html"
             ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "projects/ngx-chessground-example/e2e/protractor.conf.js",
-            "devServerTarget": "ngx-chessground-example:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "ngx-chessground-example:serve:production"
-            }
           }
         },
         "deploy": {

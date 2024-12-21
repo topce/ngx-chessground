@@ -1,9 +1,9 @@
 import {
-	Component,
-	type OnInit,
-	ChangeDetectionStrategy,
 	type AfterViewInit,
+	ChangeDetectionStrategy,
+	Component,
 	type ElementRef,
+	type OnInit,
 	input,
 	output,
 	viewChild,
@@ -11,16 +11,16 @@ import {
 import { VNodeData, h } from "snabbdom";
 import { init } from "snabbdom";
 
+import { Chessground } from "chessground";
+import type { Api } from "chessground/api";
 import type { VNode } from "snabbdom";
 import { classModule } from "snabbdom";
 import { attributesModule } from "snabbdom";
 import { eventListenersModule } from "snabbdom";
-import { Chessground } from "chessground";
-import type { Api } from "chessground/api";
 
+import type { ShortMove, Square } from "chess.js";
 import type { Key, Piece } from "chessground/types";
 import { Chess, playOtherSide, toColor, toDests } from "../../units/util";
-import type { Square, ShortMove } from "chess.js";
 @Component({
 	selector: "ngx-chessground-chess-table",
 	templateUrl: "./chess-table.component.html",
@@ -41,8 +41,6 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
 	private cg!: Api;
 	private runFn!: (el: HTMLElement) => Api;
 	private chess = new Chess();
-
-	constructor() {}
 
 	ngOnInit(): void {
 		this.runFn = (el) => {

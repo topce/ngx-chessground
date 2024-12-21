@@ -1,12 +1,12 @@
 import { enableProdMode, importProvidersFrom } from "@angular/core";
 
-import { environment } from "./environments/environment";
-import { AppComponent } from "./app/app.component";
 import { MatCardModule } from "@angular/material/card";
 import { MatListModule } from "@angular/material/list";
+import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { AppRoutingModule } from "./app/app-routing.module";
-import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
+import { AppComponent } from "./app/app.component";
+import { environment } from "./environments/environment";
 
 if (environment.production) {
 	enableProdMode();

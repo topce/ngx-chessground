@@ -1,6 +1,6 @@
 import { Chessground } from "chessground";
 import type { Unit } from "./unit";
-import { aiPlay, toDests, Chess } from "./util";
+import { Chess, aiPlay, toDests } from "./util";
 
 export const in3dDefaults: Unit = {
 	name: "3D theme",

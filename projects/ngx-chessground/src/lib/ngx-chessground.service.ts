@@ -2,12 +2,12 @@ import { Injectable } from "@angular/core";
 import { h } from "snabbdom";
 import { init } from "snabbdom";
 
+import { Chessground } from "chessground";
+import type { Api } from "chessground/api";
 import type { VNode } from "snabbdom";
 import { classModule } from "snabbdom";
 import { attributesModule } from "snabbdom";
 import { eventListenersModule } from "snabbdom";
-import { Chessground } from "chessground";
-import type { Api } from "chessground/api";
 
 @Injectable()
 export class NgxChessgroundService {

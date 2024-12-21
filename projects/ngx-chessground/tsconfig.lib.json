@@ -1,7 +1,6 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"types": ["./types/fix.d.ts"],
 		"outDir": "../../out-tsc/lib",
 		"declaration": true,
 		"declarationMap": true,

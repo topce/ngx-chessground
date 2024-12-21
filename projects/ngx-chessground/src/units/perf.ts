@@ -1,5 +1,5 @@
-import type { Unit } from "./unit";
 import { Chessground } from "chessground";
+import type { Unit } from "./unit";
 
 export const move: Unit = {
 	name: "Perf: piece move",

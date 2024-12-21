@@ -1,7 +1,7 @@
+import type { ChessInstance, Move } from "chess.js";
 import { Chessground } from "chessground";
 import type { Unit } from "./unit";
 import { Chess } from "./util";
-import type { ChessInstance, Move } from "chess.js";
 
 const pgn = `[Event "Rated Blitz game"]
 [Site "https://lichess.org/hvB20kxq"]
