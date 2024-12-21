@@ -8,7 +8,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatListModule } from "@angular/material/list";
 import type { ShortMove } from "chess.js";
 import {
-	ChessTableComponent,
+	type ChessTableComponent,
 	NgxChessgroundComponent,
 	type Unit,
 	autoShapes,
@@ -50,13 +50,7 @@ import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [
-		NgFor,
-		MatListModule,
-		MatCardModule,
-		NgxChessgroundComponent,
-		ChessTableComponent,
-	],
+	imports: [NgFor, MatListModule, MatCardModule, NgxChessgroundComponent],
 })
 export class AppComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent =
