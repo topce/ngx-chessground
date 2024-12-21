@@ -1,4 +1,8 @@
-import { enableProdMode, importProvidersFrom } from "@angular/core";
+import {
+	enableProdMode,
+	importProvidersFrom,
+	provideExperimentalZonelessChangeDetection,
+} from "@angular/core";
 
 import { MatCardModule } from "@angular/material/card";
 import { MatListModule } from "@angular/material/list";
@@ -21,5 +25,6 @@ bootstrapApplication(AppComponent, {
 			MatCardModule,
 		),
 		provideAnimations(),
+		provideExperimentalZonelessChangeDetection(),
 	],
 }).catch((err) => console.error(err));

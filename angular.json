@@ -50,9 +50,7 @@
               "browser": "browser"
             },
             "index": "projects/ngx-chessground-example/src/index.html",
-            "polyfills": [
-              "projects/ngx-chessground-example/src/polyfills.ts"
-            ],
+            "polyfills": [],
             "tsConfig": "projects/ngx-chessground-example/tsconfig.app.json",
             "assets": [
               "projects/ngx-chessground-example/src/favicon.ico",
