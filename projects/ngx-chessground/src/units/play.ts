@@ -18,10 +18,10 @@ export const initial: Unit = {
 				showGhost: true,
 			},
 			events: {
-				move: (orig: Key, dest: Key, capturedPiece?: Piece) => {
-					console.log(orig);
-					console.log(dest);
-					console.log(capturedPiece);
+				move: (_orig: Key, _dest: Key, _capturedPiece?: Piece) => {
+					//console.log(orig);
+					//console.log(dest);
+					//console.log(capturedPiece);
 				},
 			},
 		});

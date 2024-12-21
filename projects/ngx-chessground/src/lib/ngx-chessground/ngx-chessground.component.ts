@@ -4,7 +4,6 @@ import {
 	Component,
 	type ElementRef,
 	effect,
-	input,
 	model,
 	viewChild,
 } from "@angular/core";

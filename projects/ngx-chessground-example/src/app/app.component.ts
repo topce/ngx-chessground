@@ -107,15 +107,15 @@ export class AppComponent implements AfterViewInit {
 		// this.chessTableComponent.move({ from: 'c7', to: 'c5' });
 		// this.chessTableComponent.cancelMove();
 	}
-	public onClick(name: string, runFn: (el: HTMLElement) => Api) {
+	public onClick(_name: string, runFn: (el: HTMLElement) => Api) {
 		this.ngxChessgroundComponent().runFunction.set(runFn);
 	}
 
 	public toggleOrientation() {
 		this.chessTableComponent().toggleOrientation();
 	}
-	public onMove(moveValue: { color: string; move: ShortMove }) {
-		console.log(moveValue);
+	public onMove(_moveValue: { color: string; move: ShortMove }) {
+		//console.log(moveValue);
 		// play against yourself
 		this.toggleOrientation();
 		// play sicilian

@@ -100,8 +100,8 @@ export const loadPgnOneSecondPerMove: Unit = {
 		});
 		const history: Move[] = chess.history({ verbose: true });
 
-		const comments: { fen: string; comment: string }[] = chess.get_comments();
-		const header = chess.header();
+		const _comments: { fen: string; comment: string }[] = chess.get_comments();
+		const _header = chess.header();
 
 		for (let i = 0; i < history.length; i++) {
 			setTimeout(() => {
@@ -131,7 +131,7 @@ export const loadPgnProportionalTime: Unit = {
 		const history: Move[] = chess.history({ verbose: true });
 
 		const comments: { fen: string; comment: string }[] = chess.get_comments();
-		const header = chess.header();
+		const _header = chess.header();
 
 		const timeOuts: number[] = [];
 

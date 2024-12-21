@@ -8,7 +8,7 @@ import {
 	output,
 	viewChild,
 } from "@angular/core";
-import { VNodeData, h } from "snabbdom";
+import { h } from "snabbdom";
 import { init } from "snabbdom";
 
 import { Chessground } from "chessground";
@@ -54,7 +54,7 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
 					showGhost: true,
 				},
 				events: {
-					move: (orig: Key, dest: Key, capturedPiece?: Piece) => {
+					move: (orig: Key, dest: Key, _capturedPiece?: Piece) => {
 						const color = toColor(this.chess);
 						const playedMove = this.chess.move({
 							from: orig as Square,

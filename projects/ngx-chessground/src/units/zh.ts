@@ -27,7 +27,7 @@ export const lastMoveDrop: Unit = {
 				return;
 			}
 			const config = configs[++it % configs.length];
-			console.log(config);
+			//console.log(config);
 			cg.set(config());
 			setTimeout(run, delay);
 		}
