@@ -1,7 +1,7 @@
 import { Chessground } from "chessground";
-import { Unit } from "./unit";
+import type { Unit } from "./unit";
 import { Chess } from "./util";
-import { ChessInstance, Move } from "chess.js";
+import type { ChessInstance, Move } from "chess.js";
 
 const pgn = `[Event "Rated Blitz game"]
 [Site "https://lichess.org/hvB20kxq"]
@@ -46,8 +46,8 @@ export const loadPgnRealTime: Unit = {
 		const timeControl = header.TimeControl?.split("+");
 		let timeControlInSeconds = 180;
 		if (timeControl) {
-			const total = parseInt(timeControl[0], 10);
-			const increment = parseInt(timeControl[1], 10);
+			const total = Number.parseInt(timeControl[0], 10);
+			const increment = Number.parseInt(timeControl[1], 10);
 			timeControlInSeconds = total + increment * (comments.length / 2);
 		}
 
@@ -57,8 +57,11 @@ export const loadPgnRealTime: Unit = {
 		let blackThinkTime = 0;
 
 		for (let j = 0; j < comments.length; j++) {
-			const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
-			const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
+			const minutes = Number.parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds = Number.parseInt(
+				comments[j].comment.substring(12, 14),
+				10,
+			);
 			const timeLeft = minutes * 60 + seconds;
 			const thinkTime = timeControlInSeconds - timeLeft;
 
@@ -136,8 +139,11 @@ export const loadPgnProportionalTime: Unit = {
 		let blackThinkTime = 0;
 
 		for (let j = 0; j < comments.length; j++) {
-			const minutes = parseInt(comments[j].comment.substring(9, 11), 10);
-			const seconds = parseInt(comments[j].comment.substring(12, 14), 10);
+			const minutes = Number.parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds = Number.parseInt(
+				comments[j].comment.substring(12, 14),
+				10,
+			);
 			const timeLeft = minutes * 60 + seconds;
 			const thinkTime = 180 - timeLeft;
 
@@ -150,12 +156,15 @@ export const loadPgnProportionalTime: Unit = {
 		}
 
 		for (let i = 0; i < history.length; i++) {
-			setTimeout(() => {
-				if (!cg.state.dom.elements.board.offsetParent) {
-					return;
-				}
-				cg.move(history[i].from, history[i].to);
-			}, timeOuts[i] * (30 / 180) * 1000);
+			setTimeout(
+				() => {
+					if (!cg.state.dom.elements.board.offsetParent) {
+						return;
+					}
+					cg.move(history[i].from, history[i].to);
+				},
+				timeOuts[i] * (30 / 180) * 1000,
+			);
 		}
 
 		return cg;

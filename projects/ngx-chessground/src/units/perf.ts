@@ -1,4 +1,4 @@
-import { Unit } from "./unit";
+import type { Unit } from "./unit";
 import { Chessground } from "chessground";
 
 export const move: Unit = {

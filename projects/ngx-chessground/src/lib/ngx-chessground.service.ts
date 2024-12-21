@@ -2,12 +2,12 @@ import { Injectable } from "@angular/core";
 import { h } from "snabbdom";
 import { init } from "snabbdom";
 
-import { VNode } from "snabbdom";
+import type { VNode } from "snabbdom";
 import { classModule } from "snabbdom";
 import { attributesModule } from "snabbdom";
 import { eventListenersModule } from "snabbdom";
 import { Chessground } from "chessground";
-import { Api } from "chessground/api";
+import type { Api } from "chessground/api";
 
 @Injectable()
 export class NgxChessgroundService {
@@ -37,7 +37,7 @@ export class NgxChessgroundService {
 		]);
 	}
 
-	private runUnit = (vnode: VNode , _ignore?: VNode) => {
+	private runUnit = (vnode: VNode, _ignore?: VNode) => {
 		const el = vnode.elm as HTMLElement;
 		el.className = "cg-wrap";
 		this.cg = Chessground(el);

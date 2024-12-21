@@ -1,4 +1,4 @@
-import { Api } from "chessground/api";
+import type { Api } from "chessground/api";
 
 export interface Unit {
 	name: string;

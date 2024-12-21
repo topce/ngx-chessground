@@ -1,5 +1,5 @@
 import {
-	AfterViewInit,
+	type AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
 	ViewChild,
@@ -12,7 +12,6 @@ import * as play from "../../units/play";
 	templateUrl: "./ngx-chessground-table.component.html",
 	styleUrls: ["./ngx-chessground-table.component.css"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true,
 	imports: [NgxChessgroundComponent],
 })
 export class NgxChessgroundTableComponent implements AfterViewInit {

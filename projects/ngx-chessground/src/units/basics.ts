@@ -1,5 +1,5 @@
 import { Chessground } from "chessground";
-import { Unit } from "./unit";
+import type { Unit } from "./unit";
 
 export const defaults: Unit = {
 	name: "Default configuration",

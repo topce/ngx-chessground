@@ -1,39 +1,39 @@
 {
-  "name": "ngx-chessground",
-  "version": "16.0.3",
-  "peerDependencies": {
-    "@angular/common": "16.0.3",
-    "@angular/core": "16.0.3",
-    "chess.js": "0.13.4",
-    "chessground": "8.3.7",
-    "snabbdom": "3.5.1"
-  },
-  "dependencies": {
-    "tslib": "2.5.2"
-  },
-  "devDependencies": {
-    "chess.js": "0.13.4",
-    "chessground": "8.3.7",
-    "snabbdom": "3.5.1",
-    "@types/chess.js": "0.13.4"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/topce/ngx-chessground.git"
-  },
-  "keywords": [
-    "angular",
-    "chess",
-    "pgn",
-    "fen",
-    "chessground",
-    "chess.js",
-    "lichess"
-  ],
-  "author": "topce",
-  "license": "GPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/topce/ngx-chessground/issues"
-  },
-  "homepage": "https://github.com/topce/ngx-chessground#readme"
+	"name": "ngx-chessground",
+	"version": "16.0.3",
+	"peerDependencies": {
+		"@angular/common": "16.0.3",
+		"@angular/core": "16.0.3",
+		"chess.js": "0.13.4",
+		"chessground": "8.3.7",
+		"snabbdom": "3.5.1"
+	},
+	"dependencies": {
+		"tslib": "2.5.2"
+	},
+	"devDependencies": {
+		"chess.js": "0.13.4",
+		"chessground": "8.3.7",
+		"snabbdom": "3.5.1",
+		"@types/chess.js": "0.13.4"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/topce/ngx-chessground.git"
+	},
+	"keywords": [
+		"angular",
+		"chess",
+		"pgn",
+		"fen",
+		"chessground",
+		"chess.js",
+		"lichess"
+	],
+	"author": "topce",
+	"license": "GPL-3.0-or-later",
+	"bugs": {
+		"url": "https://github.com/topce/ngx-chessground/issues"
+	},
+	"homepage": "https://github.com/topce/ngx-chessground#readme"
 }

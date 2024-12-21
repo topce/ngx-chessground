@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
-import { Api } from "chessground/api";
-import { AfterViewInit } from "@angular/core";
+import type { Api } from "chessground/api";
+import type { AfterViewInit } from "@angular/core";
 import { ViewChild } from "@angular/core";
 import { ChangeDetectionStrategy } from "@angular/core";
 import {
@@ -32,7 +32,7 @@ import {
 	presetUserShapes,
 	select,
 	slowAnim,
-	Unit,
+	type Unit,
 	viewOnlyFullRandom,
 	visibleFalse,
 	vsRandom,
@@ -40,13 +40,12 @@ import {
 	withSameRole,
 } from "ngx-chessground";
 import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
-import { ShortMove } from "chess.js";
+import type { ShortMove } from "chess.js";
 import { MatListModule } from "@angular/material/list";
 import { NgFor } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
 
 @Component({
-	standalone: true,
 	selector: "app-root",
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"],

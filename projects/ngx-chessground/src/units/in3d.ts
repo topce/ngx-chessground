@@ -1,5 +1,5 @@
 import { Chessground } from "chessground";
-import { Unit } from "./unit";
+import type { Unit } from "./unit";
 import { aiPlay, toDests, Chess } from "./util";
 
 export const in3dDefaults: Unit = {

@@ -48,13 +48,16 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "allowedCommonJsDependencies": ["chessground"],
-            "outputPath": "dist/ngx-chessground-example",
+            "outputPath": {
+              "base": "dist/ngx-chessground-example"
+            },
             "index": "projects/ngx-chessground-example/src/index.html",
-            "main": "projects/ngx-chessground-example/src/main.ts",
-            "polyfills": "projects/ngx-chessground-example/src/polyfills.ts",
+            "polyfills": [
+              "projects/ngx-chessground-example/src/polyfills.ts"
+            ],
             "tsConfig": "projects/ngx-chessground-example/tsconfig.app.json",
             "assets": [
               "projects/ngx-chessground-example/src/favicon.ico",
@@ -70,12 +73,11 @@
               "projects/ngx-chessground-example/src/styles.css"
             ],
             "scripts": [],
-            "vendorChunk": true,
             "extractLicenses": false,
-            "buildOptimizer": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": true
+            "namedChunks": true,
+            "browser": "projects/ngx-chessground-example/src/main.ts"
           },
           "configurations": {
             "production": {
@@ -90,8 +92,6 @@
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",

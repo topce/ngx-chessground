@@ -1,6 +1,6 @@
-import { Unit } from "./unit";
+import type { Unit } from "./unit";
 import { Chessground } from "chessground";
-import { Key } from "chessground/types.d";
+import type { Key } from "chessground/types.d";
 
 export const lastMoveDrop: Unit = {
 	name: "Crazyhouse: lastMove = drop",

@@ -1,8 +1,8 @@
 import { Chessground } from "chessground";
 import { aiPlay, playOtherSide, toColor, toDests } from "./util";
-import { Unit } from "./unit";
+import type { Unit } from "./unit";
 import { Chess } from "./util";
-import { Key, Piece } from "chessground/types";
+import type { Key, Piece } from "chessground/types";
 
 export const initial: Unit = {
 	name: "Play legal moves from initial position",

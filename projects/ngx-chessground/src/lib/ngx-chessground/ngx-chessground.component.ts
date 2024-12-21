@@ -2,11 +2,11 @@ import {
 	Component,
 	ChangeDetectionStrategy,
 	ViewChild,
-	ElementRef,
-	AfterViewInit,
+	type ElementRef,
+	type AfterViewInit,
 	Input,
 } from "@angular/core";
-import { Api } from "chessground/api";
+import type { Api } from "chessground/api";
 import { NgxChessgroundService } from "../ngx-chessground.service";
 
 @Component({
