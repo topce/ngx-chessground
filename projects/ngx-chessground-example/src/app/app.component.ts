@@ -102,13 +102,13 @@ export class AppComponent implements AfterViewInit {
 
 	title = "ngx-chessground-example";
 	ngAfterViewInit(): void {
-		this.ngxChessgroundComponent().runFn = loadPgnProportionalTime.run;
+		this.ngxChessgroundComponent().runFunction.set(loadPgnProportionalTime.run);
 		// this.chessTableComponent.move({ from: 'e2', to: 'e4' });
 		// this.chessTableComponent.move({ from: 'c7', to: 'c5' });
 		// this.chessTableComponent.cancelMove();
 	}
 	public onClick(name: string, runFn: (el: HTMLElement) => Api) {
-		this.ngxChessgroundComponent().runFn = runFn;
+		this.ngxChessgroundComponent().runFunction.set(runFn);
 	}
 
 	public toggleOrientation() {

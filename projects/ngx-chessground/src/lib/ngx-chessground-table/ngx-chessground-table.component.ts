@@ -18,6 +18,6 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent =
 		viewChild.required<NgxChessgroundComponent>("chess");
 	ngAfterViewInit(): void {
-		this.ngxChessgroundComponent().runFn = play.initial.run;
+		this.ngxChessgroundComponent().runFunction.set(play.initial.run);
 	}
 }

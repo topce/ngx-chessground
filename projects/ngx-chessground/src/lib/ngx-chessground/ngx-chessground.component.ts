@@ -5,6 +5,8 @@ import {
 	type AfterViewInit,
 	input,
 	viewChild,
+	model,
+	effect,
 } from "@angular/core";
 import type { Api } from "chessground/api";
 import { NgxChessgroundService } from "../ngx-chessground.service";
@@ -19,16 +21,13 @@ import { NgxChessgroundService } from "../ngx-chessground.service";
 })
 export class NgxChessgroundComponent implements AfterViewInit {
 	readonly elementView = viewChild.required<ElementRef>("chessboard");
-	private readonly runFunction = input.required<(el: HTMLElement) => Api>();
-	public get runFn(): (el: HTMLElement) => Api {
-		return this.runFunction();
-	}
-	public set runFn(value: (el: HTMLElement) => Api) {
-		this.runFunction = value;
-		this.redraw();
-	}
+	runFunction = model<(el: HTMLElement) => Api>();
 
-	constructor(private ngxChessgroundService: NgxChessgroundService) {}
+	constructor(private ngxChessgroundService: NgxChessgroundService) {
+		effect(() => {
+			this.redraw();
+		});
+	}
 
 	ngAfterViewInit() {
 		this.redraw();
@@ -40,8 +39,9 @@ export class NgxChessgroundComponent implements AfterViewInit {
 
 	private redraw() {
 		const elementView = this.elementView();
-		if (elementView.nativeElement && this.runFn) {
-			this.ngxChessgroundService.redraw(elementView.nativeElement, this.runFn);
+		const fn = this.runFunction();
+		if (elementView.nativeElement && fn) {
+			this.ngxChessgroundService.redraw(elementView.nativeElement, fn);
 		}
 	}
 }
