@@ -11,6 +11,8 @@
     "build:lib:prod": "ng build ngx-chessground --configuration production",
     "build:app:prod": "ng build ngx-chessground-example --configuration production",
     "check": "npx @biomejs/biome check --write ./projects ",
+    "eslint": "ng lint ngx-chessground --format visualstudio && ng lint ngx-chessground-example --format visualstudio",
+    "eslint:fix": "ng lint ngx-chessground --fix --force && ng lint ngx-chessground-example --fix --force",
     "lint": "npx @biomejs/biome lint ./projects",
     "lint:fix": "npx @biomejs/biome lint --write ./projects",
     "format": "npx @biomejs/biome format --write ./projects",
@@ -35,11 +37,6 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "19.0.6",
-    "@angular-eslint/builder": "19.0.2",
-    "@angular-eslint/eslint-plugin": "19.0.2",
-    "@angular-eslint/eslint-plugin-template": "19.0.2",
-    "@angular-eslint/schematics": "19.0.2",
-    "@angular-eslint/template-parser": "19.0.2",
     "@angular/cli": "19.0.6",
     "@angular/compiler-cli": "19.0.5",
     "@biomejs/biome": "1.9.4",
@@ -47,9 +44,13 @@
     "@types/chess.js": "0.13.7",
     "@types/jasmine": "5.1.5",
     "@types/node": "22.10.2",
-    "angular-cli-ghpages": "^2.0.3",
+    "angular-cli-ghpages": "2.0.3",
+    "angular-eslint": "19.0.2",
+    "eslint": "^9.16.0",
+    "eslint-formatter-visualstudio": "^8.40.0",
     "ng-packagr": "19.0.1",
-    "typescript": "5.6.3"
+    "typescript": "5.6.3",
+    "typescript-eslint": "8.18.0"
   },
   "repository": {
     "type": "git",
