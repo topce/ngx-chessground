@@ -2,7 +2,6 @@ import { Component, viewChild } from "@angular/core";
 import type { AfterViewInit } from "@angular/core";
 import type { Api } from "chessground/api";
 
-import { NgFor } from "@angular/common";
 import { ChangeDetectionStrategy } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatListModule } from "@angular/material/list";
@@ -50,7 +49,7 @@ import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgFor, MatListModule, MatCardModule, NgxChessgroundComponent],
+	imports: [MatListModule, MatCardModule, NgxChessgroundComponent],
 })
 export class AppComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent =

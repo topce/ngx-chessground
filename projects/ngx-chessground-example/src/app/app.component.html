@@ -3,31 +3,35 @@
 </h1>
 <div class="grid-container">
   <div class="leftmenu">
-    <mat-action-list *ngFor="let item of list">
-      <button (click)="onClick(item.name, item.run)">
-        {{ item.name }}
-      </button>
-      <mat-divider></mat-divider>
-    </mat-action-list>
+    @for (item of list; track item) {
+      <mat-action-list>
+        <button (click)="onClick(item.name, item.run)">
+          {{ item.name }}
+        </button>
+        <mat-divider></mat-divider>
+      </mat-action-list>
+    }
   </div>
   <div class="main">
     <main>
       <!-- <ngx-chessground-chess-table
-        #chess1
-        (moves)="onMove($event)"
-        [playOtherSide]="false"
-      ></ngx-chessground-chess-table> -->
-      <mat-divider></mat-divider>
-      <ngx-chessground #chess></ngx-chessground>
-    </main>
-  </div>
-  <div class="rightmenu">
-    <!-- <button (click)="toggleOrientation()">toggleOrientation</button> -->
-    <mat-action-list *ngFor="let item of newList">
+      #chess1
+      (moves)="onMove($event)"
+      [playOtherSide]="false"
+    ></ngx-chessground-chess-table> -->
+    <mat-divider></mat-divider>
+    <ngx-chessground #chess></ngx-chessground>
+  </main>
+</div>
+<div class="rightmenu">
+  <!-- <button (click)="toggleOrientation()">toggleOrientation</button> -->
+  @for (item of newList; track item) {
+    <mat-action-list>
       <button (click)="onClick(item.name, item.run)">
         {{ item.name }}
       </button>
       <mat-divider></mat-divider>
     </mat-action-list>
-  </div>
+  }
+</div>
 </div>
