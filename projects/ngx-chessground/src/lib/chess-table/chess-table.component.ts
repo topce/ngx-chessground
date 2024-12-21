@@ -3,11 +3,10 @@ import {
 	type OnInit,
 	ChangeDetectionStrategy,
 	type AfterViewInit,
-	ViewChild,
 	type ElementRef,
-	Output,
-	EventEmitter,
-	Input,
+	input,
+	output,
+	viewChild,
 } from "@angular/core";
 import { VNodeData, h } from "snabbdom";
 import { init } from "snabbdom";
@@ -30,10 +29,12 @@ import type { Square, ShortMove } from "chess.js";
 	standalone: true,
 })
 export class ChessTableComponent implements OnInit, AfterViewInit {
-	@ViewChild("chessboard")
-	elementView!: ElementRef;
-	@Output() moves = new EventEmitter<{ color: string; move: ShortMove }>();
-	@Input() playOtherSide = true;
+	readonly elementView = viewChild.required<ElementRef>("chessboard");
+	readonly moves = output<{
+		color: string;
+		move: ShortMove;
+	}>();
+	readonly playOtherSide = input(true);
 
 	private patch = init([classModule, attributesModule, eventListenersModule]);
 	private vnode!: VNode;
@@ -103,7 +104,7 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
 					},
 				},
 			});
-			if (this.playOtherSide) {
+			if (this.playOtherSide()) {
 				this.cg.set({
 					movable: { events: { after: playOtherSide(this.cg, this.chess) } },
 				});
@@ -145,9 +146,10 @@ export class ChessTableComponent implements OnInit, AfterViewInit {
 		});
 	}
 	private redraw() {
-		if (this.elementView.nativeElement) {
+		const elementView = this.elementView();
+		if (elementView.nativeElement) {
 			this.vnode = this.patch(
-				this.vnode || this.elementView.nativeElement,
+				this.vnode || elementView.nativeElement,
 				this.render(),
 			);
 		}

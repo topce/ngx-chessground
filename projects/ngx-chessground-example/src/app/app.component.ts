@@ -1,7 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, viewChild } from "@angular/core";
 import type { Api } from "chessground/api";
 import type { AfterViewInit } from "@angular/core";
-import { ViewChild } from "@angular/core";
+
 import { ChangeDetectionStrategy } from "@angular/core";
 import {
 	autoShapes,
@@ -59,8 +59,10 @@ import { MatCardModule } from "@angular/material/card";
 	],
 })
 export class AppComponent implements AfterViewInit {
-	@ViewChild("chess") ngxChessgroundComponent!: NgxChessgroundComponent;
-	@ViewChild("chess1") chessTableComponent!: ChessTableComponent;
+	readonly ngxChessgroundComponent =
+		viewChild.required<NgxChessgroundComponent>("chess");
+	readonly chessTableComponent =
+		viewChild.required<ChessTableComponent>("chess1");
 	list: Unit[] = [
 		defaults,
 		fromFen,
@@ -100,17 +102,17 @@ export class AppComponent implements AfterViewInit {
 
 	title = "ngx-chessground-example";
 	ngAfterViewInit(): void {
-		this.ngxChessgroundComponent.runFn = loadPgnProportionalTime.run;
+		this.ngxChessgroundComponent().runFn = loadPgnProportionalTime.run;
 		// this.chessTableComponent.move({ from: 'e2', to: 'e4' });
 		// this.chessTableComponent.move({ from: 'c7', to: 'c5' });
 		// this.chessTableComponent.cancelMove();
 	}
 	public onClick(name: string, runFn: (el: HTMLElement) => Api) {
-		this.ngxChessgroundComponent.runFn = runFn;
+		this.ngxChessgroundComponent().runFn = runFn;
 	}
 
 	public toggleOrientation() {
-		this.chessTableComponent.toggleOrientation();
+		this.chessTableComponent().toggleOrientation();
 	}
 	public onMove(moveValue: { color: string; move: ShortMove }) {
 		console.log(moveValue);

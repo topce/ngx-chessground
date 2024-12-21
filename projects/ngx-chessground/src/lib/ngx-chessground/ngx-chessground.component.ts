@@ -1,10 +1,10 @@
 import {
 	Component,
 	ChangeDetectionStrategy,
-	ViewChild,
 	type ElementRef,
 	type AfterViewInit,
-	Input,
+	input,
+	viewChild,
 } from "@angular/core";
 import type { Api } from "chessground/api";
 import { NgxChessgroundService } from "../ngx-chessground.service";
@@ -18,12 +18,10 @@ import { NgxChessgroundService } from "../ngx-chessground.service";
 	standalone: true,
 })
 export class NgxChessgroundComponent implements AfterViewInit {
-	@ViewChild("chessboard")
-	elementView!: ElementRef;
-	@Input()
-	private runFunction!: (el: HTMLElement) => Api;
+	readonly elementView = viewChild.required<ElementRef>("chessboard");
+	private readonly runFunction = input.required<(el: HTMLElement) => Api>();
 	public get runFn(): (el: HTMLElement) => Api {
-		return this.runFunction;
+		return this.runFunction();
 	}
 	public set runFn(value: (el: HTMLElement) => Api) {
 		this.runFunction = value;
@@ -41,11 +39,9 @@ export class NgxChessgroundComponent implements AfterViewInit {
 	}
 
 	private redraw() {
-		if (this.elementView.nativeElement && this.runFn) {
-			this.ngxChessgroundService.redraw(
-				this.elementView.nativeElement,
-				this.runFn,
-			);
+		const elementView = this.elementView();
+		if (elementView.nativeElement && this.runFn) {
+			this.ngxChessgroundService.redraw(elementView.nativeElement, this.runFn);
 		}
 	}
 }

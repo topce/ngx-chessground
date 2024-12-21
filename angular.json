@@ -52,7 +52,8 @@
           "options": {
             "allowedCommonJsDependencies": ["chessground"],
             "outputPath": {
-              "base": "dist/ngx-chessground-example"
+              "base": "dist/ngx-chessground-example",
+              "browser": "browser"
             },
             "index": "projects/ngx-chessground-example/src/index.html",
             "polyfills": [
@@ -162,6 +163,9 @@
               "devServerTarget": "ngx-chessground-example:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy"
         }
       }
     }

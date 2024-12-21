@@ -2,7 +2,7 @@ import {
 	type AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
-	ViewChild,
+	viewChild,
 } from "@angular/core";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 import * as play from "../../units/play";
@@ -15,8 +15,9 @@ import * as play from "../../units/play";
 	imports: [NgxChessgroundComponent],
 })
 export class NgxChessgroundTableComponent implements AfterViewInit {
-	@ViewChild("chess") ngxChessgroundComponent!: NgxChessgroundComponent;
+	readonly ngxChessgroundComponent =
+		viewChild.required<NgxChessgroundComponent>("chess");
 	ngAfterViewInit(): void {
-		this.ngxChessgroundComponent.runFn = play.initial.run;
+		this.ngxChessgroundComponent().runFn = play.initial.run;
 	}
 }
