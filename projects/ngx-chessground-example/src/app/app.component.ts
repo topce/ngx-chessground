@@ -3,11 +3,12 @@ import type { AfterViewInit } from "@angular/core";
 import type { Api } from "chessground/api";
 
 import { ChangeDetectionStrategy } from "@angular/core";
-import { MatCardModule } from "@angular/material/card";
-import { MatListModule } from "@angular/material/list";
-import type { ShortMove } from "chess.js";
 import {
-	type ChessTableComponent,
+	type MatButtonToggleGroup,
+	MatButtonToggleModule,
+} from "@angular/material/button-toggle";
+import { MatCardModule } from "@angular/material/card";
+import {
 	NgxChessgroundComponent,
 	type Unit,
 	autoShapes,
@@ -49,14 +50,20 @@ import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [MatListModule, MatCardModule, NgxChessgroundComponent],
+	imports: [
+		MatCardModule,
+		MatButtonToggleModule,
+		NgxChessgroundComponent,
+	],
 })
 export class AppComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent =
 		viewChild.required<NgxChessgroundComponent>("chess");
-	readonly chessTableComponent =
-		viewChild.required<ChessTableComponent>("chess1");
-	list: Unit[] = [
+
+	lefMenu = viewChild.required<MatButtonToggleGroup>("leftMenu");
+	rightMenu = viewChild.required<MatButtonToggleGroup>("rightMenu");
+
+	leftList: Unit[] = [
 		defaults,
 		fromFen,
 		lastMoveCrazyhouse,
@@ -74,7 +81,7 @@ export class AppComponent implements AfterViewInit {
 		notSameRole,
 		whileHolding,
 	];
-	newList: Unit[] = [
+	rightList: Unit[] = [
 		lastMoveDrop,
 		presetUserShapes,
 		changingShapesHigh,
@@ -92,26 +99,22 @@ export class AppComponent implements AfterViewInit {
 		loadPgnOneSecondPerMove,
 		loadPgnProportionalTime,
 	];
+	rightValue: string | null = this.rightList[this.rightList.length - 1].name;
+	leftValue: string | null = null;
 
 	title = "ngx-chessground-example";
 	ngAfterViewInit(): void {
 		this.ngxChessgroundComponent().runFunction.set(loadPgnProportionalTime.run);
-		// this.chessTableComponent.move({ from: 'e2', to: 'e4' });
-		// this.chessTableComponent.move({ from: 'c7', to: 'c5' });
-		// this.chessTableComponent.cancelMove();
+		this.rightMenu().value = loadPgnProportionalTime.name;
 	}
-	public onClick(_name: string, runFn: (el: HTMLElement) => Api) {
+	public onClick(name: string, runFn: (el: HTMLElement) => Api) {
+		if (this.rightList.findIndex((unit) => unit.name === name) !== -1) {
+			this.leftValue = null;
+		} else {
+			this.rightValue = null;
+		}
 		this.ngxChessgroundComponent().runFunction.set(runFn);
 	}
 
-	public toggleOrientation() {
-		this.chessTableComponent().toggleOrientation();
-	}
-	public onMove(_moveValue: { color: string; move: ShortMove }) {
-		//console.log(moveValue);
-		// play against yourself
-		this.toggleOrientation();
-		// play sicilian
-		// this.chessTableComponent.move({ from: 'c7', to: 'c5' });
-	}
+	
 }

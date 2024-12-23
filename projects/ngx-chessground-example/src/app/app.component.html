@@ -3,35 +3,33 @@
 </h1>
 <div class="grid-container">
   <div class="leftmenu">
-    @for (item of list; track item) {
-      <mat-action-list>
-        <button (click)="onClick(item.name, item.run)">
-          {{ item.name }}
-        </button>
-        <mat-divider></mat-divider>
-      </mat-action-list>
-    }
+    <mat-button-toggle-group #leftMenu vertical [(value)]="leftValue">
+      @for (item of leftList; track item.name) {
+      <mat-button-toggle
+        [value]="item.name"
+        (click)="onClick(item.name, item.run)"
+      >
+        {{ item.name }}
+      </mat-button-toggle>
+
+      }
+    </mat-button-toggle-group>
   </div>
   <div class="main">
     <main>
-      <!-- <ngx-chessground-chess-table
-      #chess1
-      (moves)="onMove($event)"
-      [playOtherSide]="false"
-    ></ngx-chessground-chess-table> -->
-    <mat-divider></mat-divider>
-    <ngx-chessground #chess></ngx-chessground>
-  </main>
-</div>
-<div class="rightmenu">
-  <!-- <button (click)="toggleOrientation()">toggleOrientation</button> -->
-  @for (item of newList; track item) {
-    <mat-action-list>
-      <button (click)="onClick(item.name, item.run)">
+      <ngx-chessground #chess></ngx-chessground>
+    </main>
+  </div>
+  <div class="rightmenu">
+    <mat-button-toggle-group #rightMenu vertical="true" [(value)]="rightValue">
+      @for (item of rightList; track item.name) {
+      <mat-button-toggle
+        [value]="item.name"
+        (click)="onClick(item.name, item.run)"
+      >
         {{ item.name }}
-      </button>
-      <mat-divider></mat-divider>
-    </mat-action-list>
-  }
-</div>
+      </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
 </div>
