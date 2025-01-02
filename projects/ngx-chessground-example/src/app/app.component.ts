@@ -1,13 +1,13 @@
-import { Component, viewChild } from "@angular/core";
+import { Component, model, viewChild } from "@angular/core";
 import type { AfterViewInit } from "@angular/core";
 import type { Api } from "chessground/api";
 
 import { ChangeDetectionStrategy } from "@angular/core";
 import {
-	type MatButtonToggleGroup,
-	MatButtonToggleModule,
+	MatButtonToggle,
+	MatButtonToggleGroup,
 } from "@angular/material/button-toggle";
-import { MatCardModule } from "@angular/material/card";
+import { MatCardTitle } from "@angular/material/card";
 import {
 	NgxChessgroundComponent,
 	type Unit,
@@ -51,8 +51,9 @@ import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
 	styleUrls: ["./app.component.css"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
-		MatCardModule,
-		MatButtonToggleModule,
+		MatCardTitle,
+		MatButtonToggleGroup,
+		MatButtonToggle,
 		NgxChessgroundComponent,
 	],
 })
@@ -99,9 +100,10 @@ export class AppComponent implements AfterViewInit {
 		loadPgnOneSecondPerMove,
 		loadPgnProportionalTime,
 	];
-	rightValue: string | null = this.rightList[this.rightList.length - 1].name;
-	leftValue: string | null = null;
-
+	leftValue = model<string | null>(null);
+	rightValue = model<string | null>(
+		this.rightList[this.rightList.length - 1].name,
+	);
 	title = "ngx-chessground-example";
 	ngAfterViewInit(): void {
 		this.ngxChessgroundComponent().runFunction.set(loadPgnProportionalTime.run);
@@ -109,12 +111,10 @@ export class AppComponent implements AfterViewInit {
 	}
 	public onClick(name: string, runFn: (el: HTMLElement) => Api) {
 		if (this.rightList.findIndex((unit) => unit.name === name) !== -1) {
-			this.leftValue = null;
+			this.leftValue.set(null);
 		} else {
-			this.rightValue = null;
+			this.rightValue.set(null);
 		}
 		this.ngxChessgroundComponent().runFunction.set(runFn);
 	}
-
-	
 }
