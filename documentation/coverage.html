@@ -12,10 +12,61 @@
         <link rel="stylesheet" href="./styles/dark.css">
     </head>
     <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
-            <a href="./" class="navbar-brand">ngx-chessground documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="./" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -24,7 +75,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="hidden-xs menu">
+               <div class="d-none d-md-block menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -67,592 +118,568 @@
         </tr>
     </thead>
     <tbody>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
                 <a href="./components/ChessTableComponent.html">projects/ngx-chessground/src/lib/chess-table/chess-table.component.ts</a>
             </td>
             <td>component</td>
             <td>ChessTableComponent</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/18)</span>
+            <td align="right" data-sort="94">
+                <span class="coverage-percent">94 %</span>
+                <span class="coverage-count">(18/19)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="good">
             <td>
                 <!-- miscellaneous -->
                 <a href="./components/NgxChessgroundTableComponent.html">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts</a>
             </td>
             <td>component</td>
             <td>NgxChessgroundTableComponent</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/3)</span>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(2/3)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
                 <a href="./injectables/NgxChessgroundService.html">projects/ngx-chessground/src/lib/ngx-chessground.service.ts</a>
             </td>
             <td>injectable</td>
             <td>NgxChessgroundService</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/9)</span>
+            <td align="right" data-sort="88">
+                <span class="coverage-percent">88 %</span>
+                <span class="coverage-count">(8/9)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
                 <a href="./components/NgxChessgroundComponent.html">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts</a>
             </td>
             <td>component</td>
             <td>NgxChessgroundComponent</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/7)</span>
+            <td align="right" data-sort="85">
+                <span class="coverage-percent">85 %</span>
+                <span class="coverage-count">(6/7)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#conflictingAnim">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#conflictingAnim">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>conflictingAnim</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#notSameRole">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#notSameRole">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>notSameRole</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#whileHolding">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#whileHolding">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>whileHolding</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#withSameRole">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#withSameRole">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>withSameRole</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#checkHighlight">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#checkHighlight">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>checkHighlight</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#defaults">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#defaults">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>defaults</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#fromFen">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#fromFen">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>fromFen</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#lastMoveCrazyhouse">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#lastMoveCrazyhouse">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>lastMoveCrazyhouse</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#autoSwitch">projects/ngx-chessground/src/units/fen.ts</a>
+                        <a href="./miscellaneous/variables.html#autoSwitch">projects/ngx-chessground/src/units/fen.ts</a>
             </td>
             <td>variable</td>
             <td>autoSwitch</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#wrapped">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/functions.html#wrapped">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>function</td>
             <td>wrapped</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#fullRandom">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/variables.html#fullRandom">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>variable</td>
             <td>fullRandom</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#in3dDefaults">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/variables.html#in3dDefaults">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>variable</td>
             <td>in3dDefaults</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#vsRandom">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/variables.html#vsRandom">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>variable</td>
             <td>vsRandom</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#move">projects/ngx-chessground/src/units/perf.ts</a>
+                        <a href="./miscellaneous/variables.html#move">projects/ngx-chessground/src/units/perf.ts</a>
             </td>
             <td>variable</td>
             <td>move</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#select">projects/ngx-chessground/src/units/perf.ts</a>
+                        <a href="./miscellaneous/variables.html#select">projects/ngx-chessground/src/units/perf.ts</a>
             </td>
             <td>variable</td>
             <td>select</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#loadPgnOneSecondPerMove">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#loadPgnOneSecondPerMove">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>loadPgnOneSecondPerMove</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#loadPgnProportionalTime">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#loadPgnProportionalTime">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>loadPgnProportionalTime</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#loadPgnRealTime">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#loadPgnRealTime">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>loadPgnRealTime</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#pgn">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#pgn">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>pgn</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#castling">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#castling">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>castling</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#conflictingHold">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#conflictingHold">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>conflictingHold</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#initial">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#initial">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>initial</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#playFullRandom">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#playFullRandom">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>playFullRandom</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#playVsRandom">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#playVsRandom">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>playVsRandom</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#slowAnim">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#slowAnim">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>slowAnim</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#autoShapes">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#autoShapes">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>autoShapes</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#brushModifiers">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#brushModifiers">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>brushModifiers</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#changingShapesHigh">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#changingShapesHigh">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>changingShapesHigh</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#changingShapesLow">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#changingShapesLow">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>changingShapesLow</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#enabledFalse">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#enabledFalse">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>enabledFalse</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#presetUserShapes">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#presetUserShapes">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>presetUserShapes</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet1">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#shapeSet1">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>shapeSet1</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet1b">projects/ngx-chessground/src/units/svg.ts</a>
-            </td>
-            <td>variable</td>
-            <td>shapeSet1b</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet1c">projects/ngx-chessground/src/units/svg.ts</a>
-            </td>
-            <td>variable</td>
-            <td>shapeSet1c</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet2">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#shapeSet2">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>shapeSet2</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet3">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#shapeSet3">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>shapeSet3</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#visibleFalse">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#visibleFalse">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>visibleFalse</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
                 <a href="./interfaces/Unit.html">projects/ngx-chessground/src/units/unit.ts</a>
             </td>
             <td>interface</td>
             <td>Unit</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/3)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#aiPlay">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#aiPlay">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>aiPlay</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#playOtherSide">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#playOtherSide">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>playOtherSide</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#toColor">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#toColor">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>toColor</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>toDests</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#Chess">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/variables.html#Chess">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>variable</td>
             <td>Chess</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#viewOnlyFullRandom">projects/ngx-chessground/src/units/viewOnly.ts</a>
+                        <a href="./miscellaneous/variables.html#viewOnlyFullRandom">projects/ngx-chessground/src/units/viewOnly.ts</a>
             </td>
             <td>variable</td>
             <td>viewOnlyFullRandom</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
-        <tr class="low">
+        <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#lastMoveDrop">projects/ngx-chessground/src/units/zh.ts</a>
+                        <a href="./miscellaneous/variables.html#lastMoveDrop">projects/ngx-chessground/src/units/zh.ts</a>
             </td>
             <td>variable</td>
             <td>lastMoveDrop</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
     </tbody>
@@ -694,6 +721,19 @@
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
        <script src="./js/libs/custom-elements.min.js"></script>
        <script src="./js/libs/lit-html.js"></script>
 
@@ -705,7 +745,6 @@
        <script src="./js/libs/es6-shim.min.js"></script>
        <script src="./js/libs/EventDispatcher.js"></script>
        <script src="./js/libs/promise.min.js"></script>
-       <script src="./js/libs/zepto.min.js"></script>
 
        <script src="./js/compodoc.js"></script>
 

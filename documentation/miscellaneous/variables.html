@@ -12,10 +12,61 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
-            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -24,7 +75,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="hidden-xs menu">
+               <div class="d-none d-md-block menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -148,12 +199,6 @@
                             <a href="#shapeSet1" title="projects/ngx-chessground/src/units/svg.ts" ><b>shapeSet1</b>&nbsp;&nbsp;&nbsp;(projects/.../svg.ts)</a>
                         </li>
                         <li>
-                            <a href="#shapeSet1b" title="projects/ngx-chessground/src/units/svg.ts" ><b>shapeSet1b</b>&nbsp;&nbsp;&nbsp;(projects/.../svg.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#shapeSet1c" title="projects/ngx-chessground/src/units/svg.ts" ><b>shapeSet1c</b>&nbsp;&nbsp;&nbsp;(projects/.../svg.ts)</a>
-                        </li>
-                        <li>
                             <a href="#shapeSet2" title="projects/ngx-chessground/src/units/svg.ts" ><b>shapeSet2</b>&nbsp;&nbsp;&nbsp;(projects/.../svg.ts)</a>
                         </li>
                         <li>
@@ -209,13 +254,13 @@
 	name: &quot;Autoshapes&quot;,
 	run(el) {
 		function sets() {
-			return [shapeSet1, shapeSet1b, shapeSet1c].map((set) &#x3D;&gt;
-				set.map((shape) &#x3D;&gt; {
+			return [shapeSet1, shapeSet1b, shapeSet1c].map((set: DrawShape[]) &#x3D;&gt;
+				set.map((shape: DrawShape) &#x3D;&gt; {
 					shape.modifiers &#x3D; Math.round(Math.random())
 						? undefined
 						: {
 								lineWidth: 2 + Math.round(Math.random() * 3) * 4,
-						  };
+							};
 					return shape;
 				}),
 			);
@@ -237,6 +282,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that automatically generates and sets shapes on a chessboard.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -263,13 +314,13 @@
 	name: &quot;Brush modifiers&quot;,
 	run(el) {
 		function sets() {
-			return [shapeSet1, shapeSet1b, shapeSet1c].map((set) &#x3D;&gt;
-				set.map((shape) &#x3D;&gt; {
+			return [shapeSet1, shapeSet1b, shapeSet1c].map((set: DrawShape[]) &#x3D;&gt;
+				set.map((shape: DrawShape) &#x3D;&gt; {
 					shape.modifiers &#x3D; Math.round(Math.random())
 						? undefined
 						: {
 								lineWidth: 2 + Math.round(Math.random() * 3) * 4,
-						  };
+							};
 					return shape;
 				}),
 			);
@@ -291,6 +342,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that applies brush modifiers to drawable shapes on a chessboard.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -334,6 +391,13 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Unit test for automatically changing shapes with high difference between states
+Creates a Chessground instance that cycles through different shape sets at regular intervals</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -377,6 +441,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that automatically changes shapes with a low difficulty level.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -412,6 +482,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A unit configuration object for a chessboard with shapes that are not enabled but still visible.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -441,6 +517,13 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit test case for preset user shapes in Chessground.
+This unit initializes a Chessground instance with predefined drawable shapes.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -492,107 +575,13 @@
                     </td>
                 </tr>
 
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="shapeSet1b"></a>
-                    <span class="name">
-                        <span ><b>shapeSet1b</b></span>
-                        <a href="#shapeSet1b"><span class="icon ion-ios-link"></span></a>
-                    </span>
+                    <div class="io-description"><p>A predefined set of drawing shapes for a chessboard.
+Each shape can represent a square highlight, an arrow, or a piece on the board.</p>
+</div>
                 </td>
             </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>DrawShape[]</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>[
-	{ orig: &quot;a3&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;a5&quot;, brush: &quot;yellow&quot; },
-	{ orig: &quot;a6&quot;, brush: &quot;red&quot; },
-	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;a6&quot;, dest: &quot;c8&quot;, brush: &quot;blue&quot; },
-	{ orig: &quot;f8&quot;, dest: &quot;f4&quot;, brush: &quot;yellow&quot; },
-	{
-		orig: &quot;h5&quot;,
-		brush: &quot;green&quot;,
-		piece: {
-			color: &quot;white&quot;,
-			role: &quot;knight&quot;,
-		},
-	},
-	{
-		orig: &quot;h6&quot;,
-		brush: &quot;red&quot;,
-		piece: {
-			color: &quot;black&quot;,
-			role: &quot;queen&quot;,
-			scale: 0.6,
-		},
-	},
-]</code>
-                    </td>
-                </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="shapeSet1c"></a>
-                    <span class="name">
-                        <span ><b>shapeSet1c</b></span>
-                        <a href="#shapeSet1c"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>DrawShape[]</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>[
-	{ orig: &quot;a3&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;a5&quot;, brush: &quot;yellow&quot; },
-	{ orig: &quot;a6&quot;, brush: &quot;red&quot; },
-	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;a6&quot;, dest: &quot;c8&quot;, brush: &quot;blue&quot; },
-	{ orig: &quot;b6&quot;, dest: &quot;d8&quot;, brush: &quot;blue&quot; },
-	{ orig: &quot;f8&quot;, dest: &quot;f4&quot;, brush: &quot;yellow&quot; },
-	{
-		orig: &quot;h5&quot;,
-		brush: &quot;green&quot;,
-		piece: {
-			color: &quot;white&quot;,
-			role: &quot;knight&quot;,
-		},
-	},
-	{
-		orig: &quot;h6&quot;,
-		brush: &quot;red&quot;,
-		piece: {
-			color: &quot;black&quot;,
-			role: &quot;queen&quot;,
-			scale: 0.6,
-		},
-	},
-]</code>
-                    </td>
-                </tr>
-
 
         </tbody>
     </table>
@@ -635,6 +624,13 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A set of drawing shapes used for rendering on a chessboard.
+Each shape can represent a square highlight or an arrow between two squares.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -661,6 +657,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A constant array of DrawShape objects representing shapes to be drawn on a chessboard.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -696,6 +698,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A unit configuration for creating a Chessground instance with shapes not visible.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -753,6 +761,13 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that automatically switches between different FEN configurations
+to demonstrate a puzzle bug in a chess game.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -803,6 +818,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents the castling unit in a chess game.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -853,6 +874,14 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that demonstrates a conflicting hold/premove scenario in a chess game.</p>
+<p>This unit sets up a chessboard with a specific FEN position and simulates a move conflict
+where a black pawn moves to a square that a white pawn is attempting to move to.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -889,10 +918,10 @@
 				showGhost: true,
 			},
 			events: {
-				move: (orig: Key, dest: Key, capturedPiece?: Piece) &#x3D;&gt; {
-					console.log(orig);
-					console.log(dest);
-					console.log(capturedPiece);
+				move: (_orig: Key, _dest: Key, _capturedPiece?: Piece) &#x3D;&gt; {
+					//console.log(orig);
+					//console.log(dest);
+					//console.log(capturedPiece);
 				},
 			},
 		});
@@ -905,6 +934,13 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The <code>initial</code> constant represents a unit that sets up a chessboard with the initial position
+and allows playing legal moves from that position.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -956,6 +992,13 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that simulates a chess game between two random AIs.
+The game is displayed on a Chessground board with animations.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1002,6 +1045,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that allows playing against a random AI.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1051,6 +1100,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit configuration for playing against a random AI with slow animations.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1096,6 +1151,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that highlights the king in check on a chessboard.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1127,6 +1188,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Default configuration for a unit.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1161,6 +1228,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that initializes a chessboard from a FEN string with the black player&#39;s perspective.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1198,6 +1271,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that simulates the last move in a Crazyhouse chess game.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1221,6 +1300,15 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A constant that represents the ChessJS library. It checks if <code>ChessJS</code> is a function,
+and if so, assigns it to <code>Chess</code>. Otherwise, it assigns <code>ChessJS.Chess</code> to <code>Chess</code>.
+This is useful for ensuring compatibility with different ways the ChessJS library
+might be imported or included in a project.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1276,6 +1364,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit of animation for a chess conflict scenario.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1323,6 +1417,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit test for an animation where pieces of different roles are moved.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1377,6 +1477,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that performs an animation while holding a piece on a chessboard.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1424,6 +1530,14 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit test for animating chess moves with the same role.</p>
+<p>This unit test initializes a Chessground instance with a specific FEN position
+and animates two moves sequentially with a delay between them.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1481,6 +1595,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a 3D theme where two random AIs play against each other.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1517,6 +1637,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Default configuration for the 3D theme unit.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1568,6 +1694,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit for a 3D chess theme where the player plays against a random AI.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1618,7 +1750,7 @@
 				return;
 			}
 			const config &#x3D; configs[++it % configs.length];
-			console.log(config);
+			//console.log(config);
 			cg.set(config());
 			setTimeout(run, delay);
 		}
@@ -1629,6 +1761,14 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit for the Crazyhouse variant where the last move is a drop.
+This unit runs a sequence of configurations on a chessboard, each with a specific FEN and last move.
+The configurations are cycled through with a delay between each change.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1669,8 +1809,8 @@
 		});
 		const history: Move[] &#x3D; chess.history({ verbose: true });
 
-		const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
-		const header &#x3D; chess.header();
+		const _comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
+		const _header &#x3D; chess.header();
 
 		for (let i &#x3D; 0; i &lt; history.length; i++) {
 			setTimeout(() &#x3D;&gt; {
@@ -1687,6 +1827,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit that replays a PGN (Portable Game Notation) game with one second per move.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1725,7 +1871,7 @@
 		const history: Move[] &#x3D; chess.history({ verbose: true });
 
 		const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
-		const header &#x3D; chess.header();
+		const _header &#x3D; chess.header();
 
 		const timeOuts: number[] &#x3D; [];
 
@@ -1733,8 +1879,11 @@
 		let blackThinkTime &#x3D; 0;
 
 		for (let j &#x3D; 0; j &lt; comments.length; j++) {
-			const minutes &#x3D; parseInt(comments[j].comment.substring(9, 11), 10);
-			const seconds &#x3D; parseInt(comments[j].comment.substring(12, 14), 10);
+			const minutes &#x3D; Number.parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds &#x3D; Number.parseInt(
+				comments[j].comment.substring(12, 14),
+				10,
+			);
 			const timeLeft &#x3D; minutes * 60 + seconds;
 			const thinkTime &#x3D; 180 - timeLeft;
 
@@ -1747,12 +1896,15 @@
 		}
 
 		for (let i &#x3D; 0; i &lt; history.length; i++) {
-			setTimeout(() &#x3D;&gt; {
-				if (!cg.state.dom.elements.board.offsetParent) {
-					return;
-				}
-				cg.move(history[i].from, history[i].to);
-			}, timeOuts[i] * (30 / 180) * 1000);
+			setTimeout(
+				() &#x3D;&gt; {
+					if (!cg.state.dom.elements.board.offsetParent) {
+						return;
+					}
+					cg.move(history[i].from, history[i].to);
+				},
+				timeOuts[i] * (30 / 180) * 1000,
+			);
 		}
 
 		return cg;
@@ -1761,6 +1913,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Unit to replay a PGN game in proportional time of 1 minute.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1803,8 +1961,8 @@
 		const timeControl &#x3D; header.TimeControl?.split(&quot;+&quot;);
 		let timeControlInSeconds &#x3D; 180;
 		if (timeControl) {
-			const total &#x3D; parseInt(timeControl[0], 10);
-			const increment &#x3D; parseInt(timeControl[1], 10);
+			const total &#x3D; Number.parseInt(timeControl[0], 10);
+			const increment &#x3D; Number.parseInt(timeControl[1], 10);
 			timeControlInSeconds &#x3D; total + increment * (comments.length / 2);
 		}
 
@@ -1814,8 +1972,11 @@
 		let blackThinkTime &#x3D; 0;
 
 		for (let j &#x3D; 0; j &lt; comments.length; j++) {
-			const minutes &#x3D; parseInt(comments[j].comment.substring(9, 11), 10);
-			const seconds &#x3D; parseInt(comments[j].comment.substring(12, 14), 10);
+			const minutes &#x3D; Number.parseInt(comments[j].comment.substring(9, 11), 10);
+			const seconds &#x3D; Number.parseInt(
+				comments[j].comment.substring(12, 14),
+				10,
+			);
 			const timeLeft &#x3D; minutes * 60 + seconds;
 			const thinkTime &#x3D; timeControlInSeconds - timeLeft;
 
@@ -1842,6 +2003,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Unit to replay a PGN (Portable Game Notation) game in real time.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1884,6 +2051,42 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A PGN (Portable Game Notation) string representing a chess game.</p>
+<p>The PGN includes metadata about the game such as event, site, date, players,
+their ratings, and the result. It also contains the moves of the game along
+with timestamps for each move.</p>
+<p>Example metadata:</p>
+<ul>
+<li>Event: Rated Blitz game</li>
+<li>Site: <a href="https://lichess.org/hvB20kxq">https://lichess.org/hvB20kxq</a></li>
+<li>Date: 2018.05.19</li>
+<li>White: topce</li>
+<li>Black: donateIIo</li>
+<li>Result: 1-0</li>
+<li>WhiteElo: 2342</li>
+<li>BlackElo: 2406</li>
+<li>WhiteRatingDiff: +12</li>
+<li>BlackRatingDiff: -12</li>
+<li>BlackTitle: GM</li>
+<li>Variant: Standard</li>
+<li>TimeControl: 180+0</li>
+<li>ECO: A00</li>
+<li>Opening: Anderssen Opening</li>
+<li>Termination: Normal</li>
+</ul>
+<p>Example moves:</p>
+<ol>
+<li>a3 { [%clk 0:03:00] } a6 { [%clk 0:03:00] }</li>
+<li>b3 { [%clk 0:02:59] } h6 { [%clk 0:03:00] }</li>
+<li>c3 { [%clk 0:02:59] } Nf6 { [%clk 0:02:57] }
+...</li>
+<li>Rd7# { [%clk 0:00:55] } 1-0</li>
+</ol>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1933,6 +2136,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit test for the performance of a piece move in a chess game.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1982,6 +2191,12 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit test for the performance of square selection in a chessboard.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -2040,6 +2255,13 @@
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a unit configuration for a chessboard that is view-only and
+features two random AIs making moves.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -2077,6 +2299,19 @@
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -2088,7 +2323,6 @@
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
-       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 
