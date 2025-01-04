@@ -2,6 +2,29 @@ import { Chessground } from "chessground";
 import type { Key } from "chessground/types.d";
 import type { Unit } from "./unit";
 
+/**
+ * Represents a unit that automatically switches between different FEN configurations
+ * to demonstrate a puzzle bug in a chess game.
+ *
+ * @constant
+ * @type {Unit}
+ * @name autoSwitch
+ *
+ * @property {string} name - The name of the unit.
+ * @property {function} run - The function that runs the unit.
+ *
+ * @param {HTMLElement} cont - The container element where the chessboard will be rendered.
+ * @returns {Chessground} - The Chessground instance.
+ *
+ * The `run` function initializes a Chessground instance with the first configuration
+ * and then switches between the configurations every 2000 milliseconds.
+ *
+ * The configurations are defined as an array of functions, each returning an object
+ * with the following properties:
+ * - `orientation`: The orientation of the board ("black" or "white").
+ * - `fen`: The FEN string representing the board position.
+ * - `lastMove`: An array of keys representing the last move made.
+ */
 export const autoSwitch: Unit = {
 	name: "FEN: switch (puzzle bug)",
 	run(cont) {

@@ -3,6 +3,38 @@ import { Chessground } from "chessground";
 import type { Unit } from "./unit";
 import { Chess } from "./util";
 
+/**
+ * A PGN (Portable Game Notation) string representing a chess game.
+ *
+ * The PGN includes metadata about the game such as event, site, date, players,
+ * their ratings, and the result. It also contains the moves of the game along
+ * with timestamps for each move.
+ *
+ * Example metadata:
+ * - Event: Rated Blitz game
+ * - Site: https://lichess.org/hvB20kxq
+ * - Date: 2018.05.19
+ * - White: topce
+ * - Black: donateIIo
+ * - Result: 1-0
+ * - WhiteElo: 2342
+ * - BlackElo: 2406
+ * - WhiteRatingDiff: +12
+ * - BlackRatingDiff: -12
+ * - BlackTitle: GM
+ * - Variant: Standard
+ * - TimeControl: 180+0
+ * - ECO: A00
+ * - Opening: Anderssen Opening
+ * - Termination: Normal
+ *
+ * Example moves:
+ * 1. a3 { [%clk 0:03:00] } a6 { [%clk 0:03:00] }
+ * 2. b3 { [%clk 0:02:59] } h6 { [%clk 0:03:00] }
+ * 3. c3 { [%clk 0:02:59] } Nf6 { [%clk 0:02:57] }
+ * ...
+ * 39. Rd7# { [%clk 0:00:55] } 1-0
+ */
 const pgn = `[Event "Rated Blitz game"]
 [Site "https://lichess.org/hvB20kxq"]
 [Date "2018.05.19"]
@@ -26,6 +58,24 @@ const pgn = `[Event "Rated Blitz game"]
 
 
 `;
+/**
+ * Unit to replay a PGN (Portable Game Notation) game in real time.
+ *
+ * @constant
+ * @type {Unit}
+ * @name loadPgnRealTime
+ * @property {string} name - The name of the unit.
+ * @property {Function} run - Function to execute the replay of the PGN game.
+ * @param {HTMLElement} el - The HTML element where the chessboard will be rendered.
+ * @returns {Chessground} - The Chessground instance used to render the chessboard and replay the game.
+ *
+ * The function performs the following steps:
+ * 1. Initializes a new Chess instance and loads the PGN data.
+ * 2. Creates a new Chessground instance with specific animation and movement settings.
+ * 3. Retrieves the move history and comments from the PGN.
+ * 4. Calculates the time control and think times for each move.
+ * 5. Sets timeouts to replay each move on the chessboard in real time.
+ */
 export const loadPgnRealTime: Unit = {
 	name: "replay pgn game in real time",
 	run(el) {
@@ -85,6 +135,25 @@ export const loadPgnRealTime: Unit = {
 		return cg;
 	},
 };
+/**
+ * Represents a unit that replays a PGN (Portable Game Notation) game with one second per move.
+ *
+ * @constant
+ * @type {Unit}
+ * @name loadPgnOneSecondPerMove
+ *
+ * @property {string} name - The name of the unit.
+ * @property {Function} run - The function that executes the unit.
+ *
+ * @param {HTMLElement} el - The HTML element where the chessboard will be rendered.
+ * @returns {Chessground} - The Chessground instance with the replayed game.
+ *
+ * The `run` function performs the following steps:
+ * 1. Initializes a new Chess instance and loads the PGN.
+ * 2. Creates a new Chessground instance with specific animation and movement settings.
+ * 3. Retrieves the move history and comments from the Chess instance.
+ * 4. Iterates through the move history and replays each move on the Chessground board with a one-second interval.
+ */
 export const loadPgnOneSecondPerMove: Unit = {
 	name: "replay pgn game one second per move",
 	run(el) {
@@ -115,6 +184,27 @@ export const loadPgnOneSecondPerMove: Unit = {
 		return cg;
 	},
 };
+/**
+ * Unit to replay a PGN game in proportional time of 1 minute.
+ *
+ * @constant
+ * @type {Unit}
+ * @name loadPgnProportionalTime
+ *
+ * @property {string} name - The name of the unit.
+ * @property {Function} run - The function to execute the unit.
+ *
+ * @param {HTMLElement} el - The HTML element to attach the chessboard to.
+ *
+ * @returns {Chessground} - The Chessground instance with the replayed game.
+ *
+ * The `run` function performs the following steps:
+ * 1. Initializes a new Chess instance and loads the PGN.
+ * 2. Creates a new Chessground instance with specific animation and movement settings.
+ * 3. Retrieves the move history and comments from the chess instance.
+ * 4. Calculates the think time for each move based on the comments.
+ * 5. Sets timeouts to replay each move on the Chessground instance in proportional time.
+ */
 export const loadPgnProportionalTime: Unit = {
 	name: "replay pgn game in proprtional time 1 minute",
 	run(el) {

@@ -1,6 +1,16 @@
 import { Chessground } from "chessground";
 import type { Unit } from "./unit";
 
+/**
+ * Default configuration for a unit.
+ *
+ * @constant
+ * @type {Unit}
+ * @property {string} name - The name of the configuration.
+ * @property {function} run - Function to initialize Chessground with the given element.
+ * @param {HTMLElement} el - The HTML element to initialize Chessground on.
+ * @returns {Chessground} - The initialized Chessground instance.
+ */
 export const defaults: Unit = {
 	name: "Default configuration",
 	run(el) {
@@ -8,6 +18,18 @@ export const defaults: Unit = {
 	},
 };
 
+/**
+ * Represents a unit that initializes a chessboard from a FEN string with the black player's perspective.
+ *
+ * @constant
+ * @type {Unit}
+ * @name fromFen
+ *
+ * @property {string} name - The name of the unit.
+ * @property {function} run - The function that initializes the chessboard.
+ * @param {HTMLElement} el - The HTML element where the chessboard will be rendered.
+ * @returns {Chessground} - The initialized Chessground instance.
+ */
 export const fromFen: Unit = {
 	name: "From FEN, from black POV",
 	run(el) {
@@ -18,6 +40,18 @@ export const fromFen: Unit = {
 	},
 };
 
+/**
+ * Represents a unit that simulates the last move in a Crazyhouse chess game.
+ *
+ * @constant
+ * @type {Unit}
+ * @name lastMoveCrazyhouse
+ *
+ * @property {string} name - The name of the unit.
+ * @property {Function} run - The function that initializes the Chessground instance and sets the last moves.
+ * @param {HTMLElement} el - The HTML element to initialize the Chessground on.
+ * @returns {Chessground} The initialized Chessground instance with the last moves set.
+ */
 export const lastMoveCrazyhouse: Unit = {
 	name: "Last move: crazyhouse",
 	run(el) {
@@ -31,6 +65,18 @@ export const lastMoveCrazyhouse: Unit = {
 	},
 };
 
+/**
+ * Represents a unit that highlights the king in check on a chessboard.
+ *
+ * @constant
+ * @type {Unit}
+ * @name checkHighlight
+ *
+ * @property {string} name - The name of the unit.
+ * @property {Function} run - The function that initializes the chessboard with the specified FEN and highlights the king in check.
+ * @param {HTMLElement} el - The HTML element where the chessboard will be rendered.
+ * @returns {Chessground} - The initialized Chessground instance with the king in check highlighted.
+ */
 export const checkHighlight: Unit = {
 	name: "Highlight king in check",
 	run(el) {

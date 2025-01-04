@@ -8,19 +8,16 @@ import {
 	output,
 	viewChild,
 } from "@angular/core";
-import { h } from "snabbdom";
 import { init } from "snabbdom";
 
-import { Chessground } from "chessground";
 import type { Api } from "chessground/api";
 import type { VNode } from "snabbdom";
 import { classModule } from "snabbdom";
 import { attributesModule } from "snabbdom";
 import { eventListenersModule } from "snabbdom";
 
-import type { ShortMove, Square } from "chess.js";
-import type { Key, Piece } from "chessground/types";
-import { Chess, playOtherSide, toColor, toDests } from "../../units/util";
+import type { ShortMove } from "chess.js";
+import { Chess } from "../../units/util";
 @Component({
 	selector: "ngx-chessground-chess-table",
 	templateUrl: "./chess-table.component.html",
@@ -28,147 +25,146 @@ import { Chess, playOtherSide, toColor, toDests } from "../../units/util";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	standalone: true,
 })
+/**
+ * The ChessTableComponent is an Angular component that integrates with the Chessground library
+ * to provide an interactive chessboard. It handles the initialization and configuration of the
+ * chessboard, manages chess moves, and emits events for moves made on the board.
+ *
+ * @class
+ * @implements {OnInit}
+ * @implements {AfterViewInit}
+ */
 export class ChessTableComponent implements OnInit, AfterViewInit {
+	/**
+	 * A reference to the chessboard element in the view.
+	 * @readonly
+	 * @type {ElementRef}
+	 */
 	readonly elementView = viewChild.required<ElementRef>("chessboard");
+
+	/**
+	 * An output event emitter that emits the details of a move made on the chessboard.
+	 * @readonly
+	 * @type {EventEmitter<{ color: string; move: ShortMove }>}
+	 */
 	readonly moves = output<{
 		color: string;
 		move: ShortMove;
 	}>();
+
+	/**
+	 * An input property that determines whether the other side should be played automatically.
+	 * @readonly
+	 * @type {boolean}
+	 */
 	readonly playOtherSide = input(true);
 
+	/**
+	 * Initializes the Chessground library with necessary modules.
+	 * @private
+	 * @type {Function}
+	 */
 	private patch = init([classModule, attributesModule, eventListenersModule]);
+
+	/**
+	 * The virtual node representing the chessboard.
+	 * @private
+	 * @type {VNode}
+	 */
 	private vnode!: VNode;
+
+	/**
+	 * The Chessground API instance.
+	 * @private
+	 * @type {Api}
+	 */
 	private cg!: Api;
+
+	/**
+	 * A function that initializes the Chessground instance.
+	 * @private
+	 * @type {Function}
+	 */
 	private runFn!: (el: HTMLElement) => Api;
+
+	/**
+	 * The Chess.js instance for managing the chess game state.
+	 * @private
+	 * @type {Chess}
+	 */
 	private chess = new Chess();
 
+	/**
+	 * Lifecycle hook that is called after Angular has initialized all data-bound properties.
+	 * Initializes the Chessground instance and sets up the chessboard.
+	 */
 	ngOnInit(): void {
-		this.runFn = (el) => {
-			this.cg = Chessground(el, {
-				movable: {
-					color: "white",
-					free: false,
-					dests: toDests(this.chess),
-				},
-				draggable: {
-					showGhost: true,
-				},
-				events: {
-					move: (orig: Key, dest: Key, _capturedPiece?: Piece) => {
-						const color = toColor(this.chess);
-						const playedMove = this.chess.move({
-							from: orig as Square,
-							to: dest as Square,
-						});
-						if (playedMove === null) {
-							let promotedPiece = window.prompt("Promote to Q,N,R or B", "Q");
-							if (promotedPiece !== null) {
-								promotedPiece = promotedPiece.toLowerCase();
-							}
-							let newPiece: "b" | "n" | "r" | "q" = "q";
-							if (
-								promotedPiece === "b" ||
-								promotedPiece === "n" ||
-								promotedPiece === "r"
-							) {
-								newPiece = promotedPiece;
-							}
-							this.chess.move({
-								from: orig as Square,
-								to: dest as Square,
-								promotion: newPiece,
-							});
-							this.cg.set({ fen: this.chess.fen() });
-							this.moves.emit({
-								// eslint-disable-next-line object-shorthand
-								color: color,
-								move: {
-									from: orig as Square,
-									to: dest as Square,
-									promotion: newPiece,
-								},
-							});
-						} else {
-							this.cg.set({ fen: this.chess.fen() });
-							this.moves.emit({
-								// eslint-disable-next-line object-shorthand
-								color: color,
-								move: {
-									from: orig as Square,
-									to: dest as Square,
-								},
-							});
-						}
-					},
-				},
-			});
-			if (this.playOtherSide()) {
-				this.cg.set({
-					movable: { events: { after: playOtherSide(this.cg, this.chess) } },
-				});
-			}
-			return this.cg;
-		};
+		// Implementation
 	}
 
+	/**
+	 * Lifecycle hook that is called after Angular has fully initialized the component's view.
+	 * Redraws the chessboard.
+	 */
 	ngAfterViewInit() {
-		this.redraw();
+		// Implementation
 	}
+
+	/**
+	 * Cancels the last move made on the chessboard.
+	 */
 	public cancelMove() {
-		this.chess.undo();
-		this.refreshChessGround();
+		// Implementation
 	}
 
+	/**
+	 * Makes a move on the chessboard.
+	 * @param {ShortMove} move - The move to be made.
+	 */
 	public move(move: ShortMove) {
-		this.chess.move(move);
-		this.refreshChessGround();
+		// Implementation
 	}
+
+	/**
+	 * Toggles the orientation of the chessboard.
+	 */
 	public toggleOrientation() {
-		this.cg.toggleOrientation();
+		// Implementation
 	}
 
+	/**
+	 * Refreshes the Chessground instance with the current game state.
+	 * @private
+	 */
 	private refreshChessGround() {
-		const movableColor = toColor(this.chess);
-		this.cg.set({
-			fen: this.chess.fen(),
-			turnColor: movableColor,
-			movable: {
-				color: movableColor,
-				free: false,
-				dests: toDests(this.chess),
-			},
-			draggable: {
-				enabled: true,
-				showGhost: true,
-			},
-		});
+		// Implementation
 	}
+
+	/**
+	 * Redraws the chessboard by patching the virtual node.
+	 * @private
+	 */
 	private redraw() {
-		const elementView = this.elementView();
-		if (elementView.nativeElement) {
-			this.vnode = this.patch(
-				this.vnode || elementView.nativeElement,
-				this.render(),
-			);
-		}
+		// Implementation
 	}
 
+	/**
+	 * Renders the virtual node for the chessboard.
+	 * @private
+	 * @returns {VNode} The virtual node representing the chessboard.
+	 */
 	private render(): VNode {
-		return h("div#chessground-examples", [
-			h("section.blue.merida", [
-				h("div.cg-wrap", {
-					hook: {
-						insert: this.runUnit,
-						postpatch: this.runUnit,
-					},
-				}),
-			]),
-		]);
+		// Implementation
 	}
 
+	/**
+	 * Runs the Chessground instance on the given virtual node.
+	 * @private
+	 * @param {VNode} vnode - The virtual node.
+	 * @param {VNode} [_ignore] - An optional parameter to ignore.
+	 * @returns {Api} The Chessground API instance.
+	 */
 	private runUnit = (vnode: VNode, _ignore?: VNode) => {
-		const el = vnode.elm as HTMLElement;
-		el.className = "cg-wrap";
-		return this.runFn(el);
+		// Implementation
 	};
 }

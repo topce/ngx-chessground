@@ -18,24 +18,52 @@ import { NgxChessgroundService } from "../ngx-chessground.service";
 	providers: [NgxChessgroundService],
 	standalone: true,
 })
+/**
+ * Component representing a chessboard using the ngx-chessground library.
+ * Implements the AfterViewInit lifecycle hook to perform actions after the view has been initialized.
+ */
 export class NgxChessgroundComponent implements AfterViewInit {
+	/**
+	 * A reference to the chessboard element in the view.
+	 * @readonly
+	 */
 	readonly elementView = viewChild.required<ElementRef>("chessboard");
+
+	/**
+	 * A function that takes an HTMLElement and returns an Api object.
+	 */
 	runFunction = model<(el: HTMLElement) => Api>();
 
+	/**
+	 * Constructor for the NgxChessgroundComponent.
+	 * @param ngxChessgroundService - The service used to interact with the chessboard.
+	 */
 	constructor(private ngxChessgroundService: NgxChessgroundService) {
 		effect(() => {
 			this.redraw();
 		});
 	}
 
+	/**
+	 * Lifecycle hook that is called after the component's view has been fully initialized.
+	 * Calls the redraw method to update the chessboard.
+	 */
 	ngAfterViewInit() {
 		this.redraw();
 	}
 
+	/**
+	 * Toggles the orientation of the chessboard.
+	 */
 	public toggleOrientation() {
 		this.ngxChessgroundService.toggleOrientation();
 	}
 
+	/**
+	 * Redraws the chessboard using the ngxChessgroundService.
+	 * Retrieves the chessboard element and the function to redraw it, then calls the service's redraw method.
+	 * @private
+	 */
 	private redraw() {
 		const elementView = this.elementView();
 		const fn = this.runFunction();

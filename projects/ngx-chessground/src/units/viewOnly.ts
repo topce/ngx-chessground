@@ -2,6 +2,22 @@ import { Chessground } from "chessground";
 import type { Unit } from "./unit";
 import { Chess } from "./util";
 
+/**
+ * Represents a unit configuration for a chessboard that is view-only and
+ * features two random AIs making moves.
+ *
+ * @constant
+ * @type {Unit}
+ * @name viewOnlyFullRandom
+ *
+ * @property {string} name - The name of the unit.
+ * @property {Function} run - The function that initializes the chessboard
+ * and starts the random AI moves.
+ *
+ * @param {HTMLElement} el - The HTML element where the chessboard will be rendered.
+ *
+ * @returns {Chessground} - The initialized Chessground instance.
+ */
 export const viewOnlyFullRandom: Unit = {
 	name: "View only: 2 random AIs",
 	run(el) {
