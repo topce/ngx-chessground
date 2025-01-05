@@ -22,21 +22,18 @@ It uses Angular CLI
 to install and run
 
 ```console
-yarn install
-yarn start
+npm install
+npm start
 ```
 
 To see documentation
 
 ```console
-yarn install
-yarn compodoc
+npm install
+npm compodoc
 ```
 
 FUTURE ROADMAP:
 
 - create Angular components for online playing (piece promotion need to be done)
 - create Angular pgn viewer
-- document library
-- improve ugly demo app ngx-chessground-example
-- refactor delete not used and eliminate duplicate code
