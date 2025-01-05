@@ -13,7 +13,7 @@ import { NgxChessgroundService } from "../ngx-chessground.service";
 @Component({
 	selector: "ngx-chessground",
 	templateUrl: "./ngx-chessground.component.html",
-	styleUrls: ["./ngx-chessground.component.css"],
+	styleUrls: ["./ngx-chessground.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	providers: [NgxChessgroundService],
 	standalone: true,

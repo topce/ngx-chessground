@@ -24,6 +24,7 @@
     <mat-button-toggle-group #rightMenu vertical="true" [(value)]="rightValue">
       @for (item of rightList; track item.name) {
       <mat-button-toggle
+        font-size="small"
         [value]="item.name"
         (click)="onClick(item.name, item.run)"
       >

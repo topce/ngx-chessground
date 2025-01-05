@@ -10,7 +10,7 @@ import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.comp
 @Component({
 	selector: "ngx-chessground-table",
 	templateUrl: "./ngx-chessground-table.component.html",
-	styleUrls: ["./ngx-chessground-table.component.css"],
+	styleUrls: ["./ngx-chessground-table.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgxChessgroundComponent],
 })
@@ -34,7 +34,7 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 	/**
 	 * A readonly property that references the `NgxChessgroundComponent` instance.
 	 * This property is decorated with `@ViewChild` to query the component with the template reference variable `chess`.
-	 * 
+	 *
 	 * @readonly
 	 * @type {NgxChessgroundComponent}
 	 */

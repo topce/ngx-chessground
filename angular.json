@@ -1,140 +1,149 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "ngx-chessground": {
-      "projectType": "library",
-      "root": "projects/ngx-chessground",
-      "sourceRoot": "projects/ngx-chessground/src",
-      "prefix": "ngx-chessgroung",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "tsConfig": "projects/ngx-chessground/tsconfig.lib.json",
-            "project": "projects/ngx-chessground/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/ngx-chessground/tsconfig.lib.prod.json"
-            }
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "projects/ngx-chessground/**/*.ts",
-              "projects/ngx-chessground/**/*.html"
-            ]
-          }
-        }
-      }
-    },
-    "ngx-chessground-example": {
-      "projectType": "application",
-      "schematics": {},
-      "root": "projects/ngx-chessground-example",
-      "sourceRoot": "projects/ngx-chessground-example/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:application",
-          "options": {
-            "allowedCommonJsDependencies": [
-              "chessground"
-            ],
-            "outputPath": {
-              "base": "dist/ngx-chessground-example",
-              "browser": "browser"
-            },
-            "index": "projects/ngx-chessground-example/src/index.html",
-            "polyfills": [],
-            "tsConfig": "projects/ngx-chessground-example/tsconfig.app.json",
-            "assets": [
-              "projects/ngx-chessground-example/src/favicon.ico",
-              "projects/ngx-chessground-example/src/assets",
-              {
-                "glob": "**/*",
-                "input": "./projects/ngx-chessground/assets",
-                "output": "/assets/"
-              }
-            ],
-            "styles": [
-              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-              "projects/ngx-chessground-example/src/styles.css"
-            ],
-            "scripts": [],
-            "extractLicenses": false,
-            "sourceMap": true,
-            "optimization": false,
-            "namedChunks": true,
-            "browser": "projects/ngx-chessground-example/src/main.ts"
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/ngx-chessground-example/src/environments/environment.ts",
-                  "with": "projects/ngx-chessground-example/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "ngx-chessground-example:build"
-          },
-          "configurations": {
-            "production": {
-              "buildTarget": "ngx-chessground-example:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "buildTarget": "ngx-chessground-example:build"
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "projects/ngx-chessground-example/**/*.ts",
-              "projects/ngx-chessground-example/**/*.html"
-            ]
-          }
-        },
-        "deploy": {
-          "builder": "angular-cli-ghpages:deploy"
-        }
-      }
-    }
-  },
-  "cli": {
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ]
-  }
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"newProjectRoot": "projects",
+	"projects": {
+		"ngx-chessground": {
+			"projectType": "library",
+			"root": "projects/ngx-chessground",
+			"sourceRoot": "projects/ngx-chessground/src",
+			"prefix": "ngx-chessgroung",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:ng-packagr",
+					"options": {
+						"tsConfig": "projects/ngx-chessground/tsconfig.lib.json",
+						"project": "projects/ngx-chessground/ng-package.json"
+					},
+					"configurations": {
+						"production": {
+							"tsConfig": "projects/ngx-chessground/tsconfig.lib.prod.json"
+						}
+					}
+				},
+				"lint": {
+					"builder": "@angular-eslint/builder:lint",
+					"options": {
+						"lintFilePatterns": [
+							"projects/ngx-chessground/**/*.ts",
+							"projects/ngx-chessground/**/*.html"
+						]
+					}
+				}
+			},
+			"schematics": {
+				"@schematics/angular:component": {
+					"style": "scss"
+				}
+			}
+		},
+		"ngx-chessground-example": {
+			"projectType": "application",
+			"schematics": {
+				"@schematics/angular:component": {
+					"style": "scss"
+				}
+			},
+			"root": "projects/ngx-chessground-example",
+			"sourceRoot": "projects/ngx-chessground-example/src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:application",
+					"options": {
+						"allowedCommonJsDependencies": [
+							"chessground"
+						],
+						"outputPath": {
+							"base": "dist/ngx-chessground-example",
+							"browser": "browser"
+						},
+						"index": "projects/ngx-chessground-example/src/index.html",
+						"polyfills": [],
+						"tsConfig": "projects/ngx-chessground-example/tsconfig.app.json",
+						"assets": [
+							"projects/ngx-chessground-example/src/favicon.ico",
+							"projects/ngx-chessground-example/src/assets",
+							{
+								"glob": "**/*",
+								"input": "./projects/ngx-chessground/assets",
+								"output": "/assets/"
+							}
+						],
+						"styles": [
+							"./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+							"projects/ngx-chessground-example/src/styles.scss"
+						],
+						"scripts": [],
+						"extractLicenses": false,
+						"sourceMap": true,
+						"optimization": false,
+						"namedChunks": true,
+						"browser": "projects/ngx-chessground-example/src/main.ts"
+					},
+					"configurations": {
+						"production": {
+							"fileReplacements": [
+								{
+									"replace": "projects/ngx-chessground-example/src/environments/environment.ts",
+									"with": "projects/ngx-chessground-example/src/environments/environment.prod.ts"
+								}
+							],
+							"optimization": true,
+							"outputHashing": "all",
+							"sourceMap": false,
+							"namedChunks": false,
+							"extractLicenses": true,
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "2mb",
+									"maximumError": "5mb"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "6kb",
+									"maximumError": "10kb"
+								}
+							]
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"options": {
+						"buildTarget": "ngx-chessground-example:build"
+					},
+					"configurations": {
+						"production": {
+							"buildTarget": "ngx-chessground-example:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"buildTarget": "ngx-chessground-example:build"
+					}
+				},
+				"lint": {
+					"builder": "@angular-eslint/builder:lint",
+					"options": {
+						"lintFilePatterns": [
+							"projects/ngx-chessground-example/**/*.ts",
+							"projects/ngx-chessground-example/**/*.html"
+						]
+					}
+				},
+				"deploy": {
+					"builder": "angular-cli-ghpages:deploy"
+				}
+			}
+		}
+	},
+	"cli": {
+		"schematicCollections": [
+			"@angular-eslint/schematics"
+		]
+	}
 }

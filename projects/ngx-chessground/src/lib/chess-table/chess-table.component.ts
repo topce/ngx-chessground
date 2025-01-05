@@ -21,7 +21,7 @@ import { Chess } from "../../units/util";
 @Component({
 	selector: "ngx-chessground-chess-table",
 	templateUrl: "./chess-table.component.html",
-	styleUrls: ["./chess-table.component.css"],
+	styleUrls: ["./chess-table.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	standalone: true,
 })

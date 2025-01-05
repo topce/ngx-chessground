@@ -48,7 +48,7 @@ import { in3dDefaults } from "../../../ngx-chessground/src/units/in3d";
 @Component({
 	selector: "app-root",
 	templateUrl: "./app.component.html",
-	styleUrls: ["./app.component.css"],
+	styleUrls: ["./app.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
 		MatCardTitle,
@@ -110,6 +110,9 @@ export class AppComponent implements AfterViewInit {
 		this.rightMenu().value = loadPgnProportionalTime.name;
 	}
 	public onClick(name: string, runFn: (el: HTMLElement) => Api) {
+		// scroll to top
+		window.scrollTo(0, 0);
+
 		if (this.rightList.findIndex((unit) => unit.name === name) !== -1) {
 			this.leftValue.set(null);
 		} else {
