@@ -67,7 +67,7 @@ export const changingShapesLow: Unit = {
 	run(el) {
 		const cg = Chessground(el, { drawable: { shapes: shapeSet1 } });
 		const delay = 1000;
-		const sets = [shapeSet1, shapeSet1b, shapeSet1c];
+		const sets = [shapeSet1, shapeSet2, shapeSet3];
 		let i = 0;
 		function run() {
 			if (!cg.state.dom.elements.board.offsetParent) {
@@ -104,7 +104,7 @@ export const brushModifiers: Unit = {
 	name: "Brush modifiers",
 	run(el) {
 		function sets() {
-			return [shapeSet1, shapeSet1b, shapeSet1c].map((set: DrawShape[]) =>
+			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) =>
 				set.map((shape: DrawShape) => {
 					shape.modifiers = Math.round(Math.random())
 						? undefined
@@ -148,7 +148,7 @@ export const autoShapes: Unit = {
 	name: "Autoshapes",
 	run(el) {
 		function sets() {
-			return [shapeSet1, shapeSet1b, shapeSet1c].map((set: DrawShape[]) =>
+			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) =>
 				set.map((shape: DrawShape) => {
 					shape.modifiers = Math.round(Math.random())
 						? undefined

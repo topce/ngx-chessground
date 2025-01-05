@@ -1,7 +1,6 @@
 /*
  * Public API Surface of ngx-chessground
  */
-export * from "./lib/chess-table/chess-table.component";
 export * from "./lib/ngx-chessground-table/ngx-chessground-table.component";
 export * from "./lib/ngx-chessground/ngx-chessground.component";
 

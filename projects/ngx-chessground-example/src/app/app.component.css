@@ -1,0 +1,47 @@
+.grid-container {
+	display: grid;
+	grid-template-areas: "leftmenu main rightmenu";
+	grid-template-columns: 400px 1fr 400px;
+	grid-template-rows: auto;
+	gap: 0px;
+	padding: 0px;
+	height: auto;
+	width: 100%;
+}
+
+.main {
+	grid-area: main;
+	display: flex;
+	justify-content: center;
+}
+
+.leftmenu {
+	grid-area: leftmenu;
+}
+
+.rightmenu {
+	grid-area: rightmenu;
+}
+
+.grid-container > div {
+	text-align: center;
+	padding: 0 0;
+}
+
+h1 {
+	text-align: center;
+}
+
+h1 > mat-card-title {
+	text-align: center;
+	font-size: 200%;
+}
+
+@use '@angular/material' as mat;
+
+:root {
+	@include mat.button-toggle-overrides((
+    legacy-focus-state-layer-opacity: orange,
+    legacy-text-color: red,
+  ));
+}
