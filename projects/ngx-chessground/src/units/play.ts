@@ -39,9 +39,9 @@ export const initial: Unit = {
 			},
 			events: {
 				move: (_orig: Key, _dest: Key, _capturedPiece?: Piece) => {
-					//console.log(orig);
-					//console.log(dest);
-					//console.log(capturedPiece);
+					console.log(_orig);
+					console.log(_dest);
+					console.log(_capturedPiece);
 				},
 			},
 		});
