@@ -1,8 +1,7 @@
-import * as ChessJS from 'chess.js';
-import type {Chess as ChessInstance, Move, Square } from "chess.js";
+import * as ChessJS from "chess.js";
+import type { Chess as ChessInstance, Move, Square } from "chess.js";
 import type { Api } from "chessground/api";
 import type { Color, Key } from "chessground/types";
-
 
 /**
  * Generates a map of possible destination squares for each piece on the board.
