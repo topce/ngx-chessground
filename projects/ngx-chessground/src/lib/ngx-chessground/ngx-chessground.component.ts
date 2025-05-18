@@ -38,7 +38,7 @@ export class NgxChessgroundComponent implements AfterViewInit {
 	 * Constructor for the NgxChessgroundComponent.
 	 * @param ngxChessgroundService - The service used to interact with the chessboard.
 	 */
-	constructor(private ngxChessgroundService: NgxChessgroundService) {
+	constructor(private readonly ngxChessgroundService: NgxChessgroundService) {
 		effect(() => {
 			this.redraw();
 		});

@@ -18,7 +18,11 @@ export class NgxChessgroundService {
 	 * Initializes the patch function with the necessary modules.
 	 * @private
 	 */
-	private patch = init([classModule, attributesModule, eventListenersModule]);
+	private readonly patch = init([
+		classModule,
+		attributesModule,
+		eventListenersModule,
+	]);
 
 	/**
 	 * Virtual node representing the current state of the DOM.
@@ -81,7 +85,7 @@ export class NgxChessgroundService {
 	 * @returns The result of the run function.
 	 * @private
 	 */
-	private runUnit = (vnode: VNode, _ignore?: VNode) => {
+	private readonly runUnit = (vnode: VNode, _ignore?: VNode) => {
 		const el = vnode.elm as HTMLElement;
 		el.className = "cg-wrap";
 		this.cg = Chessground(el);

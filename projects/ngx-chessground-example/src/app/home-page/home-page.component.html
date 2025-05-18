@@ -1,0 +1,35 @@
+<!-- Original app content goes here -->
+<div class="grid-container">
+  <div class="leftmenu">
+    <mat-button-toggle-group #leftMenu vertical [(value)]="leftValue">
+      @for (item of leftList; track item.name) {
+      <mat-button-toggle
+        [value]="item.name"
+        (click)="onClick(item.name, item.run)"
+        (keydown.enter)="onClick(item.name, item.run)"
+      >
+        {{ item.name }}
+      </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+  <div class="main">
+    <main>
+      <ngx-chessground #chess></ngx-chessground>
+    </main>
+  </div>
+  <div class="rightmenu">
+    <mat-button-toggle-group #rightMenu vertical="true" [(value)]="rightValue">
+      @for (item of rightList; track item.name) {
+      <mat-button-toggle
+        font-size="small"
+        [value]="item.name"
+        (click)="onClick(item.name, item.run)"
+        (keydown.enter)="onClick(item.name, item.run)"
+      >
+        {{ item.name }}
+      </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+</div>
