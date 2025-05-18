@@ -9,5 +9,5 @@ import { NgxChessgroundTableComponent } from "ngx-chessground";
 	standalone: true,
 })
 export class ChessTablePageComponent {
-	title = "Chess Table Demo";
+	title = "Play like GOAT Robert James Fischer";
 }

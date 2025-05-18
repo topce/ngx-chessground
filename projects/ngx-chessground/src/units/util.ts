@@ -37,17 +37,24 @@ export function toColor(chess: ChessInstance): Color {
 
 /**
  * Converts chess.js promotion character to chessground piece role.
- * 
+ *
  * @param promotion - The chess.js promotion character ('q', 'r', 'b', 'n')
  * @returns The corresponding chessground piece role ('queen', 'rook', 'bishop', 'knight')
  */
-function promotionToRole(promotion: string): 'queen' | 'rook' | 'bishop' | 'knight' {
-	switch(promotion) {
-		case 'q': return 'queen';
-		case 'r': return 'rook';
-		case 'b': return 'bishop';
-		case 'n': return 'knight';
-		default: return 'queen'; // Default to queen
+function promotionToRole(
+	promotion: string,
+): "queen" | "rook" | "bishop" | "knight" {
+	switch (promotion) {
+		case "q":
+			return "queen";
+		case "r":
+			return "rook";
+		case "b":
+			return "bishop";
+		case "n":
+			return "knight";
+		default:
+			return "queen"; // Default to queen
 	}
 }
 
@@ -63,39 +70,43 @@ export function playOtherSide(cg: Api, chess: ChessInstance) {
 	return (orig: Key, dest: Key) => {
 		// Check if this is a pawn promotion move (pawn reaching the first or eighth row)
 		const piece = chess.get(orig as Square);
-		const isPawn = piece && piece.type === 'p';
-		const isPromotionMove = isPawn && (dest.charAt(1) === '8' || dest.charAt(1) === '1');
-		
+		const isPawn = piece && piece.type === "p";
+		const isPromotionMove =
+			isPawn && (dest.charAt(1) === "8" || dest.charAt(1) === "1");
+
 		if (isPromotionMove) {
 			// Ask user what piece to promote to
-			const promotionPiece = window.prompt('Promote pawn to: q (Queen), r (Rook), b (Bishop), n (Knight)', 'q');
-			const validPromotions = ['q', 'r', 'b', 'n'];
-			const promotion = validPromotions.includes(promotionPiece?.toLowerCase() ?? '') 
-				? promotionPiece?.toLowerCase() 
-				: 'q'; // Default to queen if invalid input
+			const promotionPiece = window.prompt(
+				"Promote pawn to: q (Queen), r (Rook), b (Bishop), n (Knight)",
+				"q",
+			);
+			const validPromotions = ["q", "r", "b", "n"];
+			const promotion = validPromotions.includes(
+				promotionPiece?.toLowerCase() ?? "",
+			)
+				? promotionPiece?.toLowerCase()
+				: "q"; // Default to queen if invalid input
 
 			// Make the move with promotion
-			const moveResult = chess.move({ 
-				from: orig, 
-				to: dest, 
-				promotion: promotion as 'q' | 'r' | 'n' | 'b'
+			const moveResult = chess.move({
+				from: orig,
+				to: dest,
+				promotion: promotion as "q" | "r" | "n" | "b",
 			});
 
 			// For promotion moves, we need to manually update the board to show the promoted piece
 			if (moveResult) {
 				// First move the pawn on the board
 				cg.move(orig, dest);
-                
+
 				// Then update the piece on the destination square with the promoted piece
-				const color = piece.color === 'w' ? 'white' : 'black';
-				
+				const color = piece.color === "w" ? "white" : "black";
+
 				// Map promotion letters to chessground piece roles using our helper function
 				const pieceRole = promotionToRole(promotion as string);
-				
+
 				// Update the piece on the board with the proper promoted piece
-				cg.setPieces(new Map([
-					[dest, { role: pieceRole, color: color }]
-				]));
+				cg.setPieces(new Map([[dest, { role: pieceRole, color: color }]]));
 			}
 		} else {
 			// Regular move
@@ -133,28 +144,27 @@ export function aiPlay(
 	return (orig: Key, dest: Key) => {
 		// Check if this is a pawn promotion move
 		const piece = chess.get(orig as Square);
-		const isPawn = piece && piece.type === 'p';
-		const isPromotionMove = isPawn && (dest.charAt(1) === '8' || dest.charAt(1) === '1');
+		const isPawn = piece && piece.type === "p";
+		const isPromotionMove =
+			isPawn && (dest.charAt(1) === "8" || dest.charAt(1) === "1");
 
 		if (isPromotionMove) {
 			// For player's move, automatically promote to queen
-			const promotion = 'q';
-			chess.move({ 
-				from: orig as Square, 
+			const promotion = "q";
+			chess.move({
+				from: orig as Square,
 				to: dest as Square,
-				promotion: promotion
+				promotion: promotion,
 			});
-			
+
 			// Get the color of the piece
-			const color = piece.color === 'w' ? 'white' : 'black';
-			
+			const color = piece.color === "w" ? "white" : "black";
+
 			// Map promotion letters to chessground piece roles using our helper function
 			const pieceRole = promotionToRole(promotion);
-			
+
 			// Update the piece on the board with the promoted piece
-			cg.setPieces(new Map([
-				[dest, { role: pieceRole, color: color }]
-			]));
+			cg.setPieces(new Map([[dest, { role: pieceRole, color: color }]]));
 		} else {
 			// Regular move
 			chess.move({ from: orig as Square, to: dest as Square });
@@ -165,34 +175,35 @@ export function aiPlay(
 			const move = firstMove
 				? moves[0]
 				: moves[Math.floor(Math.random() * moves.length)];
-			
+
 			// Check if this is a promotion move by looking at the destination square and piece type
 			const aiMovePiece = chess.get(move.from);
-			const isAIPawn = aiMovePiece?.type === 'p';
-			const isAIPromotionMove = isAIPawn && (move.to.charAt(1) === '8' || move.to.charAt(1) === '1');
-			
+			const isAIPawn = aiMovePiece?.type === "p";
+			const isAIPromotionMove =
+				isAIPawn && (move.to.charAt(1) === "8" || move.to.charAt(1) === "1");
+
 			// AI always promotes to queen
 			if (isAIPromotionMove) {
-				const promotion = 'q'; // AI always promotes to queen
-				chess.move({ 
-					from: move.from, 
+				const promotion = "q"; // AI always promotes to queen
+				chess.move({
+					from: move.from,
 					to: move.to,
-					promotion: promotion
+					promotion: promotion,
 				});
 
 				// Move piece on board
 				cg.move(move.from, move.to);
 
 				// Get piece color
-				const pieceColor = chess.turn() === 'w' ? 'black' : 'white'; // The color is opposite of current turn
+				const pieceColor = chess.turn() === "w" ? "black" : "white"; // The color is opposite of current turn
 
 				// Map promotion letters to chessground piece roles using our helper function
 				const pieceRole = promotionToRole(promotion);
-				
+
 				// Update the piece on the board with the promoted piece
-				cg.setPieces(new Map([
-					[move.to, { role: pieceRole, color: pieceColor }]
-				]));
+				cg.setPieces(
+					new Map([[move.to, { role: pieceRole, color: pieceColor }]]),
+				);
 			} else {
 				chess.move(move.san);
 				cg.move(move.from, move.to);
