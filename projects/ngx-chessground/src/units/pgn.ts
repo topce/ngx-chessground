@@ -1,7 +1,7 @@
-import type { ChessInstance, Move } from "chess.js";
+import type { Chess as ChessInstance, Move } from "chess.js";
 import { Chessground } from "chessground";
 import type { Unit } from "./unit";
-import { Chess } from "./util";
+import { Chess } from "chess.js";
 
 /**
  * A PGN (Portable Game Notation) string representing a chess game.
@@ -80,7 +80,7 @@ export const loadPgnRealTime: Unit = {
 	name: "replay pgn game in real time",
 	run(el) {
 		const chess: ChessInstance = new Chess();
-		chess.load_pgn(pgn);
+		chess.loadPgn(pgn);
 		const cg = Chessground(el, {
 			animation: {
 				duration: 500,
@@ -91,7 +91,7 @@ export const loadPgnRealTime: Unit = {
 		});
 		const history: Move[] = chess.history({ verbose: true });
 
-		const comments: { fen: string; comment: string }[] = chess.get_comments();
+		const comments: { fen: string; comment: string }[] = chess.getComments();
 		const header = chess.header();
 		const timeControl = header.TimeControl?.split("+");
 		let timeControlInSeconds = 180;
@@ -158,7 +158,7 @@ export const loadPgnOneSecondPerMove: Unit = {
 	name: "replay pgn game one second per move",
 	run(el) {
 		const chess: ChessInstance = new Chess();
-		chess.load_pgn(pgn);
+		chess.loadPgn(pgn);
 		const cg = Chessground(el, {
 			animation: {
 				duration: 500,
@@ -169,7 +169,7 @@ export const loadPgnOneSecondPerMove: Unit = {
 		});
 		const history: Move[] = chess.history({ verbose: true });
 
-		const _comments: { fen: string; comment: string }[] = chess.get_comments();
+		const _comments: { fen: string; comment: string }[] = chess.getComments();
 		const _header = chess.header();
 
 		for (let i = 0; i < history.length; i++) {
@@ -209,7 +209,7 @@ export const loadPgnProportionalTime: Unit = {
 	name: "replay pgn game in proprtional time 1 minute",
 	run(el) {
 		const chess: ChessInstance = new Chess();
-		chess.load_pgn(pgn);
+		chess.loadPgn(pgn);
 		const cg = Chessground(el, {
 			animation: {
 				duration: 500,
@@ -220,7 +220,7 @@ export const loadPgnProportionalTime: Unit = {
 		});
 		const history: Move[] = chess.history({ verbose: true });
 
-		const comments: { fen: string; comment: string }[] = chess.get_comments();
+		const comments: { fen: string; comment: string }[] = chess.getComments();
 		const _header = chess.header();
 
 		const timeOuts: number[] = [];

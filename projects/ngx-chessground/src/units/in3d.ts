@@ -1,6 +1,7 @@
 import { Chessground } from "chessground";
 import type { Unit } from "./unit";
-import { Chess, aiPlay, toDests } from "./util";
+import {  aiPlay, toDests } from "./util";
+import { Chess } from "chess.js";
 
 /**
  * Default configuration for the 3D theme unit.

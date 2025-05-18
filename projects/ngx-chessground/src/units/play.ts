@@ -2,7 +2,7 @@ import { Chessground } from "chessground";
 import type { Key, Piece } from "chessground/types";
 import type { Unit } from "./unit";
 import { aiPlay, playOtherSide, toColor, toDests } from "./util";
-import { Chess } from "./util";
+import { Chess } from "chess.js"
 
 /**
  * The `initial` constant represents a unit that sets up a chessboard with the initial position
