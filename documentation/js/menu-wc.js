@@ -59,9 +59,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                         </div>
                         <ul class="links collapse " ${ isNormalMode ? 'id="components-links"' : 'id="xs-components-links"' }>
                             <li class="link">
-                                <a href="components/ChessTableComponent.html" data-type="entity-link" >ChessTableComponent</a>
-                            </li>
-                            <li class="link">
                                 <a href="components/NgxChessgroundComponent.html" data-type="entity-link" >NgxChessgroundComponent</a>
                             </li>
                             <li class="link">

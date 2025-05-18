@@ -133,9 +133,6 @@
                             <a href="#checkHighlight" title="projects/ngx-chessground/src/units/basics.ts" ><b>checkHighlight</b>&nbsp;&nbsp;&nbsp;(projects/.../basics.ts)</a>
                         </li>
                         <li>
-                            <a href="#Chess" title="projects/ngx-chessground/src/units/util.ts" ><b>Chess</b>&nbsp;&nbsp;&nbsp;(projects/.../util.ts)</a>
-                        </li>
-                        <li>
                             <a href="#conflictingAnim" title="projects/ngx-chessground/src/units/anim.ts" ><b>conflictingAnim</b>&nbsp;&nbsp;&nbsp;(projects/.../anim.ts)</a>
                         </li>
                         <li>
@@ -254,7 +251,7 @@
 	name: &quot;Autoshapes&quot;,
 	run(el) {
 		function sets() {
-			return [shapeSet1, shapeSet1b, shapeSet1c].map((set: DrawShape[]) &#x3D;&gt;
+			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) &#x3D;&gt;
 				set.map((shape: DrawShape) &#x3D;&gt; {
 					shape.modifiers &#x3D; Math.round(Math.random())
 						? undefined
@@ -314,7 +311,7 @@
 	name: &quot;Brush modifiers&quot;,
 	run(el) {
 		function sets() {
-			return [shapeSet1, shapeSet1b, shapeSet1c].map((set: DrawShape[]) &#x3D;&gt;
+			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) &#x3D;&gt;
 				set.map((shape: DrawShape) &#x3D;&gt; {
 					shape.modifiers &#x3D; Math.round(Math.random())
 						? undefined
@@ -425,7 +422,7 @@ Creates a Chessground instance that cycles through different shape sets at regul
 	run(el) {
 		const cg &#x3D; Chessground(el, { drawable: { shapes: shapeSet1 } });
 		const delay &#x3D; 1000;
-		const sets &#x3D; [shapeSet1, shapeSet1b, shapeSet1c];
+		const sets &#x3D; [shapeSet1, shapeSet2, shapeSet3];
 		let i &#x3D; 0;
 		function run() {
 			if (!cg.state.dom.elements.board.offsetParent) {
@@ -1281,38 +1278,6 @@ The game is displayed on a Chessground board with animations.</p>
         </tbody>
     </table>
 </section>
-    <h3>projects/ngx-chessground/src/units/util.ts</h3>
-    <section data-compodoc="block-properties">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="Chess"></a>
-                    <span class="name">
-                        <span ><b>Chess</b></span>
-                        <a href="#Chess"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>typeof ChessJS &#x3D;&#x3D;&#x3D; &quot;function&quot; ? ChessJS : ChessJS.Chess</code>
-                    </td>
-                </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>A constant that represents the ChessJS library. It checks if <code>ChessJS</code> is a function,
-and if so, assigns it to <code>Chess</code>. Otherwise, it assigns <code>ChessJS.Chess</code> to <code>Chess</code>.
-This is useful for ensuring compatibility with different ways the ChessJS library
-might be imported or included in a project.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-</section>
     <h3>projects/ngx-chessground/src/units/anim.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -1798,7 +1763,7 @@ The configurations are cycled through with a delay between each change.</p>
 	name: &quot;replay pgn game one second per move&quot;,
 	run(el) {
 		const chess: ChessInstance &#x3D; new Chess();
-		chess.load_pgn(pgn);
+		chess.loadPgn(pgn);
 		const cg &#x3D; Chessground(el, {
 			animation: {
 				duration: 500,
@@ -1809,7 +1774,7 @@ The configurations are cycled through with a delay between each change.</p>
 		});
 		const history: Move[] &#x3D; chess.history({ verbose: true });
 
-		const _comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
+		const _comments: { fen: string; comment: string }[] &#x3D; chess.getComments();
 		const _header &#x3D; chess.header();
 
 		for (let i &#x3D; 0; i &lt; history.length; i++) {
@@ -1859,7 +1824,7 @@ The configurations are cycled through with a delay between each change.</p>
 	name: &quot;replay pgn game in proprtional time 1 minute&quot;,
 	run(el) {
 		const chess: ChessInstance &#x3D; new Chess();
-		chess.load_pgn(pgn);
+		chess.loadPgn(pgn);
 		const cg &#x3D; Chessground(el, {
 			animation: {
 				duration: 500,
@@ -1870,7 +1835,7 @@ The configurations are cycled through with a delay between each change.</p>
 		});
 		const history: Move[] &#x3D; chess.history({ verbose: true });
 
-		const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
+		const comments: { fen: string; comment: string }[] &#x3D; chess.getComments();
 		const _header &#x3D; chess.header();
 
 		const timeOuts: number[] &#x3D; [];
@@ -1945,7 +1910,7 @@ The configurations are cycled through with a delay between each change.</p>
 	name: &quot;replay pgn game in real time&quot;,
 	run(el) {
 		const chess: ChessInstance &#x3D; new Chess();
-		chess.load_pgn(pgn);
+		chess.loadPgn(pgn);
 		const cg &#x3D; Chessground(el, {
 			animation: {
 				duration: 500,
@@ -1956,7 +1921,7 @@ The configurations are cycled through with a delay between each change.</p>
 		});
 		const history: Move[] &#x3D; chess.history({ verbose: true });
 
-		const comments: { fen: string; comment: string }[] &#x3D; chess.get_comments();
+		const comments: { fen: string; comment: string }[] &#x3D; chess.getComments();
 		const header &#x3D; chess.header();
 		const timeControl &#x3D; header.TimeControl?.split(&quot;+&quot;);
 		let timeControlInSeconds &#x3D; 180;

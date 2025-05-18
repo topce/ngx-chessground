@@ -169,7 +169,7 @@
 
             <tr>
                 <td class="col-md-3">styleUrls</td>
-                <td class="col-md-9"><code>./ngx-chessground-table.component.css</code></td>
+                <td class="col-md-9"><code>./ngx-chessground-table.component.scss</code></td>
             </tr>
 
 
@@ -263,8 +263,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="49"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:49</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -311,7 +311,7 @@ access to the component&#39;s view.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -343,13 +343,13 @@ import { NgxChessgroundComponent } from &quot;../ngx-chessground/ngx-chessground
 @Component({
 	selector: &quot;ngx-chessground-table&quot;,
 	templateUrl: &quot;./ngx-chessground-table.component.html&quot;,
-	styleUrls: [&quot;./ngx-chessground-table.component.css&quot;],
+	styleUrls: [&quot;./ngx-chessground-table.component.scss&quot;],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgxChessgroundComponent],
 })
 /**
  * The &#x60;NgxChessgroundTableComponent&#x60; class is an Angular component that implements the &#x60;AfterViewInit&#x60; lifecycle hook.
- * It provides a table interface for the &#x60;NgxChessgroundComponent&#x60; and initializes it after the view has been fully initialized.
+ * It is responsible for managing the chessboard table and initializing the chessground component after the view has been fully initialized.
  *
  * @class
  * @implements {AfterViewInit}
@@ -357,13 +357,17 @@ import { NgxChessgroundComponent } from &quot;../ngx-chessground/ngx-chessground
  * @example
  * &lt;ngx-chessground-table&gt;&lt;/ngx-chessground-table&gt;
  *
+ * @remarks
+ * This component uses the &#x60;@ViewChild&#x60; decorator to query the &#x60;NgxChessgroundComponent&#x60; instance with the template reference variable &#x60;chess&#x60;.
+ * The &#x60;ngAfterViewInit&#x60; lifecycle hook is used to set the initial run function for the &#x60;ngxChessgroundComponent&#x60;.
+ *
  * @see https://angular.io/api/core/AfterViewInit
  */
 export class NgxChessgroundTableComponent implements AfterViewInit {
 	/**
 	 * A readonly property that references the &#x60;NgxChessgroundComponent&#x60; instance.
 	 * This property is decorated with &#x60;@ViewChild&#x60; to query the component with the template reference variable &#x60;chess&#x60;.
-	 * 
+	 *
 	 * @readonly
 	 * @type {NgxChessgroundComponent}
 	 */
@@ -393,7 +397,7 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 
     <div class="tab-pane fade " id="styleData">
                 <p class="comment">
-                    <code>./ngx-chessground-table.component.css</code>
+                    <code>./ngx-chessground-table.component.scss</code>
                 </p>
                 <pre class="line-numbers"><code class="language-scss"></code></pre>
     </div>
@@ -424,7 +428,7 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
         var COMPONENT_TEMPLATE = '<div><ngx-chessground #chess></ngx-chessground></div>'
-    var COMPONENTS = [{'name': 'ChessTableComponent', 'selector': 'ngx-chessground-chess-table'},{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'}];
+    var COMPONENTS = [{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'}];
     var DIRECTIVES = [];
     var ACTUAL_COMPONENT = {'name': 'NgxChessgroundTableComponent'};
 </script>
