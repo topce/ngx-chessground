@@ -11,7 +11,6 @@ import {
 	MatButtonToggle,
 	MatButtonToggleGroup,
 } from "@angular/material/button-toggle";
-import { MatCardTitle } from "@angular/material/card";
 import {
 	NgxChessgroundComponent,
 	type Unit,
