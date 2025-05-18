@@ -8,6 +8,7 @@
       <mat-button-toggle
         [value]="item.name"
         (click)="onClick(item.name, item.run)"
+        (keydown.enter)="onClick(item.name, item.run)"
       >
         {{ item.name }}
       </mat-button-toggle>
@@ -27,6 +28,7 @@
         font-size="small"
         [value]="item.name"
         (click)="onClick(item.name, item.run)"
+        (keydown.enter)="onClick(item.name, item.run)"
       >
         {{ item.name }}
       </mat-button-toggle>
