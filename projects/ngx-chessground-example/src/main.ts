@@ -1,7 +1,7 @@
 import {
 	enableProdMode,
 	importProvidersFrom,
-	provideExperimentalZonelessChangeDetection,
+	provideZonelessChangeDetection,
 } from "@angular/core";
 
 import { MatCardModule } from "@angular/material/card";
@@ -25,6 +25,6 @@ bootstrapApplication(AppComponent, {
 			MatCardModule,
 		),
 		provideAnimations(),
-		provideExperimentalZonelessChangeDetection(),
+		provideZonelessChangeDetection(),
 	],
 }).catch((err) => console.error(err));
