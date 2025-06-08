@@ -1,8 +1,102 @@
+import { Chess } from "chess.js";
 import { Chessground } from "chessground";
 import type { Key, Piece } from "chessground/types";
+import type { PromotionService } from "../lib/promotion-dialog/promotion.service";
 import type { Unit } from "./unit";
-import { aiPlay, playOtherSide, toColor, toDests } from "./util";
-import { Chess } from "chess.js";
+import {
+	aiPlay,
+	playOtherSide,
+	playOtherSideWithDialog,
+	toColor,
+	toDests,
+} from "./util";
+
+/**
+ * Factory function to create units that use dialog-based promotion.
+ * This allows the components to pass in the PromotionService dependency.
+ */
+export function createPlayUnitsWithDialog(promotionService?: PromotionService) {
+	// If no promotion service is provided, fall back to the legacy prompt-based units
+	if (!promotionService) {
+		return {
+			initial,
+			castling,
+			playVsRandom,
+			playFullRandom,
+			slowAnim,
+			conflictingHold,
+		};
+	}
+
+	// Return enhanced units that use the promotion dialog
+	return {
+		initial: {
+			...initial,
+			name: "Play legal moves from initial position (with promotion dialog)",
+			run(el: HTMLElement) {
+				const chess = new Chess();
+				const cg = Chessground(el, {
+					movable: {
+						color: "white",
+						free: false,
+						dests: toDests(chess),
+					},
+					draggable: {
+						showGhost: true,
+					},
+					events: {
+						move: (_orig: Key, _dest: Key, _capturedPiece?: Piece) => {
+							console.log(_orig);
+							console.log(_dest);
+							console.log(_capturedPiece);
+						},
+					},
+				});
+				cg.set({
+					movable: {
+						events: {
+							after: playOtherSideWithDialog(cg, chess, promotionService),
+						},
+					},
+				});
+				return cg;
+			},
+		},
+		castling: {
+			...castling,
+			name: "Castling (with promotion dialog)",
+			run(el: HTMLElement) {
+				const fen =
+					"rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
+
+				const chess = new Chess(fen);
+				const cg = Chessground(el, {
+					fen,
+					turnColor: toColor(chess),
+					movable: {
+						color: "white",
+						free: false,
+						dests: toDests(chess),
+					},
+				});
+				cg.set({
+					movable: {
+						events: {
+							after: playOtherSideWithDialog(cg, chess, promotionService),
+						},
+					},
+				});
+				return cg;
+			},
+		},
+		playVsRandom, // AI vs player doesn't need dialog as AI handles promotion automatically
+		playFullRandom, // AI vs AI doesn't need dialog
+		slowAnim, // AI vs player doesn't need dialog as AI handles promotion automatically
+		conflictingHold,
+	};
+}
+
+// Export the existing units for backward compatibility
 
 /**
  * The `initial` constant represents a unit that sets up a chessboard with the initial position

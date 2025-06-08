@@ -3,6 +3,8 @@
  */
 export * from "./lib/ngx-chessground-table/ngx-chessground-table.component";
 export * from "./lib/ngx-chessground/ngx-chessground.component";
+export * from "./lib/promotion-dialog/promotion-dialog.component";
+export * from "./lib/promotion-dialog/promotion.service";
 
 export * from "./units/anim";
 export * from "./units/basics";

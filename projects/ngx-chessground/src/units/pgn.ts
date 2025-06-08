@@ -1,7 +1,7 @@
 import type { Chess as ChessInstance, Move } from "chess.js";
+import { Chess } from "chess.js";
 import { Chessground } from "chessground";
 import type { Unit } from "./unit";
-import { Chess } from "chess.js";
 
 /**
  * A PGN (Portable Game Notation) string representing a chess game.

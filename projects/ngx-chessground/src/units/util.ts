@@ -2,6 +2,7 @@ import * as ChessJS from "chess.js";
 import type { Chess as ChessInstance, Move, Square } from "chess.js";
 import type { Api } from "chessground/api";
 import type { Color, Key } from "chessground/types";
+import type { PromotionService } from "../lib/promotion-dialog/promotion.service";
 
 /**
  * Generates a map of possible destination squares for each piece on the board.
@@ -60,6 +61,7 @@ function promotionToRole(
 
 /**
  * Creates a function that makes a move on the chessboard and updates the state of the chess game.
+ * Uses window.prompt for pawn promotion (legacy method).
  *
  * @param cg - The chessground API instance.
  * @param chess - The chess.js instance representing the current state of the chess game.
@@ -107,6 +109,93 @@ export function playOtherSide(cg: Api, chess: ChessInstance) {
 
 				// Update the piece on the board with the proper promoted piece
 				cg.setPieces(new Map([[dest, { role: pieceRole, color: color }]]));
+			}
+		} else {
+			// Regular move
+			chess.move({ from: orig as Square, to: dest as Square });
+			// For regular moves, just perform the move on the board
+			cg.move(orig, dest);
+		}
+
+		// Update the board state (turn, movable pieces)
+		cg.set({
+			turnColor: toColor(chess),
+			movable: {
+				color: toColor(chess),
+				dests: toDests(chess),
+			},
+		});
+	};
+}
+
+/**
+ * Creates an async function that makes a move on the chessboard and updates the state of the chess game.
+ * Uses a promotion service for pawn promotion (modern method with dialog).
+ *
+ * @param cg - The chessground API instance.
+ * @param chess - The chess.js instance representing the current state of the chess game.
+ * @param promotionService - The promotion service to handle pawn promotion dialog.
+ * @returns A function that takes the origin and destination squares of a move, makes the move on the chessboard,
+ *          and updates the turn color and movable destinations in the chessground instance.
+ */
+export function playOtherSideWithDialog(
+	cg: Api,
+	chess: ChessInstance,
+	promotionService: PromotionService,
+) {
+	return async (orig: Key, dest: Key) => {
+		// Check if this is a pawn promotion move (pawn reaching the first or eighth row)
+		const piece = chess.get(orig as Square);
+		const isPawn = piece && piece.type === "p";
+		const isPromotionMove =
+			isPawn && (dest.charAt(1) === "8" || dest.charAt(1) === "1");
+
+		if (isPromotionMove) {
+			try {
+				// Show promotion dialog and get user's choice
+				const promotion = await promotionService.showPromotionDialog(
+					piece.color === "w" ? "white" : "black",
+				);
+
+				// Make the move with promotion
+				const moveResult = chess.move({
+					from: orig,
+					to: dest,
+					promotion: promotion as "q" | "r" | "n" | "b",
+				});
+
+				// For promotion moves, we need to manually update the board to show the promoted piece
+				if (moveResult) {
+					// First move the pawn on the board
+					cg.move(orig, dest);
+
+					// Then update the piece on the destination square with the promoted piece
+					const color = piece.color === "w" ? "white" : "black";
+
+					// Map promotion letters to chessground piece roles using our helper function
+					const pieceRole = promotionToRole(promotion);
+
+					// Update the piece on the board with the proper promoted piece
+					cg.setPieces(new Map([[dest, { role: pieceRole, color: color }]]));
+				}
+			} catch (error) {
+				console.error("Promotion dialog cancelled or error occurred:", error);
+				// If dialog is cancelled or error occurs, default to queen
+				const promotion = "q";
+
+				// Make the move with default promotion
+				const moveResult = chess.move({
+					from: orig,
+					to: dest,
+					promotion: promotion as "q" | "r" | "n" | "b",
+				});
+
+				if (moveResult) {
+					cg.move(orig, dest);
+					const color = piece.color === "w" ? "white" : "black";
+					const pieceRole = promotionToRole(promotion);
+					cg.setPieces(new Map([[dest, { role: pieceRole, color: color }]]));
+				}
 			}
 		} else {
 			// Regular move

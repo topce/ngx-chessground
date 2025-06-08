@@ -1,6 +1,6 @@
+import { Chess } from "chess.js";
 import { Chessground } from "chessground";
 import type { Unit } from "./unit";
-import { Chess } from "chess.js";
 
 /**
  * Represents a unit configuration for a chessboard that is view-only and

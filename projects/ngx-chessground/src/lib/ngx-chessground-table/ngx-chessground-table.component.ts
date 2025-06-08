@@ -2,10 +2,12 @@ import {
 	type AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
+	inject,
 	viewChild,
 } from "@angular/core";
 import * as play from "../../units/play";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
+import { PromotionService } from "../promotion-dialog/promotion.service";
 
 @Component({
 	selector: "ngx-chessground-table",
@@ -41,16 +43,20 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent =
 		viewChild.required<NgxChessgroundComponent>("chess");
 
+	private readonly promotionService = inject(PromotionService);
+
 	/**
 	 * Lifecycle hook that is called after a component's view has been fully initialized.
 	 * This method is used to perform any additional initialization tasks that require
 	 * access to the component's view.
 	 *
 	 * In this implementation, it sets the initial run function for the ngxChessgroundComponent.
+	 * Now uses enhanced units with promotion dialog support.
 	 *
 	 * @see https://angular.io/api/core/AfterViewInit
 	 */
 	ngAfterViewInit(): void {
-		this.ngxChessgroundComponent().runFunction.set(play.initial.run);
+		const enhancedUnits = play.createPlayUnitsWithDialog(this.promotionService);
+		this.ngxChessgroundComponent().runFunction.set(enhancedUnits.initial.run);
 	}
 }

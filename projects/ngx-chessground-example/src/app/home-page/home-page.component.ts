@@ -1,8 +1,9 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
+	inject,
 	model,
 	viewChild,
-	ChangeDetectionStrategy,
 } from "@angular/core";
 import type { AfterViewInit } from "@angular/core";
 import type { Api } from "chessground/api";
@@ -13,21 +14,20 @@ import {
 } from "@angular/material/button-toggle";
 import {
 	NgxChessgroundComponent,
+	PromotionService,
 	type Unit,
 	autoShapes,
 	autoSwitch,
 	brushModifiers,
-	castling,
 	changingShapesHigh,
 	changingShapesLow,
 	checkHighlight,
 	conflictingAnim,
-	conflictingHold,
+	createPlayUnitsWithDialog,
 	defaults,
 	enabledFalse,
 	fromFen,
 	fullRandom,
-	initial,
 	lastMoveCrazyhouse,
 	lastMoveDrop,
 	loadPgnOneSecondPerMove,
@@ -35,11 +35,8 @@ import {
 	loadPgnRealTime,
 	move,
 	notSameRole,
-	playFullRandom,
-	playVsRandom,
 	presetUserShapes,
 	select,
-	slowAnim,
 	viewOnlyFullRandom,
 	visibleFalse,
 	vsRandom,
@@ -63,17 +60,24 @@ export class HomePageComponent implements AfterViewInit {
 	lefMenu = viewChild.required<MatButtonToggleGroup>("leftMenu");
 	rightMenu = viewChild.required<MatButtonToggleGroup>("rightMenu");
 
+	private readonly promotionService = inject(PromotionService);
+
+	// Create enhanced units with promotion dialog support
+	private readonly enhancedUnits = createPlayUnitsWithDialog(
+		this.promotionService,
+	);
+
 	leftList: Unit[] = [
 		defaults,
 		fromFen,
 		lastMoveCrazyhouse,
 		checkHighlight,
-		initial,
-		castling,
-		playVsRandom,
-		playFullRandom,
-		slowAnim,
-		conflictingHold,
+		this.enhancedUnits.initial, // Use enhanced version with dialog
+		this.enhancedUnits.castling, // Use enhanced version with dialog
+		this.enhancedUnits.playVsRandom, // Use enhanced version - AI vs player, AI handles promotions
+		this.enhancedUnits.playFullRandom, // Use enhanced version - AI vs AI, no dialog needed
+		this.enhancedUnits.slowAnim, // Use enhanced version - AI vs player, AI handles promotions
+		this.enhancedUnits.conflictingHold,
 		move,
 		select,
 		conflictingAnim,
