@@ -1,3 +1,4 @@
+import type { AfterViewInit } from "@angular/core";
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -5,17 +6,12 @@ import {
 	model,
 	viewChild,
 } from "@angular/core";
-import type { AfterViewInit } from "@angular/core";
-import type { Api } from "chessground/api";
-
 import {
 	MatButtonToggle,
 	MatButtonToggleGroup,
 } from "@angular/material/button-toggle";
+import type { Api } from "chessground/api";
 import {
-	NgxChessgroundComponent,
-	PromotionService,
-	type Unit,
 	autoShapes,
 	autoSwitch,
 	brushModifiers,
@@ -34,9 +30,12 @@ import {
 	loadPgnProportionalTime,
 	loadPgnRealTime,
 	move,
+	NgxChessgroundComponent,
 	notSameRole,
+	PromotionService,
 	presetUserShapes,
 	select,
+	type Unit,
 	viewOnlyFullRandom,
 	visibleFalse,
 	vsRandom,

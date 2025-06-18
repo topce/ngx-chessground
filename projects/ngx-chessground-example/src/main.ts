@@ -8,8 +8,8 @@ import { MatCardModule } from "@angular/material/card";
 import { MatListModule } from "@angular/material/list";
 import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
 import { provideAnimations } from "@angular/platform-browser/animations";
-import { AppRoutingModule } from "./app/app-routing.module";
 import { AppComponent } from "./app/app.component";
+import { AppRoutingModule } from "./app/app-routing.module";
 import { environment } from "./environments/environment";
 
 if (environment.production) {
