@@ -12,6 +12,28 @@
                 <button (click)="loadTopceEvergreen()">Load Topce Evergreen</button>
             </div>
 
+            <div class="zip-loader" style="margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <div style="margin-bottom: 10px;">
+                    <label>Load PGN Zip from disk:
+                        <input type="file" accept=".zip" (change)="onPgnZipSelected($event)" [disabled]="isLoading">
+                    </label>
+                </div>
+                <div>
+                    <label>Load PGN File from disk:
+                        <input type="file" accept=".pgn" (change)="onPgnFileSelected($event)" [disabled]="isLoading">
+                    </label>
+                </div>
+                <div *ngIf="isLoading" style="margin-top: 10px; color: #0066cc; font-weight: bold;">
+                    ⏳ Loading and parsing file...
+                </div>
+            </div>
+
+            <div class="game-navigation" *ngIf="games.length > 1">
+                <button (click)="prevGame()" [disabled]="currentGameIndex === 0">Prev Game</button>
+                <span>Game {{ currentGameIndex + 1 }} of {{ games.length }}</span>
+                <button (click)="nextGame()" [disabled]="currentGameIndex === games.length - 1">Next Game</button>
+            </div>
+
             <div class="navigation">
                 <button (click)="start()" [disabled]="currentMoveIndex === -1">&lt;&lt;</button>
                 <button (click)="prev()" [disabled]="currentMoveIndex === -1">&lt;</button>

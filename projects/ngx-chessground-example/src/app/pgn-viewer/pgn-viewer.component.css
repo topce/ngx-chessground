@@ -36,6 +36,15 @@
   cursor: pointer;
 }
 
+.game-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
 .replay-controls {
   border: 1px solid #ccc;
   padding: 10px;

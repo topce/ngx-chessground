@@ -1,9 +1,10 @@
-import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxChessgroundComponent } from 'ngx-chessground';
 import { Chess } from 'chess.js';
 import { Chessground } from 'chessground';
+import * as JSZip from 'jszip';
 
 @Component({
     selector: 'app-pgn-viewer',
@@ -36,7 +37,7 @@ export class PgnViewerComponent implements AfterViewInit {
 
 1. Nf3 Nf6 2. c4 g6 3. Nc3 Bg7 4. d4 O-O 5. Bf4 d5 6. Qb3 dxc4 7. Qxc4 c6 8. e4 Nbd7 9. Rd1 Nb6 10. Qc5 Bg4 11. Bg5 Na4 12. Qa3 Nxc3 13. bxc3 Nxe4 14. Bxe7 Qb6 15. Bc4 Nxc3 16. Bc5 Rfe8+ 17. Kf1 Be6 18. Bxb6 Bxc4+ 19. Kg1 Ne2+ 20. Kf1 Nxd4+ 21. Kg1 Ne2+ 22. Kf1 Nc3+ 23. Kg1 axb6 24. Qb4 Ra4 25. Qxb6 Nxd1 26. h3 Rxa2 27. Kh2 Nxf2 28. Re1 Rxe1 29. Qd8+ Bf8 30. Nxe1 Bd5 31. Nf3 Ne4 32. Qb8 b5 33. h4 h5 34. Ne5 Kg7 35. Kg1 Bc5+ 36. Kf1 Ng3+ 37. Ke1 Bb4+ 38. Kd1 Bb3+ 39. Kc1 Ne2+ 40. Kb1 Nc3+ 41. Kc1 Rc2# 0-1`;
 
-    constructor() {
+    constructor(private cdr: ChangeDetectorRef) {
         this.chess = new Chess();
         this.currentFen = this.chess.fen();
     }
@@ -47,7 +48,7 @@ export class PgnViewerComponent implements AfterViewInit {
 
     updateBoard() {
         if (this.chessground) {
-            this.chessground.runFunction.set((el) => {
+            this.chessground.runFunction.set((el: HTMLElement) => {
                 return Chessground(el, {
                     fen: this.currentFen,
                     viewOnly: true // Viewer mode
@@ -102,6 +103,131 @@ export class PgnViewerComponent implements AfterViewInit {
         this.loadPgnAndReset();
     }
 
+
+    isLoading: boolean = false;
+
+
+
+    private processPgnContent(content: string, sourceName: string) {
+        console.log('PGN content length:', content.length);
+        console.log('First 500 chars:', content.substring(0, 500));
+        this.pgn = content;
+        console.log(`Loaded PGN from ${sourceName}`);
+
+        // Call loadPgnAndReset and manually trigger change detection
+        this.loadPgnAndReset();
+        this.isLoading = false;
+        this.cdr.detectChanges();
+    }
+
+    async onPgnZipSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) {
+            return;
+        }
+
+        const file = input.files[0];
+        this.isLoading = true;
+        try {
+            const zip = await JSZip.loadAsync(file);
+
+            // Find the .pgn file
+            const pgnFile = Object.values(zip.files).find(f => f.name.endsWith('.pgn'));
+
+            if (pgnFile) {
+                const content = await pgnFile.async('string');
+                this.processPgnContent(content, file.name);
+            } else {
+                this.isLoading = false;
+                alert('No PGN file found in the zip archive.');
+            }
+        } catch (e) {
+            this.isLoading = false;
+            console.error('Error loading zip file:', e);
+            alert('Error loading zip file. Please make sure it is a valid zip file.');
+        }
+    }
+
+    onPgnFileSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) {
+            return;
+        }
+
+        const file = input.files[0];
+        this.isLoading = true;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target?.result as string;
+            if (content) {
+                this.processPgnContent(content, file.name);
+            } else {
+                this.isLoading = false;
+                alert('Failed to read file content.');
+            }
+        };
+        reader.onerror = (e) => {
+            this.isLoading = false;
+            console.error('Error reading file:', e);
+            alert('Error reading file.');
+        };
+        reader.readAsText(file);
+    }
+
+    games: string[] = [];
+    currentGameIndex: number = 0;
+
+    splitPgn(pgn: string): string[] {
+        // Simple split by [Event "
+        // This is a basic heuristic. A more robust parser would be better but this works for standard PGNs.
+        // We look for the start of a new game tag block.
+        const parts = pgn.split(/\[Event "/g);
+        const games: string[] = [];
+
+        for (let i = 0; i < parts.length; i++) {
+            if (parts[i].trim().length === 0) continue;
+            // Re-add the [Event " prefix
+            games.push('[Event "' + parts[i]);
+        }
+        return games;
+    }
+
+    loadGame(index: number) {
+        if (index >= 0 && index < this.games.length) {
+            this.currentGameIndex = index;
+            this.pgn = this.games[index];
+            // Load specific game logic without splitting again
+            try {
+                const tempChess = new Chess();
+                tempChess.loadPgn(this.pgn);
+                const moves = tempChess.history();
+
+                this.moves = moves;
+                this.chess.reset();
+                this.currentMoveIndex = -1;
+                this.currentFen = this.chess.fen();
+                this.updateBoard();
+                this.stopReplay(); // Stop any running replay
+            } catch (e) {
+                console.error('Invalid PGN', e);
+                alert('Invalid PGN');
+            }
+        }
+    }
+
+    nextGame() {
+        if (this.currentGameIndex < this.games.length - 1) {
+            this.loadGame(this.currentGameIndex + 1);
+        }
+    }
+
+    prevGame() {
+        if (this.currentGameIndex > 0) {
+            this.loadGame(this.currentGameIndex - 1);
+        }
+    }
+
     reset() {
         this.chess.reset();
         this.currentFen = this.chess.fen();
@@ -124,14 +250,27 @@ export class PgnViewerComponent implements AfterViewInit {
 
     loadPgnAndReset() {
         try {
-            const tempChess = new Chess();
-            tempChess.loadPgn(this.pgn);
-            this.moves = tempChess.history();
+            console.log('loadPgnAndReset called, pgn length:', this.pgn.length);
+            // Split PGN into games
+            const games = this.splitPgn(this.pgn);
+            console.log('Number of games found:', games.length);
+            if (games.length > 0) {
+                console.log('Loading first game');
+                this.games = games;
+                this.loadGame(0);
+            } else {
+                console.log('No games found, trying fallback');
+                // Fallback for single game or empty
+                const tempChess = new Chess();
+                tempChess.loadPgn(this.pgn);
+                const moves = tempChess.history();
 
-            this.chess.reset();
-            this.currentMoveIndex = -1;
-            this.currentFen = this.chess.fen();
-            this.updateBoard();
+                this.moves = moves;
+                this.chess.reset();
+                this.currentMoveIndex = -1;
+                this.currentFen = this.chess.fen();
+                this.updateBoard();
+            }
         } catch (e) {
             console.error('Invalid PGN', e);
             alert('Invalid PGN');
@@ -312,7 +451,7 @@ export class PgnViewerComponent implements AfterViewInit {
     }
 
     stopReplay() {
-        this.replayTimeouts.forEach(t => clearTimeout(t));
+        this.replayTimeouts.forEach((t: any) => clearTimeout(t));
         this.replayTimeouts = [];
     }
 
