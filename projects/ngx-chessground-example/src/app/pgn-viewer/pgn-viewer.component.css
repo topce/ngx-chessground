@@ -1,0 +1,76 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.viewer-layout {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.board-container {
+  width: 500px;
+  height: 500px;
+}
+
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.navigation {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.navigation button {
+  padding: 5px 15px;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.replay-controls {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.mode-selection {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.option-input {
+  margin-bottom: 10px;
+}
+
+.replay-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.pgn-input {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+textarea {
+  width: 100%;
+  font-family: monospace;
+}
+
+.status {
+  text-align: center;
+  font-weight: bold;
+}

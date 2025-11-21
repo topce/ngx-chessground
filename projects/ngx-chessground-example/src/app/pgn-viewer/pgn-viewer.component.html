@@ -1,0 +1,55 @@
+<div class="container">
+    <h2>PGN Viewer</h2>
+
+    <div class="viewer-layout">
+        <div class="board-container">
+            <ngx-chessground></ngx-chessground>
+        </div>
+
+        <div class="controls-container">
+            <div class="buttons">
+                <button (click)="loadFischerEvergreen()">Load Fischer Evergreen</button>
+                <button (click)="loadTopceEvergreen()">Load Topce Evergreen</button>
+            </div>
+
+            <div class="navigation">
+                <button (click)="start()" [disabled]="currentMoveIndex === -1">&lt;&lt;</button>
+                <button (click)="prev()" [disabled]="currentMoveIndex === -1">&lt;</button>
+                <button (click)="next()" [disabled]="currentMoveIndex >= moves.length - 1">&gt;</button>
+                <button (click)="end()" [disabled]="currentMoveIndex >= moves.length - 1">&gt;&gt;</button>
+            </div>
+
+            <div class="status">
+                Move: {{ currentMoveIndex + 1 }} / {{ moves.length }}
+            </div>
+
+            <div class="replay-controls">
+                <h3>Replay Options</h3>
+                <div class="mode-selection">
+                    <label><input type="radio" name="mode" [(ngModel)]="replayMode" value="realtime"> Real Time</label>
+                    <label><input type="radio" name="mode" [(ngModel)]="replayMode" value="proportional">
+                        Proportional</label>
+                    <label><input type="radio" name="mode" [(ngModel)]="replayMode" value="fixed"> Fixed Time</label>
+                </div>
+
+                <div *ngIf="replayMode === 'proportional'" class="option-input">
+                    <label>Duration (min): <input type="number" [(ngModel)]="proportionalDuration" step="0.1"></label>
+                </div>
+
+                <div *ngIf="replayMode === 'fixed'" class="option-input">
+                    <label>Time per move (sec): <input type="number" [(ngModel)]="fixedTime" step="0.1"></label>
+                </div>
+
+                <div class="replay-buttons">
+                    <button (click)="replayGame()">Replay Game</button>
+                    <button (click)="stopReplay()">Stop</button>
+                </div>
+            </div>
+
+            <div class="pgn-input">
+                <textarea [(ngModel)]="pgn" rows="10" placeholder="Paste PGN here"></textarea>
+                <button (click)="overrideLoadPgn()">Load PGN</button>
+            </div>
+        </div>
+    </div>
+</div>
