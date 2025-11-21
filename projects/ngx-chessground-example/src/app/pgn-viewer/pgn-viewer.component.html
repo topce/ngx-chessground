@@ -12,8 +12,8 @@
                 <button (click)="loadTopceEvergreen()">Load Topce Evergreen</button>
             </div>
 
-            <div class="zip-loader" style="margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                <div style="margin-bottom: 10px;">
+            <div class="zip-loader">
+                <div>
                     <label>Load PGN Zip from disk:
                         <input type="file" accept=".zip" (change)="onPgnZipSelected($event)" [disabled]="isLoading">
                     </label>
@@ -23,7 +23,7 @@
                         <input type="file" accept=".pgn" (change)="onPgnFileSelected($event)" [disabled]="isLoading">
                     </label>
                 </div>
-                <div *ngIf="isLoading" style="margin-top: 10px; color: #0066cc; font-weight: bold;">
+                <div *ngIf="isLoading" class="loading-indicator">
                     ⏳ Loading and parsing file...
                 </div>
             </div>
