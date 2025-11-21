@@ -1,15 +1,13 @@
 import {
 	enableProdMode,
-	importProvidersFrom,
 	provideZonelessChangeDetection,
 } from "@angular/core";
 
-import { MatCardModule } from "@angular/material/card";
-import { MatListModule } from "@angular/material/list";
-import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
+import { bootstrapApplication } from "@angular/platform-browser";
 import { provideAnimations } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { AppComponent } from "./app/app.component";
-import { AppRoutingModule } from "./app/app-routing.module";
+import { routes } from "./app/app.routes";
 import { environment } from "./environments/environment";
 
 if (environment.production) {
@@ -18,12 +16,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
 	providers: [
-		importProvidersFrom(
-			BrowserModule,
-			AppRoutingModule,
-			MatListModule,
-			MatCardModule,
-		),
+		provideRouter(routes),
 		provideAnimations(),
 		provideZonelessChangeDetection(),
 	],
