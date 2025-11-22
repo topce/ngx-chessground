@@ -1,130 +1,188 @@
-<div class="container">
-    <div class="viewer-layout">
-        <div class="board-container">
-            <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
+<div class="pgn-viewer-container">
+    <div class="main-content">
+        <!-- Left Panel: Game Browser -->
+        <div class="panel left-panel">
+            <h3>Game Browser</h3>
+
+            <!-- Filters -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <input type="text" placeholder="White" [value]="filterWhite()" (input)="updateFilterWhite($event)"
+                        list="white-players">
+                    <datalist id="white-players">
+                        @for (player of uniqueWhitePlayers(); track player) { <option [value]="player"></option> }
+                    </datalist>
+                </div>
+                <div class="filter-row">
+                    <input type="text" placeholder="Black" [value]="filterBlack()" (input)="updateFilterBlack($event)"
+                        list="black-players">
+                    <datalist id="black-players">
+                        @for (player of uniqueBlackPlayers(); track player) { <option [value]="player"></option> }
+                    </datalist>
+                </div>
+                <div class="filter-row">
+                    <input type="text" placeholder="Result" [value]="filterResult()"
+                        (input)="updateFilterResult($event)" list="results">
+                    <datalist id="results">
+                        <option value="1-0"></option>
+                        <option value="0-1"></option>
+                        <option value="1/2-1/2"></option>
+                    </datalist>
+                </div>
+                <div class="filter-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [checked]="filterMoves()" (change)="toggleFilterMoves($event)">
+                        Filter by Moves
+                    </label>
+                </div>
+                <div class="filter-actions">
+                    <button (click)="clearFilters()" class="secondary-button small">Clear</button>
+                    <button (click)="applyFilter()" class="primary-button small">Filter</button>
+                </div>
+            </div>
+
+            <!-- Game List -->
             @if (games().length > 0) {
-            <div class="game-info-display">
-                <div class="players">{{ currentWhitePlayer() }} vs {{ currentBlackPlayer() }}</div>
-                <div class="result">{{ currentGameResult() }}</div>
+            <div class="game-list-header">
+                <span>Games: {{ filteredGameInfos().length }}</span>
+                <div class="game-nav-buttons">
+                    <button (click)="prevGame()" [disabled]="currentGameIndex() === 0" class="icon-btn">◀</button>
+                    <button (click)="nextGame()" [disabled]="currentGameIndex() === games().length - 1"
+                        class="icon-btn">▶</button>
+                </div>
+            </div>
+
+            @if (isFiltering()) {
+            <div class="filtering-indicator">⏳ Filtering...</div>
+            }
+
+            <div class="game-list">
+                @for (gameInfo of filteredGameInfos(); track gameInfo.number) {
+                <div class="game-item" [class.active]="currentGameIndex() === (gameInfo.number - 1)">
+                    <label>
+                        <input type="checkbox" [checked]="selectedGames().has(gameInfo.number - 1)"
+                            (change)="toggleGameSelection(gameInfo.number - 1)">
+                        <div class="game-info" (click)="loadGame(gameInfo.number - 1); $event.preventDefault()">
+                            <div class="players">
+                                <span class="game-number">#{{ gameInfo.number }}</span>
+                                {{ gameInfo.white }} vs {{ gameInfo.black }}
+                            </div>
+                            <div class="result">{{ gameInfo.result }}</div>
+                        </div>
+                    </label>
+                </div>
+                }
+                @if (filteredGameInfos().length === 0) {
+                <div class="no-games">No games match filters</div>
+                }
+            </div>
+
+            <div class="selection-controls">
+                <button (click)="selectAllGames()" class="small-btn">Select All</button>
+                <button (click)="clearSelection()" class="small-btn">Clear All</button>
+                <span class="selection-count">{{ selectedGamesCount() }} selected</span>
             </div>
             } @else {
-            <div class="game-info-display">
-                <div class="players">No game loaded</div>
-                <div class="result">-</div>
-            </div>
+            <div class="empty-state">No games loaded</div>
             }
         </div>
 
-        <div class="controls-container">
-            <!-- File Loading -->
-            <div class="zip-loader">
-                <div>
-                    <label>Load PGN Zip:
+        <!-- Center Panel: Board -->
+        <div class="panel center-panel">
+            <div class="board-wrapper">
+                <div class="player-info top">
+                    <span class="name">{{ currentBlackPlayer() }}</span>
+                </div>
+
+                <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
+
+                <div class="player-info bottom">
+                    <span class="name">{{ currentWhitePlayer() }}</span>
+                    <span class="game-result">{{ currentGameResult() }}</span>
+                </div>
+            </div>
+
+            <!-- Move Navigation -->
+            <div class="move-navigation">
+                <button (click)="start()" [disabled]="currentMoveIndex() === -1" class="nav-btn">|&lt;</button>
+                <button (click)="prev()" [disabled]="currentMoveIndex() === -1" class="nav-btn">&lt;</button>
+                <span class="move-status">{{ currentMoveIndex() + 1 }} / {{ moves().length }}</span>
+                <button (click)="next()" [disabled]="currentMoveIndex() >= moves().length - 1"
+                    class="nav-btn">&gt;</button>
+                <button (click)="end()" [disabled]="currentMoveIndex() >= moves().length - 1"
+                    class="nav-btn">&gt;|</button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Moves & Tools -->
+        <div class="panel right-panel">
+            <!-- Move List -->
+            <div class="move-list-section">
+                <h3>Moves</h3>
+                <div class="move-list">
+                    @for (move of moves(); track $index) {
+                    @if ($index % 2 === 0) {
+                    <span class="move-number">{{ ($index / 2) + 1 }}.</span>
+                    }
+                    <span class="move" [class.active]="$index === currentMoveIndex()" (click)="jumpToMove($index)">
+                        {{ move }}
+                    </span>
+                    }
+                </div>
+            </div>
+
+            <!-- Replay Controls -->
+            <div class="replay-section">
+                <h3>Replay</h3>
+                <div class="replay-options">
+                    <label><input type="radio" name="mode" [value]="'realtime'" [checked]="replayMode() === 'realtime'"
+                            (change)="replayMode.set('realtime')"> Real Time</label>
+                    <label><input type="radio" name="mode" [value]="'fixed'" [checked]="replayMode() === 'fixed'"
+                            (change)="replayMode.set('fixed')"> Fixed</label>
+                </div>
+
+                @if (replayMode() === 'fixed') {
+                <div class="option-input">
+                    <input type="number" [value]="fixedTime()" (input)="onFixedTimeChange($event)" step="0.1"
+                        class="small-input"> sec/move
+                </div>
+                }
+
+                <div class="replay-actions">
+                    <button (click)="replayGame()" class="action-btn">Replay</button>
+                    <button (click)="stopReplay()" class="action-btn stop">Stop</button>
+                </div>
+                @if (canShowReplayAll()) {
+                <button (click)="replayAllSelectedGames()" class="action-btn full-width">Replay Selected ({{
+                    selectedGamesCount() }})</button>
+                }
+            </div>
+
+            <!-- PGN Input (Collapsible-ish) -->
+            <div class="pgn-input-section">
+                <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="3"
+                    placeholder="Paste PGN..."></textarea>
+                <button (click)="loadPgnFromInput()" class="small-btn">Load Text</button>
+            </div>
+
+            <!-- Load Section -->
+            <div class="load-section">
+                <h3>Load Games</h3>
+                <!-- Sample buttons removed, controlled by parent -->
+                <div class="file-inputs">
+                    <label class="file-input-label">
+                        📂 Zip
                         <input type="file" accept=".zip" (change)="onPgnZipSelected($event)" [disabled]="isLoading()">
                     </label>
-                </div>
-                <div>
-                    <label>Load PGN File:
+                    <label class="file-input-label">
+                        📄 PGN
                         <input type="file" accept=".pgn" (change)="onPgnFileSelected($event)" [disabled]="isLoading()">
                     </label>
                 </div>
                 @if (isLoading()) {
-                <div class="loading-indicator">
-                    ⏳ Loading and parsing file...
-                </div>
+                <div class="loading-indicator">⏳ Loading...</div>
                 }
-            </div>
-
-            <!-- Game Navigation (if multiple games) -->
-            @if (games().length > 1) {
-            <div class="game-navigation">
-                <button (click)="prevGame()" [disabled]="currentGameIndex() === 0">Prev Game</button>
-                <button (click)="nextGame()" [disabled]="currentGameIndex() === games().length - 1">Next Game</button>
-            </div>
-
-            <!-- Game Selection -->
-            <div class="game-selection">
-                <h3>Game Selection</h3>
-                <div class="selection-controls">
-                    <button (click)="selectAllGames()">Select All</button>
-                    <button (click)="clearSelection()">Clear All</button>
-                    <span>Selected: {{ selectedGamesCount() }} of {{ games().length }}</span>
-                </div>
-                <div class="game-list">
-                    @for (gameInfo of gameInfos(); track gameInfo.number) {
-                    <div class="game-item">
-                        <label>
-                            <input type="checkbox"
-                                   [checked]="selectedGames().has(gameInfo.number - 1)"
-                                   (change)="toggleGameSelection(gameInfo.number - 1)">
-                            <div class="game-info">
-                                <div class="players">{{ gameInfo.white }} vs {{ gameInfo.black }}</div>
-                                <div class="result">{{ gameInfo.result }}</div>
-                            </div>
-                        </label>
-                    </div>
-                    }
-                </div>
-            </div>
-            }
-
-            <!-- Move Navigation -->
-            <div class="navigation">
-                <button (click)="start()" [disabled]="currentMoveIndex() === -1">&lt;&lt;</button>
-                <button (click)="prev()" [disabled]="currentMoveIndex() === -1">&lt;</button>
-                <button (click)="next()" [disabled]="currentMoveIndex() >= moves().length - 1">&gt;</button>
-                <button (click)="end()" [disabled]="currentMoveIndex() >= moves().length - 1">&gt;&gt;</button>
-            </div>
-
-            <div class="status">
-                Move: {{ currentMoveIndex() + 1 }} / {{ moves().length }}
-            </div>
-
-            <!-- Replay Controls -->
-            <div class="replay-controls">
-                <h3>Replay Options</h3>
-                <div class="mode-selection">
-                    <label><input type="radio" name="mode" [value]="'realtime'"
-                            [checked]="replayMode() === 'realtime'"
-                            (change)="replayMode.set('realtime')"> Real Time</label>
-                    <label><input type="radio" name="mode" [value]="'proportional'"
-                            [checked]="replayMode() === 'proportional'"
-                            (change)="replayMode.set('proportional')"> Proportional</label>
-                    <label><input type="radio" name="mode" [value]="'fixed'"
-                            [checked]="replayMode() === 'fixed'"
-                            (change)="replayMode.set('fixed')"> Fixed Time</label>
-                </div>
-
-                @if (replayMode() === 'proportional') {
-                <div class="option-input">
-                    <label>Duration (min): <input type="number" [value]="proportionalDuration()"
-                            (input)="onProportionalDurationChange($event)" step="0.1"></label>
-                </div>
-                }
-
-                @if (replayMode() === 'fixed') {
-                <div class="option-input">
-                    <label>Time per move (sec): <input type="number" [value]="fixedTime()"
-                            (input)="onFixedTimeChange($event)" step="0.1"></label>
-                </div>
-                }
-
-                <div class="replay-buttons">
-                    <button (click)="replayGame()">Replay Game</button>
-                    @if (canShowReplayAll()) {
-                    <button (click)="replayAllSelectedGames()">Replay All Selected ({{ selectedGamesCount() }})</button>
-                    }
-                    <button (click)="stopReplay()">Stop</button>
-                </div>
-            </div>
-
-            <!-- Manual PGN Input -->
-            <div class="pgn-input">
-                <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="15"
-                    placeholder="Paste PGN here"></textarea>
-                <button (click)="loadPgnFromInput()">Load PGN</button>
             </div>
         </div>
     </div>
-    
 </div>

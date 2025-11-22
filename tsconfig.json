@@ -22,8 +22,7 @@
     ],
     "paths": {
       "ngx-chessground": [
-        "dist/ngx-chessground/ngx-chessground",
-        "dist/ngx-chessground"
+        "projects/ngx-chessground/src/public-api.ts"
       ]
     },
     "useDefineForClassFields": false

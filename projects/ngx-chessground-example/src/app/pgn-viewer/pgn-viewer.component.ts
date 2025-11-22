@@ -58,30 +58,15 @@ export class PgnViewerComponent implements AfterViewInit {
 	}
 
 	loadMultipleGames() {
-		if (this.pgnViewer) {
-			const multipleGames = `${this.fischerEvergreen}\n\n${this.topceEvergreen}`;
-			this.pgnViewer.pgnInput.set(multipleGames);
-			setTimeout(() => {
-				this.pgnViewer.loadPgnFromInput();
-			}, 0);
-		}
+		const multipleGames = `${this.fischerEvergreen}\n\n${this.topceEvergreen}`;
+		this.currentPgn = multipleGames;
 	}
 
 	loadFischer() {
-		if (this.pgnViewer) {
-			this.pgnViewer.pgnInput.set(this.fischerEvergreen);
-			setTimeout(() => {
-				this.pgnViewer.loadPgnFromInput();
-			}, 0);
-		}
+		this.currentPgn = this.fischerEvergreen;
 	}
 
 	loadTopce() {
-		if (this.pgnViewer) {
-			this.pgnViewer.pgnInput.set(this.topceEvergreen);
-			setTimeout(() => {
-				this.pgnViewer.loadPgnFromInput();
-			}, 0);
-		}
+		this.currentPgn = this.topceEvergreen;
 	}
 }

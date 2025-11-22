@@ -1,11 +1,11 @@
 <div class="container">
     <h2>PGN Viewer</h2>
-
+    
+    
+    <ngx-pgn-viewer [pgn]="currentPgn"></ngx-pgn-viewer>
     <div class="controls">
         <button (click)="loadFischer()">Load Fischer Evergreen</button>
         <button (click)="loadTopce()">Load Topce Evergreen</button>
         <button (click)="loadMultipleGames()">Load Multiple Games</button>
     </div>
-
-    <ngx-pgn-viewer></ngx-pgn-viewer>
 </div>

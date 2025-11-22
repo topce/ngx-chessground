@@ -36,6 +36,24 @@ export class NgxPgnViewerComponent {
 	isLoading = signal<boolean>(false);
 	selectedGames = signal<Set<number>>(new Set());
 
+	// Filter Signals
+	filterWhite = signal<string>("");
+	filterBlack = signal<string>("");
+	filterResult = signal<string>("");
+	filterMoves = signal<boolean>(false);
+
+	// Autocomplete Signals
+	uniqueWhitePlayers = signal<Set<string>>(new Set());
+	uniqueBlackPlayers = signal<Set<string>>(new Set());
+
+	// Filtering State
+	filteredGamesIndices = signal<number[]>([]);
+	isFiltering = signal<boolean>(false);
+	private filterTimeout: any = null;
+	private currentFilterId = 0;
+	private gameMovesCache = new Map<number, string[]>();
+	private autoSelectOnFinish = false;
+
 	// Computed values for better reactivity
 	selectedGamesCount = computed(() => this.selectedGames().size);
 	canShowReplayAll = computed(() => this.games().length > 1 && this.selectedGamesCount() > 0);
@@ -70,9 +88,11 @@ export class NgxPgnViewerComponent {
 		return gameInfo.result;
 	});
 
-	// Game information for display
-	gameInfos = computed(() => {
-		return this.games().map((pgn, index) => this.extractGameInfo(pgn, index));
+	// Game information for display (filtered)
+	filteredGameInfos = computed(() => {
+		const games = this.games();
+		const indices = this.filteredGamesIndices();
+		return indices.map(i => this.extractGameInfo(games[i], i));
 	});
 
 	// Replay State
@@ -99,6 +119,7 @@ export class NgxPgnViewerComponent {
 		};
 	});
 
+
 	constructor() {
 		// Effect to load initial PGN if provided
 		effect(() => {
@@ -115,16 +136,203 @@ export class NgxPgnViewerComponent {
 		});
 	}
 
+	applyFilter() {
+		const games = this.games();
+		const fWhite = this.filterWhite();
+		const fBlack = this.filterBlack();
+		const fResult = this.filterResult();
+		const fMoves = this.filterMoves();
+		const currentMoves = this.moves().slice(0, this.currentMoveIndex() + 1);
+
+		this.autoSelectOnFinish = true;
+		this.runFilterLogic(games, fWhite, fBlack, fResult, fMoves, currentMoves);
+	}
+
+	clearFilters() {
+		this.filterWhite.set("");
+		this.filterBlack.set("");
+		this.filterResult.set("");
+		this.filterMoves.set(false);
+		this.applyFilter();
+	}
+
+	private lastFilterParams = {
+		white: "",
+		black: "",
+		result: "",
+		moves: false,
+		targetMoves: [] as string[]
+	};
+
+	private runFilterLogic(
+		games: string[],
+		fWhite: string,
+		fBlack: string,
+		fResult: string,
+		fMoves: boolean,
+		targetMoves: string[]
+	) {
+		this.currentFilterId++;
+		const myFilterId = this.currentFilterId;
+		this.isFiltering.set(true);
+
+		const onComplete = (indices: number[]) => {
+			this.filteredGamesIndices.set(indices);
+			this.isFiltering.set(false);
+			this.lastFilterParams = { white: fWhite, black: fBlack, result: fResult, moves: fMoves, targetMoves };
+
+			if (this.autoSelectOnFinish) {
+				this.selectAllGames();
+				this.autoSelectOnFinish = false;
+			}
+		};
+
+		// If no filters, return all indices immediately
+		if (!fWhite && !fBlack && !fResult && !fMoves) {
+			onComplete(games.map((_, i) => i));
+			return;
+		}
+
+		const fWhiteLower = fWhite.toLowerCase();
+		const fBlackLower = fBlack.toLowerCase();
+		const fResultLower = fResult.toLowerCase();
+
+		// Check for iterative filtering opportunity
+		let candidateIndices: number[] = [];
+
+		if (
+			this.lastFilterParams.white === fWhite &&
+			this.lastFilterParams.black === fBlack &&
+			this.lastFilterParams.result === fResult &&
+			this.lastFilterParams.moves === fMoves &&
+			fMoves && // Only relevant if move filtering is on
+			targetMoves.length > this.lastFilterParams.targetMoves.length &&
+			this.arraysEqualPrefix(targetMoves, this.lastFilterParams.targetMoves)
+		) {
+			// Iterative: use previous results
+			candidateIndices = this.filteredGamesIndices();
+		} else {
+			// Full scan: First pass - Synchronous string filtering
+			for (let i = 0; i < games.length; i++) {
+				const pgn = games[i];
+				const info = this.extractGameInfo(pgn, i);
+
+				if (fWhiteLower && !info.white.toLowerCase().includes(fWhiteLower)) continue;
+				if (fBlackLower && !info.black.toLowerCase().includes(fBlackLower)) continue;
+				if (fResultLower && !info.result.toLowerCase().includes(fResultLower)) continue;
+
+				candidateIndices.push(i);
+			}
+		}
+
+		// If moves filter is NOT active, we are done
+		if (!fMoves) {
+			onComplete(candidateIndices);
+			return;
+		}
+
+		// Second pass: Async chunked moves filtering (cached)
+		const finalIndices: number[] = [];
+		const chunkSize = 50;
+		let currentIndex = 0;
+		const tempChess = new Chess();
+
+		const processChunk = () => {
+			// Check cancellation
+			if (this.currentFilterId !== myFilterId) {
+				return;
+			}
+
+			const startTime = performance.now();
+
+			while (currentIndex < candidateIndices.length) {
+				// Yield if we've taken too long (e.g., > 15ms)
+				if (performance.now() - startTime > 15) {
+					setTimeout(processChunk, 0);
+					return;
+				}
+
+				const gameIndex = candidateIndices[currentIndex];
+				const pgn = games[gameIndex];
+				currentIndex++;
+
+				try {
+					let gameMoves = this.gameMovesCache.get(gameIndex);
+
+					if (!gameMoves) {
+						// Not in cache, parse and store
+						tempChess.loadPgn(pgn);
+						gameMoves = tempChess.history();
+						this.gameMovesCache.set(gameIndex, gameMoves);
+					}
+
+					// Check if game starts with target moves
+					let match = true;
+					if (targetMoves.length > gameMoves.length) {
+						match = false;
+					} else {
+						// Optimization: If iterative, we only need to check the NEW moves
+						// But checking all is fast enough with arrays.
+						for (let i = 0; i < targetMoves.length; i++) {
+							if (gameMoves[i] !== targetMoves[i]) {
+								match = false;
+								break;
+							}
+						}
+					}
+
+					if (match) {
+						finalIndices.push(gameIndex);
+					}
+				} catch (e) {
+					// Silent catch
+				}
+			}
+
+			// Done
+			onComplete(finalIndices);
+		};
+
+		// Start processing
+		processChunk();
+	}
+
+	private arraysEqualPrefix(a: string[], prefix: string[]): boolean {
+		if (prefix.length > a.length) return false;
+		for (let i = 0; i < prefix.length; i++) {
+			if (a[i] !== prefix[i]) return false;
+		}
+		return true;
+	}
+
 	// --- PGN Loading Logic ---
 
 	loadPgnString(pgn: string) {
+		// Clear cache when loading new PGN
+		this.gameMovesCache.clear();
 		try {
 			const games = this.splitPgn(pgn);
 			if (games.length > 0) {
 				this.games.set(games);
+
+				// Populate unique players
+				const whitePlayers = new Set<string>();
+				const blackPlayers = new Set<string>();
+
+				for (let i = 0; i < games.length; i++) {
+					const info = this.extractGameInfo(games[i], i);
+					if (info.white && info.white !== 'Unknown') whitePlayers.add(info.white);
+					if (info.black && info.black !== 'Unknown') blackPlayers.add(info.black);
+				}
+
+				this.uniqueWhitePlayers.set(whitePlayers);
+				this.uniqueBlackPlayers.set(blackPlayers);
+
 			} else {
 				// Fallback for single game or empty
 				this.games.set([pgn]);
+				this.uniqueWhitePlayers.set(new Set());
+				this.uniqueBlackPlayers.set(new Set());
 			}
 		} catch (e) {
 			console.error("Invalid PGN", e);
@@ -231,6 +439,9 @@ export class NgxPgnViewerComponent {
 		return games;
 	}
 
+	// --- Sample Loading ---
+	// Sample loading methods removed. Use input binding from parent.
+
 	// --- Game Logic ---
 
 	loadGame(index: number) {
@@ -269,9 +480,9 @@ export class NgxPgnViewerComponent {
 	}
 
 	selectAllGames() {
-		const games = this.games();
-		const selected = new Set<number>();
-		for (let i = 0; i < games.length; i++) {
+		const indices = this.filteredGamesIndices();
+		const selected = new Set(this.selectedGames());
+		for (const i of indices) {
 			selected.add(i);
 		}
 		this.selectedGames.set(selected);
@@ -317,6 +528,38 @@ export class NgxPgnViewerComponent {
 	}
 
 	// --- Navigation Logic ---
+
+	jumpToMove(index: number) {
+		const moves = this.moves();
+		if (index >= -1 && index < moves.length) {
+			this.chess.reset();
+			for (let i = 0; i <= index; i++) {
+				this.chess.move(moves[i]);
+			}
+			this.currentMoveIndex.set(index);
+			this.currentFen.set(this.chess.fen());
+		}
+	}
+
+	updateFilterWhite(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterWhite.set(value);
+	}
+
+	updateFilterBlack(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterBlack.set(value);
+	}
+
+	updateFilterResult(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterResult.set(value);
+	}
+
+	toggleFilterMoves(event: Event) {
+		const checked = (event.target as HTMLInputElement).checked;
+		this.filterMoves.set(checked);
+	}
 
 	next() {
 		const moves = this.moves();
