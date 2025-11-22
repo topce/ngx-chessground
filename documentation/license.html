@@ -61,6 +61,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -79,8 +93,12 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content getting-started">
+               <div class="content license">
                    <div class="content-data">
+
+
+
+
 
 <b>Example :</b><div><pre class="line-numbers"><code class="language-none">                GNU GENERAL PUBLIC LICENSE
                    Version 3, 29 June 2007</code></pre></div><p> Copyright (C) 2007 Free Software Foundation, Inc. <a href="https://fsf.org/">https://fsf.org/</a>
@@ -724,7 +742,7 @@ Public License instead of this License.  But first, please read
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 0;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'license';
             var COMPODOC_CURRENT_PAGE_URL = 'license.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>

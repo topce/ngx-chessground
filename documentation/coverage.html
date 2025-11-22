@@ -61,6 +61,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -100,6 +114,10 @@
 
 
 
+
+
+
+
 <ol class="breadcrumb">
     <li class="breadcrumb-item">Documentation coverage</li>
 </ol>
@@ -118,22 +136,22 @@
         </tr>
     </thead>
     <tbody>
-        <tr class="good">
+        <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./components/NgxChessgroundTableComponent.html">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts</a>
+                        <a href="./components/NgxChessgroundTableComponent.html">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts</a>
             </td>
             <td>component</td>
             <td>NgxChessgroundTableComponent</td>
-            <td align="right" data-sort="66">
-                <span class="coverage-percent">66 %</span>
-                <span class="coverage-count">(2/3)</span>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(2/4)</span>
             </td>
         </tr>
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/NgxChessgroundService.html">projects/ngx-chessground/src/lib/ngx-chessground.service.ts</a>
+                        <a href="./injectables/NgxChessgroundService.html">projects/ngx-chessground/src/lib/ngx-chessground.service.ts</a>
             </td>
             <td>injectable</td>
             <td>NgxChessgroundService</td>
@@ -145,13 +163,73 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./components/NgxChessgroundComponent.html">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts</a>
+                        <a href="./components/NgxChessgroundComponent.html">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts</a>
             </td>
             <td>component</td>
             <td>NgxChessgroundComponent</td>
-            <td align="right" data-sort="85">
-                <span class="coverage-percent">85 %</span>
-                <span class="coverage-count">(6/7)</span>
+            <td align="right" data-sort="87">
+                <span class="coverage-percent">87 %</span>
+                <span class="coverage-count">(7/8)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/NgxPgnViewerComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>NgxPgnViewerComponent</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/35)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/PromotionDialogComponent.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>PromotionDialogComponent</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PromotionDialogData.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PromotionDialogData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/2)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#PromotionPiece">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>PromotionPiece</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./injectables/PromotionService.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>PromotionService</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
             </td>
         </tr>
         <tr class="very-good">
@@ -245,6 +323,66 @@
             </td>
             <td>variable</td>
             <td>lastMoveCrazyhouse</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#createEnhancedPlayUnits">projects/ngx-chessground/src/units/enhanced-play.ts</a>
+            </td>
+            <td>function</td>
+            <td>createEnhancedPlayUnits</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#aiPlayWithDialog">projects/ngx-chessground/src/units/enhanced-util.ts</a>
+            </td>
+            <td>function</td>
+            <td>aiPlayWithDialog</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#playOtherSideWithDialog">projects/ngx-chessground/src/units/enhanced-util.ts</a>
+            </td>
+            <td>function</td>
+            <td>playOtherSideWithDialog</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#promotionToRole">projects/ngx-chessground/src/units/enhanced-util.ts</a>
+            </td>
+            <td>function</td>
+            <td>promotionToRole</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/enhanced-util.ts</a>
+            </td>
+            <td>function</td>
+            <td>toDests</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
                 <span class="coverage-count">(1/1)</span>
@@ -377,6 +515,18 @@
             </td>
             <td>variable</td>
             <td>pgn</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#createPlayUnitsWithDialog">projects/ngx-chessground/src/units/play.ts</a>
+            </td>
+            <td>function</td>
+            <td>createPlayUnitsWithDialog</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
                 <span class="coverage-count">(1/1)</span>
@@ -577,7 +727,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/Unit.html">projects/ngx-chessground/src/units/unit.ts</a>
+                        <a href="./interfaces/Unit.html">projects/ngx-chessground/src/units/unit.ts</a>
             </td>
             <td>interface</td>
             <td>Unit</td>
@@ -605,6 +755,30 @@
             </td>
             <td>function</td>
             <td>playOtherSide</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#playOtherSideWithDialog">projects/ngx-chessground/src/units/util.ts</a>
+            </td>
+            <td>function</td>
+            <td>playOtherSideWithDialog</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#promotionToRole">projects/ngx-chessground/src/units/util.ts</a>
+            </td>
+            <td>function</td>
+            <td>promotionToRole</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
                 <span class="coverage-count">(1/1)</span>

@@ -1,0 +1,2643 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  NgxPgnViewerComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts</code>
+</p>
+
+
+
+
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+            <tr>
+                <td class="col-md-3">changeDetection</td>
+                <td class="col-md-9"><code>ChangeDetectionStrategy.OnPush</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>ngx-pgn-viewer</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">standalone</td>
+                <td class="col-md-9"><code>true</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">imports</td>
+                <td class="col-md-9">
+                            <code>CommonModule</code>
+                                <code><a href="../components/NgxChessgroundComponent.html" target="_self" >NgxChessgroundComponent</a></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./pgn-viewer.component.css</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./pgn-viewer.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#chess" >chess</a>
+                            </li>
+                            <li>
+                                <a href="#currentFen" >currentFen</a>
+                            </li>
+                            <li>
+                                <a href="#currentGameIndex" >currentGameIndex</a>
+                            </li>
+                            <li>
+                                <a href="#currentMoveIndex" >currentMoveIndex</a>
+                            </li>
+                            <li>
+                                <a href="#fixedTime" >fixedTime</a>
+                            </li>
+                            <li>
+                                <a href="#games" >games</a>
+                            </li>
+                            <li>
+                                <a href="#isLoading" >isLoading</a>
+                            </li>
+                            <li>
+                                <a href="#moves" >moves</a>
+                            </li>
+                            <li>
+                                <a href="#pgnInput" >pgnInput</a>
+                            </li>
+                            <li>
+                                <a href="#proportionalDuration" >proportionalDuration</a>
+                            </li>
+                            <li>
+                                <a href="#replayMode" >replayMode</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#replayTimeouts" >replayTimeouts</a>
+                            </li>
+                            <li>
+                                <a href="#runFunction" >runFunction</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#calculateReplayTimeouts" >calculateReplayTimeouts</a>
+                            </li>
+                            <li>
+                                <a href="#end" >end</a>
+                            </li>
+                            <li>
+                                <a href="#loadGame" >loadGame</a>
+                            </li>
+                            <li>
+                                <a href="#loadPgnFromInput" >loadPgnFromInput</a>
+                            </li>
+                            <li>
+                                <a href="#loadPgnString" >loadPgnString</a>
+                            </li>
+                            <li>
+                                <a href="#next" >next</a>
+                            </li>
+                            <li>
+                                <a href="#nextGame" >nextGame</a>
+                            </li>
+                            <li>
+                                <a href="#onFixedTimeChange" >onFixedTimeChange</a>
+                            </li>
+                            <li>
+                                <a href="#onPgnFileSelected" >onPgnFileSelected</a>
+                            </li>
+                            <li>
+                                <a href="#onPgnInputChange" >onPgnInputChange</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#onPgnZipSelected" >onPgnZipSelected</a>
+                            </li>
+                            <li>
+                                <a href="#onProportionalDurationChange" >onProportionalDurationChange</a>
+                            </li>
+                            <li>
+                                <a href="#prev" >prev</a>
+                            </li>
+                            <li>
+                                <a href="#prevGame" >prevGame</a>
+                            </li>
+                            <li>
+                                <a href="#replayGame" >replayGame</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#scheduleReplay" >scheduleReplay</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#splitPgn" >splitPgn</a>
+                            </li>
+                            <li>
+                                <a href="#start" >start</a>
+                            </li>
+                            <li>
+                                <a href="#stopReplay" >stopReplay</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#pgn" >pgn</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor()</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:60</a></div>
+                            </td>
+                        </tr>
+
+            </tbody>
+        </table>
+</section>
+
+    <section data-compodoc="block-inputs">
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="pgn"></a>
+                        <b>pgn</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&quot;&quot;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:26</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="calculateReplayTimeouts"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>calculateReplayTimeouts</b></span>
+                        <a href="#calculateReplayTimeouts"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>calculateReplayTimeouts(history: Move[], comments: literal type[], header: Record<string | string | null>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="294"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:294</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>history</td>
+                                            <td>
+                                                        <code>Move[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>comments</td>
+                                            <td>
+                                                        <code>literal type[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>header</td>
+                                            <td>
+                                                        <code>Record&lt;string | string | null&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>number[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="end"></a>
+                    <span class="name">
+                        <span ><b>end</b></span>
+                        <a href="#end"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>end()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="260"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:260</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadGame"></a>
+                    <span class="name">
+                        <span ><b>loadGame</b></span>
+                        <a href="#loadGame"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>loadGame(index: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="196"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:196</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>index</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadPgnFromInput"></a>
+                    <span class="name">
+                        <span ><b>loadPgnFromInput</b></span>
+                        <a href="#loadPgnFromInput"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>loadPgnFromInput()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="95"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:95</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadPgnString"></a>
+                    <span class="name">
+                        <span ><b>loadPgnString</b></span>
+                        <a href="#loadPgnString"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>loadPgnString(pgn: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:80</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>pgn</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="next"></a>
+                    <span class="name">
+                        <span ><b>next</b></span>
+                        <a href="#next"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>next()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="235"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:235</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="nextGame"></a>
+                    <span class="name">
+                        <span ><b>nextGame</b></span>
+                        <a href="#nextGame"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>nextGame()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="221"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:221</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onFixedTimeChange"></a>
+                    <span class="name">
+                        <span ><b>onFixedTimeChange</b></span>
+                        <a href="#onFixedTimeChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onFixedTimeChange(event: Event)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:106</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>Event</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPgnFileSelected"></a>
+                    <span class="name">
+                        <span ><b>onPgnFileSelected</b></span>
+                        <a href="#onPgnFileSelected"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onPgnFileSelected(event: Event)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="148"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:148</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>Event</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPgnInputChange"></a>
+                    <span class="name">
+                        <span ><b>onPgnInputChange</b></span>
+                        <a href="#onPgnInputChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onPgnInputChange(event: Event)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:111</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>Event</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPgnZipSelected"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onPgnZipSelected</b></span>
+                        <a href="#onPgnZipSelected"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onPgnZipSelected(event: Event)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="116"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:116</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>Event</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onProportionalDurationChange"></a>
+                    <span class="name">
+                        <span ><b>onProportionalDurationChange</b></span>
+                        <a href="#onProportionalDurationChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onProportionalDurationChange(event: Event)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="101"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:101</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>Event</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="prev"></a>
+                    <span class="name">
+                        <span ><b>prev</b></span>
+                        <a href="#prev"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>prev()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="246"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:246</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="prevGame"></a>
+                    <span class="name">
+                        <span ><b>prevGame</b></span>
+                        <a href="#prevGame"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>prevGame()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="227"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:227</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replayGame"></a>
+                    <span class="name">
+                        <span ><b>replayGame</b></span>
+                        <a href="#replayGame"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>replayGame()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="272"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:272</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="scheduleReplay"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>scheduleReplay</b></span>
+                        <a href="#scheduleReplay"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>scheduleReplay(timeOuts: number[], totalMoves: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="366"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:366</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>timeOuts</td>
+                                            <td>
+                                                        <code>number[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>totalMoves</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="splitPgn"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>splitPgn</b></span>
+                        <a href="#splitPgn"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>splitPgn(pgn: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="176"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:176</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>pgn</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>string[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="start"></a>
+                    <span class="name">
+                        <span ><b>start</b></span>
+                        <a href="#start"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>start()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="254"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:254</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="stopReplay"></a>
+                    <span class="name">
+                        <span ><b>stopReplay</b></span>
+                        <a href="#stopReplay"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>stopReplay()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="287"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:287</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="chess"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>chess</b></span>
+                        <a href="#chess"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Chess()</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:47</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="currentFen"></a>
+                    <span class="name">
+                        <span ><b>currentFen</b></span>
+                        <a href="#currentFen"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;string&gt;(
+		&quot;rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1&quot;,
+	)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:33</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="currentGameIndex"></a>
+                    <span class="name">
+                        <span ><b>currentGameIndex</b></span>
+                        <a href="#currentGameIndex"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;number&gt;(0)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:30</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="currentMoveIndex"></a>
+                    <span class="name">
+                        <span ><b>currentMoveIndex</b></span>
+                        <a href="#currentMoveIndex"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;number&gt;(-1)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:32</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="fixedTime"></a>
+                    <span class="name">
+                        <span ><b>fixedTime</b></span>
+                        <a href="#fixedTime"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;number&gt;(1)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:41</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="games"></a>
+                    <span class="name">
+                        <span ><b>games</b></span>
+                        <a href="#games"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;string[]&gt;([])</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:29</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isLoading"></a>
+                    <span class="name">
+                        <span ><b>isLoading</b></span>
+                        <a href="#isLoading"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;boolean&gt;(false)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:36</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="moves"></a>
+                    <span class="name">
+                        <span ><b>moves</b></span>
+                        <a href="#moves"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;string[]&gt;([])</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:31</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="pgnInput"></a>
+                    <span class="name">
+                        <span ><b>pgnInput</b></span>
+                        <a href="#pgnInput"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;string&gt;(&quot;&quot;)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:44</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="proportionalDuration"></a>
+                    <span class="name">
+                        <span ><b>proportionalDuration</b></span>
+                        <a href="#proportionalDuration"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;number&gt;(1)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:40</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replayMode"></a>
+                    <span class="name">
+                        <span ><b>replayMode</b></span>
+                        <a href="#replayMode"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>signal&lt;&quot;realtime&quot; | &quot;proportional&quot; | &quot;fixed&quot;&gt;(&quot;fixed&quot;)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:39</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replayTimeouts"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>replayTimeouts</b></span>
+                        <a href="#replayTimeouts"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>any[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:49</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="runFunction"></a>
+                    <span class="name">
+                        <span ><b>runFunction</b></span>
+                        <a href="#runFunction"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>computed&lt;(el: HTMLElement) &#x3D;&gt; Api&gt;(() &#x3D;&gt; {
+		const fen &#x3D; this.currentFen();
+		return (el: HTMLElement) &#x3D;&gt; {
+			return Chessground(el, {
+				fen: fen,
+				viewOnly: true,
+			});
+		};
+	})</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts:52</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CommonModule } from &quot;@angular/common&quot;;
+import {
+	ChangeDetectionStrategy,
+	Component,
+	computed,
+	effect,
+	input,
+	signal,
+} from &quot;@angular/core&quot;;
+import { Chess, Move } from &quot;chess.js&quot;;
+import { Chessground } from &quot;chessground&quot;;
+import { Api } from &quot;chessground/api&quot;;
+import * as JSZip from &quot;jszip&quot;;
+import { NgxChessgroundComponent } from &quot;../ngx-chessground/ngx-chessground.component&quot;;
+
+@Component({
+	selector: &quot;ngx-pgn-viewer&quot;,
+	standalone: true,
+	imports: [CommonModule, NgxChessgroundComponent],
+	templateUrl: &quot;./pgn-viewer.component.html&quot;,
+	styleUrls: [&quot;./pgn-viewer.component.css&quot;],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class NgxPgnViewerComponent {
+	// Inputs
+	pgn &#x3D; input&lt;string&gt;(&quot;&quot;);
+
+	// State Signals
+	games &#x3D; signal&lt;string[]&gt;([]);
+	currentGameIndex &#x3D; signal&lt;number&gt;(0);
+	moves &#x3D; signal&lt;string[]&gt;([]);
+	currentMoveIndex &#x3D; signal&lt;number&gt;(-1); // -1 means start position
+	currentFen &#x3D; signal&lt;string&gt;(
+		&quot;rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1&quot;,
+	);
+	isLoading &#x3D; signal&lt;boolean&gt;(false);
+
+	// Replay State
+	replayMode &#x3D; signal&lt;&quot;realtime&quot; | &quot;proportional&quot; | &quot;fixed&quot;&gt;(&quot;fixed&quot;);
+	proportionalDuration &#x3D; signal&lt;number&gt;(1); // minutes
+	fixedTime &#x3D; signal&lt;number&gt;(1); // seconds
+
+	// UI State
+	pgnInput &#x3D; signal&lt;string&gt;(&quot;&quot;);
+
+	// Internal Objects
+	private chess &#x3D; new Chess();
+	// biome-ignore lint/suspicious/noExplicitAny: Timeout type differs between envs
+	private replayTimeouts: any[] &#x3D; [];
+
+	// Computed
+	runFunction &#x3D; computed&lt;(el: HTMLElement) &#x3D;&gt; Api&gt;(() &#x3D;&gt; {
+		const fen &#x3D; this.currentFen();
+		return (el: HTMLElement) &#x3D;&gt; {
+			return Chessground(el, {
+				fen: fen,
+				viewOnly: true,
+			});
+		};
+	});
+
+	constructor() {
+		// Effect to load initial PGN if provided
+		effect(() &#x3D;&gt; {
+			const pgn &#x3D; this.pgn();
+			if (pgn) {
+				this.loadPgnString(pgn);
+				// Use setTimeout to ensure games signal is set before loading
+				setTimeout(() &#x3D;&gt; {
+					if (this.games().length &gt; 0) {
+						this.loadGame(0);
+					}
+				}, 0);
+			}
+		});
+	}
+
+	// --- PGN Loading Logic ---
+
+	loadPgnString(pgn: string) {
+		try {
+			const games &#x3D; this.splitPgn(pgn);
+			if (games.length &gt; 0) {
+				this.games.set(games);
+			} else {
+				// Fallback for single game or empty
+				this.games.set([pgn]);
+			}
+		} catch (e) {
+			console.error(&quot;Invalid PGN&quot;, e);
+			alert(&quot;Invalid PGN&quot;);
+		}
+	}
+
+	loadPgnFromInput() {
+		const pgn &#x3D; this.pgnInput();
+		this.loadPgnString(pgn);
+		this.loadGame(0);
+	}
+
+	onProportionalDurationChange(event: Event) {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.proportionalDuration.set(parseFloat(value) || 1);
+	}
+
+	onFixedTimeChange(event: Event) {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.fixedTime.set(parseFloat(value) || 1);
+	}
+
+	onPgnInputChange(event: Event) {
+		const value &#x3D; (event.target as HTMLTextAreaElement).value;
+		this.pgnInput.set(value);
+	}
+
+	async onPgnZipSelected(event: Event) {
+		const input &#x3D; event.target as HTMLInputElement;
+		if (!input.files || input.files.length &#x3D;&#x3D;&#x3D; 0) return;
+
+		const file &#x3D; input.files[0];
+		this.isLoading.set(true);
+
+		try {
+			const zip &#x3D; await JSZip.loadAsync(file);
+			const pgnFile &#x3D; Object.values(zip.files).find((f) &#x3D;&gt;
+				f.name.endsWith(&quot;.pgn&quot;),
+			);
+
+			if (pgnFile) {
+				const content &#x3D; await pgnFile.async(&quot;string&quot;);
+				// Use setTimeout to ensure change detection runs properly
+				setTimeout(() &#x3D;&gt; {
+					this.loadPgnString(content);
+					this.loadGame(0);
+					this.isLoading.set(false);
+				}, 0);
+			} else {
+				alert(&quot;No PGN file found in the zip archive.&quot;);
+				this.isLoading.set(false);
+			}
+		} catch (e) {
+			console.error(&quot;Error loading zip file:&quot;, e);
+			alert(&quot;Error loading zip file.&quot;);
+			this.isLoading.set(false);
+		}
+	}
+
+	onPgnFileSelected(event: Event) {
+		const input &#x3D; event.target as HTMLInputElement;
+		if (!input.files || input.files.length &#x3D;&#x3D;&#x3D; 0) return;
+
+		const file &#x3D; input.files[0];
+		this.isLoading.set(true);
+
+		const reader &#x3D; new FileReader();
+		reader.onload &#x3D; (e) &#x3D;&gt; {
+			const content &#x3D; e.target?.result as string;
+			if (content) {
+				// Use setTimeout to ensure change detection runs properly
+				setTimeout(() &#x3D;&gt; {
+					this.loadPgnString(content);
+					this.loadGame(0);
+					this.isLoading.set(false);
+				}, 0);
+			} else {
+				this.isLoading.set(false);
+			}
+		};
+		reader.onerror &#x3D; () &#x3D;&gt; {
+			this.isLoading.set(false);
+			alert(&quot;Error reading file.&quot;);
+		};
+		reader.readAsText(file);
+	}
+
+	private splitPgn(pgn: string): string[] {
+		// PGN standard: games are separated by blank lines, each starting with [Event &quot;...&quot;]
+		// Split before each [Event tag that appears at the start of a line
+		const parts &#x3D; pgn.split(/(?&#x3D;(?:^|\r?\n)\[Event\s+&quot;)/m);
+		const games: string[] &#x3D; [];
+
+		for (const part of parts) {
+			const trimmed &#x3D; part.trim();
+			if (trimmed.length &#x3D;&#x3D;&#x3D; 0) continue;
+			// Only add if it starts with a tag pair (valid PGN game)
+			if (/^\[Event\s+&quot;/.test(trimmed)) {
+				games.push(trimmed);
+			}
+		}
+
+		return games;
+	}
+
+	// --- Game Logic ---
+
+	loadGame(index: number) {
+		const games &#x3D; this.games();
+		if (index &gt;&#x3D; 0 &amp;&amp; index &lt; games.length) {
+			this.currentGameIndex.set(index);
+			const gamePgn &#x3D; games[index];
+
+			try {
+				const tempChess &#x3D; new Chess();
+				tempChess.loadPgn(gamePgn);
+
+				const moves &#x3D; tempChess.history();
+				this.moves.set(moves);
+				this.chess.reset();
+				this.currentMoveIndex.set(-1);
+				this.currentFen.set(this.chess.fen());
+				this.stopReplay();
+
+				// Update the textarea to show the current game&#x27;s PGN
+				this.pgnInput.set(gamePgn);
+			} catch (e) {
+				console.error(&quot;Error loading game&quot;, e);
+			}
+		}
+	}
+
+	nextGame() {
+		if (this.currentGameIndex() &lt; this.games().length - 1) {
+			this.loadGame(this.currentGameIndex() + 1);
+		}
+	}
+
+	prevGame() {
+		if (this.currentGameIndex() &gt; 0) {
+			this.loadGame(this.currentGameIndex() - 1);
+		}
+	}
+
+	// --- Navigation Logic ---
+
+	next() {
+		const moves &#x3D; this.moves();
+		const currentIdx &#x3D; this.currentMoveIndex();
+		if (currentIdx &lt; moves.length - 1) {
+			const nextMove &#x3D; moves[currentIdx + 1];
+			this.chess.move(nextMove);
+			this.currentMoveIndex.set(currentIdx + 1);
+			this.currentFen.set(this.chess.fen());
+		}
+	}
+
+	prev() {
+		if (this.currentMoveIndex() &gt;&#x3D; 0) {
+			this.chess.undo();
+			this.currentMoveIndex.update((i) &#x3D;&gt; i - 1);
+			this.currentFen.set(this.chess.fen());
+		}
+	}
+
+	start() {
+		this.chess.reset();
+		this.currentMoveIndex.set(-1);
+		this.currentFen.set(this.chess.fen());
+	}
+
+	end() {
+		this.chess.reset();
+		const moves &#x3D; this.moves();
+		for (const move of moves) {
+			this.chess.move(move);
+		}
+		this.currentMoveIndex.set(moves.length - 1);
+		this.currentFen.set(this.chess.fen());
+	}
+
+	// --- Replay Logic ---
+
+	replayGame() {
+		this.stopReplay();
+		this.start();
+
+		const gamePgn &#x3D; this.games()[this.currentGameIndex()];
+		const tempChess &#x3D; new Chess();
+		tempChess.loadPgn(gamePgn);
+		const history &#x3D; tempChess.history({ verbose: true });
+		const comments &#x3D; tempChess.getComments();
+		const header &#x3D; tempChess.header();
+
+		const timeOuts &#x3D; this.calculateReplayTimeouts(history, comments, header);
+		this.scheduleReplay(timeOuts, history.length);
+	}
+
+	stopReplay() {
+		this.replayTimeouts.forEach((t) &#x3D;&gt; {
+			clearTimeout(t);
+		});
+		this.replayTimeouts &#x3D; [];
+	}
+
+	private calculateReplayTimeouts(
+		history: Move[],
+		comments: { fen: string; comment: string }[],
+		header: Record&lt;string, string | null&gt;,
+	): number[] {
+		const timeOuts: number[] &#x3D; [];
+
+		if (this.replayMode() &#x3D;&#x3D;&#x3D; &quot;fixed&quot;) {
+			for (let i &#x3D; 0; i &lt; history.length; i++) {
+				timeOuts.push((i + 1) * this.fixedTime());
+			}
+			return timeOuts;
+		}
+
+		// Realtime/Proportional logic
+
+		// If no comments, fallback to fixed
+		if (comments.length &#x3D;&#x3D;&#x3D; 0) {
+			for (let i &#x3D; 0; i &lt; history.length; i++) {
+				timeOuts.push((i + 1) * 1); // 1 sec default
+			}
+			return timeOuts;
+		}
+
+		let whiteThinkTime &#x3D; 0;
+		let blackThinkTime &#x3D; 0;
+		let timeControlInSeconds &#x3D; 180; // Default
+
+		if (header.TimeControl) {
+			const tc &#x3D; header.TimeControl.split(&quot;+&quot;);
+			timeControlInSeconds &#x3D; parseInt(tc[0], 10);
+		}
+
+		for (let j &#x3D; 0; j &lt; comments.length; j++) {
+			const comment &#x3D; comments[j].comment;
+			const clkMatch &#x3D;
+				comment.match(/%clk\s+(\d+):(\d+):(\d+)/) ||
+				comment.match(/%clk\s+(\d+):(\d+)/);
+
+			if (clkMatch) {
+				let minutes &#x3D; 0;
+				let seconds &#x3D; 0;
+				if (clkMatch.length &#x3D;&#x3D;&#x3D; 4) {
+					minutes &#x3D; parseInt(clkMatch[2], 10) + parseInt(clkMatch[1], 10) * 60;
+					seconds &#x3D; parseInt(clkMatch[3], 10);
+				} else {
+					minutes &#x3D; parseInt(clkMatch[1], 10);
+					seconds &#x3D; parseInt(clkMatch[2], 10);
+				}
+
+				const timeLeft &#x3D; minutes * 60 + seconds;
+				const thinkTime &#x3D; Math.max(0, timeControlInSeconds - timeLeft);
+
+				if (j % 2 &#x3D;&#x3D;&#x3D; 0) {
+					blackThinkTime &#x3D; thinkTime;
+				} else {
+					whiteThinkTime &#x3D; thinkTime;
+				}
+				timeOuts.push(whiteThinkTime + blackThinkTime);
+			} else {
+				timeOuts.push((timeOuts[timeOuts.length - 1] || 0) + 1);
+			}
+		}
+
+		// Fill rest
+		while (timeOuts.length &lt; history.length) {
+			timeOuts.push((timeOuts[timeOuts.length - 1] || 0) + 1);
+		}
+
+		return timeOuts;
+	}
+
+	private scheduleReplay(timeOuts: number[], totalMoves: number) {
+		const totalGameTime &#x3D; timeOuts[timeOuts.length - 1] || 1;
+
+		for (let i &#x3D; 0; i &lt; totalMoves; i++) {
+			let delay &#x3D; 0;
+			if (this.replayMode() &#x3D;&#x3D;&#x3D; &quot;fixed&quot;) {
+				delay &#x3D; timeOuts[i] * 1000;
+			} else if (this.replayMode() &#x3D;&#x3D;&#x3D; &quot;realtime&quot;) {
+				delay &#x3D; timeOuts[i] * 1000;
+			} else if (this.replayMode() &#x3D;&#x3D;&#x3D; &quot;proportional&quot;) {
+				const targetDurationSeconds &#x3D; this.proportionalDuration() * 60;
+				delay &#x3D; (timeOuts[i] / totalGameTime) * targetDurationSeconds * 1000;
+			}
+
+			const timeoutId &#x3D; setTimeout(() &#x3D;&gt; {
+				this.next();
+			}, delay);
+			this.replayTimeouts.push(timeoutId);
+		}
+	}
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;container&quot;&gt;
+    &lt;div class&#x3D;&quot;viewer-layout&quot;&gt;
+        &lt;div class&#x3D;&quot;board-container&quot;&gt;
+            &lt;ngx-chessground [runFunction]&#x3D;&quot;runFunction()&quot;&gt;&lt;/ngx-chessground&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;controls-container&quot;&gt;
+            &lt;!-- File Loading --&gt;
+            &lt;div class&#x3D;&quot;zip-loader&quot;&gt;
+                &lt;div&gt;
+                    &lt;label&gt;Load PGN Zip:
+                        &lt;input type&#x3D;&quot;file&quot; accept&#x3D;&quot;.zip&quot; (change)&#x3D;&quot;onPgnZipSelected($event)&quot; [disabled]&#x3D;&quot;isLoading()&quot;&gt;
+                    &lt;/label&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;label&gt;Load PGN File:
+                        &lt;input type&#x3D;&quot;file&quot; accept&#x3D;&quot;.pgn&quot; (change)&#x3D;&quot;onPgnFileSelected($event)&quot; [disabled]&#x3D;&quot;isLoading()&quot;&gt;
+                    &lt;/label&gt;
+                &lt;/div&gt;
+                @if (isLoading()) {
+                &lt;div class&#x3D;&quot;loading-indicator&quot;&gt;
+                    ⏳ Loading and parsing file...
+                &lt;/div&gt;
+                }
+            &lt;/div&gt;
+
+            &lt;!-- Game Navigation (if multiple games) --&gt;
+            @if (games().length &gt; 1) {
+            &lt;div class&#x3D;&quot;game-navigation&quot;&gt;
+                &lt;button (click)&#x3D;&quot;prevGame()&quot; [disabled]&#x3D;&quot;currentGameIndex() &#x3D;&#x3D;&#x3D; 0&quot;&gt;Prev Game&lt;/button&gt;
+                &lt;span&gt;Game {{ currentGameIndex() + 1 }} of {{ games().length }}&lt;/span&gt;
+                &lt;button (click)&#x3D;&quot;nextGame()&quot; [disabled]&#x3D;&quot;currentGameIndex() &#x3D;&#x3D;&#x3D; games().length - 1&quot;&gt;Next Game&lt;/button&gt;
+            &lt;/div&gt;
+            }
+
+            &lt;!-- Move Navigation --&gt;
+            &lt;div class&#x3D;&quot;navigation&quot;&gt;
+                &lt;button (click)&#x3D;&quot;start()&quot; [disabled]&#x3D;&quot;currentMoveIndex() &#x3D;&#x3D;&#x3D; -1&quot;&gt;&amp;lt;&amp;lt;&lt;/button&gt;
+                &lt;button (click)&#x3D;&quot;prev()&quot; [disabled]&#x3D;&quot;currentMoveIndex() &#x3D;&#x3D;&#x3D; -1&quot;&gt;&amp;lt;&lt;/button&gt;
+                &lt;button (click)&#x3D;&quot;next()&quot; [disabled]&#x3D;&quot;currentMoveIndex() &gt;&#x3D; moves().length - 1&quot;&gt;&amp;gt;&lt;/button&gt;
+                &lt;button (click)&#x3D;&quot;end()&quot; [disabled]&#x3D;&quot;currentMoveIndex() &gt;&#x3D; moves().length - 1&quot;&gt;&amp;gt;&amp;gt;&lt;/button&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;status&quot;&gt;
+                Move: {{ currentMoveIndex() + 1 }} / {{ moves().length }}
+            &lt;/div&gt;
+
+            &lt;!-- Replay Controls --&gt;
+            &lt;div class&#x3D;&quot;replay-controls&quot;&gt;
+                &lt;h3&gt;Replay Options&lt;/h3&gt;
+                &lt;div class&#x3D;&quot;mode-selection&quot;&gt;
+                    &lt;label&gt;&lt;input type&#x3D;&quot;radio&quot; name&#x3D;&quot;mode&quot; [value]&#x3D;&quot;&#x27;realtime&#x27;&quot;
+                            [checked]&#x3D;&quot;replayMode() &#x3D;&#x3D;&#x3D; &#x27;realtime&#x27;&quot;
+                            (change)&#x3D;&quot;replayMode.set(&#x27;realtime&#x27;)&quot;&gt; Real Time&lt;/label&gt;
+                    &lt;label&gt;&lt;input type&#x3D;&quot;radio&quot; name&#x3D;&quot;mode&quot; [value]&#x3D;&quot;&#x27;proportional&#x27;&quot;
+                            [checked]&#x3D;&quot;replayMode() &#x3D;&#x3D;&#x3D; &#x27;proportional&#x27;&quot;
+                            (change)&#x3D;&quot;replayMode.set(&#x27;proportional&#x27;)&quot;&gt; Proportional&lt;/label&gt;
+                    &lt;label&gt;&lt;input type&#x3D;&quot;radio&quot; name&#x3D;&quot;mode&quot; [value]&#x3D;&quot;&#x27;fixed&#x27;&quot;
+                            [checked]&#x3D;&quot;replayMode() &#x3D;&#x3D;&#x3D; &#x27;fixed&#x27;&quot;
+                            (change)&#x3D;&quot;replayMode.set(&#x27;fixed&#x27;)&quot;&gt; Fixed Time&lt;/label&gt;
+                &lt;/div&gt;
+
+                @if (replayMode() &#x3D;&#x3D;&#x3D; &#x27;proportional&#x27;) {
+                &lt;div class&#x3D;&quot;option-input&quot;&gt;
+                    &lt;label&gt;Duration (min): &lt;input type&#x3D;&quot;number&quot; [value]&#x3D;&quot;proportionalDuration()&quot;
+                            (input)&#x3D;&quot;onProportionalDurationChange($event)&quot; step&#x3D;&quot;0.1&quot;&gt;&lt;/label&gt;
+                &lt;/div&gt;
+                }
+
+                @if (replayMode() &#x3D;&#x3D;&#x3D; &#x27;fixed&#x27;) {
+                &lt;div class&#x3D;&quot;option-input&quot;&gt;
+                    &lt;label&gt;Time per move (sec): &lt;input type&#x3D;&quot;number&quot; [value]&#x3D;&quot;fixedTime()&quot;
+                            (input)&#x3D;&quot;onFixedTimeChange($event)&quot; step&#x3D;&quot;0.1&quot;&gt;&lt;/label&gt;
+                &lt;/div&gt;
+                }
+
+                &lt;div class&#x3D;&quot;replay-buttons&quot;&gt;
+                    &lt;button (click)&#x3D;&quot;replayGame()&quot;&gt;Replay Game&lt;/button&gt;
+                    &lt;button (click)&#x3D;&quot;stopReplay()&quot;&gt;Stop&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;!-- Manual PGN Input --&gt;
+            &lt;div class&#x3D;&quot;pgn-input&quot;&gt;
+                &lt;textarea [value]&#x3D;&quot;pgnInput()&quot; (input)&#x3D;&quot;onPgnInputChange($event)&quot; rows&#x3D;&quot;15&quot;
+                    placeholder&#x3D;&quot;Paste PGN here&quot;&gt;&lt;/textarea&gt;
+                &lt;button (click)&#x3D;&quot;loadPgnFromInput()&quot;&gt;Load PGN&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./pgn-viewer.component.css</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1rem;
+}
+
+.viewer-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	width: 100%;
+}
+
+@media (min-width: 768px) {
+	.viewer-layout {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: center;
+	}
+}
+
+.board-container {
+	flex: 0 0 auto;
+	display: flex;
+	justify-content: center;
+}
+
+.controls-container {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	min-width: 300px;
+	max-width: 500px;
+	margin: 0 auto;
+}
+
+.buttons {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.zip-loader {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1rem;
+	background-color: #f5f5f5;
+	border-radius: 4px;
+}
+
+.loading-indicator {
+	color: #666;
+	font-style: italic;
+	margin-top: 0.5rem;
+}
+
+.game-navigation {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.5rem;
+	background-color: #e0e0e0;
+	border-radius: 4px;
+}
+
+.navigation {
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.navigation button {
+	min-width: 40px;
+}
+
+.status {
+	text-align: center;
+	font-weight: bold;
+}
+
+.replay-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1rem;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.mode-selection {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.option-input {
+	margin-top: 0.5rem;
+}
+
+.replay-buttons {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.pgn-input {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+textarea {
+	width: 100%;
+	font-family: monospace;
+	resize: vertical;
+}
+
+button {
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+	background-color: #0056b3;
+}
+
+button:disabled {
+	background-color: #ccc;
+	cursor: not-allowed;
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="container">    <div class="viewer-layout">        <div class="board-container">            <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>        </div>        <div class="controls-container">            <!-- File Loading -->            <div class="zip-loader">                <div>                    <label>Load PGN Zip:                        <input type="file" accept=".zip" (change)="onPgnZipSelected($event)" [disabled]="isLoading()">                    </label>                </div>                <div>                    <label>Load PGN File:                        <input type="file" accept=".pgn" (change)="onPgnFileSelected($event)" [disabled]="isLoading()">                    </label>                </div>                @if (isLoading()) {                <div class="loading-indicator">                    ⏳ Loading and parsing file...                </div>                }            </div>            <!-- Game Navigation (if multiple games) -->            @if (games().length > 1) {            <div class="game-navigation">                <button (click)="prevGame()" [disabled]="currentGameIndex() === 0">Prev Game</button>                <span>Game {{ currentGameIndex() + 1 }} of {{ games().length }}</span>                <button (click)="nextGame()" [disabled]="currentGameIndex() === games().length - 1">Next Game</button>            </div>            }            <!-- Move Navigation -->            <div class="navigation">                <button (click)="start()" [disabled]="currentMoveIndex() === -1">&lt;&lt;</button>                <button (click)="prev()" [disabled]="currentMoveIndex() === -1">&lt;</button>                <button (click)="next()" [disabled]="currentMoveIndex() >= moves().length - 1">&gt;</button>                <button (click)="end()" [disabled]="currentMoveIndex() >= moves().length - 1">&gt;&gt;</button>            </div>            <div class="status">                Move: {{ currentMoveIndex() + 1 }} / {{ moves().length }}            </div>            <!-- Replay Controls -->            <div class="replay-controls">                <h3>Replay Options</h3>                <div class="mode-selection">                    <label><input type="radio" name="mode" [value]="\'realtime\'"                            [checked]="replayMode() === \'realtime\'"                            (change)="replayMode.set(\'realtime\')"> Real Time</label>                    <label><input type="radio" name="mode" [value]="\'proportional\'"                            [checked]="replayMode() === \'proportional\'"                            (change)="replayMode.set(\'proportional\')"> Proportional</label>                    <label><input type="radio" name="mode" [value]="\'fixed\'"                            [checked]="replayMode() === \'fixed\'"                            (change)="replayMode.set(\'fixed\')"> Fixed Time</label>                </div>                @if (replayMode() === \'proportional\') {                <div class="option-input">                    <label>Duration (min): <input type="number" [value]="proportionalDuration()"                            (input)="onProportionalDurationChange($event)" step="0.1"></label>                </div>                }                @if (replayMode() === \'fixed\') {                <div class="option-input">                    <label>Time per move (sec): <input type="number" [value]="fixedTime()"                            (input)="onFixedTimeChange($event)" step="0.1"></label>                </div>                }                <div class="replay-buttons">                    <button (click)="replayGame()">Replay Game</button>                    <button (click)="stopReplay()">Stop</button>                </div>            </div>            <!-- Manual PGN Input -->            <div class="pgn-input">                <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="15"                    placeholder="Paste PGN here"></textarea>                <button (click)="loadPgnFromInput()">Load PGN</button>            </div>        </div>    </div>    </div></div>'
+    var COMPONENTS = [{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'},{'name': 'NgxPgnViewerComponent', 'selector': 'ngx-pgn-viewer'},{'name': 'PromotionDialogComponent', 'selector': 'ngx-promotion-dialog'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'NgxPgnViewerComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'NgxPgnViewerComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

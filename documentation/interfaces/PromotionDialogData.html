@@ -116,7 +116,7 @@
   <li class="breadcrumb-item">Interfaces</li>
   <li class="breadcrumb-item"
   >
-  Unit</li>
+  PromotionDialogData</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -140,17 +140,10 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>projects/ngx-chessground/src/units/unit.ts</code>
+            <code>projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</code>
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>Represents a unit with a name and a run method.</p>
-
-            </p>
 
 
         <section data-compodoc="block-index">
@@ -166,15 +159,9 @@
                         <td class="col-md-4">
                             <ul class="index-list">
                                 <li>
-                                        <a href="#name" 
+                                        <a href="#color" 
 >
-                                            name
-                                        </a>
-                                </li>
-                                <li>
-                                        <a href="#run" 
->
-                                            run
+                                            color
                                         </a>
                                 </li>
                             </ul>
@@ -192,9 +179,9 @@
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="name"></a>
-                                        <span class="name "><b>name</b>
-                                            <a href="#name">
+                                        <a name="color"></a>
+                                        <span class="name "><b>color</b>
+                                            <a href="#color">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -202,7 +189,7 @@
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>name:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                        <code>color:     <code>&quot;white&quot; | &quot;black&quot;</code>
 </code>
                                     </td>
                                 </tr>
@@ -210,7 +197,7 @@
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            <i>Type : </i>    <code>&quot;white&quot; | &quot;black&quot;</code>
 
                                         </td>
                                     </tr>
@@ -219,51 +206,6 @@
 
 
 
-                            <tr>
-                                <td class="col-md-4">
-                                    <div class="io-description"><p>The name of the unit.</p>
-</div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <a name="run"></a>
-                                        <span class="name "><b>run</b>
-                                            <a href="#run">
-                                                <span class="icon ion-ios-link"></span>
-                                            </a>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <code>run:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
-</code>
-                                    </td>
-                                </tr>
-
-
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
-
-                                        </td>
-                                    </tr>
-
-
-
-
-
-                            <tr>
-                                <td class="col-md-4">
-                                    <div class="io-description"><p>Executes the unit&#39;s functionality.</p>
-</div>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -271,24 +213,192 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import type { Api } from &quot;chessground/api&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CommonModule } from &quot;@angular/common&quot;;
+import { Component, Inject } from &quot;@angular/core&quot;;
+import { MatButtonModule } from &quot;@angular/material/button&quot;;
+import {
+	MAT_DIALOG_DATA,
+	MatDialogModule,
+	MatDialogRef,
+} from &quot;@angular/material/dialog&quot;;
+import { MatIconModule } from &quot;@angular/material/icon&quot;;
 
-/**
- * Represents a unit with a name and a run method.
- */
-export interface Unit {
-	/**
-	 * The name of the unit.
-	 */
-	name: string;
+export interface PromotionDialogData {
+	color: &quot;white&quot; | &quot;black&quot;;
+}
 
-	/**
-	 * Executes the unit&#x27;s functionality.
-	 *
-	 * @param el - The HTML element to run the unit on.
-	 * @returns An instance of Api.
-	 */
-	run: (el: HTMLElement) &#x3D;&gt; Api;
+export type PromotionPiece &#x3D; &quot;q&quot; | &quot;r&quot; | &quot;b&quot; | &quot;n&quot;;
+
+@Component({
+	selector: &quot;ngx-promotion-dialog&quot;,
+	standalone: true,
+	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+	template: &#x60;
+    &lt;div class&#x3D;&quot;promotion-dialog&quot;&gt;
+      &lt;h2 mat-dialog-title&gt;Choose Promotion Piece&lt;/h2&gt;
+      &lt;mat-dialog-content&gt;
+        &lt;div class&#x3D;&quot;promotion-pieces&quot;&gt;
+          &lt;button 
+            mat-button 
+            class&#x3D;&quot;piece-button queen-btn&quot;
+            (click)&#x3D;&quot;selectPiece(&#x27;q&#x27;)&quot;
+            [attr.aria-label]&#x3D;&quot;&#x27;Promote to Queen&#x27;&quot;
+          &gt;
+            &lt;div class&#x3D;&quot;piece-icon queen {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;span class&#x3D;&quot;piece-label&quot;&gt;Queen&lt;/span&gt;
+          &lt;/button&gt;
+          
+          &lt;button 
+            mat-button 
+            class&#x3D;&quot;piece-button rook-btn&quot;
+            (click)&#x3D;&quot;selectPiece(&#x27;r&#x27;)&quot;
+            [attr.aria-label]&#x3D;&quot;&#x27;Promote to Rook&#x27;&quot;
+          &gt;
+            &lt;div class&#x3D;&quot;piece-icon rook {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;span class&#x3D;&quot;piece-label&quot;&gt;Rook&lt;/span&gt;
+          &lt;/button&gt;
+          
+          &lt;button 
+            mat-button 
+            class&#x3D;&quot;piece-button bishop-btn&quot;
+            (click)&#x3D;&quot;selectPiece(&#x27;b&#x27;)&quot;
+            [attr.aria-label]&#x3D;&quot;&#x27;Promote to Bishop&#x27;&quot;
+          &gt;
+            &lt;div class&#x3D;&quot;piece-icon bishop {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;span class&#x3D;&quot;piece-label&quot;&gt;Bishop&lt;/span&gt;
+          &lt;/button&gt;
+          
+          &lt;button 
+            mat-button 
+            class&#x3D;&quot;piece-button knight-btn&quot;
+            (click)&#x3D;&quot;selectPiece(&#x27;n&#x27;)&quot;
+            [attr.aria-label]&#x3D;&quot;&#x27;Promote to Knight&#x27;&quot;
+          &gt;
+            &lt;div class&#x3D;&quot;piece-icon knight {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;span class&#x3D;&quot;piece-label&quot;&gt;Knight&lt;/span&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/mat-dialog-content&gt;
+    &lt;/div&gt;
+  &#x60;,
+	styles: [
+		&#x60;
+    .promotion-dialog {
+      padding: 0;
+      min-width: 300px;
+    }
+
+    .promotion-pieces {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .piece-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 100px;
+    }
+
+    .piece-button:hover {
+      border-color: #2196f3;
+      background: #f5f5f5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .piece-icon {
+      width: 40px;
+      height: 40px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-bottom: 8px;
+    }
+
+    .piece-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* Chess piece icons using Unicode symbols as fallback */
+    .piece-icon.queen.white::before {
+      content: &#x27;♕&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+    
+    .piece-icon.queen.black::before {
+      content: &#x27;♛&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+    
+    .piece-icon.rook.white::before {
+      content: &#x27;♖&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+    
+    .piece-icon.rook.black::before {
+      content: &#x27;♜&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+    
+    .piece-icon.bishop.white::before {
+      content: &#x27;♗&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+    
+    .piece-icon.bishop.black::before {
+      content: &#x27;♝&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+    
+    .piece-icon.knight.white::before {
+      content: &#x27;♘&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+    
+    .piece-icon.knight.black::before {
+      content: &#x27;♞&#x27;;
+      font-size: 40px;
+      color: #333;
+    }
+
+    h2[mat-dialog-title] {
+      text-align: center;
+      margin: 0;
+      padding: 20px 20px 0 20px;
+      color: #333;
+      font-size: 18px;
+      font-weight: 600;
+    }
+  &#x60;,
+	],
+})
+export class PromotionDialogComponent {
+	constructor(
+		public dialogRef: MatDialogRef&lt;PromotionDialogComponent&gt;,
+		@Inject(MAT_DIALOG_DATA) public data: PromotionDialogData,
+	) {}
+
+	selectPiece(piece: PromotionPiece): void {
+		this.dialogRef.close(piece);
+	}
 }
 </code></pre>
     </div>
@@ -327,7 +437,7 @@ export interface Unit {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
-            var COMPODOC_CURRENT_PAGE_URL = 'Unit.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'PromotionDialogData.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

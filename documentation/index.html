@@ -61,6 +61,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -79,34 +93,116 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content getting-started">
+               <div class="content readme">
                    <div class="content-data">
 
+
 <h1>NgxChessground</h1>
-<p>Angular wrapper for ornicar/chessground</p>
-<p>Two Angular projects are inside :</p>
-<p>ngx-chessground Angular library ( tiny wrapper ) for best open source chess UI library <a href="https://github.com/ornicar/chessground">https://github.com/ornicar/chessground</a></p>
-<p>ngx-chessground-example copy of <a href="https://github.com/ornicar/chessground-examples">https://github.com/ornicar/chessground-examples</a>
-all examples in original repo works</p>
+<p><a href="https://badge.fury.io/js/ngx-chessground"><img src="https://badge.fury.io/js/ngx-chessground.svg" alt="npm version" class="img-responsive"></a>
+<a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL-3.0" class="img-responsive"></a></p>
+<p>Angular wrapper for <a href="https://github.com/ornicar/chessground">ornicar/chessground</a>, the premier open-source chess UI library.</p>
+<h2>Demo</h2>
+<p>Check out the live demo at <a href="https://topce.github.io/ngx-chessground/">https://topce.github.io/ngx-chessground/</a></p>
+<h2>Features</h2>
 <ul>
-<li>add examples to replay game:</li>
-<li>one second per move,</li>
-<li>real time,</li>
-<li>in one minute proportionally</li>
-<li>add option to play against yourself like legendary Robert James Fischer</li>
+<li>Complete Angular wrapper for chessground</li>
+<li>Easy integration with Angular applications</li>
+<li>All features from the original chessground library</li>
+<li>Compatible with Angular 20</li>
+<li>Enhanced examples with game replay functionality</li>
 </ul>
-<p>you can see running application on
-<a href="https://topce.github.io/ngx-chessground/">https://topce.github.io/ngx-chessground/</a></p>
-<p>It uses Angular CLI
-to install and run</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-console">npm install
-npm start</code></pre></div><p>To see documentation</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-console">npm install
-npm compodoc</code></pre></div><p>FUTURE ROADMAP:</p>
+<h2>Repository Structure</h2>
+<p>This repository contains two Angular projects:</p>
+<ol>
+<li><strong>ngx-chessground</strong> - Angular library that wraps the chessground chess UI</li>
+<li><strong>ngx-chessground-example</strong> - Demo application with various examples, including:<ul>
+<li>All examples from the original chessground-examples repository</li>
+<li>Game replay with different time controls:<ul>
+<li>One second per move</li>
+<li>Real-time replay</li>
+<li>Proportional replay (fit to one minute)</li>
+</ul>
+</li>
+<li>Option to play against yourself (like Robert James Fischer)</li>
+</ul>
+</li>
+</ol>
+<h2>Installation</h2>
+<h3>For Users</h3>
+<p>Install the library in your Angular project:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm install ngx-chessground chess.js chessground snabbdom</code></pre></div><h3>For Contributors</h3>
+<p>Clone and set up the development environment:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">git clone https://github.com/topce/ngx-chessground.git
+cd ngx-chessground
+npm install
+npm start</code></pre></div><h2>Documentation</h2>
+<p>To generate and view the documentation:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run compodoc</code></pre></div><p>This will start a documentation server at <a href="http://localhost:9090">http://localhost:9090</a></p>
+<h2>Usage</h2>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-typescript">import { NgxChessgroundModule } from &#39;ngx-chessground&#39;;
+
+&#64;NgModule({
+  imports: [
+    NgxChessgroundModule
+  ]
+})
+export class AppModule { }</code></pre></div><p>Then in your component template:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">&lt;ngx-chessground
+  [width]=&quot;400&quot;
+  [height]=&quot;400&quot;
+  [config]=&quot;config&quot;&gt;
+&lt;/ngx-chessground&gt;</code></pre></div><h2>Publishing</h2>
+<p>To publish the library to npm:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run publish:lib</code></pre></div><p>Or use the PowerShell script for a guided publishing process:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-powershell">.\publish.ps1</code></pre></div><h2>Version Compatibility</h2>
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>NgxChessground</th>
+<th>Angular</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20.x</td>
+<td>20.x</td>
+</tr>
+<tr>
+<td>19.x</td>
+<td>19.x</td>
+</tr>
+<tr>
+<td>18.x</td>
+<td>18.x</td>
+</tr>
+<tr>
+<td>17.x</td>
+<td>17.x</td>
+</tr>
+<tr>
+<td>16.x</td>
+<td>16.x</td>
+</tr>
+<tr>
+<td>15.x</td>
+<td>15.x</td>
+</tr>
+</tbody>
+</table>
+<h2>Roadmap</h2>
 <ul>
-<li>create Angular components for online playing (piece promotion need to be done)</li>
-<li>create Angular pgn viewer</li>
+<li>Create Angular components for online playing (piece promotion in progress)</li>
+<li>Develop a full-featured Angular PGN viewer</li>
+<li>Add comprehensive testing suite</li>
+<li>Enhance accessibility features</li>
 </ul>
+<h2>License</h2>
+<p>GPL-3.0 or later</p>
+<h2>Contributing</h2>
+<p>Contributions are welcome! Please feel free to submit a Pull Request.</p>
+
+
+
 
 
 
@@ -153,7 +249,7 @@ npm compodoc</code></pre></div><p>FUTURE ROADMAP:</p>
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 0;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'readme';
             var COMPODOC_CURRENT_PAGE_URL = 'index.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>

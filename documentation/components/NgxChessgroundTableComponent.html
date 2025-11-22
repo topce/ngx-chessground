@@ -61,6 +61,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -81,6 +95,10 @@
                <!-- START CONTENT -->
                <div class="content component">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -159,6 +177,10 @@
                 <td class="col-md-9"><code>ngx-chessground-table</code></td>
             </tr>
 
+            <tr>
+                <td class="col-md-3">standalone</td>
+                <td class="col-md-9"><code>true</code></td>
+            </tr>
 
             <tr>
                 <td class="col-md-3">imports</td>
@@ -205,6 +227,11 @@
                             <li>
                                     <span class="modifier">Readonly</span>
                                 <a href="#ngxChessgroundComponent" >ngxChessgroundComponent</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#promotionService" >promotionService</a>
                             </li>
                         </ul>
                     </td>
@@ -263,8 +290,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -274,7 +301,8 @@
                         <div class="io-description"><p>Lifecycle hook that is called after a component&#39;s view has been fully initialized.
 This method is used to perform any additional initialization tasks that require
 access to the component&#39;s view.</p>
-<p>In this implementation, it sets the initial run function for the ngxChessgroundComponent.</p>
+<p>In this implementation, it sets the initial run function for the ngxChessgroundComponent.
+Now uses enhanced units with promotion dialog support.</p>
 <p>See <a href="https://angular.io/api/core/AfterViewInit">https://angular.io/api/core/AfterViewInit</a></p>
 </div>
 
@@ -306,12 +334,18 @@ access to the component&#39;s view.</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
                         <i>Default value : </i><code>viewChild.required&lt;NgxChessgroundComponent&gt;(&quot;chess&quot;)</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -325,6 +359,39 @@ This property is decorated with <code>@ViewChild</code> to query the component w
 
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="promotionService"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>promotionService</b></span>
+                        <a href="#promotionService"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>inject(PromotionService)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:47</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
 </section>
 
 </div>
@@ -335,13 +402,16 @@ This property is decorated with <code>@ViewChild</code> to query the component w
 	type AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
+	inject,
 	viewChild,
 } from &quot;@angular/core&quot;;
 import * as play from &quot;../../units/play&quot;;
 import { NgxChessgroundComponent } from &quot;../ngx-chessground/ngx-chessground.component&quot;;
+import { PromotionService } from &quot;../promotion-dialog/promotion.service&quot;;
 
 @Component({
 	selector: &quot;ngx-chessground-table&quot;,
+	standalone: true,
 	templateUrl: &quot;./ngx-chessground-table.component.html&quot;,
 	styleUrls: [&quot;./ngx-chessground-table.component.scss&quot;],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -374,17 +444,21 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent &#x3D;
 		viewChild.required&lt;NgxChessgroundComponent&gt;(&quot;chess&quot;);
 
+	private readonly promotionService &#x3D; inject(PromotionService);
+
 	/**
 	 * Lifecycle hook that is called after a component&#x27;s view has been fully initialized.
 	 * This method is used to perform any additional initialization tasks that require
 	 * access to the component&#x27;s view.
 	 *
 	 * In this implementation, it sets the initial run function for the ngxChessgroundComponent.
+	 * Now uses enhanced units with promotion dialog support.
 	 *
 	 * @see https://angular.io/api/core/AfterViewInit
 	 */
 	ngAfterViewInit(): void {
-		this.ngxChessgroundComponent().runFunction.set(play.initial.run);
+		const enhancedUnits &#x3D; play.createPlayUnitsWithDialog(this.promotionService);
+		this.ngxChessgroundComponent().runFunction.set(enhancedUnits.initial.run);
 	}
 }
 </code></pre>
@@ -423,12 +497,12 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
     
 </div>
 
-<script src="../js/libs/vis.min.js"></script>
+<script src="../js/libs/vis-network.min.js"></script>
 <script src="../js/libs/htmlparser.js"></script>
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
         var COMPONENT_TEMPLATE = '<div><ngx-chessground #chess></ngx-chessground></div>'
-    var COMPONENTS = [{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'}];
+    var COMPONENTS = [{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'},{'name': 'NgxPgnViewerComponent', 'selector': 'ngx-pgn-viewer'},{'name': 'PromotionDialogComponent', 'selector': 'ngx-promotion-dialog'}];
     var DIRECTIVES = [];
     var ACTUAL_COMPONENT = {'name': 'NgxChessgroundTableComponent'};
 </script>
