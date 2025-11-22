@@ -11,6 +11,7 @@ import { PromotionService } from "../promotion-dialog/promotion.service";
 
 @Component({
 	selector: "ngx-chessground-table",
+	standalone: true,
 	templateUrl: "./ngx-chessground-table.component.html",
 	styleUrls: ["./ngx-chessground-table.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,

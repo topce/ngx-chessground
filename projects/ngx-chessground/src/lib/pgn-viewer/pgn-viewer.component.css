@@ -1,0 +1,142 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1rem;
+}
+
+.viewer-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	width: 100%;
+}
+
+@media (min-width: 768px) {
+	.viewer-layout {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: center;
+	}
+}
+
+.board-container {
+	flex: 0 0 auto;
+	display: flex;
+	justify-content: center;
+}
+
+.controls-container {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	min-width: 300px;
+	max-width: 500px;
+	margin: 0 auto;
+}
+
+.buttons {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.zip-loader {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1rem;
+	background-color: #f5f5f5;
+	border-radius: 4px;
+}
+
+.loading-indicator {
+	color: #666;
+	font-style: italic;
+	margin-top: 0.5rem;
+}
+
+.game-navigation {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.5rem;
+	background-color: #e0e0e0;
+	border-radius: 4px;
+}
+
+.navigation {
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.navigation button {
+	min-width: 40px;
+}
+
+.status {
+	text-align: center;
+	font-weight: bold;
+}
+
+.replay-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1rem;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.mode-selection {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.option-input {
+	margin-top: 0.5rem;
+}
+
+.replay-buttons {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.pgn-input {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+textarea {
+	width: 100%;
+	font-family: monospace;
+	resize: vertical;
+}
+
+button {
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+	background-color: #0056b3;
+}
+
+button:disabled {
+	background-color: #ccc;
+	cursor: not-allowed;
+}
