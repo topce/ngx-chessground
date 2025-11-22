@@ -2,6 +2,17 @@
     <div class="viewer-layout">
         <div class="board-container">
             <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
+            @if (games().length > 0) {
+            <div class="game-info-display">
+                <div class="players">{{ currentWhitePlayer() }} vs {{ currentBlackPlayer() }}</div>
+                <div class="result">{{ currentGameResult() }}</div>
+            </div>
+            } @else {
+            <div class="game-info-display">
+                <div class="players">No game loaded</div>
+                <div class="result">-</div>
+            </div>
+            }
         </div>
 
         <div class="controls-container">
@@ -28,8 +39,32 @@
             @if (games().length > 1) {
             <div class="game-navigation">
                 <button (click)="prevGame()" [disabled]="currentGameIndex() === 0">Prev Game</button>
-                <span>Game {{ currentGameIndex() + 1 }} of {{ games().length }}</span>
                 <button (click)="nextGame()" [disabled]="currentGameIndex() === games().length - 1">Next Game</button>
+            </div>
+
+            <!-- Game Selection -->
+            <div class="game-selection">
+                <h3>Game Selection</h3>
+                <div class="selection-controls">
+                    <button (click)="selectAllGames()">Select All</button>
+                    <button (click)="clearSelection()">Clear All</button>
+                    <span>Selected: {{ selectedGamesCount() }} of {{ games().length }}</span>
+                </div>
+                <div class="game-list">
+                    @for (gameInfo of gameInfos(); track gameInfo.number) {
+                    <div class="game-item">
+                        <label>
+                            <input type="checkbox"
+                                   [checked]="selectedGames().has(gameInfo.number - 1)"
+                                   (change)="toggleGameSelection(gameInfo.number - 1)">
+                            <div class="game-info">
+                                <div class="players">{{ gameInfo.white }} vs {{ gameInfo.black }}</div>
+                                <div class="result">{{ gameInfo.result }}</div>
+                            </div>
+                        </label>
+                    </div>
+                    }
+                </div>
             </div>
             }
 
@@ -76,6 +111,9 @@
 
                 <div class="replay-buttons">
                     <button (click)="replayGame()">Replay Game</button>
+                    @if (canShowReplayAll()) {
+                    <button (click)="replayAllSelectedGames()">Replay All Selected ({{ selectedGamesCount() }})</button>
+                    }
                     <button (click)="stopReplay()">Stop</button>
                 </div>
             </div>

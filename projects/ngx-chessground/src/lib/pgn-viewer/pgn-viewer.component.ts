@@ -34,6 +34,46 @@ export class NgxPgnViewerComponent {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 	);
 	isLoading = signal<boolean>(false);
+	selectedGames = signal<Set<number>>(new Set());
+
+	// Computed values for better reactivity
+	selectedGamesCount = computed(() => this.selectedGames().size);
+	canShowReplayAll = computed(() => this.games().length > 1 && this.selectedGamesCount() > 0);
+	currentGameInfo = computed(() => `Game ${this.currentGameIndex() + 1} of ${this.games().length}`);
+
+	// Current game player info
+	currentWhitePlayer = computed(() => {
+		const games = this.games();
+		const currentIndex = this.currentGameIndex();
+		console.log('currentWhitePlayer computed:', { gamesLength: games.length, currentIndex });
+		if (games.length === 0 || currentIndex < 0 || currentIndex >= games.length) return 'Unknown';
+		const gameInfo = this.extractGameInfo(games[currentIndex], currentIndex);
+		console.log('White player:', gameInfo.white);
+		return gameInfo.white;
+	});
+
+	currentBlackPlayer = computed(() => {
+		const games = this.games();
+		const currentIndex = this.currentGameIndex();
+		if (games.length === 0 || currentIndex < 0 || currentIndex >= games.length) return 'Unknown';
+		const gameInfo = this.extractGameInfo(games[currentIndex], currentIndex);
+		console.log('Black player:', gameInfo.black);
+		return gameInfo.black;
+	});
+
+	currentGameResult = computed(() => {
+		const games = this.games();
+		const currentIndex = this.currentGameIndex();
+		if (games.length === 0 || currentIndex < 0 || currentIndex >= games.length) return '*';
+		const gameInfo = this.extractGameInfo(games[currentIndex], currentIndex);
+		console.log('Game result:', gameInfo.result);
+		return gameInfo.result;
+	});
+
+	// Game information for display
+	gameInfos = computed(() => {
+		return this.games().map((pgn, index) => this.extractGameInfo(pgn, index));
+	});
 
 	// Replay State
 	replayMode = signal<"realtime" | "proportional" | "fixed">("fixed");
@@ -218,6 +258,52 @@ export class NgxPgnViewerComponent {
 		}
 	}
 
+	toggleGameSelection(index: number) {
+		const selected = new Set(this.selectedGames());
+		if (selected.has(index)) {
+			selected.delete(index);
+		} else {
+			selected.add(index);
+		}
+		this.selectedGames.set(selected);
+	}
+
+	selectAllGames() {
+		const games = this.games();
+		const selected = new Set<number>();
+		for (let i = 0; i < games.length; i++) {
+			selected.add(i);
+		}
+		this.selectedGames.set(selected);
+	}
+
+	clearSelection() {
+		this.selectedGames.set(new Set());
+	}
+
+	private extractGameInfo(pgn: string, index: number): { number: number; white: string; black: string; result: string } {
+		const whiteMatch = pgn.match(/\[White\s+"([^"]+)"\]/);
+		const blackMatch = pgn.match(/\[Black\s+"([^"]+)"\]/);
+		const resultMatch = pgn.match(/\[Result\s+"([^"]+)"\]/);
+
+		const white = whiteMatch ? whiteMatch[1] : 'Unknown';
+		const black = blackMatch ? blackMatch[1] : 'Unknown';
+		const result = resultMatch ? resultMatch[1] : '*'; // * means unknown result
+
+		// Format result for display
+		let formattedResult = result;
+		if (result === '1-0') formattedResult = '1-0 (White)';
+		else if (result === '0-1') formattedResult = '0-1 (Black)';
+		else if (result === '1/2-1/2') formattedResult = '½-½ (Draw)';
+
+		return {
+			number: index + 1,
+			white,
+			black,
+			result: formattedResult
+		};
+	}
+
 	nextGame() {
 		if (this.currentGameIndex() < this.games().length - 1) {
 			this.loadGame(this.currentGameIndex() + 1);
@@ -277,11 +363,70 @@ export class NgxPgnViewerComponent {
 		const tempChess = new Chess();
 		tempChess.loadPgn(gamePgn);
 		const history = tempChess.history({ verbose: true });
-		const comments = tempChess.getComments();
-		const header = tempChess.header();
 
-		const timeOuts = this.calculateReplayTimeouts(history, comments, header);
+		const timeOuts = this.calculateReplayTimeouts(history);
 		this.scheduleReplay(timeOuts, history.length);
+	}
+
+	async replayAllSelectedGames() {
+		this.stopReplay();
+		const selected = Array.from(this.selectedGames()).sort((a, b) => a - b);
+
+		if (selected.length === 0) {
+			alert("No games selected. Please select games to replay.");
+			return;
+		}
+
+		for (let i = 0; i < selected.length; i++) {
+			const gameIndex = selected[i];
+			this.loadGame(gameIndex);
+
+			// Wait for the game to load
+			await new Promise(resolve => setTimeout(resolve, 100));
+
+			// Replay the current game
+			await this.replayGameAsync();
+
+			// Wait a bit between games (2 seconds)
+			if (i < selected.length - 1) {
+				await new Promise(resolve => setTimeout(resolve, 2000));
+			}
+		}
+	}
+
+	private replayGameAsync(): Promise<void> {
+		return new Promise((resolve) => {
+			this.stopReplay();
+			this.start();
+
+			const gamePgn = this.games()[this.currentGameIndex()];
+			const tempChess = new Chess();
+			tempChess.loadPgn(gamePgn);
+			const history = tempChess.history({ verbose: true });
+
+			const timeOuts = this.calculateReplayTimeouts(history);
+
+			// Actually schedule the replay
+			this.scheduleReplay(timeOuts, history.length);
+
+			// Calculate total replay time including delays
+			const totalTime = timeOuts[timeOuts.length - 1] || 0;
+			let delay = 0;
+
+			if (this.replayMode() === "fixed") {
+				delay = totalTime * 1000;
+			} else if (this.replayMode() === "realtime") {
+				delay = totalTime * 1000;
+			} else if (this.replayMode() === "proportional") {
+				const targetDurationSeconds = this.proportionalDuration() * 60;
+				delay = targetDurationSeconds * 1000;
+			}
+
+			// Schedule the resolve after the game replay completes
+			setTimeout(() => {
+				resolve();
+			}, delay + 500); // Add small buffer
+		});
 	}
 
 	stopReplay() {
@@ -293,8 +438,6 @@ export class NgxPgnViewerComponent {
 
 	private calculateReplayTimeouts(
 		history: Move[],
-		comments: { fen: string; comment: string }[],
-		header: Record<string, string | null>,
 	): number[] {
 		const timeOuts: number[] = [];
 
@@ -305,59 +448,9 @@ export class NgxPgnViewerComponent {
 			return timeOuts;
 		}
 
-		// Realtime/Proportional logic
-
-		// If no comments, fallback to fixed
-		if (comments.length === 0) {
-			for (let i = 0; i < history.length; i++) {
-				timeOuts.push((i + 1) * 1); // 1 sec default
-			}
-			return timeOuts;
-		}
-
-		let whiteThinkTime = 0;
-		let blackThinkTime = 0;
-		let timeControlInSeconds = 180; // Default
-
-		if (header.TimeControl) {
-			const tc = header.TimeControl.split("+");
-			timeControlInSeconds = parseInt(tc[0], 10);
-		}
-
-		for (let j = 0; j < comments.length; j++) {
-			const comment = comments[j].comment;
-			const clkMatch =
-				comment.match(/%clk\s+(\d+):(\d+):(\d+)/) ||
-				comment.match(/%clk\s+(\d+):(\d+)/);
-
-			if (clkMatch) {
-				let minutes = 0;
-				let seconds = 0;
-				if (clkMatch.length === 4) {
-					minutes = parseInt(clkMatch[2], 10) + parseInt(clkMatch[1], 10) * 60;
-					seconds = parseInt(clkMatch[3], 10);
-				} else {
-					minutes = parseInt(clkMatch[1], 10);
-					seconds = parseInt(clkMatch[2], 10);
-				}
-
-				const timeLeft = minutes * 60 + seconds;
-				const thinkTime = Math.max(0, timeControlInSeconds - timeLeft);
-
-				if (j % 2 === 0) {
-					blackThinkTime = thinkTime;
-				} else {
-					whiteThinkTime = thinkTime;
-				}
-				timeOuts.push(whiteThinkTime + blackThinkTime);
-			} else {
-				timeOuts.push((timeOuts[timeOuts.length - 1] || 0) + 1);
-			}
-		}
-
-		// Fill rest
-		while (timeOuts.length < history.length) {
-			timeOuts.push((timeOuts[timeOuts.length - 1] || 0) + 1);
+		// Simplified proportional timing - use 1 second per move as default
+		for (let i = 0; i < history.length; i++) {
+			timeOuts.push((i + 1) * 1); // 1 sec default
 		}
 
 		return timeOuts;

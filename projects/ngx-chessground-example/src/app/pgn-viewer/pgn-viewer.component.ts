@@ -51,10 +51,20 @@ export class PgnViewerComponent implements AfterViewInit {
 	currentPgn = this.fischerEvergreen;
 
 	ngAfterViewInit() {
-		// Load Fischer game by default
+		// Load single game by default
 		setTimeout(() => {
 			this.loadFischer();
 		}, 0);
+	}
+
+	loadMultipleGames() {
+		if (this.pgnViewer) {
+			const multipleGames = `${this.fischerEvergreen}\n\n${this.topceEvergreen}`;
+			this.pgnViewer.pgnInput.set(multipleGames);
+			setTimeout(() => {
+				this.pgnViewer.loadPgnFromInput();
+			}, 0);
+		}
 	}
 
 	loadFischer() {
