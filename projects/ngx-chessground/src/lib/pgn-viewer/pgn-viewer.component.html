@@ -31,6 +31,10 @@
                 </div>
                 <div class="filter-row">
                     <label class="checkbox-label">
+                        <input type="checkbox" [checked]="ignoreColor()" (change)="toggleIgnoreColor($event)">
+                        Ignore Color
+                    </label>
+                    <label class="checkbox-label">
                         <input type="checkbox" [checked]="filterMoves()" (change)="toggleFilterMoves($event)">
                         Filter by Moves
                     </label>
@@ -78,9 +82,9 @@
             </div>
 
             <div class="selection-controls">
-                <button (click)="selectAllGames()" class="small-btn">Select All</button>
-                <button (click)="clearSelection()" class="small-btn">Clear All</button>
-                <span class="selection-count">{{ selectedGamesCount() }} selected</span>
+                <div class="selection-controls">
+                    <span class="selection-count">{{ selectedGamesCount() }} selected</span>
+                </div>
             </div>
             } @else {
             <div class="empty-state">No games loaded</div>
@@ -162,7 +166,7 @@
             <div class="pgn-input-section">
                 <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="3"
                     placeholder="Paste PGN..."></textarea>
-                <button (click)="loadPgnFromInput()" class="small-btn">Load Text</button>
+                <button (click)="loadFromClipboard()" class="small-btn">Load from Clipboard</button>
             </div>
 
             <!-- Load Section -->

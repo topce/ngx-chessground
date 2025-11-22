@@ -41,6 +41,7 @@ export class NgxPgnViewerComponent {
 	filterBlack = signal<string>("");
 	filterResult = signal<string>("");
 	filterMoves = signal<boolean>(false);
+	ignoreColor = signal<boolean>(false);
 
 	// Autocomplete Signals
 	uniqueWhitePlayers = signal<Set<string>>(new Set());
@@ -115,6 +116,11 @@ export class NgxPgnViewerComponent {
 			return Chessground(el, {
 				fen: fen,
 				viewOnly: true,
+				// events: {
+				// 	move: (orig, dest) => {
+				// 		// Handle moves if interactive mode is added later
+				// 	},
+				// },
 			});
 		};
 	});
@@ -142,10 +148,11 @@ export class NgxPgnViewerComponent {
 		const fBlack = this.filterBlack();
 		const fResult = this.filterResult();
 		const fMoves = this.filterMoves();
+		const fIgnoreColor = this.ignoreColor();
 		const currentMoves = this.moves().slice(0, this.currentMoveIndex() + 1);
 
 		this.autoSelectOnFinish = true;
-		this.runFilterLogic(games, fWhite, fBlack, fResult, fMoves, currentMoves);
+		this.runFilterLogic(games, fWhite, fBlack, fResult, fMoves, fIgnoreColor, currentMoves);
 	}
 
 	clearFilters() {
@@ -153,6 +160,8 @@ export class NgxPgnViewerComponent {
 		this.filterBlack.set("");
 		this.filterResult.set("");
 		this.filterMoves.set(false);
+		this.ignoreColor.set(false);
+		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
 		this.applyFilter();
 	}
 
@@ -161,6 +170,7 @@ export class NgxPgnViewerComponent {
 		black: "",
 		result: "",
 		moves: false,
+		ignoreColor: false,
 		targetMoves: [] as string[]
 	};
 
@@ -170,6 +180,7 @@ export class NgxPgnViewerComponent {
 		fBlack: string,
 		fResult: string,
 		fMoves: boolean,
+		fIgnoreColor: boolean,
 		targetMoves: string[]
 	) {
 		this.currentFilterId++;
@@ -179,7 +190,7 @@ export class NgxPgnViewerComponent {
 		const onComplete = (indices: number[]) => {
 			this.filteredGamesIndices.set(indices);
 			this.isFiltering.set(false);
-			this.lastFilterParams = { white: fWhite, black: fBlack, result: fResult, moves: fMoves, targetMoves };
+			this.lastFilterParams = { white: fWhite, black: fBlack, result: fResult, moves: fMoves, ignoreColor: fIgnoreColor, targetMoves };
 
 			if (this.autoSelectOnFinish) {
 				this.selectAllGames();
@@ -205,6 +216,7 @@ export class NgxPgnViewerComponent {
 			this.lastFilterParams.black === fBlack &&
 			this.lastFilterParams.result === fResult &&
 			this.lastFilterParams.moves === fMoves &&
+			this.lastFilterParams.ignoreColor === fIgnoreColor &&
 			fMoves && // Only relevant if move filtering is on
 			targetMoves.length > this.lastFilterParams.targetMoves.length &&
 			this.arraysEqualPrefix(targetMoves, this.lastFilterParams.targetMoves)
@@ -216,9 +228,23 @@ export class NgxPgnViewerComponent {
 			for (let i = 0; i < games.length; i++) {
 				const pgn = games[i];
 				const info = this.extractGameInfo(pgn, i);
+				const whiteName = info.white.toLowerCase();
+				const blackName = info.black.toLowerCase();
 
-				if (fWhiteLower && !info.white.toLowerCase().includes(fWhiteLower)) continue;
-				if (fBlackLower && !info.black.toLowerCase().includes(fBlackLower)) continue;
+				let matchWhite = true;
+				let matchBlack = true;
+
+				if (fIgnoreColor) {
+					// If ignore color, fWhite must match either white or black player
+					if (fWhiteLower && !(whiteName.includes(fWhiteLower) || blackName.includes(fWhiteLower))) matchWhite = false;
+					// And fBlack must match either white or black player (if specified)
+					if (fBlackLower && !(whiteName.includes(fBlackLower) || blackName.includes(fBlackLower))) matchBlack = false;
+				} else {
+					if (fWhiteLower && !whiteName.includes(fWhiteLower)) matchWhite = false;
+					if (fBlackLower && !blackName.includes(fBlackLower)) matchBlack = false;
+				}
+
+				if (!matchWhite || !matchBlack) continue;
 				if (fResultLower && !info.result.toLowerCase().includes(fResultLower)) continue;
 
 				candidateIndices.push(i);
@@ -310,6 +336,12 @@ export class NgxPgnViewerComponent {
 	loadPgnString(pgn: string) {
 		// Clear cache when loading new PGN
 		this.gameMovesCache.clear();
+		// Reset state to ensure UI updates
+		this.moves.set([]);
+		this.currentMoveIndex.set(-1);
+		this.currentGameIndex.set(-1); // Force change detection when setting to 0 later
+		this.currentFen.set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
 		try {
 			const games = this.splitPgn(pgn);
 			if (games.length > 0) {
@@ -340,10 +372,18 @@ export class NgxPgnViewerComponent {
 		}
 	}
 
-	loadPgnFromInput() {
-		const pgn = this.pgnInput();
-		this.loadPgnString(pgn);
-		this.loadGame(0);
+	async loadFromClipboard() {
+		try {
+			const text = await navigator.clipboard.readText();
+			if (text) {
+				this.pgnInput.set(text);
+				this.loadPgnString(text);
+				this.loadGame(0);
+			}
+		} catch (err) {
+			console.error('Failed to read clipboard contents: ', err);
+			alert('Failed to read clipboard');
+		}
 	}
 
 	onProportionalDurationChange(event: Event) {
@@ -481,7 +521,7 @@ export class NgxPgnViewerComponent {
 
 	selectAllGames() {
 		const indices = this.filteredGamesIndices();
-		const selected = new Set(this.selectedGames());
+		const selected = new Set<number>();
 		for (const i of indices) {
 			selected.add(i);
 		}
@@ -559,6 +599,11 @@ export class NgxPgnViewerComponent {
 	toggleFilterMoves(event: Event) {
 		const checked = (event.target as HTMLInputElement).checked;
 		this.filterMoves.set(checked);
+	}
+
+	toggleIgnoreColor(event: Event) {
+		const checked = (event.target as HTMLInputElement).checked;
+		this.ignoreColor.set(checked);
 	}
 
 	next() {

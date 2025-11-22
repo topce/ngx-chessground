@@ -2,7 +2,7 @@
 .pgn-viewer-container {
 	display: flex;
 	flex-direction: column;
-	height: 100vh;
+	height: 100%;
 	/* Full viewport height */
 	width: 100%;
 	background-color: #f8f9fa;
