@@ -7,7 +7,9 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["./projects/**"]
+		"includes": [
+			"./projects/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -20,7 +22,6 @@
 			"style": {
 				"useImportType": "off"
 			}
-
 		}
 	},
 	"javascript": {
@@ -34,6 +35,11 @@
 	"css": {
 		"linter": {
 			"enabled": false
+		}
+	},
+	"html": {
+		"parser": {
+			"interpolation": true
 		}
 	}
 }
