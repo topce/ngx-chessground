@@ -13,6 +13,13 @@ import { Api } from "chessground/api";
 import * as JSZip from "jszip";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 
+interface GameMetadata {
+	number: number;
+	white: string;
+	black: string;
+	result: string;
+}
+
 @Component({
 	selector: "ngx-pgn-viewer",
 	standalone: true,
@@ -27,6 +34,7 @@ export class NgxPgnViewerComponent {
 
 	// State Signals
 	games = signal<string[]>([]);
+	gamesMetadata = signal<GameMetadata[]>([]);
 	currentGameIndex = signal<number>(0);
 	moves = signal<string[]>([]);
 	currentMoveIndex = signal<number>(-1); // -1 means start position
@@ -52,8 +60,9 @@ export class NgxPgnViewerComponent {
 	isFiltering = signal<boolean>(false);
 	private filterTimeout: any = null;
 	private currentFilterId = 0;
-	private gameMovesCache = new Map<number, string[]>();
+	// private gameMovesCache = new Map<number, string[]>(); // Moved to worker
 	private autoSelectOnFinish = false;
+	private worker: Worker | null = null;
 
 	// Computed values for better reactivity
 	selectedGamesCount = computed(() => this.selectedGames().size);
@@ -62,38 +71,31 @@ export class NgxPgnViewerComponent {
 
 	// Current game player info
 	currentWhitePlayer = computed(() => {
-		const games = this.games();
+		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
-		console.log('currentWhitePlayer computed:', { gamesLength: games.length, currentIndex });
-		if (games.length === 0 || currentIndex < 0 || currentIndex >= games.length) return 'Unknown';
-		const gameInfo = this.extractGameInfo(games[currentIndex], currentIndex);
-		console.log('White player:', gameInfo.white);
-		return gameInfo.white;
+		if (metadata.length === 0 || currentIndex < 0 || currentIndex >= metadata.length) return 'Unknown';
+		return metadata[currentIndex].white;
 	});
 
 	currentBlackPlayer = computed(() => {
-		const games = this.games();
+		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
-		if (games.length === 0 || currentIndex < 0 || currentIndex >= games.length) return 'Unknown';
-		const gameInfo = this.extractGameInfo(games[currentIndex], currentIndex);
-		console.log('Black player:', gameInfo.black);
-		return gameInfo.black;
+		if (metadata.length === 0 || currentIndex < 0 || currentIndex >= metadata.length) return 'Unknown';
+		return metadata[currentIndex].black;
 	});
 
 	currentGameResult = computed(() => {
-		const games = this.games();
+		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
-		if (games.length === 0 || currentIndex < 0 || currentIndex >= games.length) return '*';
-		const gameInfo = this.extractGameInfo(games[currentIndex], currentIndex);
-		console.log('Game result:', gameInfo.result);
-		return gameInfo.result;
+		if (metadata.length === 0 || currentIndex < 0 || currentIndex >= metadata.length) return '*';
+		return metadata[currentIndex].result;
 	});
 
 	// Game information for display (filtered)
 	filteredGameInfos = computed(() => {
-		const games = this.games();
+		const metadata = this.gamesMetadata();
 		const indices = this.filteredGamesIndices();
-		return indices.map(i => this.extractGameInfo(games[i], i));
+		return indices.map(i => metadata[i]);
 	});
 
 	// Replay State
@@ -134,19 +136,61 @@ export class NgxPgnViewerComponent {
 
 
 	constructor() {
+		if (typeof Worker !== 'undefined') {
+			this.worker = new Worker(new URL('./pgn-processor.worker', import.meta.url));
+			this.worker.onmessage = ({ data }) => this.handleWorkerMessage(data);
+		} else {
+			console.error('Web Workers are not supported in this environment.');
+		}
+
 		// Effect to load initial PGN if provided
 		effect(() => {
 			const pgn = this.pgn();
 			if (pgn) {
 				this.loadPgnString(pgn);
-				// Use setTimeout to ensure games signal is set before loading
-				setTimeout(() => {
-					if (this.games().length > 0) {
-						this.loadGame(0);
-					}
-				}, 0);
+				// Loading is now async via worker, so we don't loadGame(0) here immediately
+				// It will be handled in handleWorkerMessage
 			}
 		});
+	}
+
+	private handleWorkerMessage(data: any) {
+		const { type, payload, id } = data;
+		if (type === 'load') {
+			this.games.set(payload.games);
+			this.gamesMetadata.set(payload.metadata);
+			this.isLoading.set(false);
+
+			// Populate unique players
+			const whitePlayers = new Set<string>();
+			const blackPlayers = new Set<string>();
+			for (const meta of payload.metadata) {
+				if (meta.white && meta.white !== 'Unknown') whitePlayers.add(meta.white);
+				if (meta.black && meta.black !== 'Unknown') blackPlayers.add(meta.black);
+			}
+			this.uniqueWhitePlayers.set(whitePlayers);
+			this.uniqueBlackPlayers.set(blackPlayers);
+
+			// Auto-select first game if available
+			if (payload.games.length > 0) {
+				this.loadGame(0);
+			}
+
+			// Clear filters
+			this.clearFilters();
+		} else if (type === 'filter') {
+			if (id === this.currentFilterId) {
+				this.filteredGamesIndices.set(payload);
+				this.isFiltering.set(false);
+				if (this.autoSelectOnFinish) {
+					this.selectAllGames();
+					this.autoSelectOnFinish = false;
+				}
+			}
+		} else if (type === 'error') {
+			console.error('Worker error:', payload);
+			this.isLoading.set(false);
+		}
 	}
 
 	applyFilter() {
@@ -172,14 +216,6 @@ export class NgxPgnViewerComponent {
 		this.applyFilter();
 	}
 
-	private lastFilterParams = {
-		white: "",
-		black: "",
-		result: "",
-		moves: false,
-		ignoreColor: false,
-		targetMoves: [] as string[]
-	};
 
 	private runFilterLogic(
 		games: string[],
@@ -194,195 +230,35 @@ export class NgxPgnViewerComponent {
 		const myFilterId = this.currentFilterId;
 		this.isFiltering.set(true);
 
-		const onComplete = (indices: number[]) => {
-			this.filteredGamesIndices.set(indices);
-			this.isFiltering.set(false);
-			this.lastFilterParams = { white: fWhite, black: fBlack, result: fResult, moves: fMoves, ignoreColor: fIgnoreColor, targetMoves };
-
-			if (this.autoSelectOnFinish) {
-				this.selectAllGames();
-				this.autoSelectOnFinish = false;
-			}
-		};
-
-		// If no filters, return all indices immediately
-		if (!fWhite && !fBlack && !fResult && !fMoves) {
-			onComplete(games.map((_, i) => i));
-			return;
-		}
-
-		const fWhiteLower = fWhite.toLowerCase();
-		const fBlackLower = fBlack.toLowerCase();
-		const fResultLower = fResult.toLowerCase();
-
-		// Check for iterative filtering opportunity
-		let candidateIndices: number[] = [];
-
-		if (
-			this.lastFilterParams.white === fWhite &&
-			this.lastFilterParams.black === fBlack &&
-			this.lastFilterParams.result === fResult &&
-			this.lastFilterParams.moves === fMoves &&
-			this.lastFilterParams.ignoreColor === fIgnoreColor &&
-			fMoves && // Only relevant if move filtering is on
-			targetMoves.length > this.lastFilterParams.targetMoves.length &&
-			this.arraysEqualPrefix(targetMoves, this.lastFilterParams.targetMoves)
-		) {
-			// Iterative: use previous results
-			candidateIndices = this.filteredGamesIndices();
-		} else {
-			// Full scan: First pass - Synchronous string filtering
-			for (let i = 0; i < games.length; i++) {
-				const pgn = games[i];
-				const info = this.extractGameInfo(pgn, i);
-				const whiteName = info.white.toLowerCase();
-				const blackName = info.black.toLowerCase();
-
-				let matchWhite = true;
-				let matchBlack = true;
-
-				if (fIgnoreColor) {
-					// If ignore color, fWhite must match either white or black player
-					if (fWhiteLower && !(whiteName.includes(fWhiteLower) || blackName.includes(fWhiteLower))) matchWhite = false;
-					// And fBlack must match either white or black player (if specified)
-					if (fBlackLower && !(whiteName.includes(fBlackLower) || blackName.includes(fBlackLower))) matchBlack = false;
-				} else {
-					if (fWhiteLower && !whiteName.includes(fWhiteLower)) matchWhite = false;
-					if (fBlackLower && !blackName.includes(fBlackLower)) matchBlack = false;
+		if (this.worker) {
+			this.worker.postMessage({
+				type: 'filter',
+				id: myFilterId,
+				payload: {
+					white: fWhite,
+					black: fBlack,
+					result: fResult,
+					moves: fMoves,
+					ignoreColor: fIgnoreColor,
+					targetMoves: targetMoves
 				}
-
-				if (!matchWhite || !matchBlack) continue;
-				if (fResultLower && !info.result.toLowerCase().includes(fResultLower)) continue;
-
-				candidateIndices.push(i);
-			}
+			});
 		}
-
-		// If moves filter is NOT active, we are done
-		if (!fMoves) {
-			onComplete(candidateIndices);
-			return;
-		}
-
-		// Second pass: Async chunked moves filtering (cached)
-		const finalIndices: number[] = [];
-		const chunkSize = 50;
-		let currentIndex = 0;
-		const tempChess = new Chess();
-
-		const processChunk = () => {
-			// Check cancellation
-			if (this.currentFilterId !== myFilterId) {
-				return;
-			}
-
-			const startTime = performance.now();
-
-			while (currentIndex < candidateIndices.length) {
-				// Yield if we've taken too long (e.g., > 15ms)
-				if (performance.now() - startTime > 15) {
-					setTimeout(processChunk, 0);
-					return;
-				}
-
-				const gameIndex = candidateIndices[currentIndex];
-				const pgn = games[gameIndex];
-				currentIndex++;
-
-				try {
-					let gameMoves = this.gameMovesCache.get(gameIndex);
-
-					if (!gameMoves) {
-						// Not in cache, parse and store
-						tempChess.loadPgn(pgn);
-						gameMoves = tempChess.history();
-						this.gameMovesCache.set(gameIndex, gameMoves);
-					}
-
-					// Check if game starts with target moves
-					let match = true;
-					if (targetMoves.length > gameMoves.length) {
-						match = false;
-					} else {
-						// Optimization: If iterative, we only need to check the NEW moves
-						// But checking all is fast enough with arrays.
-						for (let i = 0; i < targetMoves.length; i++) {
-							if (gameMoves[i] !== targetMoves[i]) {
-								match = false;
-								break;
-							}
-						}
-					}
-
-					if (match) {
-						finalIndices.push(gameIndex);
-					}
-				} catch (e) {
-					// Silent catch
-				}
-			}
-
-			// Done
-			onComplete(finalIndices);
-		};
-
-		// Start processing
-		processChunk();
 	}
 
-	private arraysEqualPrefix(a: string[], prefix: string[]): boolean {
-		if (prefix.length > a.length) return false;
-		for (let i = 0; i < prefix.length; i++) {
-			if (a[i] !== prefix[i]) return false;
-		}
-		return true;
-	}
 
 	// --- PGN Loading Logic ---
 
 	loadPgnString(pgn: string) {
-		// Clear cache when loading new PGN
-		this.gameMovesCache.clear();
 		// Reset state to ensure UI updates
 		this.moves.set([]);
 		this.currentMoveIndex.set(-1);
 		this.currentGameIndex.set(-1); // Force change detection when setting to 0 later
 		this.currentFen.set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-		try {
-			const games = this.splitPgn(pgn);
-			if (games.length > 0) {
-				this.games.set(games);
-
-				// Populate unique players
-				const whitePlayers = new Set<string>();
-				const blackPlayers = new Set<string>();
-
-				for (let i = 0; i < games.length; i++) {
-					const info = this.extractGameInfo(games[i], i);
-					if (info.white && info.white !== 'Unknown') whitePlayers.add(info.white);
-					if (info.black && info.black !== 'Unknown') blackPlayers.add(info.black);
-				}
-
-				this.uniqueWhitePlayers.set(whitePlayers);
-				this.uniqueBlackPlayers.set(blackPlayers);
-
-			} else {
-				// Fallback for single game or empty
-				this.games.set([pgn]);
-				this.uniqueWhitePlayers.set(new Set());
-				this.uniqueBlackPlayers.set(new Set());
-			}
-		} catch (e) {
-			console.error("Invalid PGN", e);
-			alert("Invalid PGN");
+		if (this.worker) {
+			this.worker.postMessage({ type: 'load', payload: pgn, id: Date.now() });
 		}
-
-		// Automatically clear filters and select all games
-		// Use setTimeout to ensure games are fully loaded and signals propagated
-		setTimeout(() => {
-			this.clearFilters();
-		}, 100);
 	}
 
 	async loadFromClipboard() {
@@ -474,23 +350,6 @@ export class NgxPgnViewerComponent {
 		reader.readAsText(file);
 	}
 
-	private splitPgn(pgn: string): string[] {
-		// PGN standard: games are separated by blank lines, each starting with [Event "..."]
-		// Split before each [Event tag that appears at the start of a line
-		const parts = pgn.split(/(?=(?:^|\r?\n)\[Event\s+")/m);
-		const games: string[] = [];
-
-		for (const part of parts) {
-			const trimmed = part.trim();
-			if (trimmed.length === 0) continue;
-			// Only add if it starts with a tag pair (valid PGN game)
-			if (/^\[Event\s+"/.test(trimmed)) {
-				games.push(trimmed);
-			}
-		}
-
-		return games;
-	}
 
 	// --- Sample Loading ---
 	// Sample loading methods removed. Use input binding from parent.
@@ -545,40 +404,6 @@ export class NgxPgnViewerComponent {
 		this.selectedGames.set(new Set());
 	}
 
-	private extractGameInfo(pgn: string, index: number): { number: number; white: string; black: string; result: string } {
-		const whiteMatch = pgn.match(/\[White\s+"([^"]+)"\]/);
-		const blackMatch = pgn.match(/\[Black\s+"([^"]+)"\]/);
-		const resultMatch = pgn.match(/\[Result\s+"([^"]+)"\]/);
-
-		const whiteEloMatch = pgn.match(/\[WhiteElo\s+"([^"]+)"\]/);
-		const blackEloMatch = pgn.match(/\[BlackElo\s+"([^"]+)"\]/);
-		const whiteTitleMatch = pgn.match(/\[WhiteTitle\s+"([^"]+)"\]/);
-		const blackTitleMatch = pgn.match(/\[BlackTitle\s+"([^"]+)"\]/);
-
-		let white = whiteMatch ? whiteMatch[1] : 'Unknown';
-		let black = blackMatch ? blackMatch[1] : 'Unknown';
-		const result = resultMatch ? resultMatch[1] : '*'; // * means unknown result
-
-		// Add titles and ratings
-		if (whiteTitleMatch) white = `${whiteTitleMatch[1]} ${white}`;
-		if (whiteEloMatch) white = `${white} (${whiteEloMatch[1]})`;
-
-		if (blackTitleMatch) black = `${blackTitleMatch[1]} ${black}`;
-		if (blackEloMatch) black = `${black} (${blackEloMatch[1]})`;
-
-		// Format result for display
-		let formattedResult = result;
-		if (result === '1-0') formattedResult = '1-0';
-		else if (result === '0-1') formattedResult = '0-1';
-		else if (result === '1/2-1/2') formattedResult = '½-½';
-
-		return {
-			number: index + 1,
-			white,
-			black,
-			result: formattedResult
-		};
-	}
 
 	nextGame() {
 		if (this.currentGameIndex() < this.games().length - 1) {
