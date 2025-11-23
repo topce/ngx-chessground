@@ -377,6 +377,12 @@ export class NgxPgnViewerComponent {
 			console.error("Invalid PGN", e);
 			alert("Invalid PGN");
 		}
+
+		// Automatically clear filters and select all games
+		// Use setTimeout to ensure games are fully loaded and signals propagated
+		setTimeout(() => {
+			this.clearFilters();
+		}, 100);
 	}
 
 	async loadFromClipboard() {
