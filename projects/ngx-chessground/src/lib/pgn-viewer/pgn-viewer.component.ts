@@ -101,6 +101,11 @@ export class NgxPgnViewerComponent {
 	proportionalDuration = signal<number>(1); // minutes
 	fixedTime = signal<number>(1); // seconds
 
+	// Clock State
+	whiteTimeRemaining = signal<string>("");
+	blackTimeRemaining = signal<string>("");
+	showClocks = computed(() => this.whiteTimeRemaining() !== "" || this.blackTimeRemaining() !== "");
+
 	// UI State
 	pgnInput = signal<string>("");
 
@@ -108,6 +113,8 @@ export class NgxPgnViewerComponent {
 	private chess = new Chess();
 	// biome-ignore lint/suspicious/noExplicitAny: Timeout type differs between envs
 	private replayTimeouts: any[] = [];
+	private replayResolve: (() => void) | null = null;
+	private isReplayingSequence = false;
 
 	// Computed
 	runFunction = computed<(el: HTMLElement) => Api>(() => {
@@ -537,15 +544,27 @@ export class NgxPgnViewerComponent {
 		const blackMatch = pgn.match(/\[Black\s+"([^"]+)"\]/);
 		const resultMatch = pgn.match(/\[Result\s+"([^"]+)"\]/);
 
-		const white = whiteMatch ? whiteMatch[1] : 'Unknown';
-		const black = blackMatch ? blackMatch[1] : 'Unknown';
+		const whiteEloMatch = pgn.match(/\[WhiteElo\s+"([^"]+)"\]/);
+		const blackEloMatch = pgn.match(/\[BlackElo\s+"([^"]+)"\]/);
+		const whiteTitleMatch = pgn.match(/\[WhiteTitle\s+"([^"]+)"\]/);
+		const blackTitleMatch = pgn.match(/\[BlackTitle\s+"([^"]+)"\]/);
+
+		let white = whiteMatch ? whiteMatch[1] : 'Unknown';
+		let black = blackMatch ? blackMatch[1] : 'Unknown';
 		const result = resultMatch ? resultMatch[1] : '*'; // * means unknown result
+
+		// Add titles and ratings
+		if (whiteTitleMatch) white = `${whiteTitleMatch[1]} ${white}`;
+		if (whiteEloMatch) white = `${white} (${whiteEloMatch[1]})`;
+
+		if (blackTitleMatch) black = `${blackTitleMatch[1]} ${black}`;
+		if (blackEloMatch) black = `${black} (${blackEloMatch[1]})`;
 
 		// Format result for display
 		let formattedResult = result;
-		if (result === '1-0') formattedResult = '1-0 (White)';
-		else if (result === '0-1') formattedResult = '0-1 (Black)';
-		else if (result === '1/2-1/2') formattedResult = '½-½ (Draw)';
+		if (result === '1-0') formattedResult = '1-0';
+		else if (result === '0-1') formattedResult = '0-1';
+		else if (result === '1/2-1/2') formattedResult = '½-½';
 
 		return {
 			number: index + 1,
@@ -614,6 +633,15 @@ export class NgxPgnViewerComponent {
 			this.chess.move(nextMove);
 			this.currentMoveIndex.set(currentIdx + 1);
 			this.currentFen.set(this.chess.fen());
+
+			// Update clocks
+			const nextMoveIdx = currentIdx + 1;
+			// clockHistory has initial state at index 0, so move 1 state is at index 1
+			if (nextMoveIdx + 1 < this.clockHistory.length) {
+				const clocks = this.clockHistory[nextMoveIdx + 1];
+				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
+				this.blackTimeRemaining.set(this.formatTime(clocks.black));
+			}
 		}
 	}
 
@@ -622,13 +650,36 @@ export class NgxPgnViewerComponent {
 			this.chess.undo();
 			this.currentMoveIndex.update((i) => i - 1);
 			this.currentFen.set(this.chess.fen());
+
+			// Update clocks
+			const currentIdx = this.currentMoveIndex();
+			// clockHistory has initial state at index 0
+			if (currentIdx + 1 >= 0 && currentIdx + 1 < this.clockHistory.length) {
+				const clocks = this.clockHistory[currentIdx + 1];
+				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
+				this.blackTimeRemaining.set(this.formatTime(clocks.black));
+			}
 		}
+	}
+
+	stopSequence() {
+		this.isReplayingSequence = false;
+		this.stopReplay();
 	}
 
 	start() {
 		this.chess.reset();
 		this.currentMoveIndex.set(-1);
 		this.currentFen.set(this.chess.fen());
+
+		// Reset clocks if we have clock info for the start
+		if (this.clockHistory.length > 0) {
+			const startClocks = this.clockHistory[0]; // Initial clocks before any move
+			if (startClocks) {
+				this.whiteTimeRemaining.set(this.formatTime(startClocks.white));
+				this.blackTimeRemaining.set(this.formatTime(startClocks.black));
+			}
+		}
 	}
 
 	end() {
@@ -658,6 +709,7 @@ export class NgxPgnViewerComponent {
 
 	async replayAllSelectedGames() {
 		this.stopReplay();
+		this.isReplayingSequence = true;
 		const selected = Array.from(this.selectedGames()).sort((a, b) => a - b);
 
 		if (selected.length === 0) {
@@ -666,6 +718,7 @@ export class NgxPgnViewerComponent {
 		}
 
 		for (let i = 0; i < selected.length; i++) {
+			if (!this.isReplayingSequence) break;
 			const gameIndex = selected[i];
 			this.loadGame(gameIndex);
 
@@ -685,6 +738,7 @@ export class NgxPgnViewerComponent {
 	private replayGameAsync(): Promise<void> {
 		return new Promise((resolve) => {
 			this.stopReplay();
+			this.replayResolve = resolve;
 			this.start();
 
 			const gamePgn = this.games()[this.currentGameIndex()];
@@ -695,25 +749,10 @@ export class NgxPgnViewerComponent {
 			const timeOuts = this.calculateReplayTimeouts(history);
 
 			// Actually schedule the replay
-			this.scheduleReplay(timeOuts, history.length);
-
-			// Calculate total replay time including delays
-			const totalTime = timeOuts[timeOuts.length - 1] || 0;
-			let delay = 0;
-
-			if (this.replayMode() === "fixed") {
-				delay = totalTime * 1000;
-			} else if (this.replayMode() === "realtime") {
-				delay = totalTime * 1000;
-			} else if (this.replayMode() === "proportional") {
-				const targetDurationSeconds = this.proportionalDuration() * 60;
-				delay = targetDurationSeconds * 1000;
-			}
-
-			// Schedule the resolve after the game replay completes
-			setTimeout(() => {
+			this.scheduleReplay(timeOuts, history.length, () => {
 				resolve();
-			}, delay + 500); // Add small buffer
+				this.replayResolve = null;
+			});
 		});
 	}
 
@@ -722,12 +761,121 @@ export class NgxPgnViewerComponent {
 			clearTimeout(t);
 		});
 		this.replayTimeouts = [];
+
+		if (this.replayResolve) {
+			this.replayResolve();
+			this.replayResolve = null;
+		}
 	}
+
+	// Store clock history for replay: index 0 is start, index 1 is after move 1, etc.
+	private clockHistory: { white: number; black: number }[] = [];
 
 	private calculateReplayTimeouts(
 		history: Move[],
 	): number[] {
 		const timeOuts: number[] = [];
+		this.clockHistory = [];
+
+		// Get comments and header to parse clocks
+		const comments = this.chess.getComments();
+		const header = this.chess.header();
+
+		// Try to parse time control
+		let timeControlSeconds = 0;
+		if (header['TimeControl']) {
+			const tc = header['TimeControl'].split('+');
+			timeControlSeconds = parseInt(tc[0], 10);
+		}
+
+		// Initialize clocks
+		let whiteTime = timeControlSeconds;
+		let blackTime = timeControlSeconds;
+
+		// If we have clock comments, use them as source of truth
+		// Check first few moves for clock comments
+		let hasClockComments = false;
+		for (let i = 0; i < Math.min(history.length, 10); i++) {
+			const comment = comments.find(c => c.fen === history[i].after || c.fen === history[i].before); // Approximate check
+			// Actually chess.js getComments returns array of objects with fen and comment.
+			// We need to match moves to comments.
+			// A simpler way is to iterate moves and get comments for the position.
+		}
+
+		// Re-simulate game to extract clocks correctly
+		const tempChess = new Chess();
+		tempChess.loadPgn(this.games()[this.currentGameIndex()]);
+		const moves = tempChess.history({ verbose: true });
+		const moveComments = tempChess.getComments();
+
+		// Map FEN to comment for easier lookup
+		const fenToComment = new Map<string, string>();
+		moveComments.forEach(c => fenToComment.set(c.fen, c.comment));
+
+		// Initial clock state
+		this.clockHistory.push({ white: whiteTime, black: blackTime });
+
+		// Calculate think times
+		const thinkTimes: number[] = [];
+
+		for (let i = 0; i < moves.length; i++) {
+			const move = moves[i];
+			const isWhite = move.color === 'w';
+			const comment = fenToComment.get(move.after);
+
+			let moveTime = 0;
+
+			if (comment) {
+				// Try to parse %clk
+				const clkMatch = comment.match(/%clk\s+(\d+):(\d+):(\d+)/) || comment.match(/%clk\s+(\d+):(\d+)/);
+				if (clkMatch) {
+					hasClockComments = true;
+					let h = 0, m = 0, s = 0;
+					if (clkMatch.length === 4) {
+						h = parseInt(clkMatch[1], 10);
+						m = parseInt(clkMatch[2], 10);
+						s = parseInt(clkMatch[3], 10);
+					} else {
+						m = parseInt(clkMatch[1], 10);
+						s = parseInt(clkMatch[2], 10);
+					}
+
+					const timeInSeconds = h * 3600 + m * 60 + s;
+
+					if (isWhite) {
+						moveTime = Math.max(0.1, whiteTime - timeInSeconds); // Ensure at least small delay
+						whiteTime = timeInSeconds;
+					} else {
+						moveTime = Math.max(0.1, blackTime - timeInSeconds);
+						blackTime = timeInSeconds;
+					}
+				}
+			}
+
+			// Fallback if no clock comment or parsing failed
+			if (moveTime === 0 && !hasClockComments) {
+				moveTime = this.fixedTime(); // Default to fixed time setting
+			} else if (moveTime === 0 && hasClockComments) {
+				// If we have clock comments generally but missed this one, assume small time
+				moveTime = 1;
+			}
+
+			thinkTimes.push(moveTime);
+			this.clockHistory.push({ white: whiteTime, black: blackTime });
+		}
+
+		// If no clock comments found at all, clear clock history so we don't show empty clocks
+		if (!hasClockComments) {
+			this.clockHistory = [];
+			this.whiteTimeRemaining.set("");
+			this.blackTimeRemaining.set("");
+		} else {
+			// Set initial clocks for display
+			if (this.clockHistory.length > 0) {
+				this.whiteTimeRemaining.set(this.formatTime(this.clockHistory[0].white));
+				this.blackTimeRemaining.set(this.formatTime(this.clockHistory[0].black));
+			}
+		}
 
 		if (this.replayMode() === "fixed") {
 			for (let i = 0; i < history.length; i++) {
@@ -736,16 +884,55 @@ export class NgxPgnViewerComponent {
 			return timeOuts;
 		}
 
-		// Simplified proportional timing - use 1 second per move as default
+		if (this.replayMode() === "realtime") {
+			let totalTime = 0;
+			for (let i = 0; i < thinkTimes.length; i++) {
+				totalTime += thinkTimes[i];
+				timeOuts.push(totalTime);
+			}
+			return timeOuts;
+		}
+
+		if (this.replayMode() === "proportional") {
+			// Calculate total game duration
+			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
+			const targetDurationSeconds = this.proportionalDuration() * 60;
+			const scaleFactor = totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
+
+			let currentScaledTime = 0;
+			for (let i = 0; i < thinkTimes.length; i++) {
+				currentScaledTime += thinkTimes[i] * scaleFactor;
+				timeOuts.push(currentScaledTime);
+			}
+			return timeOuts;
+		}
+
+		// Fallback
 		for (let i = 0; i < history.length; i++) {
-			timeOuts.push((i + 1) * 1); // 1 sec default
+			timeOuts.push((i + 1) * 1);
 		}
 
 		return timeOuts;
 	}
 
-	private scheduleReplay(timeOuts: number[], totalMoves: number) {
+	private formatTime(seconds: number): string {
+		const h = Math.floor(seconds / 3600);
+		const m = Math.floor((seconds % 3600) / 60);
+		const s = Math.floor(seconds % 60);
+
+		if (h > 0) {
+			return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+		}
+		return `${m}:${s.toString().padStart(2, '0')}`;
+	}
+
+	private scheduleReplay(timeOuts: number[], totalMoves: number, onComplete?: () => void) {
 		const totalGameTime = timeOuts[timeOuts.length - 1] || 1;
+
+		if (totalMoves === 0 && onComplete) {
+			onComplete();
+			return;
+		}
 
 		for (let i = 0; i < totalMoves; i++) {
 			let delay = 0;
@@ -754,12 +941,18 @@ export class NgxPgnViewerComponent {
 			} else if (this.replayMode() === "realtime") {
 				delay = timeOuts[i] * 1000;
 			} else if (this.replayMode() === "proportional") {
-				const targetDurationSeconds = this.proportionalDuration() * 60;
-				delay = (timeOuts[i] / totalGameTime) * targetDurationSeconds * 1000;
+				// Proportional timeouts are already calculated in seconds in calculateReplayTimeouts
+				// Just convert to ms
+				delay = timeOuts[i] * 1000;
 			}
 
+			const isLast = i === totalMoves - 1;
 			const timeoutId = setTimeout(() => {
 				this.next();
+				if (isLast && onComplete) {
+					// Give a small buffer for the last animation
+					setTimeout(onComplete, 500);
+				}
 			}, delay);
 			this.replayTimeouts.push(timeoutId);
 		}

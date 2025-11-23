@@ -7,21 +7,21 @@
             <!-- Filters -->
             <div class="filter-section">
                 <div class="filter-row">
-                    <input type="text" placeholder="White" [value]="filterWhite()" (input)="updateFilterWhite($event)"
-                        list="white-players">
+                    <input type="text" placeholder="White" aria-label="Filter by White player" [value]="filterWhite()"
+                        (input)="updateFilterWhite($event)" list="white-players">
                     <datalist id="white-players">
                         @for (player of uniqueWhitePlayers(); track player) { <option [value]="player"></option> }
                     </datalist>
                 </div>
                 <div class="filter-row">
-                    <input type="text" placeholder="Black" [value]="filterBlack()" (input)="updateFilterBlack($event)"
-                        list="black-players">
+                    <input type="text" placeholder="Black" aria-label="Filter by Black player" [value]="filterBlack()"
+                        (input)="updateFilterBlack($event)" list="black-players">
                     <datalist id="black-players">
                         @for (player of uniqueBlackPlayers(); track player) { <option [value]="player"></option> }
                     </datalist>
                 </div>
                 <div class="filter-row">
-                    <input type="text" placeholder="Result" [value]="filterResult()"
+                    <input type="text" placeholder="Result" aria-label="Filter by Result" [value]="filterResult()"
                         (input)="updateFilterResult($event)" list="results">
                     <datalist id="results">
                         <option value="1-0"></option>
@@ -50,23 +50,29 @@
             <div class="game-list-header">
                 <span>Games: {{ filteredGameInfos().length }}</span>
                 <div class="game-nav-buttons">
-                    <button (click)="prevGame()" [disabled]="currentGameIndex() === 0" class="icon-btn">◀</button>
-                    <button (click)="nextGame()" [disabled]="currentGameIndex() === games().length - 1"
-                        class="icon-btn">▶</button>
+                    <button (click)="prevGame()" [disabled]="currentGameIndex() === 0" class="icon-btn"
+                        aria-label="Previous Game">◀</button>
+                    <button (click)="nextGame()" [disabled]="currentGameIndex() === games().length - 1" class="icon-btn"
+                        aria-label="Next Game">▶</button>
                 </div>
             </div>
 
             @if (isFiltering()) {
-            <div class="filtering-indicator">⏳ Filtering...</div>
+            <div class="filtering-indicator" role="status" aria-live="polite">⏳ Filtering...</div>
             }
 
-            <div class="game-list">
+            <div class="game-list" role="list">
                 @for (gameInfo of filteredGameInfos(); track gameInfo.number) {
-                <div class="game-item" [class.active]="currentGameIndex() === (gameInfo.number - 1)">
+                <div class="game-item" role="listitem" [class.active]="currentGameIndex() === (gameInfo.number - 1)">
                     <label>
                         <input type="checkbox" [checked]="selectedGames().has(gameInfo.number - 1)"
-                            (change)="toggleGameSelection(gameInfo.number - 1)">
-                        <div class="game-info" (click)="loadGame(gameInfo.number - 1); $event.preventDefault()">
+                            (change)="toggleGameSelection(gameInfo.number - 1)"
+                            [attr.aria-label]="'Select Game ' + gameInfo.number">
+                        <div class="game-info" (click)="loadGame(gameInfo.number - 1); $event.preventDefault()"
+                            (keydown.enter)="loadGame(gameInfo.number - 1); $event.preventDefault()"
+                            (keydown.space)="loadGame(gameInfo.number - 1); $event.preventDefault()" tabindex="0"
+                            role="button"
+                            [attr.aria-label]="'Load Game ' + gameInfo.number + ': ' + gameInfo.white + ' vs ' + gameInfo.black">
                             <div class="players">
                                 <span class="game-number">#{{ gameInfo.number }}</span>
                                 {{ gameInfo.white }} vs {{ gameInfo.black }}
@@ -96,25 +102,38 @@
             <div class="board-wrapper">
                 <div class="player-info top">
                     <span class="name">{{ currentBlackPlayer() }}</span>
+                    @if (showClocks()) {
+                    <span class="clock">{{ blackTimeRemaining() }}</span>
+                    }
                 </div>
 
                 <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
 
                 <div class="player-info bottom">
+                    @if (showClocks()) {
+                    <div class="player-details">
+                        <span class="name">{{ currentWhitePlayer() }}</span>
+                        <span class="game-result">{{ currentGameResult() }}</span>
+                    </div>
+                    <span class="clock">{{ whiteTimeRemaining() }}</span>
+                    } @else {
                     <span class="name">{{ currentWhitePlayer() }}</span>
                     <span class="game-result">{{ currentGameResult() }}</span>
+                    }
                 </div>
             </div>
 
             <!-- Move Navigation -->
             <div class="move-navigation">
-                <button (click)="start()" [disabled]="currentMoveIndex() === -1" class="nav-btn">|&lt;</button>
-                <button (click)="prev()" [disabled]="currentMoveIndex() === -1" class="nav-btn">&lt;</button>
-                <span class="move-status">{{ currentMoveIndex() + 1 }} / {{ moves().length }}</span>
-                <button (click)="next()" [disabled]="currentMoveIndex() >= moves().length - 1"
-                    class="nav-btn">&gt;</button>
-                <button (click)="end()" [disabled]="currentMoveIndex() >= moves().length - 1"
-                    class="nav-btn">&gt;|</button>
+                <button (click)="start()" [disabled]="currentMoveIndex() === -1" class="nav-btn"
+                    aria-label="First Move">|&lt;</button>
+                <button (click)="prev()" [disabled]="currentMoveIndex() === -1" class="nav-btn"
+                    aria-label="Previous Move">&lt;</button>
+                <span class="move-status" aria-live="polite">{{ currentMoveIndex() + 1 }} / {{ moves().length }}</span>
+                <button (click)="next()" [disabled]="currentMoveIndex() >= moves().length - 1" class="nav-btn"
+                    aria-label="Next Move">&gt;</button>
+                <button (click)="end()" [disabled]="currentMoveIndex() >= moves().length - 1" class="nav-btn"
+                    aria-label="Last Move">&gt;|</button>
             </div>
         </div>
 
@@ -123,14 +142,15 @@
             <!-- Move List -->
             <div class="move-list-section">
                 <h3>Moves</h3>
-                <div class="move-list">
+                <div class="move-list" role="list">
                     @for (move of moves(); track $index) {
                     @if ($index % 2 === 0) {
                     <span class="move-number">{{ ($index / 2) + 1 }}.</span>
                     }
-                    <span class="move" [class.active]="$index === currentMoveIndex()" (click)="jumpToMove($index)">
+                    <button class="move-btn" [class.active]="$index === currentMoveIndex()" (click)="jumpToMove($index)"
+                        [attr.aria-label]="'Jump to move ' + (($index / 2) + 1) + ( $index % 2 === 0 ? ' White ' : ' Black ') + move">
                         {{ move }}
-                    </span>
+                    </button>
                     }
                 </div>
             </div>
@@ -141,20 +161,30 @@
                 <div class="replay-options">
                     <label><input type="radio" name="mode" [value]="'realtime'" [checked]="replayMode() === 'realtime'"
                             (change)="replayMode.set('realtime')"> Real Time</label>
+                    <label><input type="radio" name="mode" [value]="'proportional'"
+                            [checked]="replayMode() === 'proportional'" (change)="replayMode.set('proportional')">
+                        Proportional</label>
                     <label><input type="radio" name="mode" [value]="'fixed'" [checked]="replayMode() === 'fixed'"
                             (change)="replayMode.set('fixed')"> Fixed</label>
                 </div>
 
+                @if (replayMode() === 'proportional') {
+                <div class="option-input">
+                    <input type="number" [value]="proportionalDuration()" (input)="onProportionalDurationChange($event)"
+                        step="0.1" class="small-input" aria-label="Proportional Duration in Minutes"> min/game
+                </div>
+                }
+
                 @if (replayMode() === 'fixed') {
                 <div class="option-input">
                     <input type="number" [value]="fixedTime()" (input)="onFixedTimeChange($event)" step="0.1"
-                        class="small-input"> sec/move
+                        class="small-input" aria-label="Fixed Time per Move in Seconds"> sec/move
                 </div>
                 }
 
                 <div class="replay-actions">
                     <button (click)="replayGame()" class="action-btn">Replay</button>
-                    <button (click)="stopReplay()" class="action-btn stop">Stop</button>
+                    <button (click)="stopSequence()" class="action-btn stop">Stop</button>
                 </div>
                 @if (canShowReplayAll()) {
                 <button (click)="replayAllSelectedGames()" class="action-btn full-width">Replay Selected ({{
@@ -164,8 +194,8 @@
 
             <!-- PGN Input (Collapsible-ish) -->
             <div class="pgn-input-section">
-                <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="3"
-                    placeholder="Paste PGN..."></textarea>
+                <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="3" placeholder="Paste PGN..."
+                    aria-label="PGN Input"></textarea>
                 <button (click)="loadFromClipboard()" class="small-btn">Load from Clipboard</button>
             </div>
 
@@ -184,7 +214,7 @@
                     </label>
                 </div>
                 @if (isLoading()) {
-                <div class="loading-indicator">⏳ Loading...</div>
+                <div class="loading-indicator" role="status" aria-live="polite">⏳ Loading...</div>
                 }
             </div>
         </div>

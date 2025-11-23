@@ -156,6 +156,11 @@
 	margin-left: 0.5rem;
 }
 
+.game-info:focus-visible {
+	outline: 2px solid #007bff;
+	outline-offset: -2px;
+}
+
 .game-number {
 	color: #868e96;
 	margin-right: 0.25rem;
@@ -196,6 +201,24 @@
 	width: 100%;
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
+}
+
+.player-details {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.clock {
+	font-family: 'Courier New', Courier, monospace;
+	background-color: #343a40;
+	color: #fff;
+	padding: 0.1rem 0.4rem;
+	border-radius: 4px;
+	font-size: 1rem;
+	min-width: 80px;
+	text-align: center;
 }
 
 .game-result {
@@ -255,21 +278,32 @@
 	margin-left: 0.25rem;
 }
 
-.move {
+.move-btn {
 	cursor: pointer;
-	padding: 0 0.25rem;
-	border-radius: 2px;
-	font-size: 0.9rem;
-	font-family: monospace;
+	padding: 2px 4px;
+	border-radius: 3px;
+	transition: background-color 0.2s;
+	background: none;
+	border: none;
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+	text-align: left;
 }
 
-.move:hover {
+.move-btn:hover {
 	background-color: #e9ecef;
 }
 
-.move.active {
-	background-color: #339af0;
-	color: white;
+.move-btn.active {
+	background-color: #ffd700;
+	font-weight: bold;
+	color: #000;
+}
+
+.move-btn:focus-visible {
+	outline: 2px solid #007bff;
+	outline-offset: 2px;
 }
 
 .replay-section {
