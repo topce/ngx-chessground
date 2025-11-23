@@ -5,7 +5,7 @@ import { MeComponent } from "./me/me.component";
 import { PlayLikeGoatComponent } from "./play-like-goat/play-like-goat.component";
 
 export const routes: Routes = [
-	{ path: "", component: HomePageComponent },
+	{ path: "", redirectTo: "pgn-viewer", pathMatch: "full" },
 	{ path: "play-like-goat", component: PlayLikeGoatComponent },
 	{ path: "goat", component: GoatComponent },
 	{ path: "me", component: MeComponent },

@@ -499,3 +499,9 @@ button {
 ::-webkit-scrollbar-thumb:hover {
 	background: #bbb;
 }
+
+.clipboard-buttons {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.25rem;
+}

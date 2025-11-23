@@ -10,6 +10,7 @@ import {
 import { Chess, Move } from "chess.js";
 import { Chessground } from "chessground";
 import { Api } from "chessground/api";
+import { parsePgn } from 'chessops/pgn';
 import * as JSZip from "jszip";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 
@@ -33,7 +34,7 @@ export class NgxPgnViewerComponent {
 	pgn = input<string>("");
 
 	// State Signals
-	games = signal<string[]>([]);
+	// games = signal<string[]>([]);
 	gamesMetadata = signal<GameMetadata[]>([]);
 	currentGameIndex = signal<number>(0);
 	moves = signal<string[]>([]);
@@ -63,11 +64,12 @@ export class NgxPgnViewerComponent {
 	// private gameMovesCache = new Map<number, string[]>(); // Moved to worker
 	private autoSelectOnFinish = false;
 	private worker: Worker | null = null;
+	private activeFilterMoves: string[] = [];
 
 	// Computed values for better reactivity
 	selectedGamesCount = computed(() => this.selectedGames().size);
-	canShowReplayAll = computed(() => this.games().length > 1 && this.selectedGamesCount() > 0);
-	currentGameInfo = computed(() => `Game ${this.currentGameIndex() + 1} of ${this.games().length}`);
+	canShowReplayAll = computed(() => this.gamesMetadata().length > 1 && this.selectedGamesCount() > 0);
+	currentGameInfo = computed(() => `Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length}`);
 
 	// Current game player info
 	currentWhitePlayer = computed(() => {
@@ -157,7 +159,6 @@ export class NgxPgnViewerComponent {
 	private handleWorkerMessage(data: any) {
 		const { type, payload, id } = data;
 		if (type === 'load') {
-			this.games.set(payload.games);
 			this.gamesMetadata.set(payload.metadata);
 			this.isLoading.set(false);
 
@@ -172,7 +173,7 @@ export class NgxPgnViewerComponent {
 			this.uniqueBlackPlayers.set(blackPlayers);
 
 			// Auto-select first game if available
-			if (payload.games.length > 0) {
+			if (payload.count > 0) {
 				this.loadGame(0);
 			}
 
@@ -187,6 +188,30 @@ export class NgxPgnViewerComponent {
 					this.autoSelectOnFinish = false;
 				}
 			}
+		} else if (type === 'loadGame') {
+			const { moves, pgn, error } = payload;
+
+			if (error) {
+				console.error("Worker failed to parse game:", error);
+				this.pgnInput.set(`Error parsing game: ${error}\n\nRaw PGN:\n${pgn}`);
+				this.moves.set([]);
+			} else {
+				this.moves.set(moves);
+				this.chess.reset();
+				this.currentMoveIndex.set(-1);
+				this.currentFen.set(this.chess.fen());
+				this.stopReplay();
+				this.pgnInput.set(pgn);
+
+				// If filtering by moves is active, jump to the filtered position
+				if (this.filterMoves() && this.activeFilterMoves.length > 0) {
+					if (moves.length >= this.activeFilterMoves.length) {
+						this.jumpToMove(this.activeFilterMoves.length - 1);
+					}
+				}
+			}
+
+			this.isLoading.set(false);
 		} else if (type === 'error') {
 			console.error('Worker error:', payload);
 			this.isLoading.set(false);
@@ -194,16 +219,17 @@ export class NgxPgnViewerComponent {
 	}
 
 	applyFilter() {
-		const games = this.games();
+		// const games = this.games(); // REMOVED
 		const fWhite = this.filterWhite();
 		const fBlack = this.filterBlack();
 		const fResult = this.filterResult();
 		const fMoves = this.filterMoves();
 		const fIgnoreColor = this.ignoreColor();
 		const currentMoves = this.moves().slice(0, this.currentMoveIndex() + 1);
+		this.activeFilterMoves = currentMoves;
 
 		this.autoSelectOnFinish = true;
-		this.runFilterLogic(games, fWhite, fBlack, fResult, fMoves, fIgnoreColor, currentMoves);
+		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, currentMoves);
 	}
 
 	clearFilters() {
@@ -218,7 +244,7 @@ export class NgxPgnViewerComponent {
 
 
 	private runFilterLogic(
-		games: string[],
+		// games: string[], // REMOVED
 		fWhite: string,
 		fBlack: string,
 		fResult: string,
@@ -272,6 +298,16 @@ export class NgxPgnViewerComponent {
 		} catch (err) {
 			console.error('Failed to read clipboard contents: ', err);
 			alert('Failed to read clipboard');
+		}
+	}
+
+	async copyToClipboard() {
+		try {
+			await navigator.clipboard.writeText(this.pgnInput());
+			// Optional: You could add a temporary "Copied!" state here if desired
+		} catch (err) {
+			console.error('Failed to copy to clipboard: ', err);
+			alert('Failed to copy to clipboard');
 		}
 	}
 
@@ -357,26 +393,16 @@ export class NgxPgnViewerComponent {
 	// --- Game Logic ---
 
 	loadGame(index: number) {
-		const games = this.games();
-		if (index >= 0 && index < games.length) {
+		const count = this.gamesMetadata().length;
+		if (index >= 0 && index < count) {
 			this.currentGameIndex.set(index);
-			const gamePgn = games[index];
+			this.moves.set([]); // Clear moves immediately
+			this.pgnInput.set("Loading...");
+			this.isLoading.set(true);
 
-			try {
-				const tempChess = new Chess();
-				tempChess.loadPgn(gamePgn);
-
-				const moves = tempChess.history();
-				this.moves.set(moves);
-				this.chess.reset();
-				this.currentMoveIndex.set(-1);
-				this.currentFen.set(this.chess.fen());
-				this.stopReplay();
-
-				// Update the textarea to show the current game's PGN
-				this.pgnInput.set(gamePgn);
-			} catch (e) {
-				console.error("Error loading game", e);
+			// Offload parsing to worker
+			if (this.worker) {
+				this.worker.postMessage({ type: 'loadGame', payload: index, id: Date.now() });
 			}
 		}
 	}
@@ -406,7 +432,7 @@ export class NgxPgnViewerComponent {
 
 
 	nextGame() {
-		if (this.currentGameIndex() < this.games().length - 1) {
+		if (this.currentGameIndex() < this.gamesMetadata().length - 1) {
 			this.loadGame(this.currentGameIndex() + 1);
 		}
 	}
@@ -529,13 +555,29 @@ export class NgxPgnViewerComponent {
 		this.stopReplay();
 		this.start();
 
-		const gamePgn = this.games()[this.currentGameIndex()];
-		const tempChess = new Chess();
-		tempChess.loadPgn(gamePgn);
-		const history = tempChess.history({ verbose: true });
+		// Use the currently loaded PGN from the input area
+		const gamePgn = this.pgnInput();
 
-		const timeOuts = this.calculateReplayTimeouts(history);
-		this.scheduleReplay(timeOuts, history.length);
+		try {
+			const tempChess = new Chess();
+			tempChess.loadPgn(gamePgn);
+			const history = tempChess.history({ verbose: true });
+
+			const timeOuts = this.calculateReplayTimeouts(history);
+			this.scheduleReplay(timeOuts, history.length);
+		} catch (e) {
+			console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
+			try {
+				const timeOuts = this.calculateReplayTimeoutsChessops(gamePgn);
+				this.scheduleReplay(timeOuts, timeOuts.length);
+			} catch (e2) {
+				console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
+				// Fallback: use moves list length and fixed time
+				const moveCount = this.moves().length;
+				const timeOuts = Array(moveCount).fill(0).map((_, i) => (i + 1) * this.fixedTime());
+				this.scheduleReplay(timeOuts, moveCount);
+			}
+		}
 	}
 
 	async replayAllSelectedGames() {
@@ -572,18 +614,40 @@ export class NgxPgnViewerComponent {
 			this.replayResolve = resolve;
 			this.start();
 
-			const gamePgn = this.games()[this.currentGameIndex()];
-			const tempChess = new Chess();
-			tempChess.loadPgn(gamePgn);
-			const history = tempChess.history({ verbose: true });
+			const gamePgn = this.pgnInput();
 
-			const timeOuts = this.calculateReplayTimeouts(history);
+			try {
+				const tempChess = new Chess();
+				tempChess.loadPgn(gamePgn);
+				const history = tempChess.history({ verbose: true });
 
-			// Actually schedule the replay
-			this.scheduleReplay(timeOuts, history.length, () => {
-				resolve();
-				this.replayResolve = null;
-			});
+				const timeOuts = this.calculateReplayTimeouts(history);
+
+				// Actually schedule the replay
+				this.scheduleReplay(timeOuts, history.length, () => {
+					resolve();
+					this.replayResolve = null;
+				});
+			} catch (e) {
+				console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
+				try {
+					const timeOuts = this.calculateReplayTimeoutsChessops(gamePgn);
+					this.scheduleReplay(timeOuts, timeOuts.length, () => {
+						resolve();
+						this.replayResolve = null;
+					});
+				} catch (e2) {
+					console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
+					// Fallback
+					const moveCount = this.moves().length;
+					const timeOuts = Array(moveCount).fill(0).map((_, i) => (i + 1) * this.fixedTime());
+
+					this.scheduleReplay(timeOuts, moveCount, () => {
+						resolve();
+						this.replayResolve = null;
+					});
+				}
+			}
 		});
 	}
 
@@ -597,6 +661,100 @@ export class NgxPgnViewerComponent {
 			this.replayResolve();
 			this.replayResolve = null;
 		}
+	}
+
+	private calculateReplayTimeoutsChessops(pgn: string): number[] {
+		const games = parsePgn(pgn);
+		if (games.length === 0) throw new Error("No games found by chessops");
+
+		const game = games[0];
+		const timeOuts: number[] = [];
+		this.clockHistory = [];
+
+		// Try to parse time control from headers
+		let timeControlSeconds = 0;
+		if (game.headers.has('TimeControl')) {
+			const tc = game.headers.get('TimeControl')?.split('+');
+			if (tc) timeControlSeconds = parseInt(tc[0], 10);
+		}
+
+		let whiteTime = timeControlSeconds;
+		let blackTime = timeControlSeconds;
+		this.clockHistory.push({ white: whiteTime, black: blackTime });
+
+		const thinkTimes: number[] = [];
+		let node = game.moves;
+		let isWhite = true;
+
+		while (node.children.length > 0) {
+			const child = node.children[0]; // Main line
+			let moveTime = 0;
+			let hasClockComment = false;
+
+			// Check comments for clock
+			if (child.data && child.data.comments) {
+				for (const comment of child.data.comments) {
+					const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
+					if (clkMatch) {
+						hasClockComment = true;
+						let h = 0, m = 0, s = 0;
+						if (clkMatch[1]) h = parseInt(clkMatch[1], 10);
+						m = parseInt(clkMatch[2], 10);
+						s = parseInt(clkMatch[3], 10);
+
+						const timeInSeconds = h * 3600 + m * 60 + s;
+
+						if (isWhite) {
+							moveTime = Math.max(0.1, whiteTime - timeInSeconds);
+							whiteTime = timeInSeconds;
+						} else {
+							moveTime = Math.max(0.1, blackTime - timeInSeconds);
+							blackTime = timeInSeconds;
+						}
+						break; // Found clock, stop looking
+					}
+				}
+			}
+
+			if (!hasClockComment) {
+				moveTime = this.fixedTime();
+			}
+
+			thinkTimes.push(moveTime);
+			this.clockHistory.push({ white: whiteTime, black: blackTime });
+
+			node = child;
+			isWhite = !isWhite;
+		}
+
+		// Calculate timeouts based on mode (reuse logic if possible, or duplicate for now)
+		if (this.replayMode() === "fixed") {
+			return thinkTimes.map((_, i) => (i + 1) * this.fixedTime());
+		}
+
+		if (this.replayMode() === "realtime") {
+			let totalTime = 0;
+			for (let i = 0; i < thinkTimes.length; i++) {
+				totalTime += thinkTimes[i];
+				timeOuts.push(totalTime);
+			}
+			return timeOuts;
+		}
+
+		if (this.replayMode() === "proportional") {
+			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
+			const targetDurationSeconds = this.proportionalDuration() * 60;
+			const scaleFactor = totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
+
+			let currentScaledTime = 0;
+			for (let i = 0; i < thinkTimes.length; i++) {
+				currentScaledTime += thinkTimes[i] * scaleFactor;
+				timeOuts.push(currentScaledTime);
+			}
+			return timeOuts;
+		}
+
+		return thinkTimes.map((_, i) => (i + 1) * 1);
 	}
 
 	// Store clock history for replay: index 0 is start, index 1 is after move 1, etc.
@@ -635,7 +793,8 @@ export class NgxPgnViewerComponent {
 
 		// Re-simulate game to extract clocks correctly
 		const tempChess = new Chess();
-		tempChess.loadPgn(this.games()[this.currentGameIndex()]);
+		// Use the raw PGN input to ensure we have comments
+		tempChess.loadPgn(this.pgnInput());
 		const moves = tempChess.history({ verbose: true });
 		const moveComments = tempChess.getComments();
 
@@ -652,29 +811,29 @@ export class NgxPgnViewerComponent {
 		for (let i = 0; i < moves.length; i++) {
 			const move = moves[i];
 			const isWhite = move.color === 'w';
+			// chess.js attaches comments to the position AFTER the move
 			const comment = fenToComment.get(move.after);
 
 			let moveTime = 0;
 
 			if (comment) {
 				// Try to parse %clk
-				const clkMatch = comment.match(/%clk\s+(\d+):(\d+):(\d+)/) || comment.match(/%clk\s+(\d+):(\d+)/);
+				// Matches: [%clk 0:03:02] or [%clk 03:02] or [%clk 3:02]
+				const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
 				if (clkMatch) {
 					hasClockComments = true;
 					let h = 0, m = 0, s = 0;
-					if (clkMatch.length === 4) {
+
+					if (clkMatch[1]) {
 						h = parseInt(clkMatch[1], 10);
-						m = parseInt(clkMatch[2], 10);
-						s = parseInt(clkMatch[3], 10);
-					} else {
-						m = parseInt(clkMatch[1], 10);
-						s = parseInt(clkMatch[2], 10);
 					}
+					m = parseInt(clkMatch[2], 10);
+					s = parseInt(clkMatch[3], 10);
 
 					const timeInSeconds = h * 3600 + m * 60 + s;
 
 					if (isWhite) {
-						moveTime = Math.max(0.1, whiteTime - timeInSeconds); // Ensure at least small delay
+						moveTime = Math.max(0.1, whiteTime - timeInSeconds);
 						whiteTime = timeInSeconds;
 					} else {
 						moveTime = Math.max(0.1, blackTime - timeInSeconds);

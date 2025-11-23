@@ -1,11 +1,13 @@
 /// <reference lib="webworker" />
 
 import { Chess } from 'chess.js';
+import { parsePgn } from 'chessops/pgn';
 
 // Define types for messages
 export type WorkerMessage =
     | { type: 'load'; payload: string; id: number }
-    | { type: 'filter'; payload: FilterCriteria; id: number };
+    | { type: 'filter'; payload: FilterCriteria; id: number }
+    | { type: 'loadGame'; payload: number; id: number };
 
 export interface FilterCriteria {
     white: string;
@@ -17,8 +19,9 @@ export interface FilterCriteria {
 }
 
 export type WorkerResponse =
-    | { type: 'load'; payload: { count: number; metadata: GameMetadata[]; games: string[] }; id: number }
+    | { type: 'load'; payload: { count: number; metadata: GameMetadata[] }; id: number }
     | { type: 'filter'; payload: number[]; id: number }
+    | { type: 'loadGame'; payload: { moves: string[]; pgn: string; error?: string }; id: number }
     | { type: 'error'; payload: string; id: number };
 
 export interface GameMetadata {
@@ -42,6 +45,9 @@ addEventListener('message', ({ data }: { data: WorkerMessage }) => {
             case 'filter':
                 handleFilter(data.payload, data.id);
                 break;
+            case 'loadGame':
+                handleLoadGame(data.payload, data.id);
+                break;
         }
     } catch (e) {
         postMessage({ type: 'error', payload: String(e), id: data.id });
@@ -55,7 +61,14 @@ function handleLoad(pgn: string, id: number) {
     gameMovesCache.clear();
 
     // Split PGN
-    games = splitPgn(pgn);
+    const allGames = splitPgn(pgn);
+
+    // Filter out non-standard variants (keep Standard or if Variant tag is missing)
+    games = allGames.filter(g => {
+        const variantMatch = g.match(/\[Variant\s+"([^"]+)"\]/);
+        if (!variantMatch) return true; // Default is Standard
+        return variantMatch[1] === 'Standard';
+    });
 
     // Extract metadata
     gameMetadata = games.map((game, index) => extractGameInfo(game, index));
@@ -65,8 +78,7 @@ function handleLoad(pgn: string, id: number) {
         id,
         payload: {
             count: games.length,
-            metadata: gameMetadata,
-            games: games
+            metadata: gameMetadata
         }
     });
 }
@@ -103,9 +115,6 @@ function handleFilter(criteria: FilterCriteria, id: number) {
             const pgn = games[i];
 
             // 1. Fast String Pre-check
-            // If the first move isn't even in the string, skip immediately.
-            // We check for "1. e4" or "1.e4" or just "e4" depending on format,
-            // but checking the raw move string is a good heuristic.
             if (!pgn.includes(targetMoves[0])) {
                 continue;
             }
@@ -117,7 +126,7 @@ function handleFilter(criteria: FilterCriteria, id: number) {
                 gameMovesCache.set(i, gameMoves);
             }
 
-            if (!gameMoves) continue; // Should not happen, but satisfies linter
+            if (!gameMoves) continue;
 
             let moveMatch = true;
             if (targetMoves.length > gameMoves.length) {
@@ -143,10 +152,105 @@ function handleFilter(criteria: FilterCriteria, id: number) {
     });
 }
 
+function handleLoadGame(index: number, id: number) {
+    if (index < 0 || index >= games.length) {
+        throw new Error('Game index out of bounds');
+    }
+
+    const pgn = games[index];
+    let moves: string[] = [];
+    let errorMsg: string | undefined;
+    let cleanPgn = pgn;
+
+    try {
+        const tempChess = new Chess();
+
+        // Clean up PGN: 
+        // 1. Remove ?! ? ! attached to moves (chess.js might not like them)
+        cleanPgn = cleanPgn.replace(/([a-h1-8NBRQK])([?!]+)/g, '$1');
+
+        // 2. Merge adjacent comments } { to } { which chess.js might handle better, 
+        //    OR actually merge them into one block { ... ... } to avoid parser issues with multiple blocks.
+        //    Replacing "} {" with " " effectively merges them.
+        cleanPgn = cleanPgn.replace(/\}\s*\{/g, ' ');
+
+        // 3. Normalize headers: ensure each header is on its own line
+        cleanPgn = cleanPgn.replace(/\]\s*\[/g, ']\n[');
+
+        // 4. Ensure blank line after the last header and before moves or result
+        //    Look for ] followed by something that looks like a move (digit or piece) or result
+        cleanPgn = cleanPgn.replace(/\]\s*(\d+\.|[a-hNBRQK]|\*|1-0|0-1|1\/2-1\/2)/g, ']\n\n$1');
+
+        // 5. Remove "1..." style move numbering (Black's move indicators)
+        cleanPgn = cleanPgn.replace(/\d+\.\.\./g, ' ');
+
+        // 6. Remove numeric annotation glyphs like $1, $2... (standard PGN but chess.js might fail)
+        cleanPgn = cleanPgn.replace(/\$\d+/g, '');
+
+        try {
+            tempChess.loadPgn(cleanPgn);
+            moves = tempChess.history();
+        } catch (e1) {
+            console.warn('Strict parsing failed, trying chessops fallback', e1);
+
+            try {
+                // Fallback: Try chessops
+                const games = parsePgn(cleanPgn);
+                if (games.length > 0) {
+                    const game = games[0];
+                    moves = [];
+                    let node = game.moves;
+                    while (node.children.length > 0) {
+                        const child = node.children[0]; // Main line
+                        if (child.data && child.data.san) {
+                            moves.push(child.data.san);
+                        }
+                        node = child;
+                    }
+                    // If we successfully parsed moves, clear the error
+                    errorMsg = undefined;
+                } else {
+                    throw new Error('Chessops found no games');
+                }
+            } catch (e2) {
+                console.warn('Chessops parsing failed, retrying with stripped comments', e2);
+
+                // Fallback 2: Strip all comments and recursive variations
+                // Remove { ... } comments
+                cleanPgn = cleanPgn.replace(/\{[^}]*\}/g, '');
+                // Remove ( ... ) variations
+                cleanPgn = cleanPgn.replace(/\([^)]*\)/g, '');
+                // Clean up double spaces created by removals
+                cleanPgn = cleanPgn.replace(/\s+/g, ' ');
+
+                tempChess.loadPgn(cleanPgn);
+                moves = tempChess.history();
+                errorMsg = undefined;
+            }
+        }
+
+        // We can update the cache with the high-quality moves if we want, 
+        // but for now let's just return them.
+        gameMovesCache.set(index, moves);
+    } catch (e) {
+        console.error('Error parsing game moves', e);
+        errorMsg = String(e);
+        moves = [];
+    }
+
+    postMessage({
+        type: 'loadGame',
+        id,
+        payload: { moves, pgn: cleanPgn, error: errorMsg }
+    });
+}
+
 // --- Helpers ---
 
 function splitPgn(pgn: string): string[] {
-    const parts = pgn.split(/(?=(?:^|\r?\n)\[Event\s+")/m);
+    // Split by [Event " tag, allowing for it to be anywhere (not just start of line)
+    // This handles cases where games are concatenated on the same line.
+    const parts = pgn.split(/(?=\[Event\s+")/);
     const result: string[] = [];
     for (const part of parts) {
         const trimmed = part.trim();

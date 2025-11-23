@@ -46,14 +46,14 @@
             </div>
 
             <!-- Game List -->
-            @if (games().length > 0) {
+            @if (gamesMetadata().length > 0) {
             <div class="game-list-header">
                 <span>Games: {{ filteredGameInfos().length }}</span>
                 <div class="game-nav-buttons">
                     <button (click)="prevGame()" [disabled]="currentGameIndex() === 0" class="icon-btn"
                         aria-label="Previous Game">◀</button>
-                    <button (click)="nextGame()" [disabled]="currentGameIndex() === games().length - 1" class="icon-btn"
-                        aria-label="Next Game">▶</button>
+                    <button (click)="nextGame()" [disabled]="currentGameIndex() === gamesMetadata().length - 1"
+                        class="icon-btn" aria-label="Next Game">▶</button>
                 </div>
             </div>
 
@@ -196,7 +196,10 @@
             <div class="pgn-input-section">
                 <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="3" placeholder="Paste PGN..."
                     aria-label="PGN Input"></textarea>
-                <button (click)="loadFromClipboard()" class="small-btn">Load from Clipboard</button>
+                <div class="clipboard-buttons">
+                    <button (click)="loadFromClipboard()" class="small-btn">Load from Clipboard</button>
+                    <button (click)="copyToClipboard()" class="small-btn">Copy to Clipboard</button>
+                </div>
             </div>
 
             <!-- Load Section -->
