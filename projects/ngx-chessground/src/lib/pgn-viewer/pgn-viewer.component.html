@@ -216,6 +216,11 @@
                         <input type="file" accept=".pgn" (change)="onPgnFileSelected($event)" [disabled]="isLoading()">
                     </label>
                 </div>
+                <div class="url-input-section">
+                    <input type="text" [value]="urlInput()" (input)="onUrlInputChange($event)" 
+                           placeholder="Enter PGN URL (supports .zst)" class="url-input" aria-label="PGN URL">
+                    <button (click)="loadFromUrl()" [disabled]="isLoading() || !urlInput()" class="action-btn">Load URL</button>
+                </div>
                 @if (isLoading()) {
                 <div class="loading-indicator" role="status" aria-live="polite">⏳ Loading...</div>
                 }

@@ -12,6 +12,7 @@ import { Chessground } from "chessground";
 import { Api } from "chessground/api";
 import { parsePgn } from 'chessops/pgn';
 import * as JSZip from "jszip";
+import * as fzstd from "fzstd";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 
 interface GameMetadata {
@@ -112,6 +113,7 @@ export class NgxPgnViewerComponent {
 
 	// UI State
 	pgnInput = signal<string>("");
+	urlInput = signal<string>("/lichess/broadcast/lichess_db_broadcast_2022-01.pgn.zst");
 
 	// Internal Objects
 	private chess = new Chess();
@@ -324,6 +326,49 @@ export class NgxPgnViewerComponent {
 	onPgnInputChange(event: Event) {
 		const value = (event.target as HTMLTextAreaElement).value;
 		this.pgnInput.set(value);
+	}
+
+	onUrlInputChange(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.urlInput.set(value);
+	}
+
+	async loadFromUrl() {
+		const url = this.urlInput();
+		if (!url) return;
+
+		this.isLoading.set(true);
+		try {
+			const response = await fetch(url);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const buffer = await response.arrayBuffer();
+			let content: string;
+
+			// Check for ZST magic bytes (0xFD2FB528) or extension
+			const isZst = url.toLowerCase().endsWith('.zst');
+
+			if (isZst) {
+				const decompressed = fzstd.decompress(new Uint8Array(buffer));
+				content = new TextDecoder().decode(decompressed);
+			} else {
+				content = new TextDecoder().decode(buffer);
+			}
+
+			// Use setTimeout to ensure change detection runs properly
+			setTimeout(() => {
+				this.loadPgnString(content);
+				this.loadGame(0);
+				this.isLoading.set(false);
+			}, 0);
+
+		} catch (e) {
+			console.error("Error loading from URL:", e);
+			alert(`Error loading from URL: ${e}`);
+			this.isLoading.set(false);
+		}
 	}
 
 	async onPgnZipSelected(event: Event) {

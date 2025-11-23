@@ -112,7 +112,8 @@
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
 					"options": {
-						"buildTarget": "ngx-chessground-example:build"
+						"buildTarget": "ngx-chessground-example:build",
+						"proxyConfig": "proxy.conf.json"
 					},
 					"configurations": {
 						"production": {

@@ -1,0 +1,11 @@
+{
+    "/lichess": {
+        "target": "https://database.lichess.org",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/lichess": ""
+        },
+        "logLevel": "debug"
+    }
+}

@@ -505,3 +505,18 @@ button {
 	gap: 0.5rem;
 	margin-top: 0.25rem;
 }
+
+.url-input-section {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.url-input {
+	flex: 1;
+	padding: 0.25rem;
+	border: 1px solid #ced4da;
+	border-radius: 3px;
+	font-size: 0.85rem;
+	min-width: 0; /* Allow shrinking */
+}
