@@ -522,15 +522,15 @@ button {
 	/* Allow shrinking */
 }
 
-/* TWIC Date Picker */
-.twic-date-picker {
+/* Lichess Date Picker */
+.lichess-date-picker {
 	display: flex;
 	flex-direction: column;
 	gap: 0.25rem;
 	margin-bottom: 0.5rem;
 }
 
-.twic-date-picker label {
+.lichess-date-picker label {
 	font-size: 0.85rem;
 	font-weight: 600;
 	color: #495057;
