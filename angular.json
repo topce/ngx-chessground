@@ -68,6 +68,11 @@
 								"glob": "**/*",
 								"input": "./projects/ngx-chessground/assets",
 								"output": "/assets/"
+							},
+							{
+								"glob": "**/*",
+								"input": "./public",
+								"output": "/"
 							}
 						],
 						"styles": [
@@ -112,8 +117,7 @@
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
 					"options": {
-						"buildTarget": "ngx-chessground-example:build",
-						"proxyConfig": "proxy.conf.json"
+						"buildTarget": "ngx-chessground-example:build"
 					},
 					"configurations": {
 						"production": {

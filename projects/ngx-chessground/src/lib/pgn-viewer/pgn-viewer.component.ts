@@ -113,7 +113,7 @@ export class NgxPgnViewerComponent {
 
 	// UI State
 	pgnInput = signal<string>("");
-	urlInput = signal<string>("/lichess/broadcast/lichess_db_broadcast_2022-01.pgn.zst");
+	urlInput = signal<string>("");
 
 	// Lichess Database Date Picker State
 	lichessYear = signal<number>(0);
@@ -154,8 +154,14 @@ export class NgxPgnViewerComponent {
 		// Initialize Lichess database date picker with previous month
 		const now = new Date();
 		const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-		this.lichessYear.set(prevMonth.getFullYear());
-		this.lichessMonth.set(prevMonth.getMonth() + 1); // getMonth() is 0-indexed, we want 1-indexed
+		const year = prevMonth.getFullYear();
+		const month = prevMonth.getMonth() + 1; // getMonth() is 0-indexed, we want 1-indexed
+		this.lichessYear.set(year);
+		this.lichessMonth.set(month);
+
+		// Set default URL to previous month's file
+		const monthStr = month.toString().padStart(2, '0');
+		this.urlInput.set(`/lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
 
 		// Effect to load initial PGN if provided
 		effect(() => {

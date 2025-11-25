@@ -232,6 +232,12 @@
                         </select>
                         <button (click)="loadFromLichess()" [disabled]="isLoading()" class="action-btn">Load</button>
                     </div>
+                    <div class="license-info">
+                        <small>📜 Licensed under <a
+                                href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal" target="_blank"
+                                rel="noopener noreferrer">CC0</a> by <a href="https://database.lichess.org"
+                                target="_blank" rel="noopener noreferrer">Lichess</a></small>
+                    </div>
                 </div>
                 <div class="url-input-section">
                     <input type="text" [value]="urlInput()" (input)="onUrlInputChange($event)"

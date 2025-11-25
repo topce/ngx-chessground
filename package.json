@@ -20,7 +20,8 @@
     "compodoc": "npx compodoc -p projects/ngx-chessground/tsconfig.doc.json -s -r 9090 -o",
     "deploy": "ng deploy --base-href=/ngx-chessground/",
     "update:deps": "ncu -u && ncu -u --cwd projects/ngx-chessground && npm install",
-    "publish:lib": "npm run build:lib:prod && cd dist/ngx-chessground && npm publish"
+    "publish:lib": "npm run build:lib:prod && cd dist/ngx-chessground && npm publish",
+    "download-lichess": "node scripts/download-lichess.js"
   },
   "dependencies": {
     "@angular/animations": "^21.0.0",

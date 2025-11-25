@@ -518,7 +518,8 @@ button {
 	border: 1px solid #ced4da;
 	border-radius: 3px;
 	font-size: 0.85rem;
-	min-width: 0; /* Allow shrinking */
+	min-width: 0;
+	/* Allow shrinking */
 }
 
 /* TWIC Date Picker */
@@ -560,4 +561,26 @@ button {
 
 .date-selectors button {
 	flex: 1;
+}
+
+/* License Info */
+.license-info {
+	margin-top: 0.5rem;
+	padding-top: 0.25rem;
+	border-top: 1px solid #eee;
+	text-align: center;
+}
+
+.license-info small {
+	color: #6c757d;
+	font-size: 0.75rem;
+}
+
+.license-info a {
+	color: #007bff;
+	text-decoration: none;
+}
+
+.license-info a:hover {
+	text-decoration: underline;
 }
