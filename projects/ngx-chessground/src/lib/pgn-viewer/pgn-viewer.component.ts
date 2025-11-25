@@ -11,8 +11,8 @@ import { Chess, Move } from "chess.js";
 import { Chessground } from "chessground";
 import { Api } from "chessground/api";
 import { parsePgn } from 'chessops/pgn';
-import * as JSZip from "jszip";
-import * as fzstd from "fzstd";
+import { loadAsync as loadZipAsync } from "jszip";
+import { decompress as decompressZst } from "fzstd";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 
 interface GameMetadata {
@@ -351,7 +351,7 @@ export class NgxPgnViewerComponent {
 			const isZst = url.toLowerCase().endsWith('.zst');
 
 			if (isZst) {
-				const decompressed = fzstd.decompress(new Uint8Array(buffer));
+				const decompressed = decompressZst(new Uint8Array(buffer));
 				content = new TextDecoder().decode(decompressed);
 			} else {
 				content = new TextDecoder().decode(buffer);
@@ -379,7 +379,7 @@ export class NgxPgnViewerComponent {
 		this.isLoading.set(true);
 
 		try {
-			const zip = await JSZip.loadAsync(file);
+			const zip = await loadZipAsync(file);
 			const pgnFile = Object.values(zip.files).find((f) =>
 				f.name.endsWith(".pgn"),
 			);
