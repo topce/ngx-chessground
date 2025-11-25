@@ -1,4 +1,4 @@
-import { CommonModule, PlatformLocation } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -143,7 +143,7 @@ export class NgxPgnViewerComponent {
 	});
 
 
-	constructor(private platformLocation: PlatformLocation) {
+	constructor() {
 		if (typeof Worker !== 'undefined') {
 			this.worker = new Worker(new URL('./pgn-processor.worker', import.meta.url));
 			this.worker.onmessage = ({ data }) => this.handleWorkerMessage(data);
@@ -161,9 +161,8 @@ export class NgxPgnViewerComponent {
 
 		// Set default URL to previous month's file
 		const monthStr = month.toString().padStart(2, '0');
-		const baseHref = this.platformLocation.getBaseHrefFromDOM();
-		const cleanBaseHref = baseHref === '/' ? '' : baseHref.replace(/\/$/, '');
-		this.urlInput.set(`${cleanBaseHref}/lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
+		// Use relative path so it respects the base href
+		this.urlInput.set(`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
 
 		// Effect to load initial PGN if provided
 		effect(() => {
@@ -412,11 +411,8 @@ export class NgxPgnViewerComponent {
 
 		// Format: lichess_db_broadcast_YYYY-MM.pgn.zst
 		const monthStr = month.toString().padStart(2, '0');
-		const baseHref = this.platformLocation.getBaseHrefFromDOM();
-		// Remove trailing slash from baseHref if present to avoid double slashes, 
-		// but ensure we handle the case where baseHref is just '/'
-		const cleanBaseHref = baseHref === '/' ? '' : baseHref.replace(/\/$/, '');
-		const url = `${cleanBaseHref}/lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`;
+		// Use relative path so it respects the base href (e.g. /ngx-chessground/ on GitHub Pages)
+		const url = `lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`;
 
 		this.urlInput.set(url);
 		this.loadFromUrl();
