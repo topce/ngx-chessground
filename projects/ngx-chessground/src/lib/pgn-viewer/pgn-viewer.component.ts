@@ -5,6 +5,7 @@ import {
 	computed,
 	effect,
 	input,
+	model,
 	signal,
 } from "@angular/core";
 import { Chess, Move } from "chess.js";
@@ -115,9 +116,9 @@ export class NgxPgnViewerComponent {
 	pgnInput = signal<string>("");
 	urlInput = signal<string>("");
 
-	// Lichess Database Date Picker State
-	lichessYear = signal<number>(0);
-	lichessMonth = signal<number>(0);
+	// Lichess Database Date Picker State - using model for two-way binding
+	lichessYear = model<number>(new Date().getFullYear());
+	lichessMonth = model<number>(1);
 
 	// Internal Objects
 	private chess = new Chess();
@@ -142,7 +143,6 @@ export class NgxPgnViewerComponent {
 		};
 	});
 
-
 	constructor() {
 		if (typeof Worker !== 'undefined') {
 			this.worker = new Worker(new URL('./pgn-processor.worker', import.meta.url));
@@ -156,13 +156,21 @@ export class NgxPgnViewerComponent {
 		const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 		const year = prevMonth.getFullYear();
 		const month = prevMonth.getMonth() + 1; // getMonth() is 0-indexed, we want 1-indexed
-		this.lichessYear.set(year);
-		this.lichessMonth.set(month);
 
-		// Set default URL to previous month's file
-		const monthStr = month.toString().padStart(2, '0');
-		// Use relative path so it respects the base href
-		this.urlInput.set(`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
+		// Set initial values using update
+		this.lichessYear.update(() => year);
+		this.lichessMonth.update(() => month);
+
+		// Effect to update URL when date selection changes
+		effect(() => {
+			const year = this.lichessYear();
+			const month = this.lichessMonth();
+			if (year && month) {
+				const monthStr = month.toString().padStart(2, '0');
+				// Use relative path so it respects the base href
+				this.urlInput.set(`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
+			}
+		}, { allowSignalWrites: true });
 
 		// Effect to load initial PGN if provided
 		effect(() => {

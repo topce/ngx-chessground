@@ -219,15 +219,15 @@
                 <div class="lichess-date-picker">
                     <label>Lichess Database:</label>
                     <div class="date-selectors">
-                        <select [value]="lichessYear()" (change)="onLichessYearChange($event)" aria-label="Select Year">
+                        <select (change)="onLichessYearChange($event)" aria-label="Select Year">
                             @for (year of getLichessYears(); track year) {
-                            <option [value]="year">{{ year }}</option>
+                            <option [value]="year" [selected]="year === lichessYear()">{{ year }}</option>
                             }
                         </select>
-                        <select [value]="lichessMonth()" (change)="onLichessMonthChange($event)"
-                            aria-label="Select Month">
+                        <select (change)="onLichessMonthChange($event)" aria-label="Select Month">
                             @for (month of getLichessMonths(); track month) {
-                            <option [value]="month">{{ month | number: '2.0-0' }}</option>
+                            <option [value]="month" [selected]="month === lichessMonth()">{{ month | number: '2.0-0' }}
+                            </option>
                             }
                         </select>
                         <button (click)="loadFromLichess()" [disabled]="isLoading()" class="action-btn">Load</button>
