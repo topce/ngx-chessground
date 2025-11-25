@@ -216,10 +216,28 @@
                         <input type="file" accept=".pgn" (change)="onPgnFileSelected($event)" [disabled]="isLoading()">
                     </label>
                 </div>
+                <div class="twic-date-picker">
+                    <label>Lichess Database:</label>
+                    <div class="date-selectors">
+                        <select [value]="lichessYear()" (change)="onLichessYearChange($event)" aria-label="Select Year">
+                            @for (year of getLichessYears(); track year) {
+                            <option [value]="year">{{ year }}</option>
+                            }
+                        </select>
+                        <select [value]="lichessMonth()" (change)="onLichessMonthChange($event)"
+                            aria-label="Select Month">
+                            @for (month of getLichessMonths(); track month) {
+                            <option [value]="month">{{ month | number: '2.0-0' }}</option>
+                            }
+                        </select>
+                        <button (click)="loadFromLichess()" [disabled]="isLoading()" class="action-btn">Load</button>
+                    </div>
+                </div>
                 <div class="url-input-section">
-                    <input type="text" [value]="urlInput()" (input)="onUrlInputChange($event)" 
-                           placeholder="Enter PGN URL (supports .zst)" class="url-input" aria-label="PGN URL">
-                    <button (click)="loadFromUrl()" [disabled]="isLoading() || !urlInput()" class="action-btn">Load URL</button>
+                    <input type="text" [value]="urlInput()" (input)="onUrlInputChange($event)"
+                        placeholder="Enter PGN URL (supports .zst)" class="url-input" aria-label="PGN URL">
+                    <button (click)="loadFromUrl()" [disabled]="isLoading() || !urlInput()" class="action-btn">Load
+                        URL</button>
                 </div>
                 @if (isLoading()) {
                 <div class="loading-indicator" role="status" aria-live="polite">⏳ Loading...</div>

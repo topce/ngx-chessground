@@ -520,3 +520,44 @@ button {
 	font-size: 0.85rem;
 	min-width: 0; /* Allow shrinking */
 }
+
+/* TWIC Date Picker */
+.twic-date-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	margin-bottom: 0.5rem;
+}
+
+.twic-date-picker label {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #495057;
+}
+
+.date-selectors {
+	display: flex;
+	gap: 0.25rem;
+	align-items: center;
+}
+
+.date-selectors select {
+	padding: 0.25rem;
+	border: 1px solid #ced4da;
+	border-radius: 3px;
+	font-size: 0.85rem;
+	background: white;
+	cursor: pointer;
+}
+
+.date-selectors select:first-of-type {
+	flex: 1;
+}
+
+.date-selectors select:nth-of-type(2) {
+	width: 60px;
+}
+
+.date-selectors button {
+	flex: 1;
+}

@@ -115,6 +115,10 @@ export class NgxPgnViewerComponent {
 	pgnInput = signal<string>("");
 	urlInput = signal<string>("/lichess/broadcast/lichess_db_broadcast_2022-01.pgn.zst");
 
+	// Lichess Database Date Picker State
+	lichessYear = signal<number>(0);
+	lichessMonth = signal<number>(0);
+
 	// Internal Objects
 	private chess = new Chess();
 	// biome-ignore lint/suspicious/noExplicitAny: Timeout type differs between envs
@@ -146,6 +150,12 @@ export class NgxPgnViewerComponent {
 		} else {
 			console.error('Web Workers are not supported in this environment.');
 		}
+
+		// Initialize Lichess database date picker with previous month
+		const now = new Date();
+		const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+		this.lichessYear.set(prevMonth.getFullYear());
+		this.lichessMonth.set(prevMonth.getMonth() + 1); // getMonth() is 0-indexed, we want 1-indexed
 
 		// Effect to load initial PGN if provided
 		effect(() => {
@@ -331,6 +341,73 @@ export class NgxPgnViewerComponent {
 	onUrlInputChange(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.urlInput.set(value);
+	}
+
+	// Lichess Database Date Picker Methods
+	getLichessYears(): number[] {
+		const currentYear = new Date().getFullYear();
+		const years: number[] = [];
+		for (let year = 2020; year <= currentYear; year++) {
+			years.push(year);
+		}
+		return years;
+	}
+
+	getLichessMonths(): number[] {
+		const selectedYear = this.lichessYear();
+		const now = new Date();
+		const currentYear = now.getFullYear();
+		const currentMonth = now.getMonth(); // 0-indexed
+
+		if (selectedYear < currentYear) {
+			// For past years, all 12 months are available
+			return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+		} else if (selectedYear === currentYear) {
+			// For current year, only up to current month - 1
+			const maxMonth = currentMonth; // currentMonth is already 0-indexed, so this gives us current month - 1 in 1-indexed
+			const months: number[] = [];
+			for (let m = 1; m <= maxMonth; m++) {
+				months.push(m);
+			}
+			return months;
+		} else {
+			return [];
+		}
+	}
+
+	onLichessYearChange(event: Event) {
+		const value = (event.target as HTMLSelectElement).value;
+		const year = parseInt(value, 10);
+		this.lichessYear.set(year);
+
+		// Adjust month if current selection is invalid for new year
+		const availableMonths = this.getLichessMonths();
+		if (!availableMonths.includes(this.lichessMonth())) {
+			this.lichessMonth.set(availableMonths[availableMonths.length - 1] || 1);
+		}
+	}
+
+	onLichessMonthChange(event: Event) {
+		const value = (event.target as HTMLSelectElement).value;
+		const month = parseInt(value, 10);
+		this.lichessMonth.set(month);
+	}
+
+	loadFromLichess() {
+		const year = this.lichessYear();
+		const month = this.lichessMonth();
+
+		if (!year || !month) {
+			alert('Please select a valid year and month');
+			return;
+		}
+
+		// Format: lichess_db_broadcast_YYYY-MM.pgn.zst
+		const monthStr = month.toString().padStart(2, '0');
+		const url = `/lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`;
+
+		this.urlInput.set(url);
+		this.loadFromUrl();
 	}
 
 	async loadFromUrl() {
