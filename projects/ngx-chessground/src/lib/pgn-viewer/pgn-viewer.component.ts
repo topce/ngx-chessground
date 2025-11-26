@@ -15,6 +15,7 @@ import { parsePgn } from 'chessops/pgn';
 import { loadAsync as loadZipAsync } from "jszip";
 import { decompress as decompressZst } from "fzstd";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
+import { WorkerResponse } from "./pgn-processor.worker";
 
 interface GameMetadata {
 	number: number;
@@ -53,6 +54,10 @@ export class NgxPgnViewerComponent {
 	filterResult = signal<string>("");
 	filterMoves = signal<boolean>(false);
 	ignoreColor = signal<boolean>(false);
+	filterWhiteRating = signal<string>("2000");
+	filterBlackRating = signal<string>("2000");
+	filterWhiteRatingMax = signal<string>("3000");
+	filterBlackRatingMax = signal<string>("3000");
 
 	// Autocomplete Signals
 	uniqueWhitePlayers = signal<Set<string>>(new Set());
@@ -61,7 +66,7 @@ export class NgxPgnViewerComponent {
 	// Filtering State
 	filteredGamesIndices = signal<number[]>([]);
 	isFiltering = signal<boolean>(false);
-	private filterTimeout: any = null;
+	// private filterTimeout: any = null;
 	private currentFilterId = 0;
 	// private gameMovesCache = new Map<number, string[]>(); // Moved to worker
 	private autoSelectOnFinish = false;
@@ -122,8 +127,7 @@ export class NgxPgnViewerComponent {
 
 	// Internal Objects
 	private chess = new Chess();
-	// biome-ignore lint/suspicious/noExplicitAny: Timeout type differs between envs
-	private replayTimeouts: any[] = [];
+	private replayTimeouts: ReturnType<typeof setTimeout>[] = [];
 	private replayResolve: (() => void) | null = null;
 	private isReplayingSequence = false;
 
@@ -183,7 +187,7 @@ export class NgxPgnViewerComponent {
 		});
 	}
 
-	private handleWorkerMessage(data: any) {
+	private handleWorkerMessage(data: WorkerResponse) {
 		const { type, payload, id } = data;
 		if (type === 'load') {
 			this.gamesMetadata.set(payload.metadata);
@@ -252,11 +256,15 @@ export class NgxPgnViewerComponent {
 		const fResult = this.filterResult();
 		const fMoves = this.filterMoves();
 		const fIgnoreColor = this.ignoreColor();
+		const fWhiteRating = parseInt(this.filterWhiteRating(), 10) || 0;
+		const fBlackRating = parseInt(this.filterBlackRating(), 10) || 0;
+		const fWhiteRatingMax = parseInt(this.filterWhiteRatingMax(), 10) || 0;
+		const fBlackRatingMax = parseInt(this.filterBlackRatingMax(), 10) || 0;
 		const currentMoves = this.moves().slice(0, this.currentMoveIndex() + 1);
 		this.activeFilterMoves = currentMoves;
 
 		this.autoSelectOnFinish = true;
-		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, currentMoves);
+		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, fWhiteRating, fBlackRating, fWhiteRatingMax, fBlackRatingMax, currentMoves);
 	}
 
 	clearFilters() {
@@ -265,6 +273,10 @@ export class NgxPgnViewerComponent {
 		this.filterResult.set("");
 		this.filterMoves.set(false);
 		this.ignoreColor.set(false);
+		this.filterWhiteRating.set("2000");
+		this.filterBlackRating.set("2000");
+		this.filterWhiteRatingMax.set("3000");
+		this.filterBlackRatingMax.set("3000");
 		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
 		this.applyFilter();
 	}
@@ -277,6 +289,10 @@ export class NgxPgnViewerComponent {
 		fResult: string,
 		fMoves: boolean,
 		fIgnoreColor: boolean,
+		fWhiteRating: number,
+		fBlackRating: number,
+		fWhiteRatingMax: number,
+		fBlackRatingMax: number,
 		targetMoves: string[]
 	) {
 		this.currentFilterId++;
@@ -293,6 +309,10 @@ export class NgxPgnViewerComponent {
 					result: fResult,
 					moves: fMoves,
 					ignoreColor: fIgnoreColor,
+					minWhiteRating: fWhiteRating,
+					minBlackRating: fBlackRating,
+					maxWhiteRating: fWhiteRatingMax,
+					maxBlackRating: fBlackRatingMax,
 					targetMoves: targetMoves
 				}
 			});
@@ -620,6 +640,26 @@ export class NgxPgnViewerComponent {
 		this.ignoreColor.set(checked);
 	}
 
+	updateFilterWhiteRating(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterWhiteRating.set(value);
+	}
+
+	updateFilterBlackRating(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterBlackRating.set(value);
+	}
+
+	updateFilterWhiteRatingMax(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterWhiteRatingMax.set(value);
+	}
+
+	updateFilterBlackRatingMax(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterBlackRatingMax.set(value);
+	}
+
 	next() {
 		const moves = this.moves();
 		const currentIdx = this.currentMoveIndex();
@@ -703,13 +743,13 @@ export class NgxPgnViewerComponent {
 
 			const timeOuts = this.calculateReplayTimeouts(history);
 			this.scheduleReplay(timeOuts, history.length);
-		} catch (e) {
-			console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
+		} catch (_e) {
+			// console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
 			try {
 				const timeOuts = this.calculateReplayTimeoutsChessops(gamePgn);
 				this.scheduleReplay(timeOuts, timeOuts.length);
-			} catch (e2) {
-				console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
+			} catch (_e2) {
+				// console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
 				// Fallback: use moves list length and fixed time
 				const moveCount = this.moves().length;
 				const timeOuts = Array(moveCount).fill(0).map((_, i) => (i + 1) * this.fixedTime());
@@ -766,16 +806,16 @@ export class NgxPgnViewerComponent {
 					resolve();
 					this.replayResolve = null;
 				});
-			} catch (e) {
-				console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
+			} catch (_e) {
+				// console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
 				try {
 					const timeOuts = this.calculateReplayTimeoutsChessops(gamePgn);
 					this.scheduleReplay(timeOuts, timeOuts.length, () => {
 						resolve();
 						this.replayResolve = null;
 					});
-				} catch (e2) {
-					console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
+				} catch (_e2) {
+					// console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
 					// Fallback
 					const moveCount = this.moves().length;
 					const timeOuts = Array(moveCount).fill(0).map((_, i) => (i + 1) * this.fixedTime());
@@ -830,7 +870,7 @@ export class NgxPgnViewerComponent {
 			let hasClockComment = false;
 
 			// Check comments for clock
-			if (child.data && child.data.comments) {
+			if (child.data?.comments) {
 				for (const comment of child.data.comments) {
 					const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
 					if (clkMatch) {
@@ -923,7 +963,7 @@ export class NgxPgnViewerComponent {
 		// Check first few moves for clock comments
 		let hasClockComments = false;
 		for (let i = 0; i < Math.min(history.length, 10); i++) {
-			const comment = comments.find(c => c.fen === history[i].after || c.fen === history[i].before); // Approximate check
+			const _comment = comments.find(c => c.fen === history[i].after || c.fen === history[i].before); // Approximate check
 			// Actually chess.js getComments returns array of objects with fen and comment.
 			// We need to match moves to comments.
 			// A simpler way is to iterate moves and get comments for the position.
@@ -938,7 +978,7 @@ export class NgxPgnViewerComponent {
 
 		// Map FEN to comment for easier lookup
 		const fenToComment = new Map<string, string>();
-		moveComments.forEach(c => fenToComment.set(c.fen, c.comment));
+		moveComments.forEach(c => { fenToComment.set(c.fen, c.comment); });
 
 		// Initial clock state
 		this.clockHistory.push({ white: whiteTime, black: blackTime });
@@ -1055,7 +1095,7 @@ export class NgxPgnViewerComponent {
 	}
 
 	private scheduleReplay(timeOuts: number[], totalMoves: number, onComplete?: () => void) {
-		const totalGameTime = timeOuts[timeOuts.length - 1] || 1;
+		const _totalGameTime = timeOuts[timeOuts.length - 1] || 1;
 
 		if (totalMoves === 0 && onComplete) {
 			onComplete();

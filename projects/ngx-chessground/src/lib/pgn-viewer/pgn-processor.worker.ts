@@ -16,6 +16,10 @@ export interface FilterCriteria {
     moves: boolean;
     ignoreColor: boolean;
     targetMoves: string[];
+    minWhiteRating: number;
+    minBlackRating: number;
+    maxWhiteRating: number;
+    maxBlackRating: number;
 }
 
 export type WorkerResponse =
@@ -29,12 +33,14 @@ export interface GameMetadata {
     white: string;
     black: string;
     result: string;
+    whiteElo: number;
+    blackElo: number;
 }
 
 // State
 let games: string[] = [];
 let gameMetadata: GameMetadata[] = [];
-let gameMovesCache = new Map<number, string[]>();
+const gameMovesCache = new Map<number, string[]>();
 
 addEventListener('message', ({ data }: { data: WorkerMessage }) => {
     try {
@@ -84,7 +90,7 @@ function handleLoad(pgn: string, id: number) {
 }
 
 function handleFilter(criteria: FilterCriteria, id: number) {
-    const { white, black, result, moves, ignoreColor, targetMoves } = criteria;
+    const { white, black, result, moves, ignoreColor, targetMoves, minWhiteRating, minBlackRating, maxWhiteRating, maxBlackRating } = criteria;
     const fWhiteLower = white.toLowerCase();
     const fBlackLower = black.toLowerCase();
     const fResultLower = result.toLowerCase();
@@ -109,6 +115,54 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 
         if (!matchWhite || !matchBlack) continue;
         if (fResultLower && !info.result.toLowerCase().includes(fResultLower)) continue;
+
+        // Rating filtering
+        if (ignoreColor) {
+            // "search games where both players get higher rating that min of inupt of fields"
+            // If one field is empty (0), we should probably ignore it or treat it as 0.
+            // Assuming 0 means "no filter".
+            // If both are provided, we take the minimum of the two inputs.
+            // If only one is provided, we use that one.
+            // If neither, we skip rating check.
+
+            // Min Rating Logic
+            let minThreshold = 0;
+            if (minWhiteRating > 0 && minBlackRating > 0) {
+                minThreshold = Math.min(minWhiteRating, minBlackRating);
+            } else if (minWhiteRating > 0) {
+                minThreshold = minWhiteRating;
+            } else if (minBlackRating > 0) {
+                minThreshold = minBlackRating;
+            }
+
+            if (minThreshold > 0) {
+                if (info.whiteElo < minThreshold || info.blackElo < minThreshold) continue;
+            }
+
+            // Max Rating Logic
+            // Similar logic: if ignoreColor is on, we want to filter games where players are "smaller" than the max.
+            // If we follow the "both players" logic from min:
+            // "search games where both players get lower rating than max of input fields"
+            let maxThreshold = 0;
+            if (maxWhiteRating > 0 && maxBlackRating > 0) {
+                maxThreshold = Math.max(maxWhiteRating, maxBlackRating);
+            } else if (maxWhiteRating > 0) {
+                maxThreshold = maxWhiteRating;
+            } else if (maxBlackRating > 0) {
+                maxThreshold = maxBlackRating;
+            }
+
+            if (maxThreshold > 0) {
+                if (info.whiteElo > maxThreshold || info.blackElo > maxThreshold) continue;
+            }
+
+        } else {
+            if (minWhiteRating > 0 && info.whiteElo < minWhiteRating) continue;
+            if (minBlackRating > 0 && info.blackElo < minBlackRating) continue;
+
+            if (maxWhiteRating > 0 && info.whiteElo > maxWhiteRating) continue;
+            if (maxBlackRating > 0 && info.blackElo > maxBlackRating) continue;
+        }
 
         // Move filtering
         if (moves && targetMoves.length > 0) {
@@ -190,8 +244,8 @@ function handleLoadGame(index: number, id: number) {
         try {
             tempChess.loadPgn(cleanPgn);
             moves = tempChess.history();
-        } catch (e1) {
-            console.warn('Strict parsing failed, trying chessops fallback', e1);
+        } catch (_e1) {
+            // console.warn('Strict parsing failed, trying chessops fallback', e1);
 
             try {
                 // Fallback: Try chessops
@@ -202,7 +256,7 @@ function handleLoadGame(index: number, id: number) {
                     let node = game.moves;
                     while (node.children.length > 0) {
                         const child = node.children[0]; // Main line
-                        if (child.data && child.data.san) {
+                        if (child.data?.san) {
                             moves.push(child.data.san);
                         }
                         node = child;
@@ -212,8 +266,8 @@ function handleLoadGame(index: number, id: number) {
                 } else {
                     throw new Error('Chessops found no games');
                 }
-            } catch (e2) {
-                console.warn('Chessops parsing failed, retrying with stripped comments', e2);
+            } catch (_e2) {
+                // console.warn('Chessops parsing failed, retrying with stripped comments', e2);
 
                 // Fallback 2: Strip all comments and recursive variations
                 // Remove { ... } comments
@@ -286,11 +340,16 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
     else if (result === '0-1') formattedResult = '0-1';
     else if (result === '1/2-1/2') formattedResult = '½-½';
 
+    const whiteElo = whiteEloMatch ? parseInt(whiteEloMatch[1], 10) || 0 : 0;
+    const blackElo = blackEloMatch ? parseInt(blackEloMatch[1], 10) || 0 : 0;
+
     return {
         number: index + 1,
         white,
         black,
-        result: formattedResult
+        result: formattedResult,
+        whiteElo,
+        blackElo
     };
 }
 

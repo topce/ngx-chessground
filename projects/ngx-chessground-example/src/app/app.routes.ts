@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
 import { GoatComponent } from "./goat/goat.component";
-import { HomePageComponent } from "./home-page/home-page.component";
+// import { HomePageComponent } from "./home-page/home-page.component";
 import { MeComponent } from "./me/me.component";
 import { PlayLikeGoatComponent } from "./play-like-goat/play-like-goat.component";
 

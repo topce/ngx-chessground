@@ -30,9 +30,9 @@ export function createEnhancedPlayUnits(promotionService: PromotionService) {
 				},
 				events: {
 					move: (_orig: Key, _dest: Key, _capturedPiece?: Piece) => {
-						console.log(_orig);
-						console.log(_dest);
-						console.log(_capturedPiece);
+						// console.log(_orig);
+						// console.log(_dest);
+						// console.log(_capturedPiece);
 					},
 				},
 			});

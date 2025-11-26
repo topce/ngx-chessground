@@ -6,6 +6,7 @@ import {
 	effect,
 	model,
 	viewChild,
+	inject,
 } from "@angular/core";
 import type { Api } from "chessground/api";
 import { NgxChessgroundService } from "../ngx-chessground.service";
@@ -34,11 +35,12 @@ export class NgxChessgroundComponent implements AfterViewInit {
 	 */
 	runFunction = model<(el: HTMLElement) => Api>();
 
+	private readonly ngxChessgroundService = inject(NgxChessgroundService);
+
 	/**
 	 * Constructor for the NgxChessgroundComponent.
-	 * @param ngxChessgroundService - The service used to interact with the chessboard.
 	 */
-	constructor(private readonly ngxChessgroundService: NgxChessgroundService) {
+	constructor() {
 		effect(() => {
 			this.redraw();
 		});

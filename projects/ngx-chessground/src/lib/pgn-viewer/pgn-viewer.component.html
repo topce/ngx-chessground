@@ -30,6 +30,22 @@
                     </datalist>
                 </div>
                 <div class="filter-row">
+                    <input type="number" placeholder="White Rating >" aria-label="Filter by White Rating Min"
+                        [value]="filterWhiteRating()" (input)="updateFilterWhiteRating($event)" class="rating-input"
+                        step="50">
+                    <input type="number" placeholder="White Rating <" aria-label="Filter by White Rating Max"
+                        [value]="filterWhiteRatingMax()" (input)="updateFilterWhiteRatingMax($event)"
+                        class="rating-input" step="50">
+                </div>
+                <div class="filter-row">
+                    <input type="number" placeholder="Black Rating >" aria-label="Filter by Black Rating Min"
+                        [value]="filterBlackRating()" (input)="updateFilterBlackRating($event)" class="rating-input"
+                        step="50">
+                    <input type="number" placeholder="Black Rating <" aria-label="Filter by Black Rating Max"
+                        [value]="filterBlackRatingMax()" (input)="updateFilterBlackRatingMax($event)"
+                        class="rating-input" step="50">
+                </div>
+                <div class="filter-row">
                     <label class="checkbox-label">
                         <input type="checkbox" [checked]="ignoreColor()" (change)="toggleIgnoreColor($event)">
                         Ignore Color

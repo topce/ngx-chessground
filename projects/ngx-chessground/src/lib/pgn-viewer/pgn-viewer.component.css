@@ -99,6 +99,10 @@
 	font-size: 0.85rem;
 }
 
+.rating-input {
+	width: 50%;
+}
+
 .checkbox-label {
 	font-size: 0.85rem;
 	display: flex;
