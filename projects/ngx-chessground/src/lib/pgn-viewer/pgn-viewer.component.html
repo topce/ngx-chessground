@@ -273,7 +273,8 @@
                         </select>
                         <select (change)="onLichessMonthChange($event)" aria-label="Select Month">
                             @for (month of getLichessMonths(); track month) {
-                            <option [value]="month" [selected]="month === lichessMonth()">{{ month | number: '2.0-0' }}
+                            <option [value]="month" [selected]="month === lichessMonth()">{{
+                                month.toString().padStart(2, '0') }}
                             </option>
                             }
                         </select>
