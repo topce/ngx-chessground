@@ -20,6 +20,7 @@ export interface FilterCriteria {
     minBlackRating: number;
     maxWhiteRating: number;
     maxBlackRating: number;
+    eco: string;
 }
 
 export type WorkerResponse =
@@ -35,6 +36,7 @@ export interface GameMetadata {
     result: string;
     whiteElo: number;
     blackElo: number;
+    eco?: string;
 }
 
 // State
@@ -108,10 +110,11 @@ function normalizeResult(result: string): string {
 }
 
 function handleFilter(criteria: FilterCriteria, id: number) {
-    const { white, black, result, moves, ignoreColor, targetMoves, minWhiteRating, minBlackRating, maxWhiteRating, maxBlackRating } = criteria;
+    const { white, black, result, moves, ignoreColor, targetMoves, minWhiteRating, minBlackRating, maxWhiteRating, maxBlackRating, eco } = criteria;
     const fWhiteLower = white.toLowerCase();
     const fBlackLower = black.toLowerCase();
     const fResultLower = result.toLowerCase();
+    const fEcoLower = eco.toLowerCase();
 
     const matches: number[] = [];
 
@@ -133,6 +136,9 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 
         if (!matchWhite || !matchBlack) continue;
         if (fResultLower && !normalizeResult(info.result).includes(normalizeResult(result))) continue;
+
+        // ECO filtering
+        if (fEcoLower && (!info.eco || !info.eco.toLowerCase().includes(fEcoLower))) continue;
 
         // Rating filtering
         if (ignoreColor) {
@@ -410,6 +416,7 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
     const blackEloMatch = pgn.match(/\[BlackElo\s+"([^"]+)"\]/);
     const whiteTitleMatch = pgn.match(/\[WhiteTitle\s+"([^"]+)"\]/);
     const blackTitleMatch = pgn.match(/\[BlackTitle\s+"([^"]+)"\]/);
+    const ecoMatch = pgn.match(/\[ECO\s+"([^"]+)"\]/);
 
     let white = whiteMatch ? whiteMatch[1] : 'Unknown';
     let black = blackMatch ? blackMatch[1] : 'Unknown';
@@ -428,6 +435,7 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 
     const whiteElo = whiteEloMatch ? parseInt(whiteEloMatch[1], 10) || 0 : 0;
     const blackElo = blackEloMatch ? parseInt(blackEloMatch[1], 10) || 0 : 0;
+    const eco = ecoMatch ? ecoMatch[1] : undefined;
 
     return {
         number: index + 1,
@@ -435,7 +443,8 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
         black,
         result: formattedResult,
         whiteElo,
-        blackElo
+        blackElo,
+        eco
     };
 }
 

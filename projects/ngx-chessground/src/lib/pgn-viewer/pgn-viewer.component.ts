@@ -61,10 +61,20 @@ export class NgxPgnViewerComponent {
 	filterBlackRating = signal<string>("2000");
 	filterWhiteRatingMax = signal<string>("3000");
 	filterBlackRatingMax = signal<string>("3000");
+	filterEco = signal<string>("");
 
 	// Autocomplete Signals
 	uniqueWhitePlayers = signal<Set<string>>(new Set());
 	uniqueBlackPlayers = signal<Set<string>>(new Set());
+	uniqueEcoCodes = signal<Map<string, number>>(new Map());
+
+	// Computed for sorted ECO codes by popularity
+	sortedEcoCodes = computed(() => {
+		const ecoMap = this.uniqueEcoCodes();
+		return Array.from(ecoMap.entries())
+			.sort((a, b) => b[1] - a[1]) // Sort by count descending
+			.map(([code, count]) => ({ code, count }));
+	});
 
 	// Filtering State
 	filteredGamesIndices = signal<number[]>([]);
@@ -255,12 +265,17 @@ export class NgxPgnViewerComponent {
 			// Populate unique players
 			const whitePlayers = new Set<string>();
 			const blackPlayers = new Set<string>();
+			const ecoCodes = new Map<string, number>();
 			for (const meta of payload.metadata) {
 				if (meta.white && meta.white !== 'Unknown') whitePlayers.add(meta.white);
 				if (meta.black && meta.black !== 'Unknown') blackPlayers.add(meta.black);
+				if (meta.eco) {
+					ecoCodes.set(meta.eco, (ecoCodes.get(meta.eco) || 0) + 1);
+				}
 			}
 			this.uniqueWhitePlayers.set(whitePlayers);
 			this.uniqueBlackPlayers.set(blackPlayers);
+			this.uniqueEcoCodes.set(ecoCodes);
 
 			// Auto-select first game if available
 			if (payload.count > 0) {
@@ -321,11 +336,12 @@ export class NgxPgnViewerComponent {
 		const fBlackRating = parseInt(this.filterBlackRating(), 10) || 0;
 		const fWhiteRatingMax = parseInt(this.filterWhiteRatingMax(), 10) || 0;
 		const fBlackRatingMax = parseInt(this.filterBlackRatingMax(), 10) || 0;
+		const fEco = this.filterEco();
 		const currentMoves = this.moves().slice(0, this.currentMoveIndex() + 1);
 		this.activeFilterMoves = currentMoves;
 
 		this.autoSelectOnFinish = true;
-		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, fWhiteRating, fBlackRating, fWhiteRatingMax, fBlackRatingMax, currentMoves);
+		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, fWhiteRating, fBlackRating, fWhiteRatingMax, fBlackRatingMax, fEco, currentMoves);
 	}
 
 	clearFilters() {
@@ -338,6 +354,7 @@ export class NgxPgnViewerComponent {
 		this.filterBlackRating.set("2000");
 		this.filterWhiteRatingMax.set("3000");
 		this.filterBlackRatingMax.set("3000");
+		this.filterEco.set("");
 		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
 		this.applyFilter();
 	}
@@ -354,6 +371,7 @@ export class NgxPgnViewerComponent {
 		fBlackRating: number,
 		fWhiteRatingMax: number,
 		fBlackRatingMax: number,
+		fEco: string,
 		targetMoves: string[]
 	) {
 		this.currentFilterId++;
@@ -374,6 +392,7 @@ export class NgxPgnViewerComponent {
 					minBlackRating: fBlackRating,
 					maxWhiteRating: fWhiteRatingMax,
 					maxBlackRating: fBlackRatingMax,
+					eco: fEco,
 					targetMoves: targetMoves
 				}
 			});
@@ -724,6 +743,11 @@ export class NgxPgnViewerComponent {
 	updateFilterBlackRatingMax(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.filterBlackRatingMax.set(value);
+	}
+
+	updateFilterEco(event: Event) {
+		const value = (event.target as HTMLSelectElement).value;
+		this.filterEco.set(value);
 	}
 
 	private scrollToActiveMove() {

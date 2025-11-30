@@ -30,6 +30,14 @@
                     </datalist>
                 </div>
                 <div class="filter-row">
+                    <select [value]="filterEco()" (change)="updateFilterEco($event)" aria-label="Filter by ECO Opening">
+                        <option value="">All Openings</option>
+                        @for (ecoData of sortedEcoCodes(); track ecoData.code) {
+                        <option [value]="ecoData.code">{{ ecoData.code }} ({{ ecoData.count }} games)</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-row">
                     <input type="number" placeholder="White Rating >" aria-label="Filter by White Rating Min"
                         [value]="filterWhiteRating()" (input)="updateFilterWhiteRating($event)" class="rating-input"
                         step="50">
