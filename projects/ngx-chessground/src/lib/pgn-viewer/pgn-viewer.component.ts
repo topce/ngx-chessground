@@ -222,7 +222,7 @@ export class NgxPgnViewerComponent {
 			if (year && month) {
 				const monthStr = month.toString().padStart(2, '0');
 				// Use relative path so it respects the base href
-				this.urlInput.set(`lichess / broadcast / lichess_db_broadcast_${year} -${monthStr}.pgn.zst`);
+				this.urlInput.set(`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
 			}
 		}, { allowSignalWrites: true });
 
@@ -506,7 +506,7 @@ export class NgxPgnViewerComponent {
 		// Format: lichess_db_broadcast_YYYY-MM.pgn.zst
 		const monthStr = month.toString().padStart(2, '0');
 		// Use relative path so it respects the base href (e.g. /ngx-chessground/ on GitHub Pages)
-		const url = `lichess / broadcast / lichess_db_broadcast_${year} -${monthStr}.pgn.zst`;
+		const url = `lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`;
 
 		this.urlInput.set(url);
 		this.loadFromUrl();
