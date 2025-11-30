@@ -1,3 +1,4 @@
+
 import { CommonModule } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
@@ -7,6 +8,8 @@ import {
 	input,
 	model,
 	signal,
+	ViewChild,
+	ElementRef,
 } from "@angular/core";
 import { Chess, Move } from "chess.js";
 import { Chessground } from "chessground";
@@ -70,13 +73,14 @@ export class NgxPgnViewerComponent {
 	private currentFilterId = 0;
 	// private gameMovesCache = new Map<number, string[]>(); // Moved to worker
 	private autoSelectOnFinish = false;
+	@ViewChild('moveList') moveList!: ElementRef<HTMLElement>;
 	private worker: Worker | null = null;
 	private activeFilterMoves: string[] = [];
 
 	// Computed values for better reactivity
 	selectedGamesCount = computed(() => this.selectedGames().size);
 	canShowReplayAll = computed(() => this.gamesMetadata().length > 1 && this.selectedGamesCount() > 0);
-	currentGameInfo = computed(() => `Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length}`);
+	currentGameInfo = computed(() => `Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length} `);
 
 	// Current game player info
 	currentWhitePlayer = computed(() => {
@@ -121,6 +125,51 @@ export class NgxPgnViewerComponent {
 	// UI State
 	pgnInput = signal<string>("");
 	urlInput = signal<string>("");
+
+	// Evaluation State
+	evaluations = signal<(string | null)[]>([]);
+	currentEvaluation = computed(() => {
+		const evals = this.evaluations();
+		const index = this.currentMoveIndex();
+		if (index >= 0 && index < evals.length) {
+			return evals[index];
+		}
+		return null; // Start position or no eval
+	});
+
+	evaluationBarHeight = computed(() => {
+		const evalStr = this.currentEvaluation();
+		if (!evalStr) return 50; // 50% for neutral/unknown
+
+		// Handle mate
+		if (evalStr.startsWith('#')) {
+			const mateIn = parseInt(evalStr.substring(1), 10);
+			if (mateIn > 0) return 100; // White mates
+			if (mateIn < 0) return 0;   // Black mates
+			return 50; // Should not happen for valid mate
+		}
+
+		// Handle numeric eval
+		const evalNum = parseFloat(evalStr);
+		if (Number.isNaN(evalNum)) return 50;
+
+		// Sigmoid-like clamping
+		// +5 is winning (near 100%), -5 is losing (near 0%)
+		// 0 is 50%
+		// Formula: 50 + (eval / 10) * 50, clamped to [5, 95] to always show some color?
+		// Or standard sigmoid: 1 / (1 + exp(-k * eval))
+		// Let's use a simple linear clamp for now, maxing out at +/- 5.0
+		const maxEval = 5.0;
+		const clampedEval = Math.max(-maxEval, Math.min(maxEval, evalNum));
+		const percentage = 50 + (clampedEval / maxEval) * 50;
+		return percentage;
+	});
+
+	activeColor = computed(() => {
+		const fen = this.currentFen();
+		const parts = fen.split(' ');
+		return parts.length > 1 ? parts[1] : 'w';
+	});
 
 	// Lichess Database Date Picker State - using model for two-way binding
 	lichessYear = model<number>(new Date().getFullYear());
@@ -173,7 +222,7 @@ export class NgxPgnViewerComponent {
 			if (year && month) {
 				const monthStr = month.toString().padStart(2, '0');
 				// Use relative path so it respects the base href
-				this.urlInput.set(`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
+				this.urlInput.set(`lichess / broadcast / lichess_db_broadcast_${year} -${monthStr}.pgn.zst`);
 			}
 		}, { allowSignalWrites: true });
 
@@ -185,6 +234,15 @@ export class NgxPgnViewerComponent {
 				// Loading is now async via worker, so we don't loadGame(0) here immediately
 				// It will be handled in handleWorkerMessage
 			}
+		});
+
+		// Effect to auto-scroll move list when currentMoveIndex changes
+		effect(() => {
+			this.currentMoveIndex(); // Depend on currentMoveIndex
+			// Wait for DOM update
+			setTimeout(() => {
+				this.scrollToActiveMove();
+			}, 0);
 		});
 	}
 
@@ -221,14 +279,16 @@ export class NgxPgnViewerComponent {
 				}
 			}
 		} else if (type === 'loadGame') {
-			const { moves, pgn, error } = payload;
+			const { moves, pgn, evaluations, error } = payload;
 
 			if (error) {
 				console.error("Worker failed to parse game:", error);
-				this.pgnInput.set(`Error parsing game: ${error}\n\nRaw PGN:\n${pgn}`);
+				this.pgnInput.set(`Error parsing game: ${error} \n\nRaw PGN: \n${pgn} `);
 				this.moves.set([]);
+				this.evaluations.set([]);
 			} else {
 				this.moves.set(moves);
+				this.evaluations.set(evaluations || []);
 				this.chess.reset();
 				this.currentMoveIndex.set(-1);
 				this.currentFen.set(this.chess.fen());
@@ -446,7 +506,7 @@ export class NgxPgnViewerComponent {
 		// Format: lichess_db_broadcast_YYYY-MM.pgn.zst
 		const monthStr = month.toString().padStart(2, '0');
 		// Use relative path so it respects the base href (e.g. /ngx-chessground/ on GitHub Pages)
-		const url = `lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`;
+		const url = `lichess / broadcast / lichess_db_broadcast_${year} -${monthStr}.pgn.zst`;
 
 		this.urlInput.set(url);
 		this.loadFromUrl();
@@ -460,7 +520,7 @@ export class NgxPgnViewerComponent {
 		try {
 			const response = await fetch(url);
 			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+				throw new Error(`HTTP error! status: ${response.status} `);
 			}
 
 			const buffer = await response.arrayBuffer();
@@ -485,7 +545,7 @@ export class NgxPgnViewerComponent {
 
 		} catch (e) {
 			console.error("Error loading from URL:", e);
-			alert(`Error loading from URL: ${e}`);
+			alert(`Error loading from URL: ${e} `);
 			this.isLoading.set(false);
 		}
 	}
@@ -664,6 +724,15 @@ export class NgxPgnViewerComponent {
 	updateFilterBlackRatingMax(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.filterBlackRatingMax.set(value);
+	}
+
+	private scrollToActiveMove() {
+		if (!this.moveList) return;
+		const container = this.moveList.nativeElement;
+		const activeElement = container.querySelector('.move-btn.active') as HTMLElement;
+		if (activeElement) {
+			activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+		}
 	}
 
 	next() {
@@ -961,8 +1030,8 @@ export class NgxPgnViewerComponent {
 
 		// Try to parse time control
 		let timeControlSeconds = 0;
-		if (header['TimeControl']) {
-			const tc = header['TimeControl'].split('+');
+		if (header.TimeControl) {
+			const tc = header.TimeControl.split('+');
 			timeControlSeconds = parseInt(tc[0], 10);
 		}
 
@@ -1105,9 +1174,9 @@ export class NgxPgnViewerComponent {
 		const s = Math.floor(seconds % 60);
 
 		if (h > 0) {
-			return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+			return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} `;
 		}
-		return `${m}:${s.toString().padStart(2, '0')}`;
+		return `${m}:${s.toString().padStart(2, '0')} `;
 	}
 
 	private scheduleReplay(timeOuts: number[], totalMoves: number, onComplete?: () => void) {

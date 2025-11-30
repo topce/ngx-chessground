@@ -25,7 +25,7 @@ export interface FilterCriteria {
 export type WorkerResponse =
     | { type: 'load'; payload: { count: number; metadata: GameMetadata[] }; id: number }
     | { type: 'filter'; payload: number[]; id: number }
-    | { type: 'loadGame'; payload: { moves: string[]; pgn: string; error?: string }; id: number }
+    | { type: 'loadGame'; payload: { moves: string[]; pgn: string; evaluations: (string | null)[]; error?: string }; id: number }
     | { type: 'error'; payload: string; id: number };
 
 export interface GameMetadata {
@@ -213,73 +213,140 @@ function handleLoadGame(index: number, id: number) {
 
     const pgn = games[index];
     let moves: string[] = [];
+    let evaluations: (string | null)[] = [];
     let errorMsg: string | undefined;
     let cleanPgn = pgn;
 
     try {
         const tempChess = new Chess();
 
-        // Clean up PGN: 
-        // 1. Remove ?! ? ! attached to moves (chess.js might not like them)
-        cleanPgn = cleanPgn.replace(/([a-h1-8NBRQK])([?!]+)/g, '$1');
+        // We need to extract evaluations BEFORE cleaning the PGN too aggressively,
+        // because some cleaning steps might remove comments or mess up the mapping.
+        // However, standard chess.js loadPgn parses comments.
+        // Let's try to parse with chess.js first on the original PGN (or slightly cleaned).
 
-        // 2. Merge adjacent comments } { to } { which chess.js might handle better, 
-        //    OR actually merge them into one block { ... ... } to avoid parser issues with multiple blocks.
-        //    Replacing "} {" with " " effectively merges them.
-        cleanPgn = cleanPgn.replace(/\}\s*\{/g, ' ');
-
-        // 3. Normalize headers: ensure each header is on its own line
-        cleanPgn = cleanPgn.replace(/\]\s*\[/g, ']\n[');
-
-        // 4. Ensure blank line after the last header and before moves or result
-        //    Look for ] followed by something that looks like a move (digit or piece) or result
-        cleanPgn = cleanPgn.replace(/\]\s*(\d+\.|[a-hNBRQK]|\*|1-0|0-1|1\/2-1\/2)/g, ']\n\n$1');
-
-        // 5. Remove "1..." style move numbering (Black's move indicators)
-        cleanPgn = cleanPgn.replace(/\d+\.\.\./g, ' ');
-
-        // 6. Remove numeric annotation glyphs like $1, $2... (standard PGN but chess.js might fail)
-        cleanPgn = cleanPgn.replace(/\$\d+/g, '');
+        // If we use the "cleanPgn" logic from before, we might lose comments if we strip them.
+        // But the previous logic had a fallback that stripped comments.
+        // Let's try to parse the original PGN first to get comments.
 
         try {
-            tempChess.loadPgn(cleanPgn);
+            // Try parsing the original PGN (maybe with minor cleanup) to get comments
+            tempChess.loadPgn(pgn);
             moves = tempChess.history();
-        } catch (_e1) {
-            // console.warn('Strict parsing failed, trying chessops fallback', e1);
+            const comments = tempChess.getComments();
+            // comments is array of { fen: string, comment: string }
+            // We need to map these to moves.
+            // The 'moves' array corresponds to the game history.
+            // We can replay the game and match FENs.
+
+            const tempChess2 = new Chess();
+            evaluations = moves.map(move => {
+                tempChess2.move(move);
+                const fen = tempChess2.fen();
+                const commentObj = comments.find(c => c.fen === fen);
+                if (commentObj) {
+                    const match = commentObj.comment.match(/\[%eval\s+([^\]]+)\]/);
+                    return match ? match[1] : null;
+                }
+                return null;
+            });
+
+        } catch (_e) {
+            // If strict parsing fails, we fall back to the cleaning logic,
+            // but we might lose evaluations if the cleaning strips comments.
+            // For now, let's proceed with the cleaning logic for moves,
+            // and accept that we might not get evaluations in broken PGNs.
+
+            // Clean up PGN: 
+            // 1. Remove ?! ? ! attached to moves (chess.js might not like them)
+            cleanPgn = cleanPgn.replace(/([a-h1-8NBRQK])([?!]+)/g, '$1');
+
+            // 2. Merge adjacent comments } { to } { which chess.js might handle better, 
+            //    OR actually merge them into one block { ... ... } to avoid parser issues with multiple blocks.
+            //    Replacing "} {" with " " effectively merges them.
+            cleanPgn = cleanPgn.replace(/\}\s*\{/g, ' ');
+
+            // 3. Normalize headers: ensure each header is on its own line
+            cleanPgn = cleanPgn.replace(/\]\s*\[/g, ']\n[');
+
+            // 4. Ensure blank line after the last header and before moves or result
+            //    Look for ] followed by something that looks like a move (digit or piece) or result
+            cleanPgn = cleanPgn.replace(/\]\s*(\d+\.|[a-hNBRQK]|\*|1-0|0-1|1\/2-1\/2)/g, ']\n\n$1');
+
+            // 5. Remove "1..." style move numbering (Black's move indicators)
+            cleanPgn = cleanPgn.replace(/\d+\.\.\./g, ' ');
+
+            // 6. Remove numeric annotation glyphs like $1, $2... (standard PGN but chess.js might fail)
+            cleanPgn = cleanPgn.replace(/\$\d+/g, '');
 
             try {
-                // Fallback: Try chessops
-                const games = parsePgn(cleanPgn);
-                if (games.length > 0) {
-                    const game = games[0];
-                    moves = [];
-                    let node = game.moves;
-                    while (node.children.length > 0) {
-                        const child = node.children[0]; // Main line
-                        if (child.data?.san) {
-                            moves.push(child.data.san);
-                        }
-                        node = child;
-                    }
-                    // If we successfully parsed moves, clear the error
-                    errorMsg = undefined;
-                } else {
-                    throw new Error('Chessops found no games');
-                }
-            } catch (_e2) {
-                // console.warn('Chessops parsing failed, retrying with stripped comments', e2);
-
-                // Fallback 2: Strip all comments and recursive variations
-                // Remove { ... } comments
-                cleanPgn = cleanPgn.replace(/\{[^}]*\}/g, '');
-                // Remove ( ... ) variations
-                cleanPgn = cleanPgn.replace(/\([^)]*\)/g, '');
-                // Clean up double spaces created by removals
-                cleanPgn = cleanPgn.replace(/\s+/g, ' ');
-
                 tempChess.loadPgn(cleanPgn);
                 moves = tempChess.history();
-                errorMsg = undefined;
+                // Try to get comments again from the cleaned PGN
+                const comments = tempChess.getComments();
+                const tempChess2 = new Chess();
+                evaluations = moves.map(move => {
+                    tempChess2.move(move);
+                    const fen = tempChess2.fen();
+                    const commentObj = comments.find(c => c.fen === fen);
+                    if (commentObj) {
+                        const match = commentObj.comment.match(/\[%eval\s+([^\]]+)\]/);
+                        return match ? match[1] : null;
+                    }
+                    return null;
+                });
+
+            } catch (_e1) {
+                // console.warn('Strict parsing failed, trying chessops fallback', e1);
+
+                try {
+                    // Fallback: Try chessops
+                    const games = parsePgn(cleanPgn);
+                    if (games.length > 0) {
+                        const game = games[0];
+                        moves = [];
+                        evaluations = []; // Chessops might have comments in the node tree
+                        let node = game.moves;
+                        while (node.children.length > 0) {
+                            const child = node.children[0]; // Main line
+                            if (child.data?.san) {
+                                moves.push(child.data.san);
+                                // Extract eval from comments if present
+                                let evalVal = null;
+                                if (child.data.comments) {
+                                    for (const comment of child.data.comments) {
+                                        const match = comment.match(/\[%eval\s+([^\]]+)\]/);
+                                        if (match) {
+                                            evalVal = match[1];
+                                            break;
+                                        }
+                                    }
+                                }
+                                evaluations.push(evalVal);
+                            }
+                            node = child;
+                        }
+                        // If we successfully parsed moves, clear the error
+                        errorMsg = undefined;
+                    } else {
+                        throw new Error('Chessops found no games');
+                    }
+                } catch (_e2) {
+                    // console.warn('Chessops parsing failed, retrying with stripped comments', e2);
+
+                    // Fallback 2: Strip all comments and recursive variations
+                    // Remove { ... } comments
+                    cleanPgn = cleanPgn.replace(/\{[^}]*\}/g, '');
+                    // Remove ( ... ) variations
+                    cleanPgn = cleanPgn.replace(/\([^)]*\)/g, '');
+                    // Clean up double spaces created by removals
+                    cleanPgn = cleanPgn.replace(/\s+/g, ' ');
+
+                    tempChess.loadPgn(cleanPgn);
+                    moves = tempChess.history();
+                    evaluations = []; // No comments, no evals
+                    errorMsg = undefined;
+                }
             }
         }
 
@@ -290,12 +357,13 @@ function handleLoadGame(index: number, id: number) {
         console.error('Error parsing game moves', e);
         errorMsg = String(e);
         moves = [];
+        evaluations = [];
     }
 
     postMessage({
         type: 'loadGame',
         id,
-        payload: { moves, pgn: cleanPgn, error: errorMsg }
+        payload: { moves, pgn: cleanPgn, evaluations, error: errorMsg }
     });
 }
 
