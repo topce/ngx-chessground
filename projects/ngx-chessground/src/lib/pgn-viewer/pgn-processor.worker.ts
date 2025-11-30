@@ -89,6 +89,24 @@ function handleLoad(pgn: string, id: number) {
     });
 }
 
+function normalizeResult(result: string): string {
+    const lower = result.toLowerCase();
+    // Normalize draw results - convert both ½-½ and 1/2-1/2 to "draw"
+    if (lower.includes('½') || lower.includes('1/2')) {
+        return 'draw';
+    }
+    // Normalize white wins
+    if (lower.includes('1-0')) {
+        return '1-0';
+    }
+    // Normalize black wins
+    if (lower.includes('0-1')) {
+        return '0-1';
+    }
+    // Return as-is for other cases (e.g., "*")
+    return lower;
+}
+
 function handleFilter(criteria: FilterCriteria, id: number) {
     const { white, black, result, moves, ignoreColor, targetMoves, minWhiteRating, minBlackRating, maxWhiteRating, maxBlackRating } = criteria;
     const fWhiteLower = white.toLowerCase();
@@ -114,7 +132,7 @@ function handleFilter(criteria: FilterCriteria, id: number) {
         }
 
         if (!matchWhite || !matchBlack) continue;
-        if (fResultLower && !info.result.toLowerCase().includes(fResultLower)) continue;
+        if (fResultLower && !normalizeResult(info.result).includes(normalizeResult(result))) continue;
 
         // Rating filtering
         if (ignoreColor) {
