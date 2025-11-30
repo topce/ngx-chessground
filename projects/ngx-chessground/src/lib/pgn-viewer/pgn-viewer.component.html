@@ -189,6 +189,11 @@
                     <input type="number" [value]="proportionalDuration()" (input)="onProportionalDurationChange($event)"
                         step="0.1" class="small-input" aria-label="Proportional Duration in Minutes"> min/game
                 </div>
+                <div class="option-input">
+                    <input type="number" [value]="minSecondsBetweenMoves()"
+                        (input)="onMinSecondsBetweenMovesChange($event)" step="0.1" class="small-input"
+                        aria-label="Min Seconds Between Moves"> min sec/move
+                </div>
                 }
 
                 @if (replayMode() === 'fixed') {

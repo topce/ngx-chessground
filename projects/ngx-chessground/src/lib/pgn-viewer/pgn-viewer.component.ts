@@ -110,6 +110,7 @@ export class NgxPgnViewerComponent {
 	// Replay State
 	replayMode = signal<"realtime" | "proportional" | "fixed">("fixed");
 	proportionalDuration = signal<number>(1); // minutes
+	minSecondsBetweenMoves = signal<number>(1); // seconds
 	fixedTime = signal<number>(1); // seconds
 
 	// Clock State
@@ -361,6 +362,11 @@ export class NgxPgnViewerComponent {
 	onProportionalDurationChange(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.proportionalDuration.set(parseFloat(value) || 1);
+	}
+
+	onMinSecondsBetweenMovesChange(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.minSecondsBetweenMoves.set(parseFloat(value) || 0.1);
 	}
 
 	onFixedTimeChange(event: Event) {
@@ -923,10 +929,15 @@ export class NgxPgnViewerComponent {
 			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
 			const targetDurationSeconds = this.proportionalDuration() * 60;
 			const scaleFactor = totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
+			const minSeconds = this.minSecondsBetweenMoves();
 
 			let currentScaledTime = 0;
 			for (let i = 0; i < thinkTimes.length; i++) {
-				currentScaledTime += thinkTimes[i] * scaleFactor;
+				let scaledMoveTime = thinkTimes[i] * scaleFactor;
+				if (scaledMoveTime < minSeconds) {
+					scaledMoveTime = minSeconds;
+				}
+				currentScaledTime += scaledMoveTime;
 				timeOuts.push(currentScaledTime);
 			}
 			return timeOuts;
@@ -1066,10 +1077,15 @@ export class NgxPgnViewerComponent {
 			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
 			const targetDurationSeconds = this.proportionalDuration() * 60;
 			const scaleFactor = totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
+			const minSeconds = this.minSecondsBetweenMoves();
 
 			let currentScaledTime = 0;
 			for (let i = 0; i < thinkTimes.length; i++) {
-				currentScaledTime += thinkTimes[i] * scaleFactor;
+				let scaledMoveTime = thinkTimes[i] * scaleFactor;
+				if (scaledMoveTime < minSeconds) {
+					scaledMoveTime = minSeconds;
+				}
+				currentScaledTime += scaledMoveTime;
 				timeOuts.push(currentScaledTime);
 			}
 			return timeOuts;
