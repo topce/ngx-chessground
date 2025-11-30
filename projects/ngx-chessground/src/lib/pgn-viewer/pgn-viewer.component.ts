@@ -269,7 +269,8 @@ export class NgxPgnViewerComponent {
 			for (const meta of payload.metadata) {
 				if (meta.white && meta.white !== 'Unknown') whitePlayers.add(meta.white);
 				if (meta.black && meta.black !== 'Unknown') blackPlayers.add(meta.black);
-				if (meta.eco) {
+				// Exclude ECO codes with '?' as they are likely non-standard games
+				if (meta.eco && !meta.eco.includes('?')) {
 					ecoCodes.set(meta.eco, (ecoCodes.get(meta.eco) || 0) + 1);
 				}
 			}
