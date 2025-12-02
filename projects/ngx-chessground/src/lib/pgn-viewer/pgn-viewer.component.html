@@ -295,7 +295,15 @@
                         URL</button>
                 </div>
                 @if (isLoading()) {
-                <div class="loading-indicator" role="status" aria-live="polite">⏳ Loading...</div>
+                <div class="loading-indicator" role="status" aria-live="polite">
+                    @if (loadingProgress() > 0) {
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" [style.width.%]="loadingProgress()"></div>
+                        <span class="progress-text">{{ loadingProgress() }}%</span>
+                    </div>
+                    }
+                    <div class="loading-status">{{ loadingStatus() || '⏳ Loading...' }}</div>
+                </div>
                 }
             </div>
         </div>

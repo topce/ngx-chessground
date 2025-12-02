@@ -49,6 +49,8 @@ export class NgxPgnViewerComponent {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 	);
 	isLoading = signal<boolean>(false);
+	loadingProgress = signal<number>(0);
+	loadingStatus = signal<string>("");
 	selectedGames = signal<Set<number>>(new Set());
 
 	// Filter Signals
@@ -1053,36 +1055,80 @@ export class NgxPgnViewerComponent {
 		if (!url) return;
 
 		this.isLoading.set(true);
+		this.loadingProgress.set(0);
+		this.loadingStatus.set("Starting download...");
+
 		try {
 			const response = await fetch(url);
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status} `);
 			}
 
-			const buffer = await response.arrayBuffer();
+			const contentLength = response.headers.get('content-length');
+			const total = contentLength ? parseInt(contentLength, 10) : 0;
+
+			if (!response.body) {
+				throw new Error('Response body is null');
+			}
+
+			const reader = response.body.getReader();
+			const chunks: Uint8Array[] = [];
+			let receivedLength = 0;
+
+			while (true) {
+				const { done, value } = await reader.read();
+
+				if (done) break;
+
+				chunks.push(value);
+				receivedLength += value.length;
+
+				if (total > 0) {
+					const progress = Math.round((receivedLength / total) * 100);
+					this.loadingProgress.set(progress);
+					this.loadingStatus.set(`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB / ${(total / 1024 / 1024).toFixed(2)} MB`);
+				} else {
+					this.loadingStatus.set(`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB`);
+				}
+			}
+
+			// Combine chunks into single array
+			const buffer = new Uint8Array(receivedLength);
+			let position = 0;
+			for (const chunk of chunks) {
+				buffer.set(chunk, position);
+				position += chunk.length;
+			}
+
+			this.loadingStatus.set("Decompressing...");
 			let content: string;
 
 			// Check for ZST magic bytes (0xFD2FB528) or extension
 			const isZst = url.toLowerCase().endsWith('.zst');
 
 			if (isZst) {
-				const decompressed = decompressZst(new Uint8Array(buffer));
+				const decompressed = decompressZst(buffer);
 				content = new TextDecoder().decode(decompressed);
 			} else {
 				content = new TextDecoder().decode(buffer);
 			}
 
+			this.loadingStatus.set("Processing games...");
 			// Use setTimeout to ensure change detection runs properly
 			setTimeout(() => {
 				this.loadPgnString(content);
 				this.loadGame(0);
 				this.isLoading.set(false);
+				this.loadingProgress.set(0);
+				this.loadingStatus.set("");
 			}, 0);
 
 		} catch (e) {
 			console.error("Error loading from URL:", e);
 			alert(`Error loading from URL: ${e} `);
 			this.isLoading.set(false);
+			this.loadingProgress.set(0);
+			this.loadingStatus.set("");
 		}
 	}
 
