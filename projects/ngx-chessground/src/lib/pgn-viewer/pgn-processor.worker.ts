@@ -223,6 +223,13 @@ function handleFilter(criteria: FilterCriteria, id: number) {
         matches.push(i);
     }
 
+    // Sort matches by sum of Elo ratings (descending)
+    matches.sort((a, b) => {
+        const sumA = gameMetadata[a].whiteElo + gameMetadata[a].blackElo;
+        const sumB = gameMetadata[b].whiteElo + gameMetadata[b].blackElo;
+        return sumB - sumA;
+    });
+
     postMessage({
         type: 'filter',
         id,

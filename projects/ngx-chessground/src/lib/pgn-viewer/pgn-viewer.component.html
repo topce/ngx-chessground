@@ -33,7 +33,7 @@
                     <select [value]="filterEco()" (change)="updateFilterEco($event)" aria-label="Filter by ECO Opening">
                         <option value="">All Openings</option>
                         @for (ecoData of sortedEcoCodes(); track ecoData.code) {
-                        <option [value]="ecoData.code">{{ ecoData.code }}@if (getOpeningName(ecoData.code)) { - {{
+                        <option [value]="ecoData.code" [title]="getOpeningMoves(ecoData.code)">{{ ecoData.code }}@if (getOpeningName(ecoData.code)) { - {{
                             getOpeningName(ecoData.code) }} } ({{ ecoData.count }} games)</option>
                         }
                     </select>

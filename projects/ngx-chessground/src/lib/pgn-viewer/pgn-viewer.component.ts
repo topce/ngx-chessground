@@ -19,12 +19,14 @@ import { loadAsync as loadZipAsync } from "jszip";
 import { decompress as decompressZst } from "fzstd";
 import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
 import { WorkerResponse } from "./pgn-processor.worker";
+import { ECO_MOVES } from "./eco-moves";
 
 interface GameMetadata {
 	number: number;
 	white: string;
 	black: string;
 	result: string;
+	eco?: string; // eco is optional in worker message
 }
 
 @Component({
@@ -38,6 +40,11 @@ interface GameMetadata {
 export class NgxPgnViewerComponent {
 	// Inputs
 	pgn = input<string>("");
+
+	getOpeningMoves(code: string): string {
+		return ECO_MOVES[code] || "";
+	}
+
 
 	// State Signals
 	// games = signal<string[]>([]);
@@ -1430,7 +1437,11 @@ export class NgxPgnViewerComponent {
 	async replayAllSelectedGames() {
 		this.stopReplay();
 		this.isReplayingSequence = true;
-		const selected = Array.from(this.selectedGames()).sort((a, b) => a - b);
+
+		// Use filteredGamesIndices to maintain the sort order (by Elo sum)
+		// Filter this list to include only selected games
+		const selectedSet = this.selectedGames();
+		const selected = this.filteredGamesIndices().filter(idx => selectedSet.has(idx));
 
 		if (selected.length === 0) {
 			alert("No games selected. Please select games to replay.");
