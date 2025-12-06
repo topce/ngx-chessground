@@ -73,6 +73,11 @@
 								"glob": "**/*",
 								"input": "./public",
 								"output": "/"
+							},
+							{
+								"glob": "**/*",
+								"input": "./projects/ngx-chessground-example/public",
+								"output": "/"
 							}
 						],
 						"styles": [
@@ -110,7 +115,8 @@
 									"maximumWarning": "20kb",
 									"maximumError": "30kb"
 								}
-							]
+							],
+							"serviceWorker": "projects/ngx-chessground-example/ngsw-config.json"
 						}
 					}
 				},
