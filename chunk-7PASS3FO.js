@@ -1,4 +1,4 @@
-import{Aa as f,Da as k,Ha as h,Ia as m,Ja as p,Ma as i,_a as x,ea as a,ib as d,oa as g,xa as s,ya as n,za as l}from"./chunk-B2FZWLUI.js";var N=(()=>{class r{constructor(){this.fischerEvergreen=`[Event "Third Rosenwald Trophy"]
+import{Aa as l,Ba as f,Ea as k,Ia as h,Ja as m,Ka as p,Na as i,ab as x,fa as a,kb as d,pa as g,ya as s,za as n}from"./chunk-6D4II2AC.js";var N=(()=>{class r{constructor(){this.fischerEvergreen=`[Event "Third Rosenwald Trophy"]
 [Site "New York, NY USA"]
 [Date "1956.10.17"]
 [EventDate "1956.10.07"]

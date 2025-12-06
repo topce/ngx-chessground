@@ -1,0 +1,125 @@
+{
+  "configVersion": 1,
+  "timestamp": 1765039897091,
+  "index": "/ngx-chessground/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/ngx-chessground/chunk-6D4II2AC.js",
+        "/ngx-chessground/chunk-7PASS3FO.js",
+        "/ngx-chessground/favicon.ico",
+        "/ngx-chessground/index.html",
+        "/ngx-chessground/main-KUZAAM4H.js",
+        "/ngx-chessground/styles-OCG5H654.css",
+        "/ngx-chessground/worker-NXWXVYMQ.js"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/ngx-chessground/assets/images/board/3d/woodi.1024.png",
+        "/ngx-chessground/assets/images/board/blue.svg",
+        "/ngx-chessground/assets/images/pieces/merida/bB.svg",
+        "/ngx-chessground/assets/images/pieces/merida/bK.svg",
+        "/ngx-chessground/assets/images/pieces/merida/bN.svg",
+        "/ngx-chessground/assets/images/pieces/merida/bP.svg",
+        "/ngx-chessground/assets/images/pieces/merida/bQ.svg",
+        "/ngx-chessground/assets/images/pieces/merida/bR.svg",
+        "/ngx-chessground/assets/images/pieces/merida/wB.svg",
+        "/ngx-chessground/assets/images/pieces/merida/wK.svg",
+        "/ngx-chessground/assets/images/pieces/merida/wN.svg",
+        "/ngx-chessground/assets/images/pieces/merida/wP.svg",
+        "/ngx-chessground/assets/images/pieces/merida/wQ.svg",
+        "/ngx-chessground/assets/images/pieces/merida/wR.svg",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Bishop-Flipped.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Bishop.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-King.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Knight-Flipped.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Knight.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Pawn.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Queen.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Rook.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-Bishop-Flipped.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-Bishop.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-King.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-Knight-Flipped.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-Knight.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-Pawn.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-Queen.png",
+        "/ngx-chessground/assets/images/pieces/staunton/basic/White-Rook.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/ngx-chessground/assets/images/board/3d/woodi.1024.png": "ad669fdfd0d1176f80cac8c3bfcafe8cd4404bad",
+    "/ngx-chessground/assets/images/board/blue.svg": "870206cc359c952362bd2cbcf5ed9e6fceb73244",
+    "/ngx-chessground/assets/images/pieces/merida/bB.svg": "90c5add16f04c82cdd67d76dcac162b6cc470d41",
+    "/ngx-chessground/assets/images/pieces/merida/bK.svg": "bcbd6e7dac6a259a586e69a22873b845ab3e74d5",
+    "/ngx-chessground/assets/images/pieces/merida/bN.svg": "729c90d389f0409a74cb1b375db47bd35f93dd12",
+    "/ngx-chessground/assets/images/pieces/merida/bP.svg": "9604f8b8c8ba7c8ea3ce7a6f07843b2245df5f7a",
+    "/ngx-chessground/assets/images/pieces/merida/bQ.svg": "d803d2bd09608daa5a5610d366bf81387f322b76",
+    "/ngx-chessground/assets/images/pieces/merida/bR.svg": "feaa4049bf9a1094d548183079f9cae071216617",
+    "/ngx-chessground/assets/images/pieces/merida/wB.svg": "247671e6d26b01b916fbcae5694b914fc760bb9f",
+    "/ngx-chessground/assets/images/pieces/merida/wK.svg": "7ed83b3708bdbdd0e6ce544e75e8ca3bfe4e458c",
+    "/ngx-chessground/assets/images/pieces/merida/wN.svg": "7a0f161930c96083ae0610f5525469d5368312f3",
+    "/ngx-chessground/assets/images/pieces/merida/wP.svg": "62707d374b8dedd6ac61f339c9e422e4b8d2729b",
+    "/ngx-chessground/assets/images/pieces/merida/wQ.svg": "18395b8e1d5fe97f8e05b1e5a35f2bd88a1efbe4",
+    "/ngx-chessground/assets/images/pieces/merida/wR.svg": "2a0b4abb5bcccce24f29425e166bf29e497a88b6",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Bishop-Flipped.png": "4432c68c789f996441a21f0a532ba7df54d2aaa5",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Bishop.png": "e3d61d2be51b15e27232a8d44edc9fa34bfa4637",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-King.png": "b0a7ec8a396cb42c2c89c7b6ee7f37bc021e48ed",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Knight-Flipped.png": "971452a54e37adb2dcd134987e1e1a42181ec372",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Knight.png": "9eb1fa26f1e31a85bdd392512043b9f0a22b3154",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Pawn.png": "3fe48414794e8592730b2392da26e61b02a822e8",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Queen.png": "44d77c375703383f3db9631990511e217caad66c",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/Black-Rook.png": "e6c46893850f9863565ae0a8224b92a6d0066da4",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-Bishop-Flipped.png": "4f39615225703af1ca76714cc89b6498bd90c53a",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-Bishop.png": "8372ad3bb8d4c1344dfab0fc6ed4e00b4f2478a6",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-King.png": "1e148a1c569266df431ecdf10e920a278702effb",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-Knight-Flipped.png": "3b686d58a286f26397f4c1589af554f125bbd932",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-Knight.png": "5df811467a1804c9d5685d3051f6e2a83b6dbabf",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-Pawn.png": "48c91c83fa1ef7eb03cde8ff7dfaf47b2ee600c7",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-Queen.png": "e11d5e78b6e12ffe0aa858c8eb923acc6d95e0d9",
+    "/ngx-chessground/assets/images/pieces/staunton/basic/White-Rook.png": "4187315e71726c55db4372e57182dee11aad5171",
+    "/ngx-chessground/chunk-6D4II2AC.js": "4a61ba5774287a0eb8ce5c0e9d5559b7b3681e71",
+    "/ngx-chessground/chunk-7PASS3FO.js": "e0301f34ea831820db3223b60a1474504e6a8817",
+    "/ngx-chessground/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
+    "/ngx-chessground/index.html": "c0acf32fd0ce49b4c9adbad735a8be0073d083ee",
+    "/ngx-chessground/main-KUZAAM4H.js": "aafb7bd39d5d39707677ba48470c3f4ea2892e29",
+    "/ngx-chessground/styles-OCG5H654.css": "277bd5e07b696df055095ef7fa3a33fd2c83ce93",
+    "/ngx-chessground/worker-NXWXVYMQ.js": "a892bccce2d32bb119d6b6545f330cd17e4db9c6"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
