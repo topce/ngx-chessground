@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1765041466232,
+  "timestamp": 1765041979028,
   "index": "/ngx-chessground/index.html",
   "assetGroups": [
     {
@@ -106,7 +106,7 @@
     "/ngx-chessground/assets/images/pieces/staunton/basic/White-Rook.png": "4187315e71726c55db4372e57182dee11aad5171",
     "/ngx-chessground/chunk-6D4II2AC.js": "4a61ba5774287a0eb8ce5c0e9d5559b7b3681e71",
     "/ngx-chessground/chunk-7PASS3FO.js": "e0301f34ea831820db3223b60a1474504e6a8817",
-    "/ngx-chessground/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
+    "/ngx-chessground/favicon.ico": "f22758a30ab6cb76af2536b3ba04d37961b9cc45",
     "/ngx-chessground/icons/icon-128x128.png": "a698cf897b379d85f56a1a2d58712198e074dc89",
     "/ngx-chessground/icons/icon-144x144.png": "2fe86deae2d73c911e8dbed321d388c291f81e5a",
     "/ngx-chessground/icons/icon-152x152.png": "8f55eb68499e277a9a27f79271ca14cbdd0c4d05",
