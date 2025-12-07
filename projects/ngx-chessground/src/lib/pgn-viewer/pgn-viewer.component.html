@@ -180,7 +180,11 @@
                     <div class="best-move">
                         <strong>Best: {{ info.move }} @if(info.score) { <span class="eval-score">({{ info.score
                                 }})</span> }</strong>
-                        <div class="pv-line">{{ info.pv }}</div>
+                        <div class="pv-line">
+                            @for (pvMove of info.pv; track $index) {
+                            <button class="pv-move-btn" (click)="previewPvMove(pvMove.fen)">{{ pvMove.san }}</button>
+                            }
+                        </div>
                     </div>
                     }
                 </div>

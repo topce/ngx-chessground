@@ -107,6 +107,7 @@
 	0% {
 		background-position: -100% 0;
 	}
+
 	100% {
 		background-position: 100% 0;
 	}
@@ -755,35 +756,53 @@ button {
 
 /* Stockfish Analysis */
 .analysis-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    min-height: 40px;
+	display: flex;
+	justify-content: center;
+	margin-bottom: 0.5rem;
+	min-height: 40px;
 }
 
 .analysis-result {
-    background: #e7f5ff;
-    border: 1px solid #74c0fc;
-    border-radius: 4px;
-    padding: 0.5rem;
-    width: 100%;
-    text-align: center;
-    font-size: 0.9rem;
+	background: #e7f5ff;
+	border: 1px solid #74c0fc;
+	border-radius: 4px;
+	padding: 0.5rem;
+	width: 100%;
+	text-align: center;
+	font-size: 0.9rem;
 }
 
 .analyzing-text {
-    font-style: italic;
-    color: #495057;
+	font-style: italic;
+	color: #495057;
 }
 
 .best-move strong {
-    color: #1c7cd6;
-    display: block;
-    margin-bottom: 0.2rem;
+	color: #1c7cd6;
+	display: block;
+	margin-bottom: 0.2rem;
 }
 
 .pv-line {
-    font-size: 0.8rem;
-    color: #868e96;
-    word-break: break-all;
+	font-size: 0.8rem;
+	color: #868e96;
+	word-break: break-all;
+	margin-top: 4px;
+}
+
+.pv-move-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #495057;
+	padding: 0 3px;
+	font-size: inherit;
+	font-family: inherit;
+}
+
+.pv-move-btn:hover {
+	color: #1c7cd6;
+	background-color: #e7f5ff;
+	border-radius: 2px;
+	text-decoration: underline;
 }

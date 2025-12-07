@@ -148,11 +148,97 @@ export class NgxPgnViewerComponent {
 	canContinueReplay = computed(() => !this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1);
 
 	// Stockfish State
+	// Stockfish State
 	stockfishWorker: Worker | null = null;
 	isAnalyzing = signal<boolean>(false);
-	bestMoveInfo = signal<{ move: string; pv: string; score?: string } | null>(null);
+	bestMoveInfo = signal<{ move: string; pv: { san: string; fen: string }[]; score?: string } | null>(null);
 	showBetterMoveBtn = signal<boolean>(false);
 	analysisVisible = signal<boolean>(false);
+
+	// ... (keeping other props matching existing file if they were in range, but I'll try to target specific blocks)
+
+	private uciToSan(fen: string, uciMoves: string[]): { san: string; fen: string }[] {
+		try {
+			const tempChess = new Chess(fen);
+			const output: { san: string; fen: string }[] = [];
+
+			for (let i = 0; i < uciMoves.length; i++) {
+				const uci = uciMoves[i];
+				const from = uci.substring(0, 2);
+				const to = uci.substring(2, 4);
+				const promotion = uci.length > 4 ? uci.substring(4, 5) : undefined;
+
+				const move = tempChess.move({ from, to, promotion });
+				if (!move) break;
+
+				output.push({ san: move.san, fen: tempChess.fen() });
+			}
+			return output;
+		} catch (e) {
+			console.error("SAN conversion failed", e);
+			return [];
+		}
+	}
+
+	private handleStockfishMessage(event: MessageEvent) {
+		const line = event.data;
+		if (typeof line !== 'string') return;
+
+		if (line.startsWith('bestmove')) {
+			this.isAnalyzing.set(false);
+		} else if (line.startsWith('info') && line.includes(' pv ')) {
+			const pvIndex = line.indexOf(' pv ');
+			const pvString = line.substring(pvIndex + 4);
+			const moves = pvString.split(' ');
+			if (moves.length > 0) {
+				let bestMove = moves[0];
+
+				// Optional: Extract score if needed for display
+				let scoreText = '';
+				const cpMatch = line.match(/score cp (-?\d+)/);
+				const mateMatch = line.match(/score mate (-?\d+)/);
+				if (mateMatch) {
+					scoreText = `#${mateMatch[1]}`;
+				} else if (cpMatch) {
+					const cp = parseInt(cpMatch[1], 10);
+					scoreText = (cp / 100).toFixed(2);
+				}
+
+				// Convert PV to SAN objects
+				const sanPv = this.analyzedFen ? this.uciToSan(this.analyzedFen, moves) : [];
+
+				let bestMoveSan = bestMove;
+				if (this.analyzedFen) {
+					try {
+						const temp = new Chess(this.analyzedFen);
+						const u = bestMove;
+						const m = temp.move({ from: u.substring(0, 2), to: u.substring(2, 4), promotion: u.length > 4 ? u.substring(4, 5) : undefined });
+						if (m) bestMoveSan = m.san;
+					} catch (e) { }
+				}
+
+				this.bestMoveInfo.set({ move: bestMoveSan, pv: sanPv, score: scoreText });
+			}
+		}
+	}
+
+	previewPvMove(fen: string) {
+		this.currentFen.set(fen);
+	}
+
+	private analyzedFen: string | null = null;
+
+	analyzePosition(fen: string) {
+		if (!this.stockfishWorker) return;
+
+		this.isAnalyzing.set(true);
+		this.bestMoveInfo.set(null);
+		this.analyzedFen = fen;
+
+		this.stockfishWorker.postMessage('stop'); // Stop any previous
+		this.stockfishWorker.postMessage(`position fen ${fen}`);
+		this.stockfishWorker.postMessage('go depth 18');
+	}
 
 
 	// UI State
@@ -804,99 +890,6 @@ export class NgxPgnViewerComponent {
 		});
 	}
 
-
-	private uciToSan(fen: string, uciMoves: string[]): string {
-		try {
-			const tempChess = new Chess(fen);
-			let output = "";
-
-			for (let i = 0; i < uciMoves.length; i++) {
-				const uci = uciMoves[i];
-				const from = uci.substring(0, 2);
-				const to = uci.substring(2, 4);
-				const promotion = uci.length > 4 ? uci.substring(4, 5) : undefined;
-
-				const move = tempChess.move({ from, to, promotion });
-				if (!move) break;
-
-				if (move.color === 'w') {
-					output += `${tempChess.moveNumber()}. ${move.san} `;
-				} else {
-					if (i === 0) {
-						output += `${tempChess.moveNumber()}... ${move.san} `;
-					} else {
-						output += `${move.san} `;
-					}
-				}
-			}
-			return output.trim();
-		} catch (e) {
-			console.error("SAN conversion failed", e);
-			return uciMoves.join(' '); // Fallback to raw UCI
-		}
-	}
-
-	private handleStockfishMessage(event: MessageEvent) {
-		const line = event.data;
-		if (typeof line !== 'string') return;
-
-		if (line.startsWith('bestmove')) {
-			this.isAnalyzing.set(false);
-		} else if (line.startsWith('info') && line.includes(' pv ')) {
-			const pvIndex = line.indexOf(' pv ');
-			const pvString = line.substring(pvIndex + 4);
-			const moves = pvString.split(' ');
-			if (moves.length > 0) {
-				let bestMove = moves[0];
-
-				// Optional: Extract score if needed for display
-				let scoreText = '';
-				const cpMatch = line.match(/score cp (-?\d+)/);
-				const mateMatch = line.match(/score mate (-?\d+)/);
-				if (mateMatch) {
-					scoreText = `#${mateMatch[1]}`;
-				} else if (cpMatch) {
-					const cp = parseInt(cpMatch[1], 10);
-					scoreText = (cp / 100).toFixed(2);
-				}
-
-				// Convert PV to SAN
-				const sanPv = this.analyzedFen ? this.uciToSan(this.analyzedFen, moves) : pvString;
-
-				// Also try to convert the best move itself to SAN if possible (just for display if needed)
-				// But we usually display the full line. 
-				// The "bestMove" variable is just the first move of the PV.
-				// Let's extract the first SAN move from our converted string for consistency if needed, 
-				// but the UI currently displays info.move.
-				// Let's update info.move to be SAN as well if we can.
-				let bestMoveSan = bestMove;
-				if (this.analyzedFen) {
-					try {
-						const temp = new Chess(this.analyzedFen);
-						const u = bestMove;
-						const m = temp.move({ from: u.substring(0, 2), to: u.substring(2, 4), promotion: u.length > 4 ? u.substring(4, 5) : undefined });
-						if (m) bestMoveSan = m.san;
-					} catch (e) { }
-				}
-
-				this.bestMoveInfo.set({ move: bestMoveSan, pv: sanPv, score: scoreText });
-			}
-		}
-	}
-
-	private analyzedFen: string | null = null;
-
-	analyzePosition(fen: string) {
-		if (!this.stockfishWorker) return;
-
-		this.isAnalyzing.set(true);
-		this.bestMoveInfo.set(null);
-		this.analyzedFen = fen;
-
-		this.stockfishWorker.postMessage('stop'); // Stop any previous
-		this.stockfishWorker.postMessage(`position fen ${fen}`);
-		this.stockfishWorker.postMessage('go depth 18');
-	}
 
 	private handleWorkerMessage(data: WorkerResponse) {
 		const { type, payload, id } = data;
