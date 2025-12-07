@@ -26,6 +26,8 @@ interface GameMetadata {
 	white: string;
 	black: string;
 	result: string;
+	whiteElo?: number;
+	blackElo?: number;
 	eco?: string; // eco is optional in worker message
 }
 
@@ -73,8 +75,8 @@ export class NgxPgnViewerComponent {
 	filterEco = signal<string>("");
 
 	// Autocomplete Signals
-	uniqueWhitePlayers = signal<Set<string>>(new Set());
-	uniqueBlackPlayers = signal<Set<string>>(new Set());
+	uniqueWhitePlayers = signal<string[]>([]);
+	uniqueBlackPlayers = signal<string[]>([]);
 	uniqueEcoCodes = signal<Map<string, number>>(new Map());
 
 	// Computed for sorted ECO codes by popularity
@@ -228,6 +230,9 @@ export class NgxPgnViewerComponent {
 
 	private analyzedFen: string | null = null;
 
+	// Stockfish Analysis Config
+	stockfishDepth = signal<number>(25);
+
 	analyzePosition(fen: string) {
 		if (!this.stockfishWorker) return;
 
@@ -237,7 +242,19 @@ export class NgxPgnViewerComponent {
 
 		this.stockfishWorker.postMessage('stop'); // Stop any previous
 		this.stockfishWorker.postMessage(`position fen ${fen}`);
-		this.stockfishWorker.postMessage('go depth 18');
+		this.stockfishWorker.postMessage(`go depth ${this.stockfishDepth()}`);
+	}
+
+	async autoplayBestLine() {
+		const info = this.bestMoveInfo();
+		if (!info || !info.pv || info.pv.length === 0) return;
+
+		// Disable interactions or show indicator if needed
+		for (const move of info.pv) {
+			this.currentFen.set(move.fen);
+			// Wait for 1 second
+			await new Promise(resolve => setTimeout(resolve, 1000));
+		}
 	}
 
 
@@ -897,20 +914,37 @@ export class NgxPgnViewerComponent {
 			this.gamesMetadata.set(payload.metadata);
 			this.isLoading.set(false);
 
-			// Populate unique players
-			const whitePlayers = new Set<string>();
-			const blackPlayers = new Set<string>();
+			// Populate unique players with ELO sorting
+			const whitePlayerElos = new Map<string, number>();
+			const blackPlayerElos = new Map<string, number>();
 			const ecoCodes = new Map<string, number>();
+
 			for (const meta of payload.metadata) {
-				if (meta.white && meta.white !== 'Unknown') whitePlayers.add(meta.white);
-				if (meta.black && meta.black !== 'Unknown') blackPlayers.add(meta.black);
+				if (meta.white && meta.white !== 'Unknown' && !meta.white.startsWith('BOT ')) {
+					const currentMax = whitePlayerElos.get(meta.white) || 0;
+					whitePlayerElos.set(meta.white, Math.max(currentMax, meta.whiteElo || 0));
+				}
+				if (meta.black && meta.black !== 'Unknown' && !meta.black.startsWith('BOT ')) {
+					const currentMax = blackPlayerElos.get(meta.black) || 0;
+					blackPlayerElos.set(meta.black, Math.max(currentMax, meta.blackElo || 0));
+				}
 				// Exclude ECO codes with '?' as they are likely non-standard games
 				if (meta.eco && !meta.eco.includes('?')) {
 					ecoCodes.set(meta.eco, (ecoCodes.get(meta.eco) || 0) + 1);
 				}
 			}
-			this.uniqueWhitePlayers.set(whitePlayers);
-			this.uniqueBlackPlayers.set(blackPlayers);
+
+			// Sort players by ELO descending
+			const sortedWhitePlayers = Array.from(whitePlayerElos.entries())
+				.sort((a, b) => b[1] - a[1])
+				.map(([name]) => name);
+
+			const sortedBlackPlayers = Array.from(blackPlayerElos.entries())
+				.sort((a, b) => b[1] - a[1])
+				.map(([name]) => name);
+
+			this.uniqueWhitePlayers.set(sortedWhitePlayers);
+			this.uniqueBlackPlayers.set(sortedBlackPlayers);
 			this.uniqueEcoCodes.set(ecoCodes);
 
 			// Auto-select first game if available

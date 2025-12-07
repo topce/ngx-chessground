@@ -170,16 +170,31 @@
             <!-- Stockfish Analysis -->
             @if (showBetterMoveBtn()) {
             <div class="analysis-container">
-                @if (!analysisVisible()) {
-                <button (click)="analysisVisible.set(true)" class="primary-button small">Show Better Move</button>
-                } @else {
+                <div class="analysis-controls">
+                    @if (!analysisVisible()) {
+                    <label class="depth-label">
+                        Depth:
+                        <input type="number" [value]="stockfishDepth()"
+                            (input)="stockfishDepth.set(+$any($event.target).value)" min="1" max="50"
+                            class="small-input depth-input">
+                    </label>
+                    <button (click)="analysisVisible.set(true)" class="primary-button small">Show Better Move</button>
+                    }
+                </div>
+
+                @if (analysisVisible()) {
                 <div class="analysis-result">
                     @if (isAnalyzing()) {
                     <span class="analyzing-text">Thinking...</span>
                     } @else if (bestMoveInfo(); as info) {
                     <div class="best-move">
-                        <strong>Best: {{ info.move }} @if(info.score) { <span class="eval-score">({{ info.score
-                                }})</span> }</strong>
+                        <div class="best-move-header">
+                            <strong>Best: {{ info.move }} @if(info.score) { <span class="eval-score">({{ info.score
+                                    }})</span> }</strong>
+                            <button (click)="autoplayBestLine()" class="primary-button xsmall" title="Play Best Line">▶
+                                Play
+                            </button>
+                        </div>
                         <div class="pv-line">
                             @for (pvMove of info.pv; track $index) {
                             <button class="pv-move-btn" (click)="previewPvMove(pvMove.fen)">{{ pvMove.san }}</button>

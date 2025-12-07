@@ -757,9 +757,17 @@ button {
 /* Stockfish Analysis */
 .analysis-container {
 	display: flex;
-	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
 	margin-bottom: 0.5rem;
 	min-height: 40px;
+}
+
+.analysis-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .analysis-result {
@@ -798,6 +806,40 @@ button {
 	padding: 0 3px;
 	font-size: inherit;
 	font-family: inherit;
+}
+
+.pv-move-btn:hover {
+	text-decoration: underline;
+	color: #1c7cd6;
+}
+
+.depth-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.85rem;
+	color: #495057;
+}
+
+.depth-input {
+	width: 60px;
+	padding: 0.2rem;
+	border: 1px solid #ced4da;
+	border-radius: 3px;
+}
+
+.best-move-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-bottom: 0.25rem;
+}
+
+.primary-button.xsmall {
+	padding: 0.1rem 0.3rem;
+	font-size: 0.7rem;
+	margin-left: 0.5rem;
 }
 
 .pv-move-btn:hover {
