@@ -805,6 +805,37 @@ export class NgxPgnViewerComponent {
 	}
 
 
+	private uciToSan(fen: string, uciMoves: string[]): string {
+		try {
+			const tempChess = new Chess(fen);
+			let output = "";
+
+			for (let i = 0; i < uciMoves.length; i++) {
+				const uci = uciMoves[i];
+				const from = uci.substring(0, 2);
+				const to = uci.substring(2, 4);
+				const promotion = uci.length > 4 ? uci.substring(4, 5) : undefined;
+
+				const move = tempChess.move({ from, to, promotion });
+				if (!move) break;
+
+				if (move.color === 'w') {
+					output += `${tempChess.moveNumber()}. ${move.san} `;
+				} else {
+					if (i === 0) {
+						output += `${tempChess.moveNumber()}... ${move.san} `;
+					} else {
+						output += `${move.san} `;
+					}
+				}
+			}
+			return output.trim();
+		} catch (e) {
+			console.error("SAN conversion failed", e);
+			return uciMoves.join(' '); // Fallback to raw UCI
+		}
+	}
+
 	private handleStockfishMessage(event: MessageEvent) {
 		const line = event.data;
 		if (typeof line !== 'string') return;
@@ -816,7 +847,7 @@ export class NgxPgnViewerComponent {
 			const pvString = line.substring(pvIndex + 4);
 			const moves = pvString.split(' ');
 			if (moves.length > 0) {
-				const bestMove = moves[0];
+				let bestMove = moves[0];
 
 				// Optional: Extract score if needed for display
 				let scoreText = '';
@@ -829,16 +860,38 @@ export class NgxPgnViewerComponent {
 					scoreText = (cp / 100).toFixed(2);
 				}
 
-				this.bestMoveInfo.set({ move: bestMove, pv: pvString, score: scoreText });
+				// Convert PV to SAN
+				const sanPv = this.analyzedFen ? this.uciToSan(this.analyzedFen, moves) : pvString;
+
+				// Also try to convert the best move itself to SAN if possible (just for display if needed)
+				// But we usually display the full line. 
+				// The "bestMove" variable is just the first move of the PV.
+				// Let's extract the first SAN move from our converted string for consistency if needed, 
+				// but the UI currently displays info.move.
+				// Let's update info.move to be SAN as well if we can.
+				let bestMoveSan = bestMove;
+				if (this.analyzedFen) {
+					try {
+						const temp = new Chess(this.analyzedFen);
+						const u = bestMove;
+						const m = temp.move({ from: u.substring(0, 2), to: u.substring(2, 4), promotion: u.length > 4 ? u.substring(4, 5) : undefined });
+						if (m) bestMoveSan = m.san;
+					} catch (e) { }
+				}
+
+				this.bestMoveInfo.set({ move: bestMoveSan, pv: sanPv, score: scoreText });
 			}
 		}
 	}
+
+	private analyzedFen: string | null = null;
 
 	analyzePosition(fen: string) {
 		if (!this.stockfishWorker) return;
 
 		this.isAnalyzing.set(true);
 		this.bestMoveInfo.set(null);
+		this.analyzedFen = fen;
 
 		this.stockfishWorker.postMessage('stop'); // Stop any previous
 		this.stockfishWorker.postMessage(`position fen ${fen}`);
