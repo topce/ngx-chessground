@@ -167,6 +167,27 @@
             <!-- Game Result -->
             <div class="game-result-display">{{ currentGameResult() }}</div>
 
+            <!-- Stockfish Analysis -->
+            @if (showBetterMoveBtn()) {
+            <div class="analysis-container">
+                @if (!analysisVisible()) {
+                <button (click)="analysisVisible.set(true)" class="primary-button small">Show Better Move</button>
+                } @else {
+                <div class="analysis-result">
+                    @if (isAnalyzing()) {
+                    <span class="analyzing-text">Thinking...</span>
+                    } @else if (bestMoveInfo(); as info) {
+                    <div class="best-move">
+                        <strong>Best: {{ info.move }}</strong>
+                        <div class="pv-line">{{ info.pv }}</div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+            }
+
+
             <!-- Move Navigation -->
             <div class="move-navigation">
                 <button (click)="start()" [disabled]="currentMoveIndex() === -1" class="nav-btn"

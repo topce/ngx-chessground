@@ -147,6 +147,14 @@ export class NgxPgnViewerComponent {
 	isReplaying = signal<boolean>(false);
 	canContinueReplay = computed(() => !this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1);
 
+	// Stockfish State
+	stockfishWorker: Worker | null = null;
+	isAnalyzing = signal<boolean>(false);
+	bestMoveInfo = signal<{ move: string; pv: string } | null>(null);
+	showBetterMoveBtn = signal<boolean>(false);
+	analysisVisible = signal<boolean>(false);
+
+
 	// UI State
 	pgnInput = signal<string>("");
 	urlInput = signal<string>("");
@@ -742,6 +750,15 @@ export class NgxPgnViewerComponent {
 		if (typeof Worker !== 'undefined') {
 			this.worker = new Worker(new URL('./pgn-processor.worker', import.meta.url));
 			this.worker.onmessage = ({ data }) => this.handleWorkerMessage(data);
+
+			// Initialize Stockfish Worker
+			try {
+				this.stockfishWorker = new Worker('assets/stockfish/stockfish.js');
+				this.stockfishWorker.onmessage = (e) => this.handleStockfishMessage(e);
+				this.stockfishWorker.postMessage('uci');
+			} catch (e) {
+				console.error("Failed to load Stockfish worker:", e);
+			}
 		} else {
 			console.error('Web Workers are not supported in this environment.');
 		}
@@ -785,6 +802,35 @@ export class NgxPgnViewerComponent {
 				this.scrollToActiveMove();
 			}, 0);
 		});
+	}
+
+
+	private handleStockfishMessage(event: MessageEvent) {
+		const line = event.data;
+		if (typeof line !== 'string') return;
+
+		if (line.startsWith('bestmove')) {
+			this.isAnalyzing.set(false);
+		} else if (line.startsWith('info') && line.includes('pv')) {
+			const pvIndex = line.indexOf('pv');
+			const pvString = line.substring(pvIndex + 3);
+			const moves = pvString.split(' ');
+			if (moves.length > 0) {
+				const bestMove = moves[0];
+				this.bestMoveInfo.set({ move: bestMove, pv: pvString });
+			}
+		}
+	}
+
+	analyzePosition(fen: string) {
+		if (!this.stockfishWorker) return;
+
+		this.isAnalyzing.set(true);
+		this.bestMoveInfo.set(null);
+
+		this.stockfishWorker.postMessage('stop'); // Stop any previous
+		this.stockfishWorker.postMessage(`position fen ${fen}`);
+		this.stockfishWorker.postMessage('go depth 18');
 	}
 
 	private handleWorkerMessage(data: WorkerResponse) {
@@ -1822,6 +1868,9 @@ export class NgxPgnViewerComponent {
 	private scheduleReplay(timeOuts: number[], totalMoves: number, onComplete?: () => void) {
 		const _totalGameTime = timeOuts[timeOuts.length - 1] || 1;
 		this.isReplaying.set(true);
+		this.showBetterMoveBtn.set(false);
+		this.analysisVisible.set(false);
+		this.bestMoveInfo.set(null);
 
 		const startMoveIndex = this.currentMoveIndex() + 1; // Start from next move
 
@@ -1863,7 +1912,12 @@ export class NgxPgnViewerComponent {
 							if (Math.abs(currentEval - prevEval) > this.stopOnErrorThreshold()) {
 								this.stopReplay();
 								this.isReplayingSequence = false;
-								// Could add a toast or alert here if UI allows
+
+								const prevFen = this.getFenBeforeMove(currentIdx);
+								if (prevFen) {
+									this.showBetterMoveBtn.set(true);
+									this.analyzePosition(prevFen);
+								}
 							}
 						}
 					}
@@ -1880,6 +1934,25 @@ export class NgxPgnViewerComponent {
 				}
 			}, delay);
 			this.replayTimeouts.push(timeoutId);
+		}
+	}
+
+	// Helper to get FEN at specific move index
+	private getFenBeforeMove(moveIndex: number): string | null {
+		try {
+			const tempChess = new Chess();
+			tempChess.loadPgn(this.pgnInput());
+			// Navigate to moveIndex - 1
+			// history returns array of moves.
+			const moves = tempChess.history();
+			tempChess.reset();
+			for (let i = 0; i < moveIndex; i++) {
+				tempChess.move(moves[i]);
+			}
+			return tempChess.fen();
+		} catch (e) {
+			console.error("Error generating previous FEN", e);
+			return null;
 		}
 	}
 }

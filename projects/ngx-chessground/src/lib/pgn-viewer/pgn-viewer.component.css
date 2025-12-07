@@ -752,3 +752,38 @@ button {
 	font-size: 1.2rem;
 	margin-bottom: 0.5rem;
 }
+
+/* Stockfish Analysis */
+.analysis-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    min-height: 40px;
+}
+
+.analysis-result {
+    background: #e7f5ff;
+    border: 1px solid #74c0fc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    width: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.analyzing-text {
+    font-style: italic;
+    color: #495057;
+}
+
+.best-move strong {
+    color: #1c7cd6;
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.pv-line {
+    font-size: 0.8rem;
+    color: #868e96;
+    word-break: break-all;
+}
