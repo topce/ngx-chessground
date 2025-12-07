@@ -150,7 +150,7 @@ export class NgxPgnViewerComponent {
 	// Stockfish State
 	stockfishWorker: Worker | null = null;
 	isAnalyzing = signal<boolean>(false);
-	bestMoveInfo = signal<{ move: string; pv: string } | null>(null);
+	bestMoveInfo = signal<{ move: string; pv: string; score?: string } | null>(null);
 	showBetterMoveBtn = signal<boolean>(false);
 	analysisVisible = signal<boolean>(false);
 
@@ -811,13 +811,25 @@ export class NgxPgnViewerComponent {
 
 		if (line.startsWith('bestmove')) {
 			this.isAnalyzing.set(false);
-		} else if (line.startsWith('info') && line.includes('pv')) {
-			const pvIndex = line.indexOf('pv');
-			const pvString = line.substring(pvIndex + 3);
+		} else if (line.startsWith('info') && line.includes(' pv ')) {
+			const pvIndex = line.indexOf(' pv ');
+			const pvString = line.substring(pvIndex + 4);
 			const moves = pvString.split(' ');
 			if (moves.length > 0) {
 				const bestMove = moves[0];
-				this.bestMoveInfo.set({ move: bestMove, pv: pvString });
+
+				// Optional: Extract score if needed for display
+				let scoreText = '';
+				const cpMatch = line.match(/score cp (-?\d+)/);
+				const mateMatch = line.match(/score mate (-?\d+)/);
+				if (mateMatch) {
+					scoreText = `#${mateMatch[1]}`;
+				} else if (cpMatch) {
+					const cp = parseInt(cpMatch[1], 10);
+					scoreText = (cp / 100).toFixed(2);
+				}
+
+				this.bestMoveInfo.set({ move: bestMove, pv: pvString, score: scoreText });
 			}
 		}
 	}

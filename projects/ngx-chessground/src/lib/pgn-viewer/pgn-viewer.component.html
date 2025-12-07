@@ -178,7 +178,8 @@
                     <span class="analyzing-text">Thinking...</span>
                     } @else if (bestMoveInfo(); as info) {
                     <div class="best-move">
-                        <strong>Best: {{ info.move }}</strong>
+                        <strong>Best: {{ info.move }} @if(info.score) { <span class="eval-score">({{ info.score
+                                }})</span> }</strong>
                         <div class="pv-line">{{ info.pv }}</div>
                     </div>
                     }
