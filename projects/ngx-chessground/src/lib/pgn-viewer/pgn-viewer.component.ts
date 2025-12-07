@@ -135,11 +135,17 @@ export class NgxPgnViewerComponent {
 	proportionalDuration = signal<number>(1); // minutes
 	minSecondsBetweenMoves = signal<number>(1); // seconds
 	fixedTime = signal<number>(1); // seconds
+	stopOnError = signal<boolean>(false);
+	stopOnErrorThreshold = signal<number>(1.00);
 
 	// Clock State
 	whiteTimeRemaining = signal<string>("");
 	blackTimeRemaining = signal<string>("");
 	showClocks = computed(() => this.whiteTimeRemaining() !== "" || this.blackTimeRemaining() !== "");
+
+	// Computed for replay status
+	isReplaying = signal<boolean>(false);
+	canContinueReplay = computed(() => !this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1);
 
 	// UI State
 	pgnInput = signal<string>("");
@@ -1378,6 +1384,16 @@ export class NgxPgnViewerComponent {
 		this.stopReplay();
 	}
 
+	toggleStopOnError(event: Event) {
+		const checked = (event.target as HTMLInputElement).checked;
+		this.stopOnError.set(checked);
+	}
+
+	updateStopOnErrorThreshold(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.stopOnErrorThreshold.set(parseFloat(value) || 1.0);
+	}
+
 	start() {
 		this.chess.reset();
 		this.currentMoveIndex.set(-1);
@@ -1408,7 +1424,15 @@ export class NgxPgnViewerComponent {
 	replayGame() {
 		this.stopReplay();
 		this.start();
+		this.runReplayLogic();
+	}
 
+	continueReplay() {
+		this.stopReplay();
+		this.runReplayLogic();
+	}
+
+	private runReplayLogic() {
 		// Use the currently loaded PGN from the input area
 		const gamePgn = this.pgnInput();
 
@@ -1510,6 +1534,7 @@ export class NgxPgnViewerComponent {
 	}
 
 	stopReplay() {
+		this.isReplaying.set(false);
 		this.replayTimeouts.forEach((t) => {
 			clearTimeout(t);
 		});
@@ -1784,32 +1809,74 @@ export class NgxPgnViewerComponent {
 		return `${m}:${s.toString().padStart(2, '0')} `;
 	}
 
+	private parseEval(evalStr: string | null): number | null {
+		if (!evalStr) return null;
+		if (evalStr.startsWith('#')) {
+			const val = parseInt(evalStr.substring(1), 10);
+			// 20.0 is equivalent to 20 pawns. Positive if mate for white (e.g. #3), negative if for black (e.g. #-3)
+			return val > 0 ? 20 + (10 / Math.abs(val)) : -(20 + (10 / Math.abs(val)));
+		}
+		return parseFloat(evalStr);
+	}
+
 	private scheduleReplay(timeOuts: number[], totalMoves: number, onComplete?: () => void) {
 		const _totalGameTime = timeOuts[timeOuts.length - 1] || 1;
+		this.isReplaying.set(true);
 
-		if (totalMoves === 0 && onComplete) {
-			onComplete();
+		const startMoveIndex = this.currentMoveIndex() + 1; // Start from next move
+
+		if (startMoveIndex >= totalMoves) {
+			this.isReplaying.set(false);
+			if (onComplete) onComplete();
 			return;
 		}
 
-		for (let i = 0; i < totalMoves; i++) {
+		const startTime = startMoveIndex > 0 ? timeOuts[startMoveIndex - 1] : 0;
+
+		for (let i = startMoveIndex; i < totalMoves; i++) {
 			let delay = 0;
-			if (this.replayMode() === "fixed") {
-				delay = timeOuts[i] * 1000;
-			} else if (this.replayMode() === "realtime") {
-				delay = timeOuts[i] * 1000;
-			} else if (this.replayMode() === "proportional") {
-				// Proportional timeouts are already calculated in seconds in calculateReplayTimeouts
-				// Just convert to ms
-				delay = timeOuts[i] * 1000;
+			if (this.replayMode() === "fixed" || this.replayMode() === "realtime" || this.replayMode() === "proportional") {
+				// Calculate relative delay from "now" (which corresponds to startTime in the game)
+				delay = (timeOuts[i] - startTime) * 1000;
+			} else {
+				// Fallback
+				delay = (i - startMoveIndex + 1) * 1000;
 			}
+
+			// Ensure non-negative delay
+			delay = Math.max(0, delay);
 
 			const isLast = i === totalMoves - 1;
 			const timeoutId = setTimeout(() => {
 				this.next();
+
+				// Stop on Error Check
+				if (this.stopOnError()) {
+					const currentIdx = this.currentMoveIndex();
+					const evals = this.evaluations();
+					if (currentIdx > 0 && currentIdx < evals.length) {
+						const currentEval = this.parseEval(evals[currentIdx]);
+						const prevEval = this.parseEval(evals[currentIdx - 1]);
+
+						if (currentEval !== null && prevEval !== null) {
+							// If diff > threshold
+							if (Math.abs(currentEval - prevEval) > this.stopOnErrorThreshold()) {
+								this.stopReplay();
+								this.isReplayingSequence = false;
+								// Could add a toast or alert here if UI allows
+							}
+						}
+					}
+				}
+
 				if (isLast && onComplete) {
 					// Give a small buffer for the last animation
-					setTimeout(onComplete, 500);
+					setTimeout(() => {
+						// Only call onComplete if we didn't stop manually (check isReplaying?)
+						// stopReplay() sets isReplaying to false.
+						// If we stopped on error, we don't proceed to next game in sequence.
+						if (onComplete) onComplete();
+					}, 500);
 				}
 			}, delay);
 			this.replayTimeouts.push(timeoutId);

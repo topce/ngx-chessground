@@ -33,7 +33,8 @@
                     <select [value]="filterEco()" (change)="updateFilterEco($event)" aria-label="Filter by ECO Opening">
                         <option value="">All Openings</option>
                         @for (ecoData of sortedEcoCodes(); track ecoData.code) {
-                        <option [value]="ecoData.code" [title]="getOpeningMoves(ecoData.code)">{{ ecoData.code }}@if (getOpeningName(ecoData.code)) { - {{
+                        <option [value]="ecoData.code" [title]="getOpeningMoves(ecoData.code)">{{ ecoData.code }}@if
+                            (getOpeningName(ecoData.code)) { - {{
                             getOpeningName(ecoData.code) }} } ({{ ecoData.count }} games)</option>
                         }
                     </select>
@@ -230,8 +231,22 @@
                 </div>
                 }
 
+                <div class="option-row" style="margin-top: 8px; display: flex; align-items: center; gap: 4px;">
+                    <label class="checkbox-label"
+                        style="display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                        <input type="checkbox" [checked]="stopOnError()" (change)="toggleStopOnError($event)">
+                        Stop on Error (&gt;
+                    </label>
+                    <input type="number" [value]="stopOnErrorThreshold()" (input)="updateStopOnErrorThreshold($event)"
+                        step="0.1" class="small-input" style="width: 50px;" [disabled]="!stopOnError()">
+                    )
+                </div>
+
                 <div class="replay-actions">
                     <button (click)="replayGame()" class="action-btn">Replay</button>
+                    @if (canContinueReplay()) {
+                    <button (click)="continueReplay()" class="action-btn">Continue</button>
+                    }
                     <button (click)="stopSequence()" class="action-btn stop">Stop</button>
                 </div>
                 @if (canShowReplayAll()) {
