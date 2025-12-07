@@ -199,11 +199,26 @@ export class NgxPgnViewerComponent {
 				let scoreText = '';
 				const cpMatch = line.match(/score cp (-?\d+)/);
 				const mateMatch = line.match(/score mate (-?\d+)/);
+
+				// Determine active color for perspective adjustment
+				let isBlackToMove = false;
+				if (this.analyzedFen) {
+					const parts = this.analyzedFen.split(' ');
+					if (parts.length > 1 && parts[1] === 'b') {
+						isBlackToMove = true;
+					}
+				}
+
 				if (mateMatch) {
-					scoreText = `#${mateMatch[1]}`;
+					let mate = parseInt(mateMatch[1], 10);
+					if (isBlackToMove) mate = -mate;
+					scoreText = `#${mate}`;
 				} else if (cpMatch) {
-					const cp = parseInt(cpMatch[1], 10);
+					let cp = parseInt(cpMatch[1], 10);
+					if (isBlackToMove) cp = -cp;
 					scoreText = (cp / 100).toFixed(2);
+					// Add + sign for positive scores for clarity
+					if (cp > 0) scoreText = `+${scoreText}`;
 				}
 
 				// Convert PV to SAN objects
