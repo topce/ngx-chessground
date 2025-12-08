@@ -231,7 +231,7 @@ export class NgxPgnViewerComponent {
 						const u = bestMove;
 						const m = temp.move({ from: u.substring(0, 2), to: u.substring(2, 4), promotion: u.length > 4 ? u.substring(4, 5) : undefined });
 						if (m) bestMoveSan = m.san;
-					} catch (_e) { }
+					} catch (e) { console.error(e); }
 				}
 
 				this.bestMoveInfo.set({ move: bestMoveSan, pv: sanPv, score: scoreText });
