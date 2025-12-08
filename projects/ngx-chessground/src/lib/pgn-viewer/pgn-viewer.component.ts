@@ -246,7 +246,7 @@ export class NgxPgnViewerComponent {
 	private analyzedFen: string | null = null;
 
 	// Stockfish Analysis Config
-	stockfishDepth = signal<number>(25);
+	stockfishDepth = signal<number>(18);
 
 	analyzePosition(fen: string) {
 		if (!this.stockfishWorker) return;
