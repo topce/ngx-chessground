@@ -193,7 +193,7 @@ export class NgxPgnViewerComponent {
 			const pvString = line.substring(pvIndex + 4);
 			const moves = pvString.split(' ');
 			if (moves.length > 0) {
-				let bestMove = moves[0];
+				const bestMove = moves[0];
 
 				// Optional: Extract score if needed for display
 				let scoreText = '';
@@ -231,7 +231,7 @@ export class NgxPgnViewerComponent {
 						const u = bestMove;
 						const m = temp.move({ from: u.substring(0, 2), to: u.substring(2, 4), promotion: u.length > 4 ? u.substring(4, 5) : undefined });
 						if (m) bestMoveSan = m.san;
-					} catch (e) { }
+					} catch (_e) { }
 				}
 
 				this.bestMoveInfo.set({ move: bestMoveSan, pv: sanPv, score: scoreText });
