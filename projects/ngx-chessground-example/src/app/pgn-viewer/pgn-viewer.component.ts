@@ -57,11 +57,6 @@ export class PgnViewerComponent implements AfterViewInit {
 		}, 0);
 	}
 
-	loadMultipleGames() {
-		const multipleGames = `${this.fischerEvergreen}\n\n${this.topceEvergreen}`;
-		this.currentPgn = multipleGames;
-	}
-
 	loadFischer() {
 		this.currentPgn = this.fischerEvergreen;
 	}
