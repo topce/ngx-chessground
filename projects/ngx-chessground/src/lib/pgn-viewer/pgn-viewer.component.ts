@@ -43,6 +43,7 @@ interface GameMetadata {
 export class NgxPgnViewerComponent {
 	// Inputs
 	pgn = input<string>("");
+	highlightLastMove = input<boolean>(true);
 
 	getOpeningMoves(code: string): string {
 		return ECO_MOVES[code] || "";
@@ -131,6 +132,18 @@ export class NgxPgnViewerComponent {
 		const currentIndex = this.currentGameIndex();
 		if (metadata.length === 0 || currentIndex < 0 || currentIndex >= metadata.length) return '*';
 		return metadata[currentIndex].result;
+	});
+
+	// Last move squares for board highlighting
+	lastMoveSquares = computed<[Key, Key] | undefined>(() => {
+		if (!this.highlightLastMove()) return undefined;
+		// Depend on currentMoveIndex and currentFen to trigger recomputation when position changes
+		this.currentMoveIndex();
+		this.currentFen();
+		const history = this.chess.history({ verbose: true });
+		if (history.length === 0) return undefined;
+		const lastMove = history[history.length - 1];
+		return [lastMove.from as Key, lastMove.to as Key];
 	});
 
 	// Game information for display (filtered)
@@ -344,10 +357,12 @@ export class NgxPgnViewerComponent {
 	runFunction = computed<(el: HTMLElement) => Api>(() => {
 		const fen = this.currentFen();
 		const isEditable = this.filterMoves();
+		const lastMove = this.lastMoveSquares();
 		return (el: HTMLElement) => {
 			return Chessground(el, {
 				fen: fen,
 				viewOnly: !isEditable,
+				lastMove: lastMove,
 				movable: {
 					free: false,
 					color: isEditable ? 'both' : undefined,

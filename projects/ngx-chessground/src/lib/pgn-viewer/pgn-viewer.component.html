@@ -232,7 +232,7 @@
                     @if ($index % 2 === 0) {
                     <span class="move-number">{{ ($index / 2) + 1 }}.</span>
                     }
-                    <button class="move-btn" [class.active]="$index === currentMoveIndex()" (click)="jumpToMove($index)"
+                    <button class="move-btn" [class.active]="$index === currentMoveIndex()" [class.last-move]="highlightLastMove() && $index === moves().length - 1" (click)="jumpToMove($index)"
                         [attr.aria-label]="'Jump to move ' + (($index / 2) + 1) + ( $index % 2 === 0 ? ' White ' : ' Black ') + move">
                         {{ move }}
                     </button>

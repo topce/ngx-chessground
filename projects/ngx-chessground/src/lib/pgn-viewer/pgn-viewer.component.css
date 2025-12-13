@@ -365,6 +365,12 @@
 	background-color: #e9ecef;
 }
 
+.move-btn.last-move {
+	background-color: #ffeb3b;
+	font-weight: bold;
+	color: #000;
+}
+
 .move-btn.active {
 	background-color: #ffd700;
 	font-weight: bold;
