@@ -14,6 +14,7 @@ import {
 import { Chess, Move } from "chess.js";
 import { Chessground } from "chessground";
 import { Api } from "chessground/api";
+import { Key } from "chessground/types";
 import { parsePgn } from 'chessops/pgn';
 import { loadAsync as loadZipAsync } from "jszip";
 import { decompress as decompressZst } from "fzstd";
@@ -87,6 +88,7 @@ export class NgxPgnViewerComponent {
 			.map(([code, count]) => ({ code, count }));
 	});
 
+
 	// Filtering State
 	filteredGamesIndices = signal<number[]>([]);
 	isFiltering = signal<boolean>(false);
@@ -97,6 +99,12 @@ export class NgxPgnViewerComponent {
 	@ViewChild('moveList') moveList!: ElementRef<HTMLElement>;
 	private worker: Worker | null = null;
 	private activeFilterMoves: string[] = [];
+
+	// Track moves made during interactive mode
+	private interactiveMoves = signal<string[]>([]);
+
+	// Flag to uncheck filterMoves after filtering completes
+	private shouldUncheckFilterMoves = false;
 
 	// Computed values for better reactivity
 	selectedGamesCount = computed(() => this.selectedGames().size);
@@ -335,18 +343,62 @@ export class NgxPgnViewerComponent {
 	// Computed
 	runFunction = computed<(el: HTMLElement) => Api>(() => {
 		const fen = this.currentFen();
+		const isEditable = this.filterMoves();
 		return (el: HTMLElement) => {
 			return Chessground(el, {
 				fen: fen,
-				viewOnly: true,
-				// events: {
-				// 	move: (orig, dest) => {
-				// 		// Handle moves if interactive mode is added later
-				// 	},
-				// },
+				viewOnly: !isEditable,
+				movable: {
+					free: false,
+					color: isEditable ? 'both' : undefined,
+					dests: isEditable ? this.getMovableDests() : undefined,
+					events: {
+						after: (orig, dest) => {
+							if (isEditable) {
+								this.handleBoardMove(orig, dest);
+							}
+						}
+					}
+				},
 			});
 		};
 	});
+
+	// Helper method to get legal move destinations for the current position
+	private getMovableDests(): Map<Key, Key[]> {
+		const dests = new Map<Key, Key[]>();
+		const moves = this.chess.moves({ verbose: true });
+
+		for (const move of moves) {
+			const from = move.from as Key;
+			if (!dests.has(from)) {
+				dests.set(from, []);
+			}
+			dests.get(from)!.push(move.to as Key);
+		}
+
+		return dests;
+	}
+
+	// Helper method to handle moves made on the board
+	private handleBoardMove(orig: string, dest: string) {
+		try {
+			// Try to make the move
+			const move = this.chess.move({ from: orig, to: dest });
+
+			if (move) {
+				// Update the current FEN to reflect the new position
+				this.currentFen.set(this.chess.fen());
+
+				// Track the move in SAN notation for filtering
+				this.interactiveMoves.update(moves => [...moves, move.san]);
+			}
+		} catch (e) {
+			console.error('Invalid move:', e);
+			// Reset to current position if move was invalid
+			this.currentFen.set(this.chess.fen());
+		}
+	}
 
 	constructor() {
 		if (typeof Worker !== 'undefined') {
@@ -461,6 +513,12 @@ export class NgxPgnViewerComponent {
 					this.selectAllGames();
 					this.autoSelectOnFinish = false;
 				}
+
+				// Uncheck filterMoves after filtering completes if flag is set
+				if (this.shouldUncheckFilterMoves) {
+					this.filterMoves.set(false);
+					this.shouldUncheckFilterMoves = false;
+				}
 			}
 		} else if (type === 'loadGame') {
 			const { moves, pgn, evaluations, error } = payload;
@@ -506,11 +564,18 @@ export class NgxPgnViewerComponent {
 		const fWhiteRatingMax = parseInt(this.filterWhiteRatingMax(), 10) || 0;
 		const fBlackRatingMax = parseInt(this.filterBlackRatingMax(), 10) || 0;
 		const fEco = this.filterEco();
-		const currentMoves = this.moves().slice(0, this.currentMoveIndex() + 1);
+
+		// Use interactive moves if filtering by moves, otherwise use current game moves
+		const currentMoves = fMoves ? this.interactiveMoves() : this.moves().slice(0, this.currentMoveIndex() + 1);
 		this.activeFilterMoves = currentMoves;
 
 		this.autoSelectOnFinish = true;
 		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, fWhiteRating, fBlackRating, fWhiteRatingMax, fBlackRatingMax, fEco, currentMoves);
+
+		// Set flag to uncheck "Filter by Starting Moves" after filtering completes
+		if (fMoves) {
+			this.shouldUncheckFilterMoves = true;
+		}
 	}
 
 	clearFilters() {
@@ -931,6 +996,13 @@ export class NgxPgnViewerComponent {
 	toggleFilterMoves(event: Event) {
 		const checked = (event.target as HTMLInputElement).checked;
 		this.filterMoves.set(checked);
+
+		if (checked) {
+			// Reset to starting position when enabling interactive mode
+			this.chess.reset();
+			this.currentFen.set(this.chess.fen());
+			this.interactiveMoves.set([]);
+		}
 	}
 
 	toggleIgnoreColor(event: Event) {

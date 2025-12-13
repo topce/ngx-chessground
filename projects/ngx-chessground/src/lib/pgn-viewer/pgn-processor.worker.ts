@@ -116,6 +116,11 @@ function handleFilter(criteria: FilterCriteria, id: number) {
     const fResultLower = result.toLowerCase();
     const fEcoLower = eco.toLowerCase();
 
+    // Clear cache when filtering by moves to ensure fresh parsing with updated logic
+    if (moves && targetMoves.length > 0) {
+        gameMovesCache.clear();
+    }
+
     const matches: number[] = [];
 
     for (let i = 0; i < games.length; i++) {
@@ -457,11 +462,38 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 
 function extractMovesFast(pgn: string): string[] {
     // 1. Isolate the move text (after the headers)
-    // Headers end with a blank line.
+    // NOTE: We must NOT use lastIndexOf(']') here because Lichess PGNs often
+    // include bracket tags in comments like [%clk ...] / [%eval ...], which
+    // appear after the headers and would truncate the move text.
     let moveText = pgn;
-    const headerEndIndex = pgn.lastIndexOf(']');
-    if (headerEndIndex !== -1) {
-        moveText = pgn.substring(headerEndIndex + 1);
+    if (pgn.startsWith('[')) {
+        // Walk line-by-line until we pass the header tag section.
+        // Standard PGN: consecutive tag lines, then a blank line, then movetext.
+        let pos = 0;
+        let sawTagLine = false;
+        while (pos < pgn.length) {
+            const nextNl = pgn.indexOf('\n', pos);
+            const lineEnd = nextNl === -1 ? pgn.length : nextNl;
+            const rawLine = pgn.slice(pos, lineEnd);
+            const line = rawLine.replace(/\r$/, '');
+            const trimmed = line.trim();
+
+            if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                sawTagLine = true;
+                pos = nextNl === -1 ? pgn.length : nextNl + 1;
+                continue;
+            }
+
+            // Blank line after headers -> movetext starts after it.
+            if (sawTagLine && trimmed.length === 0) {
+                moveText = pgn.slice(nextNl === -1 ? pgn.length : nextNl + 1);
+                break;
+            }
+
+            // First non-tag line: assume movetext begins here.
+            moveText = pgn.slice(pos);
+            break;
+        }
     }
 
     // 2. Remove comments { ... } and ( ... ) and ; ...
@@ -474,6 +506,24 @@ function extractMovesFast(pgn: string): string[] {
     moveText = moveText.replace(/\d+\.+/g, ' ');
     moveText = moveText.replace(/(1-0|0-1|1\/2-1\/2|\*)/g, ' ');
 
-    // 4. Split by whitespace and filter empty
-    return moveText.trim().split(/\s+/).filter(m => m.length > 0 && m !== '.');
+    // 4. Remove NAG symbols ($1, $2, etc.)
+    moveText = moveText.replace(/\$\d+/g, ' ');
+
+    // 5. Split by whitespace and filter empty
+    const rawMoves = moveText.trim().split(/\s+/).filter(m => m.length > 0 && m !== '.');
+
+    // 6. Strip move annotations (!,?,!?,?!) from each move
+    const strippedMoves = rawMoves.map(move => move.replace(/[!?]+$/g, ''));
+
+    // 7. Filter out invalid moves (stray brackets, etc.) - only keep valid SAN notation
+    // Valid SAN: starts with piece letter (NBRQK) or pawn move (a-h), or castling (O-O, O-O-O)
+    // Can include capture (x), promotion (=), check (+), checkmate (#)
+    return strippedMoves.filter(move => {
+        if (!move) return false;
+        // Remove any remaining special characters that aren't part of SAN
+        if (/^[{}()\[\]]/.test(move)) return false;
+        // Check if it looks like a valid chess move
+        // Valid patterns: e4, Nf3, exd5, O-O, O-O-O, e8=Q, Nxf7+, etc.
+        return /^([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](=[NBRQ])?|O-O(-O)?)[+#]?$/.test(move);
+    });
 }
