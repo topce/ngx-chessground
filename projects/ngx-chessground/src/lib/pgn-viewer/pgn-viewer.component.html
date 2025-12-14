@@ -40,20 +40,54 @@
                     </select>
                 </div>
                 <div class="filter-row">
+                    <select [value]="filterTimeControl()" (change)="updateFilterTimeControl($event)"
+                        aria-label="Filter by Time Control">
+                        <option value="">All Time Controls</option>
+                        @for (tcData of sortedTimeControls(); track tcData.tc) {
+                        <option [value]="tcData.tc">{{ tcData.tc }} ({{ tcData.count }} games)</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-row">
+                    <select [value]="filterEvent()" (change)="updateFilterEvent($event)" aria-label="Filter by Event">
+                        <option value="">All Events</option>
+                        @for (evtData of sortedEvents(); track evtData.event) {
+                        <option [value]="evtData.event">{{ evtData.event }} ({{ evtData.count }} games)</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [checked]="filterRatingEnabled()"
+                            (change)="toggleFilterRatingEnabled($event)">
+                        Rating
+                    </label>
+                    <select (change)="applyRatingPreset($event)" class="preset-select" aria-label="Rating Presets">
+                        <option value="">Select Level...</option>
+                        <option value="2000">Canditate Master (2000+)</option>
+                        <option value="2200">National Master (2200+)</option>
+                        <option value="2300">FIDE Master (2300+)</option>
+                        <option value="2400">Intl. Master (2400+)</option>
+                        <option value="2500">Grandmaster (2500+)</option>
+                        <option value="2700">Super GM (2700+)</option>
+                        <option value="2800">World Champ Contender (2800+)</option>
+                    </select>
+                </div>
+                <div class="filter-row">
                     <input type="number" placeholder="White Rating >" aria-label="Filter by White Rating Min"
                         [value]="filterWhiteRating()" (input)="updateFilterWhiteRating($event)" class="rating-input"
-                        step="50">
+                        step="50" [disabled]="!filterRatingEnabled()">
                     <input type="number" placeholder="White Rating <" aria-label="Filter by White Rating Max"
                         [value]="filterWhiteRatingMax()" (input)="updateFilterWhiteRatingMax($event)"
-                        class="rating-input" step="50">
+                        class="rating-input" step="50" [disabled]="!filterRatingEnabled()">
                 </div>
                 <div class="filter-row">
                     <input type="number" placeholder="Black Rating >" aria-label="Filter by Black Rating Min"
                         [value]="filterBlackRating()" (input)="updateFilterBlackRating($event)" class="rating-input"
-                        step="50">
+                        step="50" [disabled]="!filterRatingEnabled()">
                     <input type="number" placeholder="Black Rating <" aria-label="Filter by Black Rating Max"
                         [value]="filterBlackRatingMax()" (input)="updateFilterBlackRatingMax($event)"
-                        class="rating-input" step="50">
+                        class="rating-input" step="50" [disabled]="!filterRatingEnabled()">
                 </div>
                 <div class="filter-row">
                     <label class="checkbox-label">
@@ -232,7 +266,9 @@
                     @if ($index % 2 === 0) {
                     <span class="move-number">{{ ($index / 2) + 1 }}.</span>
                     }
-                    <button class="move-btn" [class.active]="$index === currentMoveIndex()" [class.last-move]="highlightLastMove() && $index === moves().length - 1" (click)="jumpToMove($index)"
+                    <button class="move-btn" [class.active]="$index === currentMoveIndex()"
+                        [class.last-move]="highlightLastMove() && $index === moves().length - 1"
+                        (click)="jumpToMove($index)"
                         [attr.aria-label]="'Jump to move ' + (($index / 2) + 1) + ( $index % 2 === 0 ? ' White ' : ' Black ') + move">
                         {{ move }}
                     </button>

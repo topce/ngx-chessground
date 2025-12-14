@@ -21,6 +21,8 @@ export interface FilterCriteria {
     maxWhiteRating: number;
     maxBlackRating: number;
     eco: string;
+    timeControl: string;
+    event: string;
 }
 
 export type WorkerResponse =
@@ -37,6 +39,8 @@ export interface GameMetadata {
     whiteElo: number;
     blackElo: number;
     eco?: string;
+    timeControl?: string;
+    event?: string;
 }
 
 // State
@@ -110,11 +114,13 @@ function normalizeResult(result: string): string {
 }
 
 function handleFilter(criteria: FilterCriteria, id: number) {
-    const { white, black, result, moves, ignoreColor, targetMoves, minWhiteRating, minBlackRating, maxWhiteRating, maxBlackRating, eco } = criteria;
+    const { white, black, result, moves, ignoreColor, targetMoves, minWhiteRating, minBlackRating, maxWhiteRating, maxBlackRating, eco, timeControl, event } = criteria;
     const fWhiteLower = white.toLowerCase();
     const fBlackLower = black.toLowerCase();
     const fResultLower = result.toLowerCase();
     const fEcoLower = eco.toLowerCase();
+    const fTimeControl = timeControl;
+    const fEventLower = event.toLowerCase();
 
     // Clear cache when filtering by moves to ensure fresh parsing with updated logic
     if (moves && targetMoves.length > 0) {
@@ -144,6 +150,12 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 
         // ECO filtering
         if (fEcoLower && (!info.eco || !info.eco.toLowerCase().includes(fEcoLower))) continue;
+
+        // TimeControl filtering
+        if (fTimeControl && info.timeControl !== fTimeControl) continue;
+
+        // Event filtering
+        if (fEventLower && (!info.event || !info.event.toLowerCase().includes(fEventLower))) continue;
 
         // Rating filtering
         if (ignoreColor) {
@@ -429,6 +441,8 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
     const whiteTitleMatch = pgn.match(/\[WhiteTitle\s+"([^"]+)"\]/);
     const blackTitleMatch = pgn.match(/\[BlackTitle\s+"([^"]+)"\]/);
     const ecoMatch = pgn.match(/\[ECO\s+"([^"]+)"\]/);
+    const timeControlMatch = pgn.match(/\[TimeControl\s+"([^"]+)"\]/);
+    const eventMatch = pgn.match(/\[Event\s+"([^"]+)"\]/);
 
     let white = whiteMatch ? whiteMatch[1] : 'Unknown';
     let black = blackMatch ? blackMatch[1] : 'Unknown';
@@ -448,6 +462,8 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
     const whiteElo = whiteEloMatch ? parseInt(whiteEloMatch[1], 10) || 0 : 0;
     const blackElo = blackEloMatch ? parseInt(blackEloMatch[1], 10) || 0 : 0;
     const eco = ecoMatch ? ecoMatch[1] : undefined;
+    const timeControl = timeControlMatch ? timeControlMatch[1] : undefined;
+    const event = eventMatch ? eventMatch[1] : undefined;
 
     return {
         number: index + 1,
@@ -456,7 +472,9 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
         result: formattedResult,
         whiteElo,
         blackElo,
-        eco
+        eco,
+        timeControl,
+        event
     };
 }
 

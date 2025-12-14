@@ -30,6 +30,8 @@ interface GameMetadata {
 	whiteElo?: number;
 	blackElo?: number;
 	eco?: string; // eco is optional in worker message
+	timeControl?: string;
+	event?: string;
 }
 
 @Component({
@@ -44,6 +46,50 @@ export class NgxPgnViewerComponent {
 	// Inputs
 	pgn = input<string>("");
 	highlightLastMove = input<boolean>(true);
+
+	updateFilterWhite(event: Event) {
+		this.filterWhite.set((event.target as HTMLInputElement).value);
+	}
+
+	updateFilterBlack(event: Event) {
+		this.filterBlack.set((event.target as HTMLInputElement).value);
+	}
+
+	updateFilterResult(event: Event) {
+		this.filterResult.set((event.target as HTMLInputElement).value);
+	}
+
+	updateFilterEco(event: Event) {
+		this.filterEco.set((event.target as HTMLSelectElement).value);
+	}
+
+	updateFilterTimeControl(event: Event) {
+		this.filterTimeControl.set((event.target as HTMLSelectElement).value);
+	}
+
+	updateFilterWhiteRating(event: Event) {
+		this.filterWhiteRating.set((event.target as HTMLInputElement).value);
+	}
+
+	updateFilterWhiteRatingMax(event: Event) {
+		this.filterWhiteRatingMax.set((event.target as HTMLInputElement).value);
+	}
+
+	updateFilterBlackRating(event: Event) {
+		this.filterBlackRating.set((event.target as HTMLInputElement).value);
+	}
+
+	updateFilterBlackRatingMax(event: Event) {
+		this.filterBlackRatingMax.set((event.target as HTMLInputElement).value);
+	}
+
+	toggleIgnoreColor(event: Event) {
+		this.ignoreColor.set((event.target as HTMLInputElement).checked);
+	}
+
+	toggleFilterMoves(event: Event) {
+		this.filterMoves.set((event.target as HTMLInputElement).checked);
+	}
 
 	getOpeningMoves(code: string): string {
 		return ECO_MOVES[code] || "";
@@ -70,16 +116,21 @@ export class NgxPgnViewerComponent {
 	filterResult = signal<string>("");
 	filterMoves = signal<boolean>(false);
 	ignoreColor = signal<boolean>(false);
+	filterRatingEnabled = signal<boolean>(false);
 	filterWhiteRating = signal<string>("2000");
 	filterBlackRating = signal<string>("2000");
-	filterWhiteRatingMax = signal<string>("3000");
-	filterBlackRatingMax = signal<string>("3000");
+	filterWhiteRatingMax = signal<string>("2900");
+	filterBlackRatingMax = signal<string>("2900");
 	filterEco = signal<string>("");
+	filterTimeControl = signal<string>("");
+	filterEvent = signal<string>("");
 
 	// Autocomplete Signals
 	uniqueWhitePlayers = signal<string[]>([]);
 	uniqueBlackPlayers = signal<string[]>([]);
 	uniqueEcoCodes = signal<Map<string, number>>(new Map());
+	uniqueTimeControls = signal<Map<string, number>>(new Map());
+	uniqueEvents = signal<Map<string, number>>(new Map());
 
 	// Computed for sorted ECO codes by popularity
 	sortedEcoCodes = computed(() => {
@@ -87,6 +138,20 @@ export class NgxPgnViewerComponent {
 		return Array.from(ecoMap.entries())
 			.sort((a, b) => b[1] - a[1]) // Sort by count descending
 			.map(([code, count]) => ({ code, count }));
+	});
+
+	sortedTimeControls = computed(() => {
+		const tcMap = this.uniqueTimeControls();
+		return Array.from(tcMap.entries())
+			.sort((a, b) => b[1] - a[1]) // Sort by count descending
+			.map(([tc, count]) => ({ tc, count }));
+	});
+
+	sortedEvents = computed(() => {
+		const eventMap = this.uniqueEvents();
+		return Array.from(eventMap.entries())
+			.sort((a, b) => b[1] - a[1]) // Sort by count descending
+			.map(([event, count]) => ({ event, count }));
 	});
 
 
@@ -500,6 +565,18 @@ export class NgxPgnViewerComponent {
 				}
 			}
 
+			// Count Time Controls
+			const timeControls = new Map<string, number>();
+			const events = new Map<string, number>();
+			for (const meta of payload.metadata) {
+				if (meta.timeControl) {
+					timeControls.set(meta.timeControl, (timeControls.get(meta.timeControl) || 0) + 1);
+				}
+				if (meta.event && !meta.event.includes('?')) {
+					events.set(meta.event, (events.get(meta.event) || 0) + 1);
+				}
+			}
+
 			// Sort players by ELO descending
 			const sortedWhitePlayers = Array.from(whitePlayerElos.entries())
 				.sort((a, b) => b[1] - a[1])
@@ -512,6 +589,8 @@ export class NgxPgnViewerComponent {
 			this.uniqueWhitePlayers.set(sortedWhitePlayers);
 			this.uniqueBlackPlayers.set(sortedBlackPlayers);
 			this.uniqueEcoCodes.set(ecoCodes);
+			this.uniqueTimeControls.set(timeControls);
+			this.uniqueEvents.set(events);
 
 			// Auto-select first game if available
 			if (payload.count > 0) {
@@ -574,18 +653,21 @@ export class NgxPgnViewerComponent {
 		const fResult = this.filterResult();
 		const fMoves = this.filterMoves();
 		const fIgnoreColor = this.ignoreColor();
-		const fWhiteRating = parseInt(this.filterWhiteRating(), 10) || 0;
-		const fBlackRating = parseInt(this.filterBlackRating(), 10) || 0;
-		const fWhiteRatingMax = parseInt(this.filterWhiteRatingMax(), 10) || 0;
-		const fBlackRatingMax = parseInt(this.filterBlackRatingMax(), 10) || 0;
+		const fRatingEnabled = this.filterRatingEnabled();
+		const fWhiteRating = fRatingEnabled ? (parseInt(this.filterWhiteRating(), 10) || 0) : 0;
+		const fBlackRating = fRatingEnabled ? (parseInt(this.filterBlackRating(), 10) || 0) : 0;
+		const fWhiteRatingMax = fRatingEnabled ? (parseInt(this.filterWhiteRatingMax(), 10) || 0) : 0;
+		const fBlackRatingMax = fRatingEnabled ? (parseInt(this.filterBlackRatingMax(), 10) || 0) : 0;
 		const fEco = this.filterEco();
+		const fTimeControl = this.filterTimeControl();
+		const fEvent = this.filterEvent();
 
 		// Use interactive moves if filtering by moves, otherwise use current game moves
 		const currentMoves = fMoves ? this.interactiveMoves() : this.moves().slice(0, this.currentMoveIndex() + 1);
 		this.activeFilterMoves = currentMoves;
 
 		this.autoSelectOnFinish = true;
-		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, fWhiteRating, fBlackRating, fWhiteRatingMax, fBlackRatingMax, fEco, currentMoves);
+		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, fWhiteRating, fBlackRating, fWhiteRatingMax, fBlackRatingMax, fEco, fTimeControl, fEvent, currentMoves);
 
 		// Set flag to uncheck "Filter by Starting Moves" after filtering completes
 		if (fMoves) {
@@ -599,11 +681,14 @@ export class NgxPgnViewerComponent {
 		this.filterResult.set("");
 		this.filterMoves.set(false);
 		this.ignoreColor.set(false);
+		this.filterRatingEnabled.set(false);
 		this.filterWhiteRating.set("2000");
 		this.filterBlackRating.set("2000");
-		this.filterWhiteRatingMax.set("3000");
-		this.filterBlackRatingMax.set("3000");
+		this.filterWhiteRatingMax.set("2900");
+		this.filterBlackRatingMax.set("2900");
 		this.filterEco.set("");
+		this.filterTimeControl.set("");
+		this.filterEvent.set("");
 		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
 		this.applyFilter();
 	}
@@ -621,6 +706,8 @@ export class NgxPgnViewerComponent {
 		fWhiteRatingMax: number,
 		fBlackRatingMax: number,
 		fEco: string,
+		fTimeControl: string,
+		fEvent: string,
 		targetMoves: string[]
 	) {
 		this.currentFilterId++;
@@ -642,6 +729,8 @@ export class NgxPgnViewerComponent {
 					maxWhiteRating: fWhiteRatingMax,
 					maxBlackRating: fBlackRatingMax,
 					eco: fEco,
+					timeControl: fTimeControl,
+					event: fEvent,
 					targetMoves: targetMoves
 				}
 			});
@@ -710,6 +799,13 @@ export class NgxPgnViewerComponent {
 	onUrlInputChange(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.urlInput.set(value);
+	}
+
+
+
+	updateFilterEvent(event: Event) {
+		const value = (event.target as HTMLSelectElement).value;
+		this.filterEvent.set(value);
 	}
 
 	// Lichess Database Date Picker Methods
@@ -993,63 +1089,7 @@ export class NgxPgnViewerComponent {
 		}
 	}
 
-	updateFilterWhite(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterWhite.set(value);
-	}
 
-	updateFilterBlack(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterBlack.set(value);
-	}
-
-	updateFilterResult(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterResult.set(value);
-	}
-
-	toggleFilterMoves(event: Event) {
-		const checked = (event.target as HTMLInputElement).checked;
-		this.filterMoves.set(checked);
-
-		if (checked) {
-			// Reset to starting position when enabling interactive mode
-			this.chess.reset();
-			this.currentFen.set(this.chess.fen());
-			this.interactiveMoves.set([]);
-		}
-	}
-
-	toggleIgnoreColor(event: Event) {
-		const checked = (event.target as HTMLInputElement).checked;
-		this.ignoreColor.set(checked);
-	}
-
-	updateFilterWhiteRating(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterWhiteRating.set(value);
-	}
-
-	updateFilterBlackRating(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterBlackRating.set(value);
-	}
-
-	updateFilterWhiteRatingMax(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterWhiteRatingMax.set(value);
-	}
-
-	updateFilterBlackRatingMax(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterBlackRatingMax.set(value);
-	}
-
-
-	updateFilterEco(event: Event) {
-		const value = (event.target as HTMLSelectElement).value;
-		this.filterEco.set(value);
-	}
 
 	private scrollToActiveMove() {
 		if (!this.moveList) return;
@@ -1100,6 +1140,25 @@ export class NgxPgnViewerComponent {
 	stopSequence() {
 		this.isReplayingSequence = false;
 		this.stopReplay();
+	}
+
+	toggleFilterRatingEnabled(event: Event) {
+		const checked = (event.target as HTMLInputElement).checked;
+		this.filterRatingEnabled.set(checked);
+	}
+
+	applyRatingPreset(event: Event) {
+		const value = (event.target as HTMLSelectElement).value;
+		if (!value) return;
+
+		const min = value;
+		const max = "2900"; // High ceiling
+
+		this.filterRatingEnabled.set(true);
+		this.filterWhiteRating.set(min);
+		this.filterBlackRating.set(min);
+		this.filterWhiteRatingMax.set(max);
+		this.filterBlackRatingMax.set(max);
 	}
 
 	toggleStopOnError(event: Event) {
