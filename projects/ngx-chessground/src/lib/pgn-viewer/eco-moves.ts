@@ -1,6 +1,6 @@
 // Generated data
 export const ECO_MOVES: Record<string, string> = {
-  "A00": "1. a3",
+  "A00": "1. a3 | 1. g3 | 1. b4 | 1. c3 | 1. Nc3",
   "A01": "1. b3",
   "A02": "1. f4",
   "A03": "1. f4 d5",
