@@ -773,8 +773,8 @@ export class NgxPgnViewerComponent {
 		this.filterRatingEnabled.set(false);
 		this.filterWhiteRating.set('2000');
 		this.filterBlackRating.set('2000');
-		this.filterWhiteRatingMax.set('2900');
-		this.filterBlackRatingMax.set('2900');
+		this.filterWhiteRatingMax.set('4000');
+		this.filterBlackRatingMax.set('4000');
 		this.filterEco.set('');
 		this.filterTimeControl.set('');
 		this.filterEvent.set('');
@@ -1249,7 +1249,7 @@ export class NgxPgnViewerComponent {
 		if (!value) return;
 
 		const min = value;
-		const max = '2900'; // High ceiling
+		const max = value === '3000' ? '4000' : '3000';
 
 		this.filterRatingEnabled.set(true);
 		this.filterWhiteRating.set(min);
