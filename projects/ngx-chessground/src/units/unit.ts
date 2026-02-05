@@ -1,4 +1,4 @@
-import type { Api } from "chessground/api";
+import type { Api } from 'chessground/api';
 
 /**
  * Represents a unit with a name and a run method.

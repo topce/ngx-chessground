@@ -1,6 +1,6 @@
-import { Chessground } from "chessground";
-import type { DrawShape } from "chessground/draw";
-import type { Unit } from "./unit";
+import { Chessground } from 'chessground';
+import type { DrawShape } from 'chessground/draw';
+import type { Unit } from './unit';
 
 /**
  * Represents a unit test case for preset user shapes in Chessground.
@@ -11,7 +11,7 @@ import type { Unit } from "./unit";
  * @property {(el: HTMLElement) => Api} run - Function that initializes Chessground with preset shapes
  */
 export const presetUserShapes: Unit = {
-	name: "Preset user shapes",
+	name: 'Preset user shapes',
 	run: (el) => Chessground(el, { drawable: { shapes: shapeSet1 } }),
 };
 
@@ -30,7 +30,7 @@ export const presetUserShapes: Unit = {
  * is no longer in the DOM (checked via offsetParent).
  */
 export const changingShapesHigh: Unit = {
-	name: "Automatically changing shapes (high diff)",
+	name: 'Automatically changing shapes (high diff)',
 	run(el) {
 		const cg = Chessground(el, { drawable: { shapes: shapeSet1 } });
 		const delay = 1000;
@@ -63,7 +63,7 @@ export const changingShapesHigh: Unit = {
  * @returns {Chessground} The initialized Chessground instance.
  */
 export const changingShapesLow: Unit = {
-	name: "Automatically changing shapes (low diff)",
+	name: 'Automatically changing shapes (low diff)',
 	run(el) {
 		const cg = Chessground(el, { drawable: { shapes: shapeSet1 } });
 		const delay = 1000;
@@ -101,7 +101,7 @@ export const changingShapesLow: Unit = {
  * - Continuously updates the shapes on the chessboard at a specified interval.
  */
 export const brushModifiers: Unit = {
-	name: "Brush modifiers",
+	name: 'Brush modifiers',
 	run(el) {
 		function sets() {
 			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) =>
@@ -145,7 +145,7 @@ export const brushModifiers: Unit = {
  * @returns {Chessground} - The Chessground instance with auto shapes functionality.
  */
 export const autoShapes: Unit = {
-	name: "Autoshapes",
+	name: 'Autoshapes',
 	run(el) {
 		function sets() {
 			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) =>
@@ -190,7 +190,7 @@ export const autoShapes: Unit = {
  * visibleFalse.run(document.getElementById('chessboard'));
  */
 export const visibleFalse: Unit = {
-	name: "Shapes not visible",
+	name: 'Shapes not visible',
 	run: (el) =>
 		Chessground(el, {
 			drawable: {
@@ -211,7 +211,7 @@ export const visibleFalse: Unit = {
  * @returns {void}
  */
 export const enabledFalse: Unit = {
-	name: "Shapes not enabled, but visible",
+	name: 'Shapes not enabled, but visible',
 	run: (el) =>
 		Chessground(el, {
 			drawable: {
@@ -236,27 +236,27 @@ export const enabledFalse: Unit = {
  * @property {number} [piece.scale] - The scale of the piece (optional).
  */
 const shapeSet1: DrawShape[] = [
-	{ orig: "a3", brush: "green" },
-	{ orig: "a4", brush: "blue" },
-	{ orig: "a5", brush: "yellow" },
-	{ orig: "a6", brush: "red" },
-	{ orig: "e2", dest: "e4", brush: "green" },
-	{ orig: "a6", dest: "c8", brush: "blue" },
-	{ orig: "f8", dest: "f4", brush: "yellow" },
+	{ orig: 'a3', brush: 'green' },
+	{ orig: 'a4', brush: 'blue' },
+	{ orig: 'a5', brush: 'yellow' },
+	{ orig: 'a6', brush: 'red' },
+	{ orig: 'e2', dest: 'e4', brush: 'green' },
+	{ orig: 'a6', dest: 'c8', brush: 'blue' },
+	{ orig: 'f8', dest: 'f4', brush: 'yellow' },
 	{
-		orig: "h5",
-		brush: "green",
+		orig: 'h5',
+		brush: 'green',
 		piece: {
-			color: "white",
-			role: "knight",
+			color: 'white',
+			role: 'knight',
 		},
 	},
 	{
-		orig: "h6",
-		brush: "red",
+		orig: 'h6',
+		brush: 'red',
 		piece: {
-			color: "black",
-			role: "queen",
+			color: 'black',
+			role: 'queen',
 			scale: 0.6,
 		},
 	},
@@ -276,19 +276,19 @@ const shapeSet1: DrawShape[] = [
  * @property {string} piece.role - The role of the piece (e.g., "bishop", "knight").
  */
 const shapeSet2: DrawShape[] = [
-	{ orig: "c1", brush: "green" },
-	{ orig: "d1", brush: "blue" },
-	{ orig: "e1", brush: "yellow" },
-	{ orig: "e2", dest: "e4", brush: "green" },
-	{ orig: "h6", dest: "h8", brush: "blue" },
-	{ orig: "b3", dest: "d6", brush: "red" },
-	{ orig: "a1", dest: "e1", brush: "red" },
+	{ orig: 'c1', brush: 'green' },
+	{ orig: 'd1', brush: 'blue' },
+	{ orig: 'e1', brush: 'yellow' },
+	{ orig: 'e2', dest: 'e4', brush: 'green' },
+	{ orig: 'h6', dest: 'h8', brush: 'blue' },
+	{ orig: 'b3', dest: 'd6', brush: 'red' },
+	{ orig: 'a1', dest: 'e1', brush: 'red' },
 	{
-		orig: "f5",
-		brush: "green",
+		orig: 'f5',
+		brush: 'green',
 		piece: {
-			color: "black",
-			role: "bishop",
+			color: 'black',
+			role: 'bishop',
 		},
 	},
 ];
@@ -307,7 +307,7 @@ const shapeSet2: DrawShape[] = [
  * const shapeSet3: DrawShape[] = [{ orig: "e5", brush: "blue" }];
  * ```
  */
-const shapeSet3: DrawShape[] = [{ orig: "e5", brush: "blue" }];
+const shapeSet3: DrawShape[] = [{ orig: 'e5', brush: 'blue' }];
 
 /**
  * A set of drawing shapes for a chessboard.

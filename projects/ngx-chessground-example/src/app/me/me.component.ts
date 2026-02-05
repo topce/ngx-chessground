@@ -1,12 +1,12 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
 @Component({
-	selector: "app-me",
+	selector: 'app-me',
 	imports: [],
-	templateUrl: "./me.component.html",
-	styleUrl: "./me.component.scss",
+	templateUrl: './me.component.html',
+	styleUrl: './me.component.scss',
 	standalone: true,
 })
 export class MeComponent {
-	title = "Learn More About Me";
+	title = 'Learn More About Me';
 }

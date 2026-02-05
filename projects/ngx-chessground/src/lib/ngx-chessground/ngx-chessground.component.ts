@@ -7,14 +7,14 @@ import {
 	model,
 	viewChild,
 	inject,
-} from "@angular/core";
-import type { Api } from "chessground/api";
-import { NgxChessgroundService } from "../ngx-chessground.service";
+} from '@angular/core';
+import type { Api } from 'chessground/api';
+import { NgxChessgroundService } from '../ngx-chessground.service';
 
 @Component({
-	selector: "ngx-chessground",
-	templateUrl: "./ngx-chessground.component.html",
-	styleUrls: ["./ngx-chessground.component.scss"],
+	selector: 'ngx-chessground',
+	templateUrl: './ngx-chessground.component.html',
+	styleUrls: ['./ngx-chessground.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	providers: [NgxChessgroundService],
 	standalone: true,
@@ -28,7 +28,7 @@ export class NgxChessgroundComponent implements AfterViewInit {
 	 * A reference to the chessboard element in the view.
 	 * @readonly
 	 */
-	readonly elementView = viewChild.required<ElementRef>("chessboard");
+	readonly elementView = viewChild.required<ElementRef>('chessboard');
 
 	/**
 	 * A function that takes an HTMLElement and returns an Api object.

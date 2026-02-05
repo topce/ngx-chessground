@@ -1,14 +1,14 @@
-import { Injectable } from "@angular/core";
-import { Chessground } from "chessground";
-import type { Api } from "chessground/api";
-import type { VNode } from "snabbdom";
+import { Injectable } from '@angular/core';
+import { Chessground } from 'chessground';
+import type { Api } from 'chessground/api';
+import type { VNode } from 'snabbdom';
 import {
 	attributesModule,
 	classModule,
 	eventListenersModule,
 	h,
 	init,
-} from "snabbdom";
+} from 'snabbdom';
 
 @Injectable()
 /**
@@ -67,9 +67,9 @@ export class NgxChessgroundService {
 	 * @private
 	 */
 	private render(): VNode {
-		return h("div#chessground-examples", [
-			h("section.blue.merida", [
-				h("div.cg-wrap", {
+		return h('div#chessground-examples', [
+			h('section.blue.merida', [
+				h('div.cg-wrap', {
 					hook: {
 						insert: this.runUnit,
 						postpatch: this.runUnit,
@@ -88,7 +88,7 @@ export class NgxChessgroundService {
 	 */
 	private readonly runUnit = (vnode: VNode, _ignore?: VNode) => {
 		const el = vnode.elm as HTMLElement;
-		el.className = "cg-wrap";
+		el.className = 'cg-wrap';
 		this.cg = Chessground(el);
 		return this.runFn(el);
 	};

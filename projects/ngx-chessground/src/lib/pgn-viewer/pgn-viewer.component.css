@@ -6,7 +6,7 @@
 	/* Full viewport height */
 	width: 100%;
 	background-color: #f8f9fa;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	overflow: hidden;
 	/* Prevent page scrolling */
 }
@@ -114,13 +114,18 @@
 }
 
 .progress-bar::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.3),
+		transparent
+	);
 	background-size: 200% 100%;
 	animation: shimmer 2s infinite;
 }
@@ -281,7 +286,7 @@
 }
 
 .clock {
-	font-family: 'Courier New', Courier, monospace;
+	font-family: "Courier New", Courier, monospace;
 	background-color: #343a40;
 	color: #fff;
 	padding: 0.1rem 0.4rem;

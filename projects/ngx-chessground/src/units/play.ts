@@ -1,15 +1,15 @@
-import { Chess } from "chess.js";
-import { Chessground } from "chessground";
-import type { Key, Piece } from "chessground/types";
-import type { PromotionService } from "../lib/promotion-dialog/promotion.service";
-import type { Unit } from "./unit";
+import { Chess } from 'chess.js';
+import { Chessground } from 'chessground';
+import type { Key, Piece } from 'chessground/types';
+import type { PromotionService } from '../lib/promotion-dialog/promotion.service';
+import type { Unit } from './unit';
 import {
 	aiPlay,
 	playOtherSide,
 	playOtherSideWithDialog,
 	toColor,
 	toDests,
-} from "./util";
+} from './util';
 
 /**
  * Factory function to create units that use dialog-based promotion.
@@ -32,12 +32,12 @@ export function createPlayUnitsWithDialog(promotionService?: PromotionService) {
 	return {
 		initial: {
 			...initial,
-			name: "Play legal moves from initial position (with promotion dialog)",
+			name: 'Play legal moves from initial position (with promotion dialog)',
 			run(el: HTMLElement) {
 				const chess = new Chess();
 				const cg = Chessground(el, {
 					movable: {
-						color: "white",
+						color: 'white',
 						free: false,
 						dests: toDests(chess),
 					},
@@ -64,17 +64,17 @@ export function createPlayUnitsWithDialog(promotionService?: PromotionService) {
 		},
 		castling: {
 			...castling,
-			name: "Castling (with promotion dialog)",
+			name: 'Castling (with promotion dialog)',
 			run(el: HTMLElement) {
 				const fen =
-					"rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
+					'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4';
 
 				const chess = new Chess(fen);
 				const cg = Chessground(el, {
 					fen,
 					turnColor: toColor(chess),
 					movable: {
-						color: "white",
+						color: 'white',
 						free: false,
 						dests: toDests(chess),
 					},
@@ -119,12 +119,12 @@ export function createPlayUnitsWithDialog(promotionService?: PromotionService) {
  * - Updates the Chessground configuration to handle moves for the other side after a move is made.
  */
 export const initial: Unit = {
-	name: "Play legal moves from initial position",
+	name: 'Play legal moves from initial position',
 	run(el) {
 		const chess = new Chess();
 		const cg = Chessground(el, {
 			movable: {
-				color: "white",
+				color: 'white',
 				free: false,
 				dests: toDests(chess),
 			},
@@ -164,17 +164,17 @@ export const initial: Unit = {
  * The function also sets up an event to handle moves after the current move.
  */
 export const castling: Unit = {
-	name: "Castling",
+	name: 'Castling',
 	run(el) {
 		const fen =
-			"rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
+			'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4';
 
 		const chess = new Chess(fen);
 		const cg = Chessground(el, {
 			fen,
 			turnColor: toColor(chess),
 			movable: {
-				color: "white",
+				color: 'white',
 				free: false,
 				dests: toDests(chess),
 			},
@@ -199,12 +199,12 @@ export const castling: Unit = {
  * @returns {Chessground} - The initialized Chessground instance.
  */
 export const playVsRandom: Unit = {
-	name: "Play vs random AI",
+	name: 'Play vs random AI',
 	run(el) {
 		const chess = new Chess();
 		const cg = Chessground(el, {
 			movable: {
-				color: "white",
+				color: 'white',
 				free: false,
 				dests: toDests(chess),
 			},
@@ -234,7 +234,7 @@ export const playVsRandom: Unit = {
  * @returns {Chessground} - The Chessground instance displaying the game.
  */
 export const playFullRandom: Unit = {
-	name: "Watch 2 random AIs",
+	name: 'Watch 2 random AIs',
 	run(el) {
 		const chess = new Chess();
 		const cg = Chessground(el, {
@@ -275,7 +275,7 @@ export const playFullRandom: Unit = {
  * @returns {Chessground} - The initialized chessground instance.
  */
 export const slowAnim: Unit = {
-	name: "Play vs random AI; slow animations",
+	name: 'Play vs random AI; slow animations',
 	run(el) {
 		const chess = new Chess();
 		const cg = Chessground(el, {
@@ -283,7 +283,7 @@ export const slowAnim: Unit = {
 				duration: 5000,
 			},
 			movable: {
-				color: "white",
+				color: 'white',
 				free: false,
 				dests: toDests(chess),
 			},
@@ -313,22 +313,22 @@ export const slowAnim: Unit = {
  * @returns {Chessground} The Chessground instance representing the chessboard.
  */
 export const conflictingHold: Unit = {
-	name: "Conflicting hold/premove",
+	name: 'Conflicting hold/premove',
 	run(el) {
 		const cg = Chessground(el, {
-			fen: "8/8/5p2/4P3/8/8/8/8",
-			turnColor: "black",
+			fen: '8/8/5p2/4P3/8/8/8/8',
+			turnColor: 'black',
 			movable: {
-				color: "white",
+				color: 'white',
 				free: false,
-				dests: new Map([["e5", ["f6"]]]),
+				dests: new Map([['e5', ['f6']]]),
 			},
 		});
 		setTimeout(() => {
-			cg.move("f6", "e5");
+			cg.move('f6', 'e5');
 			cg.playPremove();
 			cg.set({
-				turnColor: "white",
+				turnColor: 'white',
 				movable: {
 					dests: undefined,
 				},

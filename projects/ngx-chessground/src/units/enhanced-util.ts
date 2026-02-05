@@ -1,8 +1,8 @@
-import type { Chess as ChessInstance, Move, Square } from "chess.js";
-import * as ChessJS from "chess.js";
-import type { Api } from "chessground/api";
-import type { Key } from "chessground/types";
-import type { PromotionService } from "../lib/promotion-dialog/promotion.service";
+import type { Chess as ChessInstance, Move, Square } from 'chess.js';
+import * as ChessJS from 'chess.js';
+import type { Api } from 'chessground/api';
+import type { Key } from 'chessground/types';
+import type { PromotionService } from '../lib/promotion-dialog/promotion.service';
 
 /**
  * Converts chess.js promotion character to chessground piece role.
@@ -12,18 +12,18 @@ import type { PromotionService } from "../lib/promotion-dialog/promotion.service
  */
 function promotionToRole(
 	promotion: string,
-): "queen" | "rook" | "bishop" | "knight" {
+): 'queen' | 'rook' | 'bishop' | 'knight' {
 	switch (promotion) {
-		case "q":
-			return "queen";
-		case "r":
-			return "rook";
-		case "b":
-			return "bishop";
-		case "n":
-			return "knight";
+		case 'q':
+			return 'queen';
+		case 'r':
+			return 'rook';
+		case 'b':
+			return 'bishop';
+		case 'n':
+			return 'knight';
 		default:
-			return "queen"; // Default to queen
+			return 'queen'; // Default to queen
 	}
 }
 
@@ -47,13 +47,13 @@ export function playOtherSideWithDialog(
 	return (orig: Key, dest: Key) => {
 		// Check if this is a pawn promotion move (pawn reaching the first or eighth row)
 		const piece = chess.get(orig as Square);
-		const isPawn = piece && piece.type === "p";
+		const isPawn = piece && piece.type === 'p';
 		const isPromotionMove =
-			isPawn && (dest.charAt(1) === "8" || dest.charAt(1) === "1");
+			isPawn && (dest.charAt(1) === '8' || dest.charAt(1) === '1');
 
 		if (isPromotionMove) {
 			// Show promotion dialog asynchronously but don't return a Promise
-			const color = piece.color === "w" ? "white" : "black";
+			const color = piece.color === 'w' ? 'white' : 'black';
 
 			// Temporarily disable the board while waiting for promotion choice
 			cg.set({
@@ -70,7 +70,7 @@ export function playOtherSideWithDialog(
 					const moveResult = chess.move({
 						from: orig,
 						to: dest,
-						promotion: promotion as "q" | "r" | "n" | "b",
+						promotion: promotion as 'q' | 'r' | 'n' | 'b',
 					});
 
 					// For promotion moves, we need to manually update the board to show the promoted piece
@@ -79,7 +79,7 @@ export function playOtherSideWithDialog(
 						cg.move(orig, dest);
 
 						// Then update the piece on the destination square with the promoted piece
-						const pieceColor = piece.color === "w" ? "white" : "black";
+						const pieceColor = piece.color === 'w' ? 'white' : 'black';
 
 						// Map promotion letters to chessground piece roles using our helper function
 						const pieceRole = promotionToRole(promotion);
@@ -92,17 +92,17 @@ export function playOtherSideWithDialog(
 
 					// Update the board state (turn, movable pieces)
 					cg.set({
-						turnColor: chess.turn() === "w" ? "white" : "black",
+						turnColor: chess.turn() === 'w' ? 'white' : 'black',
 						movable: {
-							color: chess.turn() === "w" ? "white" : "black",
+							color: chess.turn() === 'w' ? 'white' : 'black',
 							dests: toDests(chess),
 						},
 					});
 				})
 				.catch((error) => {
-					console.error("Promotion dialog error:", error);
+					console.error('Promotion dialog error:', error);
 					// Fallback to queen promotion if dialog fails
-					const promotion = "q";
+					const promotion = 'q';
 					const moveResult = chess.move({
 						from: orig,
 						to: dest,
@@ -111,7 +111,7 @@ export function playOtherSideWithDialog(
 
 					if (moveResult) {
 						cg.move(orig, dest);
-						const pieceColor = piece.color === "w" ? "white" : "black";
+						const pieceColor = piece.color === 'w' ? 'white' : 'black';
 						const pieceRole = promotionToRole(promotion);
 						cg.setPieces(
 							new Map([[dest, { role: pieceRole, color: pieceColor }]]),
@@ -119,9 +119,9 @@ export function playOtherSideWithDialog(
 					}
 
 					cg.set({
-						turnColor: chess.turn() === "w" ? "white" : "black",
+						turnColor: chess.turn() === 'w' ? 'white' : 'black',
 						movable: {
-							color: chess.turn() === "w" ? "white" : "black",
+							color: chess.turn() === 'w' ? 'white' : 'black',
 							dests: toDests(chess),
 						},
 					});
@@ -134,9 +134,9 @@ export function playOtherSideWithDialog(
 
 			// Update the board state (turn, movable pieces)
 			cg.set({
-				turnColor: chess.turn() === "w" ? "white" : "black",
+				turnColor: chess.turn() === 'w' ? 'white' : 'black',
 				movable: {
-					color: chess.turn() === "w" ? "white" : "black",
+					color: chess.turn() === 'w' ? 'white' : 'black',
 					dests: toDests(chess),
 				},
 			});
@@ -165,13 +165,13 @@ export function aiPlayWithDialog(
 	return async (orig: Key, dest: Key) => {
 		// Check if this is a pawn promotion move
 		const piece = chess.get(orig as Square);
-		const isPawn = piece && piece.type === "p";
+		const isPawn = piece && piece.type === 'p';
 		const isPromotionMove =
-			isPawn && (dest.charAt(1) === "8" || dest.charAt(1) === "1");
+			isPawn && (dest.charAt(1) === '8' || dest.charAt(1) === '1');
 
 		if (isPromotionMove) {
 			// For player's move, show promotion dialog
-			const color = piece.color === "w" ? "white" : "black";
+			const color = piece.color === 'w' ? 'white' : 'black';
 			const promotion = await promotionService.showPromotionDialog(color);
 
 			chess.move({
@@ -181,7 +181,7 @@ export function aiPlayWithDialog(
 			});
 
 			// Get the color of the piece
-			const pieceColor = piece.color === "w" ? "white" : "black";
+			const pieceColor = piece.color === 'w' ? 'white' : 'black';
 
 			// Map promotion letters to chessground piece roles using our helper function
 			const pieceRole = promotionToRole(promotion);
@@ -202,13 +202,13 @@ export function aiPlayWithDialog(
 			if (move) {
 				// Check if this is a promotion move by looking at the destination square and piece type
 				const aiMovePiece = chess.get(move.from);
-				const isAIPawn = aiMovePiece?.type === "p";
+				const isAIPawn = aiMovePiece?.type === 'p';
 				const isAIPromotionMove =
-					isAIPawn && (move.to.charAt(1) === "8" || move.to.charAt(1) === "1");
+					isAIPawn && (move.to.charAt(1) === '8' || move.to.charAt(1) === '1');
 
 				// AI always promotes to queen
 				if (isAIPromotionMove) {
-					const promotion = "q"; // AI always promotes to queen
+					const promotion = 'q'; // AI always promotes to queen
 					chess.move({
 						from: move.from,
 						to: move.to,
@@ -219,7 +219,7 @@ export function aiPlayWithDialog(
 					cg.move(move.from, move.to);
 
 					// Get piece color
-					const pieceColor = chess.turn() === "w" ? "black" : "white"; // The color is opposite of current turn
+					const pieceColor = chess.turn() === 'w' ? 'black' : 'white'; // The color is opposite of current turn
 
 					// Map promotion letters to chessground piece roles using our helper function
 					const pieceRole = promotionToRole(promotion);
@@ -233,9 +233,9 @@ export function aiPlayWithDialog(
 					cg.move(move.from, move.to);
 				}
 				cg.set({
-					turnColor: chess.turn() === "w" ? "white" : "black",
+					turnColor: chess.turn() === 'w' ? 'white' : 'black',
 					movable: {
-						color: chess.turn() === "w" ? "white" : "black",
+						color: chess.turn() === 'w' ? 'white' : 'black',
 						dests: toDests(chess),
 					},
 				});

@@ -4,16 +4,16 @@ import {
 	Component,
 	inject,
 	viewChild,
-} from "@angular/core";
-import * as play from "../../units/play";
-import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
-import { PromotionService } from "../promotion-dialog/promotion.service";
+} from '@angular/core';
+import * as play from '../../units/play';
+import { NgxChessgroundComponent } from '../ngx-chessground/ngx-chessground.component';
+import { PromotionService } from '../promotion-dialog/promotion.service';
 
 @Component({
-	selector: "ngx-chessground-table",
+	selector: 'ngx-chessground-table',
 	standalone: true,
-	templateUrl: "./ngx-chessground-table.component.html",
-	styleUrls: ["./ngx-chessground-table.component.scss"],
+	templateUrl: './ngx-chessground-table.component.html',
+	styleUrls: ['./ngx-chessground-table.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgxChessgroundComponent],
 })
@@ -42,7 +42,7 @@ export class NgxChessgroundTableComponent implements AfterViewInit {
 	 * @type {NgxChessgroundComponent}
 	 */
 	readonly ngxChessgroundComponent =
-		viewChild.required<NgxChessgroundComponent>("chess");
+		viewChild.required<NgxChessgroundComponent>('chess');
 
 	private readonly promotionService = inject(PromotionService);
 

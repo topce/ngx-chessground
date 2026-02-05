@@ -1,7 +1,7 @@
-import { Chess } from "chess.js";
-import { Chessground } from "chessground";
-import type { Unit } from "./unit";
-import { aiPlay, toDests } from "./util";
+import { Chess } from 'chess.js';
+import { Chessground } from 'chessground';
+import type { Unit } from './unit';
+import { aiPlay, toDests } from './util';
 
 /**
  * Default configuration for the 3D theme unit.
@@ -17,7 +17,7 @@ import { aiPlay, toDests } from "./util";
  * @returns {Chessground} - The initialized Chessground instance with 3D theme settings.
  */
 export const in3dDefaults: Unit = {
-	name: "3D theme",
+	name: '3D theme',
 	run(cont) {
 		const el = wrapped(cont);
 		const cg = Chessground(el, {
@@ -41,16 +41,16 @@ export const in3dDefaults: Unit = {
  * @returns {Chessground} - The initialized Chessground instance.
  */
 export const vsRandom: Unit = {
-	name: "3D theme: play vs random AI",
+	name: '3D theme: play vs random AI',
 	run(cont) {
 		const el = wrapped(cont);
 
 		const chess = new Chess();
 		const cg = Chessground(el, {
-			orientation: "black",
+			orientation: 'black',
 			addPieceZIndex: true,
 			movable: {
-				color: "white",
+				color: 'white',
 				free: false,
 				dests: toDests(chess),
 			},
@@ -84,14 +84,14 @@ export const vsRandom: Unit = {
  * where two random AIs play against each other. Moves are made at a fixed delay interval.
  */
 export const fullRandom: Unit = {
-	name: "3D theme: watch 2 random AIs",
+	name: '3D theme: watch 2 random AIs',
 	run(cont) {
 		const el = wrapped(cont);
 
 		const chess = new Chess();
 		const delay = 300;
 		const cg = Chessground(el, {
-			orientation: "black",
+			orientation: 'black',
 			addPieceZIndex: true,
 			movable: {
 				free: false,
@@ -121,9 +121,9 @@ export const fullRandom: Unit = {
  * @returns The newly created `div` element.
  */
 function wrapped(cont: HTMLElement) {
-	const el = document.createElement("div");
-	cont.className = "in3d staunton";
-	cont.innerHTML = "";
+	const el = document.createElement('div');
+	cont.className = 'in3d staunton';
+	cont.innerHTML = '';
 	cont.appendChild(el);
 	return el;
 }

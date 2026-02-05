@@ -1,13 +1,13 @@
-import { CommonModule } from "@angular/common";
-import { AfterViewInit, Component, ViewChild } from "@angular/core";
-import { NgxPgnViewerComponent } from "ngx-chessground";
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { NgxPgnViewerComponent } from 'ngx-chessground';
 
 @Component({
-	selector: "app-pgn-viewer",
+	selector: 'app-pgn-viewer',
 	standalone: true,
 	imports: [CommonModule, NgxPgnViewerComponent],
-	templateUrl: "./pgn-viewer.component.html",
-	styleUrls: ["./pgn-viewer.component.css"],
+	templateUrl: './pgn-viewer.component.html',
+	styleUrls: ['./pgn-viewer.component.css'],
 })
 export class PgnViewerComponent implements AfterViewInit {
 	@ViewChild(NgxPgnViewerComponent) pgnViewer!: NgxPgnViewerComponent;

@@ -1,5 +1,4 @@
-
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -10,17 +9,17 @@ import {
 	signal,
 	ViewChild,
 	ElementRef,
-} from "@angular/core";
-import { Chess, Move } from "chess.js";
-import { Chessground } from "chessground";
-import { Api } from "chessground/api";
-import { Key } from "chessground/types";
+} from '@angular/core';
+import { Chess, Move } from 'chess.js';
+import { Chessground } from 'chessground';
+import { Api } from 'chessground/api';
+import { Key } from 'chessground/types';
 import { parsePgn } from 'chessops/pgn';
-import { loadAsync as loadZipAsync } from "jszip";
-import { decompress as decompressZst } from "fzstd";
-import { NgxChessgroundComponent } from "../ngx-chessground/ngx-chessground.component";
-import { WorkerResponse } from "./pgn-processor.worker";
-import { ECO_MOVES } from "./eco-moves";
+import { loadAsync as loadZipAsync } from 'jszip';
+import { decompress as decompressZst } from 'fzstd';
+import { NgxChessgroundComponent } from '../ngx-chessground/ngx-chessground.component';
+import { WorkerResponse } from './pgn-processor.worker';
+import { ECO_MOVES } from './eco-moves';
 
 interface GameMetadata {
 	number: number;
@@ -35,16 +34,16 @@ interface GameMetadata {
 }
 
 @Component({
-	selector: "ngx-pgn-viewer",
+	selector: 'ngx-pgn-viewer',
 	standalone: true,
 	imports: [CommonModule, NgxChessgroundComponent],
-	templateUrl: "./pgn-viewer.component.html",
-	styleUrls: ["./pgn-viewer.component.css"],
+	templateUrl: './pgn-viewer.component.html',
+	styleUrls: ['./pgn-viewer.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgxPgnViewerComponent {
 	// Inputs
-	pgn = input<string>("");
+	pgn = input<string>('');
 	highlightLastMove = input<boolean>(true);
 
 	updateFilterWhite(event: Event) {
@@ -92,9 +91,8 @@ export class NgxPgnViewerComponent {
 	}
 
 	getOpeningMoves(code: string): string {
-		return ECO_MOVES[code] || "";
+		return ECO_MOVES[code] || '';
 	}
-
 
 	// State Signals
 	// games = signal<string[]>([]);
@@ -103,27 +101,27 @@ export class NgxPgnViewerComponent {
 	moves = signal<string[]>([]);
 	currentMoveIndex = signal<number>(-1); // -1 means start position
 	currentFen = signal<string>(
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 	);
 	isLoading = signal<boolean>(false);
 	loadingProgress = signal<number>(0);
-	loadingStatus = signal<string>("");
+	loadingStatus = signal<string>('');
 	selectedGames = signal<Set<number>>(new Set());
 
 	// Filter Signals
-	filterWhite = signal<string>("");
-	filterBlack = signal<string>("");
-	filterResult = signal<string>("");
+	filterWhite = signal<string>('');
+	filterBlack = signal<string>('');
+	filterResult = signal<string>('');
 	filterMoves = signal<boolean>(false);
 	ignoreColor = signal<boolean>(false);
 	filterRatingEnabled = signal<boolean>(false);
-	filterWhiteRating = signal<string>("2000");
-	filterBlackRating = signal<string>("2000");
-	filterWhiteRatingMax = signal<string>("2900");
-	filterBlackRatingMax = signal<string>("2900");
-	filterEco = signal<string>("");
-	filterTimeControl = signal<string>("");
-	filterEvent = signal<string>("");
+	filterWhiteRating = signal<string>('2000');
+	filterBlackRating = signal<string>('2000');
+	filterWhiteRatingMax = signal<string>('2900');
+	filterBlackRatingMax = signal<string>('2900');
+	filterEco = signal<string>('');
+	filterTimeControl = signal<string>('');
+	filterEvent = signal<string>('');
 
 	// Autocomplete Signals
 	uniqueWhitePlayers = signal<string[]>([]);
@@ -154,7 +152,6 @@ export class NgxPgnViewerComponent {
 			.map(([event, count]) => ({ event, count }));
 	});
 
-
 	// Filtering State
 	filteredGamesIndices = signal<number[]>([]);
 	isFiltering = signal<boolean>(false);
@@ -174,28 +171,48 @@ export class NgxPgnViewerComponent {
 
 	// Computed values for better reactivity
 	selectedGamesCount = computed(() => this.selectedGames().size);
-	canShowReplayAll = computed(() => this.gamesMetadata().length > 1 && this.selectedGamesCount() > 0);
-	currentGameInfo = computed(() => `Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length} `);
+	canShowReplayAll = computed(
+		() => this.gamesMetadata().length > 1 && this.selectedGamesCount() > 0,
+	);
+	currentGameInfo = computed(
+		() =>
+			`Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length} `,
+	);
 
 	// Current game player info
 	currentWhitePlayer = computed(() => {
 		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
-		if (metadata.length === 0 || currentIndex < 0 || currentIndex >= metadata.length) return 'Unknown';
+		if (
+			metadata.length === 0 ||
+			currentIndex < 0 ||
+			currentIndex >= metadata.length
+		)
+			return 'Unknown';
 		return metadata[currentIndex].white;
 	});
 
 	currentBlackPlayer = computed(() => {
 		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
-		if (metadata.length === 0 || currentIndex < 0 || currentIndex >= metadata.length) return 'Unknown';
+		if (
+			metadata.length === 0 ||
+			currentIndex < 0 ||
+			currentIndex >= metadata.length
+		)
+			return 'Unknown';
 		return metadata[currentIndex].black;
 	});
 
 	currentGameResult = computed(() => {
 		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
-		if (metadata.length === 0 || currentIndex < 0 || currentIndex >= metadata.length) return '*';
+		if (
+			metadata.length === 0 ||
+			currentIndex < 0 ||
+			currentIndex >= metadata.length
+		)
+			return '*';
 		return metadata[currentIndex].result;
 	});
 
@@ -215,37 +232,49 @@ export class NgxPgnViewerComponent {
 	filteredGameInfos = computed(() => {
 		const metadata = this.gamesMetadata();
 		const indices = this.filteredGamesIndices();
-		return indices.map(i => metadata[i]);
+		return indices.map((i) => metadata[i]);
 	});
 
 	// Replay State
-	replayMode = signal<"realtime" | "proportional" | "fixed">("fixed");
+	replayMode = signal<'realtime' | 'proportional' | 'fixed'>('fixed');
 	proportionalDuration = signal<number>(1); // minutes
 	minSecondsBetweenMoves = signal<number>(1); // seconds
 	fixedTime = signal<number>(1); // seconds
 	stopOnError = signal<boolean>(false);
-	stopOnErrorThreshold = signal<number>(1.00);
+	stopOnErrorThreshold = signal<number>(1.0);
 
 	// Clock State
-	whiteTimeRemaining = signal<string>("");
-	blackTimeRemaining = signal<string>("");
-	showClocks = computed(() => this.whiteTimeRemaining() !== "" || this.blackTimeRemaining() !== "");
+	whiteTimeRemaining = signal<string>('');
+	blackTimeRemaining = signal<string>('');
+	showClocks = computed(
+		() => this.whiteTimeRemaining() !== '' || this.blackTimeRemaining() !== '',
+	);
 
 	// Computed for replay status
 	isReplaying = signal<boolean>(false);
-	canContinueReplay = computed(() => !this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1);
+	canContinueReplay = computed(
+		() =>
+			!this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1,
+	);
 
 	// Stockfish State
 	// Stockfish State
 	stockfishWorker: Worker | null = null;
 	isAnalyzing = signal<boolean>(false);
-	bestMoveInfo = signal<{ move: string; pv: { san: string; fen: string }[]; score?: string } | null>(null);
+	bestMoveInfo = signal<{
+		move: string;
+		pv: { san: string; fen: string }[];
+		score?: string;
+	} | null>(null);
 	showBetterMoveBtn = signal<boolean>(false);
 	analysisVisible = signal<boolean>(false);
 
 	// ... (keeping other props matching existing file if they were in range, but I'll try to target specific blocks)
 
-	private uciToSan(fen: string, uciMoves: string[]): { san: string; fen: string }[] {
+	private uciToSan(
+		fen: string,
+		uciMoves: string[],
+	): { san: string; fen: string }[] {
 		try {
 			const tempChess = new Chess(fen);
 			const output: { san: string; fen: string }[] = [];
@@ -263,7 +292,7 @@ export class NgxPgnViewerComponent {
 			}
 			return output;
 		} catch (e) {
-			console.error("SAN conversion failed", e);
+			console.error('SAN conversion failed', e);
 			return [];
 		}
 	}
@@ -308,19 +337,31 @@ export class NgxPgnViewerComponent {
 				}
 
 				// Convert PV to SAN objects
-				const sanPv = this.analyzedFen ? this.uciToSan(this.analyzedFen, moves) : [];
+				const sanPv = this.analyzedFen
+					? this.uciToSan(this.analyzedFen, moves)
+					: [];
 
 				let bestMoveSan = bestMove;
 				if (this.analyzedFen) {
 					try {
 						const temp = new Chess(this.analyzedFen);
 						const u = bestMove;
-						const m = temp.move({ from: u.substring(0, 2), to: u.substring(2, 4), promotion: u.length > 4 ? u.substring(4, 5) : undefined });
+						const m = temp.move({
+							from: u.substring(0, 2),
+							to: u.substring(2, 4),
+							promotion: u.length > 4 ? u.substring(4, 5) : undefined,
+						});
 						if (m) bestMoveSan = m.san;
-					} catch (e) { console.error(e); }
+					} catch (e) {
+						console.error(e);
+					}
 				}
 
-				this.bestMoveInfo.set({ move: bestMoveSan, pv: sanPv, score: scoreText });
+				this.bestMoveInfo.set({
+					move: bestMoveSan,
+					pv: sanPv,
+					score: scoreText,
+				});
 			}
 		}
 	}
@@ -354,14 +395,13 @@ export class NgxPgnViewerComponent {
 		for (const move of info.pv) {
 			this.currentFen.set(move.fen);
 			// Wait for 1 second
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 	}
 
-
 	// UI State
-	pgnInput = signal<string>("");
-	urlInput = signal<string>("");
+	pgnInput = signal<string>('');
+	urlInput = signal<string>('');
 
 	// Evaluation State
 	evaluations = signal<(string | null)[]>([]);
@@ -382,7 +422,7 @@ export class NgxPgnViewerComponent {
 		if (evalStr.startsWith('#')) {
 			const mateIn = parseInt(evalStr.substring(1), 10);
 			if (mateIn > 0) return 100; // White mates
-			if (mateIn < 0) return 0;   // Black mates
+			if (mateIn < 0) return 0; // Black mates
 			return 50; // Should not happen for valid mate
 		}
 
@@ -437,8 +477,8 @@ export class NgxPgnViewerComponent {
 							if (isEditable) {
 								this.handleBoardMove(orig, dest);
 							}
-						}
-					}
+						},
+					},
 				},
 			});
 		};
@@ -471,7 +511,7 @@ export class NgxPgnViewerComponent {
 				this.currentFen.set(this.chess.fen());
 
 				// Track the move in SAN notation for filtering
-				this.interactiveMoves.update(moves => [...moves, move.san]);
+				this.interactiveMoves.update((moves) => [...moves, move.san]);
 			}
 		} catch (e) {
 			console.error('Invalid move:', e);
@@ -482,7 +522,9 @@ export class NgxPgnViewerComponent {
 
 	constructor() {
 		if (typeof Worker !== 'undefined') {
-			this.worker = new Worker(new URL('./pgn-processor.worker', import.meta.url));
+			this.worker = new Worker(
+				new URL('./pgn-processor.worker', import.meta.url),
+			);
 			this.worker.onmessage = ({ data }) => this.handleWorkerMessage(data);
 
 			// Initialize Stockfish Worker
@@ -491,7 +533,7 @@ export class NgxPgnViewerComponent {
 				this.stockfishWorker.onmessage = (e) => this.handleStockfishMessage(e);
 				this.stockfishWorker.postMessage('uci');
 			} catch (e) {
-				console.error("Failed to load Stockfish worker:", e);
+				console.error('Failed to load Stockfish worker:', e);
 			}
 		} else {
 			console.error('Web Workers are not supported in this environment.');
@@ -508,15 +550,20 @@ export class NgxPgnViewerComponent {
 		this.lichessMonth.update(() => month);
 
 		// Effect to update URL when date selection changes
-		effect(() => {
-			const year = this.lichessYear();
-			const month = this.lichessMonth();
-			if (year && month) {
-				const monthStr = month.toString().padStart(2, '0');
-				// Use relative path so it respects the base href
-				this.urlInput.set(`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`);
-			}
-		}, { allowSignalWrites: true });
+		effect(
+			() => {
+				const year = this.lichessYear();
+				const month = this.lichessMonth();
+				if (year && month) {
+					const monthStr = month.toString().padStart(2, '0');
+					// Use relative path so it respects the base href
+					this.urlInput.set(
+						`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`,
+					);
+				}
+			},
+			{ allowSignalWrites: true },
+		);
 
 		// Effect to load initial PGN if provided
 		effect(() => {
@@ -538,7 +585,6 @@ export class NgxPgnViewerComponent {
 		});
 	}
 
-
 	private handleWorkerMessage(data: WorkerResponse) {
 		const { type, payload, id } = data;
 		if (type === 'load') {
@@ -551,13 +597,27 @@ export class NgxPgnViewerComponent {
 			const ecoCodes = new Map<string, number>();
 
 			for (const meta of payload.metadata) {
-				if (meta.white && meta.white !== 'Unknown' && !meta.white.startsWith('BOT ')) {
+				if (
+					meta.white &&
+					meta.white !== 'Unknown' &&
+					!meta.white.startsWith('BOT ')
+				) {
 					const currentMax = whitePlayerElos.get(meta.white) || 0;
-					whitePlayerElos.set(meta.white, Math.max(currentMax, meta.whiteElo || 0));
+					whitePlayerElos.set(
+						meta.white,
+						Math.max(currentMax, meta.whiteElo || 0),
+					);
 				}
-				if (meta.black && meta.black !== 'Unknown' && !meta.black.startsWith('BOT ')) {
+				if (
+					meta.black &&
+					meta.black !== 'Unknown' &&
+					!meta.black.startsWith('BOT ')
+				) {
 					const currentMax = blackPlayerElos.get(meta.black) || 0;
-					blackPlayerElos.set(meta.black, Math.max(currentMax, meta.blackElo || 0));
+					blackPlayerElos.set(
+						meta.black,
+						Math.max(currentMax, meta.blackElo || 0),
+					);
 				}
 				// Exclude ECO codes with '?' as they are likely non-standard games
 				if (meta.eco && !meta.eco.includes('?')) {
@@ -570,7 +630,10 @@ export class NgxPgnViewerComponent {
 			const events = new Map<string, number>();
 			for (const meta of payload.metadata) {
 				if (meta.timeControl) {
-					timeControls.set(meta.timeControl, (timeControls.get(meta.timeControl) || 0) + 1);
+					timeControls.set(
+						meta.timeControl,
+						(timeControls.get(meta.timeControl) || 0) + 1,
+					);
 				}
 				if (meta.event && !meta.event.includes('?')) {
 					events.set(meta.event, (events.get(meta.event) || 0) + 1);
@@ -618,8 +681,10 @@ export class NgxPgnViewerComponent {
 			const { moves, pgn, evaluations, error } = payload;
 
 			if (error) {
-				console.error("Worker failed to parse game:", error);
-				this.pgnInput.set(`Error parsing game: ${error} \n\nRaw PGN: \n${pgn} `);
+				console.error('Worker failed to parse game:', error);
+				this.pgnInput.set(
+					`Error parsing game: ${error} \n\nRaw PGN: \n${pgn} `,
+				);
 				this.moves.set([]);
 				this.evaluations.set([]);
 			} else {
@@ -654,20 +719,44 @@ export class NgxPgnViewerComponent {
 		const fMoves = this.filterMoves();
 		const fIgnoreColor = this.ignoreColor();
 		const fRatingEnabled = this.filterRatingEnabled();
-		const fWhiteRating = fRatingEnabled ? (parseInt(this.filterWhiteRating(), 10) || 0) : 0;
-		const fBlackRating = fRatingEnabled ? (parseInt(this.filterBlackRating(), 10) || 0) : 0;
-		const fWhiteRatingMax = fRatingEnabled ? (parseInt(this.filterWhiteRatingMax(), 10) || 0) : 0;
-		const fBlackRatingMax = fRatingEnabled ? (parseInt(this.filterBlackRatingMax(), 10) || 0) : 0;
+		const fWhiteRating = fRatingEnabled
+			? parseInt(this.filterWhiteRating(), 10) || 0
+			: 0;
+		const fBlackRating = fRatingEnabled
+			? parseInt(this.filterBlackRating(), 10) || 0
+			: 0;
+		const fWhiteRatingMax = fRatingEnabled
+			? parseInt(this.filterWhiteRatingMax(), 10) || 0
+			: 0;
+		const fBlackRatingMax = fRatingEnabled
+			? parseInt(this.filterBlackRatingMax(), 10) || 0
+			: 0;
 		const fEco = this.filterEco();
 		const fTimeControl = this.filterTimeControl();
 		const fEvent = this.filterEvent();
 
 		// Use interactive moves if filtering by moves, otherwise use current game moves
-		const currentMoves = fMoves ? this.interactiveMoves() : this.moves().slice(0, this.currentMoveIndex() + 1);
+		const currentMoves = fMoves
+			? this.interactiveMoves()
+			: this.moves().slice(0, this.currentMoveIndex() + 1);
 		this.activeFilterMoves = currentMoves;
 
 		this.autoSelectOnFinish = true;
-		this.runFilterLogic(fWhite, fBlack, fResult, fMoves, fIgnoreColor, fWhiteRating, fBlackRating, fWhiteRatingMax, fBlackRatingMax, fEco, fTimeControl, fEvent, currentMoves);
+		this.runFilterLogic(
+			fWhite,
+			fBlack,
+			fResult,
+			fMoves,
+			fIgnoreColor,
+			fWhiteRating,
+			fBlackRating,
+			fWhiteRatingMax,
+			fBlackRatingMax,
+			fEco,
+			fTimeControl,
+			fEvent,
+			currentMoves,
+		);
 
 		// Set flag to uncheck "Filter by Starting Moves" after filtering completes
 		if (fMoves) {
@@ -676,23 +765,22 @@ export class NgxPgnViewerComponent {
 	}
 
 	clearFilters() {
-		this.filterWhite.set("");
-		this.filterBlack.set("");
-		this.filterResult.set("");
+		this.filterWhite.set('');
+		this.filterBlack.set('');
+		this.filterResult.set('');
 		this.filterMoves.set(false);
 		this.ignoreColor.set(false);
 		this.filterRatingEnabled.set(false);
-		this.filterWhiteRating.set("2000");
-		this.filterBlackRating.set("2000");
-		this.filterWhiteRatingMax.set("2900");
-		this.filterBlackRatingMax.set("2900");
-		this.filterEco.set("");
-		this.filterTimeControl.set("");
-		this.filterEvent.set("");
+		this.filterWhiteRating.set('2000');
+		this.filterBlackRating.set('2000');
+		this.filterWhiteRatingMax.set('2900');
+		this.filterBlackRatingMax.set('2900');
+		this.filterEco.set('');
+		this.filterTimeControl.set('');
+		this.filterEvent.set('');
 		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
 		this.applyFilter();
 	}
-
 
 	private runFilterLogic(
 		// games: string[], // REMOVED
@@ -708,7 +796,7 @@ export class NgxPgnViewerComponent {
 		fEco: string,
 		fTimeControl: string,
 		fEvent: string,
-		targetMoves: string[]
+		targetMoves: string[],
 	) {
 		this.currentFilterId++;
 		const myFilterId = this.currentFilterId;
@@ -731,21 +819,23 @@ export class NgxPgnViewerComponent {
 					eco: fEco,
 					timeControl: fTimeControl,
 					event: fEvent,
-					targetMoves: targetMoves
-				}
+					targetMoves: targetMoves,
+				},
 			});
 		}
 	}
-
 
 	// --- PGN Loading Logic ---
 
 	loadPgnString(pgn: string) {
 		// Reset state to ensure UI updates
 		this.moves.set([]);
+		this.interactiveMoves.set([]);
 		this.currentMoveIndex.set(-1);
 		this.currentGameIndex.set(-1); // Force change detection when setting to 0 later
-		this.currentFen.set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+		this.currentFen.set(
+			'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+		);
 
 		if (this.worker) {
 			this.worker.postMessage({ type: 'load', payload: pgn, id: Date.now() });
@@ -800,8 +890,6 @@ export class NgxPgnViewerComponent {
 		const value = (event.target as HTMLInputElement).value;
 		this.urlInput.set(value);
 	}
-
-
 
 	updateFilterEvent(event: Event) {
 		const value = (event.target as HTMLSelectElement).value;
@@ -882,7 +970,7 @@ export class NgxPgnViewerComponent {
 
 		this.isLoading.set(true);
 		this.loadingProgress.set(0);
-		this.loadingStatus.set("Starting download...");
+		this.loadingStatus.set('Starting download...');
 
 		try {
 			const response = await fetch(url);
@@ -912,9 +1000,13 @@ export class NgxPgnViewerComponent {
 				if (total > 0) {
 					const progress = Math.round((receivedLength / total) * 100);
 					this.loadingProgress.set(progress);
-					this.loadingStatus.set(`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB / ${(total / 1024 / 1024).toFixed(2)} MB`);
+					this.loadingStatus.set(
+						`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB / ${(total / 1024 / 1024).toFixed(2)} MB`,
+					);
 				} else {
-					this.loadingStatus.set(`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB`);
+					this.loadingStatus.set(
+						`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB`,
+					);
 				}
 			}
 
@@ -926,7 +1018,7 @@ export class NgxPgnViewerComponent {
 				position += chunk.length;
 			}
 
-			this.loadingStatus.set("Decompressing...");
+			this.loadingStatus.set('Decompressing...');
 			let content: string;
 
 			// Check for ZST magic bytes (0xFD2FB528) or extension
@@ -939,22 +1031,21 @@ export class NgxPgnViewerComponent {
 				content = new TextDecoder().decode(buffer);
 			}
 
-			this.loadingStatus.set("Processing games...");
+			this.loadingStatus.set('Processing games...');
 			// Use setTimeout to ensure change detection runs properly
 			setTimeout(() => {
 				this.loadPgnString(content);
 				this.loadGame(0);
 				this.isLoading.set(false);
 				this.loadingProgress.set(0);
-				this.loadingStatus.set("");
+				this.loadingStatus.set('');
 			}, 0);
-
 		} catch (e) {
-			console.error("Error loading from URL:", e);
+			console.error('Error loading from URL:', e);
 			alert(`Error loading from URL: ${e} `);
 			this.isLoading.set(false);
 			this.loadingProgress.set(0);
-			this.loadingStatus.set("");
+			this.loadingStatus.set('');
 		}
 	}
 
@@ -968,11 +1059,11 @@ export class NgxPgnViewerComponent {
 		try {
 			const zip = await loadZipAsync(file);
 			const pgnFile = Object.values(zip.files).find((f) =>
-				f.name.endsWith(".pgn"),
+				f.name.endsWith('.pgn'),
 			);
 
 			if (pgnFile) {
-				const content = await pgnFile.async("string");
+				const content = await pgnFile.async('string');
 				// Use setTimeout to ensure change detection runs properly
 				setTimeout(() => {
 					this.loadPgnString(content);
@@ -980,12 +1071,12 @@ export class NgxPgnViewerComponent {
 					this.isLoading.set(false);
 				}, 0);
 			} else {
-				alert("No PGN file found in the zip archive.");
+				alert('No PGN file found in the zip archive.');
 				this.isLoading.set(false);
 			}
 		} catch (e) {
-			console.error("Error loading zip file:", e);
-			alert("Error loading zip file.");
+			console.error('Error loading zip file:', e);
+			alert('Error loading zip file.');
 			this.isLoading.set(false);
 		}
 	}
@@ -1013,11 +1104,10 @@ export class NgxPgnViewerComponent {
 		};
 		reader.onerror = () => {
 			this.isLoading.set(false);
-			alert("Error reading file.");
+			alert('Error reading file.');
 		};
 		reader.readAsText(file);
 	}
-
 
 	// --- Sample Loading ---
 	// Sample loading methods removed. Use input binding from parent.
@@ -1029,12 +1119,16 @@ export class NgxPgnViewerComponent {
 		if (index >= 0 && index < count) {
 			this.currentGameIndex.set(index);
 			this.moves.set([]); // Clear moves immediately
-			this.pgnInput.set("Loading...");
+			this.pgnInput.set('Loading...');
 			this.isLoading.set(true);
 
 			// Offload parsing to worker
 			if (this.worker) {
-				this.worker.postMessage({ type: 'loadGame', payload: index, id: Date.now() });
+				this.worker.postMessage({
+					type: 'loadGame',
+					payload: index,
+					id: Date.now(),
+				});
 			}
 		}
 	}
@@ -1062,7 +1156,6 @@ export class NgxPgnViewerComponent {
 		this.selectedGames.set(new Set());
 	}
 
-
 	nextGame() {
 		if (this.currentGameIndex() < this.gamesMetadata().length - 1) {
 			this.loadGame(this.currentGameIndex() + 1);
@@ -1089,14 +1182,18 @@ export class NgxPgnViewerComponent {
 		}
 	}
 
-
-
 	private scrollToActiveMove() {
 		if (!this.moveList) return;
 		const container = this.moveList.nativeElement;
-		const activeElement = container.querySelector('.move-btn.active') as HTMLElement;
+		const activeElement = container.querySelector(
+			'.move-btn.active',
+		) as HTMLElement;
 		if (activeElement) {
-			activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+			activeElement.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest',
+				inline: 'nearest',
+			});
 		}
 	}
 
@@ -1152,7 +1249,7 @@ export class NgxPgnViewerComponent {
 		if (!value) return;
 
 		const min = value;
-		const max = "2900"; // High ceiling
+		const max = '2900'; // High ceiling
 
 		this.filterRatingEnabled.set(true);
 		this.filterWhiteRating.set(min);
@@ -1229,7 +1326,9 @@ export class NgxPgnViewerComponent {
 				// console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
 				// Fallback: use moves list length and fixed time
 				const moveCount = this.moves().length;
-				const timeOuts = Array(moveCount).fill(0).map((_, i) => (i + 1) * this.fixedTime());
+				const timeOuts = Array(moveCount)
+					.fill(0)
+					.map((_, i) => (i + 1) * this.fixedTime());
 				this.scheduleReplay(timeOuts, moveCount);
 			}
 		}
@@ -1242,10 +1341,12 @@ export class NgxPgnViewerComponent {
 		// Use filteredGamesIndices to maintain the sort order (by Elo sum)
 		// Filter this list to include only selected games
 		const selectedSet = this.selectedGames();
-		const selected = this.filteredGamesIndices().filter(idx => selectedSet.has(idx));
+		const selected = this.filteredGamesIndices().filter((idx) =>
+			selectedSet.has(idx),
+		);
 
 		if (selected.length === 0) {
-			alert("No games selected. Please select games to replay.");
+			alert('No games selected. Please select games to replay.');
 			return;
 		}
 
@@ -1255,14 +1356,14 @@ export class NgxPgnViewerComponent {
 			this.loadGame(gameIndex);
 
 			// Wait for the game to load
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Replay the current game
 			await this.replayGameAsync();
 
 			// Wait a bit between games (2 seconds)
 			if (i < selected.length - 1) {
-				await new Promise(resolve => setTimeout(resolve, 2000));
+				await new Promise((resolve) => setTimeout(resolve, 2000));
 			}
 		}
 	}
@@ -1299,7 +1400,9 @@ export class NgxPgnViewerComponent {
 					// console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
 					// Fallback
 					const moveCount = this.moves().length;
-					const timeOuts = Array(moveCount).fill(0).map((_, i) => (i + 1) * this.fixedTime());
+					const timeOuts = Array(moveCount)
+						.fill(0)
+						.map((_, i) => (i + 1) * this.fixedTime());
 
 					this.scheduleReplay(timeOuts, moveCount, () => {
 						resolve();
@@ -1325,7 +1428,7 @@ export class NgxPgnViewerComponent {
 
 	private calculateReplayTimeoutsChessops(pgn: string): number[] {
 		const games = parsePgn(pgn);
-		if (games.length === 0) throw new Error("No games found by chessops");
+		if (games.length === 0) throw new Error('No games found by chessops');
 
 		const game = games[0];
 		const timeOuts: number[] = [];
@@ -1357,7 +1460,9 @@ export class NgxPgnViewerComponent {
 					const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
 					if (clkMatch) {
 						hasClockComment = true;
-						let h = 0, m = 0, s = 0;
+						let h = 0,
+							m = 0,
+							s = 0;
 						if (clkMatch[1]) h = parseInt(clkMatch[1], 10);
 						m = parseInt(clkMatch[2], 10);
 						s = parseInt(clkMatch[3], 10);
@@ -1388,11 +1493,11 @@ export class NgxPgnViewerComponent {
 		}
 
 		// Calculate timeouts based on mode (reuse logic if possible, or duplicate for now)
-		if (this.replayMode() === "fixed") {
+		if (this.replayMode() === 'fixed') {
 			return thinkTimes.map((_, i) => (i + 1) * this.fixedTime());
 		}
 
-		if (this.replayMode() === "realtime") {
+		if (this.replayMode() === 'realtime') {
 			let totalTime = 0;
 			for (let i = 0; i < thinkTimes.length; i++) {
 				totalTime += thinkTimes[i];
@@ -1401,10 +1506,11 @@ export class NgxPgnViewerComponent {
 			return timeOuts;
 		}
 
-		if (this.replayMode() === "proportional") {
+		if (this.replayMode() === 'proportional') {
 			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
 			const targetDurationSeconds = this.proportionalDuration() * 60;
-			const scaleFactor = totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
+			const scaleFactor =
+				totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
 			const minSeconds = this.minSecondsBetweenMoves();
 
 			let currentScaledTime = 0;
@@ -1425,9 +1531,7 @@ export class NgxPgnViewerComponent {
 	// Store clock history for replay: index 0 is start, index 1 is after move 1, etc.
 	private clockHistory: { white: number; black: number }[] = [];
 
-	private calculateReplayTimeouts(
-		history: Move[],
-	): number[] {
+	private calculateReplayTimeouts(history: Move[]): number[] {
 		const timeOuts: number[] = [];
 		this.clockHistory = [];
 
@@ -1450,7 +1554,9 @@ export class NgxPgnViewerComponent {
 		// Check first few moves for clock comments
 		let hasClockComments = false;
 		for (let i = 0; i < Math.min(history.length, 10); i++) {
-			const _comment = comments.find(c => c.fen === history[i].after || c.fen === history[i].before); // Approximate check
+			const _comment = comments.find(
+				(c) => c.fen === history[i].after || c.fen === history[i].before,
+			); // Approximate check
 			// Actually chess.js getComments returns array of objects with fen and comment.
 			// We need to match moves to comments.
 			// A simpler way is to iterate moves and get comments for the position.
@@ -1465,7 +1571,9 @@ export class NgxPgnViewerComponent {
 
 		// Map FEN to comment for easier lookup
 		const fenToComment = new Map<string, string>();
-		moveComments.forEach(c => { fenToComment.set(c.fen, c.comment); });
+		moveComments.forEach((c) => {
+			fenToComment.set(c.fen, c.comment);
+		});
 
 		// Initial clock state
 		this.clockHistory.push({ white: whiteTime, black: blackTime });
@@ -1487,7 +1595,9 @@ export class NgxPgnViewerComponent {
 				const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
 				if (clkMatch) {
 					hasClockComments = true;
-					let h = 0, m = 0, s = 0;
+					let h = 0,
+						m = 0,
+						s = 0;
 
 					if (clkMatch[1]) {
 						h = parseInt(clkMatch[1], 10);
@@ -1522,24 +1632,28 @@ export class NgxPgnViewerComponent {
 		// If no clock comments found at all, clear clock history so we don't show empty clocks
 		if (!hasClockComments) {
 			this.clockHistory = [];
-			this.whiteTimeRemaining.set("");
-			this.blackTimeRemaining.set("");
+			this.whiteTimeRemaining.set('');
+			this.blackTimeRemaining.set('');
 		} else {
 			// Set initial clocks for display
 			if (this.clockHistory.length > 0) {
-				this.whiteTimeRemaining.set(this.formatTime(this.clockHistory[0].white));
-				this.blackTimeRemaining.set(this.formatTime(this.clockHistory[0].black));
+				this.whiteTimeRemaining.set(
+					this.formatTime(this.clockHistory[0].white),
+				);
+				this.blackTimeRemaining.set(
+					this.formatTime(this.clockHistory[0].black),
+				);
 			}
 		}
 
-		if (this.replayMode() === "fixed") {
+		if (this.replayMode() === 'fixed') {
 			for (let i = 0; i < history.length; i++) {
 				timeOuts.push((i + 1) * this.fixedTime());
 			}
 			return timeOuts;
 		}
 
-		if (this.replayMode() === "realtime") {
+		if (this.replayMode() === 'realtime') {
 			let totalTime = 0;
 			for (let i = 0; i < thinkTimes.length; i++) {
 				totalTime += thinkTimes[i];
@@ -1548,11 +1662,12 @@ export class NgxPgnViewerComponent {
 			return timeOuts;
 		}
 
-		if (this.replayMode() === "proportional") {
+		if (this.replayMode() === 'proportional') {
 			// Calculate total game duration
 			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
 			const targetDurationSeconds = this.proportionalDuration() * 60;
-			const scaleFactor = totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
+			const scaleFactor =
+				totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
 			const minSeconds = this.minSecondsBetweenMoves();
 
 			let currentScaledTime = 0;
@@ -1591,12 +1706,16 @@ export class NgxPgnViewerComponent {
 		if (evalStr.startsWith('#')) {
 			const val = parseInt(evalStr.substring(1), 10);
 			// 20.0 is equivalent to 20 pawns. Positive if mate for white (e.g. #3), negative if for black (e.g. #-3)
-			return val > 0 ? 20 + (10 / Math.abs(val)) : -(20 + (10 / Math.abs(val)));
+			return val > 0 ? 20 + 10 / Math.abs(val) : -(20 + 10 / Math.abs(val));
 		}
 		return parseFloat(evalStr);
 	}
 
-	private scheduleReplay(timeOuts: number[], totalMoves: number, onComplete?: () => void) {
+	private scheduleReplay(
+		timeOuts: number[],
+		totalMoves: number,
+		onComplete?: () => void,
+	) {
 		const _totalGameTime = timeOuts[timeOuts.length - 1] || 1;
 		this.isReplaying.set(true);
 		this.showBetterMoveBtn.set(false);
@@ -1615,7 +1734,11 @@ export class NgxPgnViewerComponent {
 
 		for (let i = startMoveIndex; i < totalMoves; i++) {
 			let delay = 0;
-			if (this.replayMode() === "fixed" || this.replayMode() === "realtime" || this.replayMode() === "proportional") {
+			if (
+				this.replayMode() === 'fixed' ||
+				this.replayMode() === 'realtime' ||
+				this.replayMode() === 'proportional'
+			) {
 				// Calculate relative delay from "now" (which corresponds to startTime in the game)
 				delay = (timeOuts[i] - startTime) * 1000;
 			} else {
@@ -1640,7 +1763,9 @@ export class NgxPgnViewerComponent {
 
 						if (currentEval !== null && prevEval !== null) {
 							// If diff > threshold
-							if (Math.abs(currentEval - prevEval) > this.stopOnErrorThreshold()) {
+							if (
+								Math.abs(currentEval - prevEval) > this.stopOnErrorThreshold()
+							) {
 								this.stopReplay();
 								this.isReplayingSequence = false;
 
@@ -1682,7 +1807,7 @@ export class NgxPgnViewerComponent {
 			}
 			return tempChess.fen();
 		} catch (e) {
-			console.error("Error generating previous FEN", e);
+			console.error('Error generating previous FEN', e);
 			return null;
 		}
 	}

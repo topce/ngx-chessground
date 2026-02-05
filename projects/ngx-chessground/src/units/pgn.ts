@@ -1,7 +1,7 @@
-import type { Chess as ChessInstance, Move } from "chess.js";
-import { Chess } from "chess.js";
-import { Chessground } from "chessground";
-import type { Unit } from "./unit";
+import type { Chess as ChessInstance, Move } from 'chess.js';
+import { Chess } from 'chess.js';
+import { Chessground } from 'chessground';
+import type { Unit } from './unit';
 
 /**
  * A PGN (Portable Game Notation) string representing a chess game.
@@ -77,7 +77,7 @@ const pgn = `[Event "Rated Blitz game"]
  * 5. Sets timeouts to replay each move on the chessboard in real time.
  */
 export const loadPgnRealTime: Unit = {
-	name: "replay pgn game in real time",
+	name: 'replay pgn game in real time',
 	run(el) {
 		const chess: ChessInstance = new Chess();
 		chess.loadPgn(pgn);
@@ -93,7 +93,7 @@ export const loadPgnRealTime: Unit = {
 
 		const comments: { fen: string; comment: string }[] = chess.getComments();
 		const header = chess.header();
-		const timeControl = header.TimeControl?.split("+");
+		const timeControl = header.TimeControl?.split('+');
 		let timeControlInSeconds = 180;
 		if (timeControl) {
 			const total = Number.parseInt(timeControl[0], 10);
@@ -155,7 +155,7 @@ export const loadPgnRealTime: Unit = {
  * 4. Iterates through the move history and replays each move on the Chessground board with a one-second interval.
  */
 export const loadPgnOneSecondPerMove: Unit = {
-	name: "replay pgn game one second per move",
+	name: 'replay pgn game one second per move',
 	run(el) {
 		const chess: ChessInstance = new Chess();
 		chess.loadPgn(pgn);
@@ -206,7 +206,7 @@ export const loadPgnOneSecondPerMove: Unit = {
  * 5. Sets timeouts to replay each move on the Chessground instance in proportional time.
  */
 export const loadPgnProportionalTime: Unit = {
-	name: "replay pgn game in proprtional time 1 minute",
+	name: 'replay pgn game in proprtional time 1 minute',
 	run(el) {
 		const chess: ChessInstance = new Chess();
 		chess.loadPgn(pgn);

@@ -1,16 +1,16 @@
-import type { AfterViewInit } from "@angular/core";
+import type { AfterViewInit } from '@angular/core';
 import {
 	ChangeDetectionStrategy,
 	Component,
 	inject,
 	model,
 	viewChild,
-} from "@angular/core";
+} from '@angular/core';
 import {
 	MatButtonToggle,
 	MatButtonToggleGroup,
-} from "@angular/material/button-toggle";
-import type { Api } from "chessground/api";
+} from '@angular/material/button-toggle';
+import type { Api } from 'chessground/api';
 import {
 	autoShapes,
 	autoSwitch,
@@ -41,23 +41,23 @@ import {
 	vsRandom,
 	whileHolding,
 	withSameRole,
-} from "ngx-chessground";
-import { in3dDefaults } from "../../../../ngx-chessground/src/units/in3d";
+} from 'ngx-chessground';
+import { in3dDefaults } from '../../../../ngx-chessground/src/units/in3d';
 
 @Component({
-	selector: "app-home-page",
+	selector: 'app-home-page',
 	imports: [MatButtonToggleGroup, MatButtonToggle, NgxChessgroundComponent],
-	templateUrl: "./home-page.component.html",
-	styleUrl: "./home-page.component.scss",
+	templateUrl: './home-page.component.html',
+	styleUrl: './home-page.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	standalone: true,
 })
 export class HomePageComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent =
-		viewChild.required<NgxChessgroundComponent>("chess");
+		viewChild.required<NgxChessgroundComponent>('chess');
 
-	lefMenu = viewChild.required<MatButtonToggleGroup>("leftMenu");
-	rightMenu = viewChild.required<MatButtonToggleGroup>("rightMenu");
+	lefMenu = viewChild.required<MatButtonToggleGroup>('leftMenu');
+	rightMenu = viewChild.required<MatButtonToggleGroup>('rightMenu');
 
 	private readonly promotionService = inject(PromotionService);
 
@@ -106,7 +106,7 @@ export class HomePageComponent implements AfterViewInit {
 	rightValue = model<string | null>(
 		this.rightList[this.rightList.length - 1].name,
 	);
-	title = "Chessground Examples";
+	title = 'Chessground Examples';
 
 	ngAfterViewInit(): void {
 		this.ngxChessgroundComponent().runFunction.set(loadPgnProportionalTime.run);

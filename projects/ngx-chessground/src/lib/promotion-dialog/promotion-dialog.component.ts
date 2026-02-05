@@ -1,24 +1,24 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from "@angular/material/dialog";
-import { MatIconModule } from "@angular/material/icon";
+	MAT_DIALOG_DATA,
+	MatDialogModule,
+	MatDialogRef,
+} from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface PromotionDialogData {
-  color: "white" | "black";
+	color: 'white' | 'black';
 }
 
-export type PromotionPiece = "q" | "r" | "b" | "n";
+export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
 @Component({
-  selector: "ngx-promotion-dialog",
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  template: `
+	selector: 'ngx-promotion-dialog',
+	standalone: true,
+	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+	template: `
     <div class="promotion-dialog">
       <h2 mat-dialog-title>Choose Promotion Piece</h2>
       <mat-dialog-content>
@@ -66,8 +66,8 @@ export type PromotionPiece = "q" | "r" | "b" | "n";
       </mat-dialog-content>
     </div>
   `,
-  styles: [
-    `
+	styles: [
+		`
     .promotion-dialog {
       padding: 0;
       min-width: 300px;
@@ -173,14 +173,13 @@ export type PromotionPiece = "q" | "r" | "b" | "n";
       font-weight: 600;
     }
   `,
-  ],
+	],
 })
 export class PromotionDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<PromotionDialogComponent>);
-  readonly data = inject<PromotionDialogData>(MAT_DIALOG_DATA);
+	readonly dialogRef = inject(MatDialogRef<PromotionDialogComponent>);
+	readonly data = inject<PromotionDialogData>(MAT_DIALOG_DATA);
 
-
-  selectPiece(piece: PromotionPiece): void {
-    this.dialogRef.close(piece);
-  }
+	selectPiece(piece: PromotionPiece): void {
+		this.dialogRef.close(piece);
+	}
 }
