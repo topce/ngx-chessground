@@ -671,6 +671,11 @@ export class NgxPgnViewerComponent {
 					this.autoSelectOnFinish = false;
 				}
 
+				// Load first game from filtered results
+				if (payload.length > 0) {
+					this.loadGame(payload[0]);
+				}
+
 				// Uncheck filterMoves after filtering completes if flag is set
 				if (this.shouldUncheckFilterMoves) {
 					this.filterMoves.set(false);
