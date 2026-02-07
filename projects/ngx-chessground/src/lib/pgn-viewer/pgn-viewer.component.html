@@ -1,403 +1,737 @@
 <div class="pgn-viewer-container">
-    <div class="main-content">
-        <!-- Left Panel: Game Browser -->
-        <div class="panel left-panel">
-            <h3>Game Browser</h3>
+  <div class="main-content">
+    <!-- Left Panel: Game Browser -->
+    <div class="panel left-panel">
+      <h3>Game Browser</h3>
 
-            <!-- Filters -->
-            <div class="filter-section">
-                <div class="filter-row">
-                    <input type="text" placeholder="White" aria-label="Filter by White player" [value]="filterWhite()"
-                        (input)="updateFilterWhite($event)" list="white-players">
-                    <datalist id="white-players">
-                        @for (player of uniqueWhitePlayers(); track player) { <option [value]="player"></option> }
-                    </datalist>
-                </div>
-                <div class="filter-row">
-                    <input type="text" placeholder="Black" aria-label="Filter by Black player" [value]="filterBlack()"
-                        (input)="updateFilterBlack($event)" list="black-players">
-                    <datalist id="black-players">
-                        @for (player of uniqueBlackPlayers(); track player) { <option [value]="player"></option> }
-                    </datalist>
-                </div>
-                <div class="filter-row">
-                    <input type="text" placeholder="Result" aria-label="Filter by Result" [value]="filterResult()"
-                        (input)="updateFilterResult($event)" list="results">
-                    <datalist id="results">
-                        <option value="1-0"></option>
-                        <option value="1/2-1/2"></option>
-                        <option value="0-1"></option>
-                    </datalist>
-                </div>
-                <div class="filter-row">
-                    <select [value]="filterEco()" (change)="updateFilterEco($event)" aria-label="Filter by ECO Opening">
-                        <option value="">All Openings</option>
-                        @for (ecoData of sortedEcoCodes(); track ecoData.code) {
-                        <option [value]="ecoData.code">{{ ecoData.code }}@if
-                            (getOpeningMoves(ecoData.code)) { - {{
-                            getOpeningMoves(ecoData.code) }} } ({{ ecoData.count }} games)</option>
-                        }
-                    </select>
-                </div>
-                <div class="filter-row">
-                    <select [value]="filterTimeControl()" (change)="updateFilterTimeControl($event)"
-                        aria-label="Filter by Time Control">
-                        <option value="">All Time Controls</option>
-                        @for (tcData of sortedTimeControls(); track tcData.tc) {
-                        <option [value]="tcData.tc">{{ tcData.tc }} ({{ tcData.count }} games)</option>
-                        }
-                    </select>
-                </div>
-                <div class="filter-row">
-                    <select [value]="filterEvent()" (change)="updateFilterEvent($event)" aria-label="Filter by Event">
-                        <option value="">All Events</option>
-                        @for (evtData of sortedEvents(); track evtData.event) {
-                        <option [value]="evtData.event">{{ evtData.event }} ({{ evtData.count }} games)</option>
-                        }
-                    </select>
-                </div>
-                <div class="filter-row">
-                    <label class="checkbox-label">
-                        <input type="checkbox" [checked]="filterRatingEnabled()"
-                            (change)="toggleFilterRatingEnabled($event)">
-                        Rating
-                    </label>
-                    <select (change)="applyRatingPreset($event)" class="preset-select" aria-label="Rating Presets">
-                        <option value="">Select Level...</option>
-                        <option value="2000">Candidate Master (2000+)</option>
-                        <option value="2200">National Master (2200+)</option>
-                        <option value="2300">FIDE Master (2300+)</option>
-                        <option value="2400">Intl. Master (2400+)</option>
-                        <option value="2500">Grandmaster (2500+)</option>
-                        <option value="2700">Super GM (2700+)</option>
-                        <option value="3000">Chess engines (3000 - 4000)</option>
-                    </select>
-                </div>
-                <div class="filter-row">
-                    <input type="number" placeholder="White Rating >" aria-label="Filter by White Rating Min"
-                        [value]="filterWhiteRating()" (input)="updateFilterWhiteRating($event)" class="rating-input"
-                        step="50" [disabled]="!filterRatingEnabled()">
-                    <input type="number" placeholder="White Rating <" aria-label="Filter by White Rating Max"
-                        [value]="filterWhiteRatingMax()" (input)="updateFilterWhiteRatingMax($event)"
-                        class="rating-input" step="50" [disabled]="!filterRatingEnabled()">
-                </div>
-                <div class="filter-row">
-                    <input type="number" placeholder="Black Rating >" aria-label="Filter by Black Rating Min"
-                        [value]="filterBlackRating()" (input)="updateFilterBlackRating($event)" class="rating-input"
-                        step="50" [disabled]="!filterRatingEnabled()">
-                    <input type="number" placeholder="Black Rating <" aria-label="Filter by Black Rating Max"
-                        [value]="filterBlackRatingMax()" (input)="updateFilterBlackRatingMax($event)"
-                        class="rating-input" step="50" [disabled]="!filterRatingEnabled()">
-                </div>
-                <div class="filter-row">
-                    <label class="checkbox-label">
-                        <input type="checkbox" [checked]="ignoreColor()" (change)="toggleIgnoreColor($event)">
-                        Ignore Color
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" [checked]="filterMoves()" (change)="toggleFilterMoves($event)">
-                        Enter Starting Moves
-                    </label>
-                </div>
-                <div class="filter-actions">
-                    <button (click)="clearFilters()" class="secondary-button small">Clear</button>
-                    <button (click)="applyFilter()" class="primary-button small">Filter</button>
-                </div>
-            </div>
-
-            <!-- Game List -->
-            @if (gamesMetadata().length > 0) {
-            <div class="game-list-header">
-                <span>Games: {{ filteredGameInfos().length }}</span>
-                <div class="game-nav-buttons">
-                    <button (click)="prevGame()" [disabled]="currentGameIndex() === 0" class="icon-btn"
-                        aria-label="Previous Game">◀</button>
-                    <button (click)="nextGame()" [disabled]="currentGameIndex() === gamesMetadata().length - 1"
-                        class="icon-btn" aria-label="Next Game">▶</button>
-                </div>
-            </div>
-
-            @if (isFiltering()) {
-            <div class="filtering-indicator" role="status" aria-live="polite">⏳ Filtering...</div>
+      <!-- Filters -->
+      <div class="filter-section">
+        <div class="filter-row">
+          <input
+            type="text"
+            placeholder="White"
+            aria-label="Filter by White player"
+            [value]="filterWhite()"
+            (input)="updateFilterWhite($event)"
+            list="white-players"
+          />
+          <datalist id="white-players">
+            @for (player of uniqueWhitePlayers(); track player) {
+              <option [value]="player"></option>
             }
-
-            <div class="game-list" role="list">
-                @for (gameInfo of filteredGameInfos(); track gameInfo.number) {
-                <div class="game-item" role="listitem" [class.active]="currentGameIndex() === (gameInfo.number - 1)">
-                    <label>
-                        <input type="checkbox" [checked]="selectedGames().has(gameInfo.number - 1)"
-                            (change)="toggleGameSelection(gameInfo.number - 1)"
-                            [attr.aria-label]="'Select Game ' + gameInfo.number">
-                        <div class="game-info" (click)="loadGame(gameInfo.number - 1); $event.preventDefault()"
-                            (keydown.enter)="loadGame(gameInfo.number - 1); $event.preventDefault()"
-                            (keydown.space)="loadGame(gameInfo.number - 1); $event.preventDefault()" tabindex="0"
-                            role="button"
-                            [attr.aria-label]="'Load Game ' + gameInfo.number + ': ' + gameInfo.white + ' vs ' + gameInfo.black">
-                            <div class="players">
-                                <span class="game-number">#{{ gameInfo.number }}</span>
-                                {{ gameInfo.white }} vs {{ gameInfo.black }}
-                            </div>
-                            <div class="result">{{ gameInfo.result }}</div>
-                        </div>
-                    </label>
-                </div>
-                }
-                @if (filteredGameInfos().length === 0) {
-                <div class="no-games">No games match filters</div>
-                }
-            </div>
-
-            <div class="selection-controls">
-                <div class="selection-controls">
-                    <span class="selection-count">{{ selectedGamesCount() }} selected</span>
-                </div>
-            </div>
-            } @else {
-            <div class="empty-state">No games loaded</div>
+          </datalist>
+        </div>
+        <div class="filter-row">
+          <input
+            type="text"
+            placeholder="Black"
+            aria-label="Filter by Black player"
+            [value]="filterBlack()"
+            (input)="updateFilterBlack($event)"
+            list="black-players"
+          />
+          <datalist id="black-players">
+            @for (player of uniqueBlackPlayers(); track player) {
+              <option [value]="player"></option>
             }
+          </datalist>
+        </div>
+        <div class="filter-row">
+          <select
+            multiple
+            aria-label="Filter by Result"
+            (change)="updateFilterResult($event)"
+          >
+            <option value="1-0" [selected]="filterResult().includes('1-0')">
+              White wins (1-0)
+            </option>
+            <option
+              value="1/2-1/2"
+              [selected]="filterResult().includes('1/2-1/2')"
+            >
+              Draw (1/2-1/2)
+            </option>
+            <option value="0-1" [selected]="filterResult().includes('0-1')">
+              Black wins (0-1)
+            </option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <select
+            [value]="filterEco()"
+            (change)="updateFilterEco($event)"
+            aria-label="Filter by ECO Opening"
+          >
+            <option value="">All Openings</option>
+            @for (ecoData of sortedEcoCodes(); track ecoData.code) {
+              <option [value]="ecoData.code">
+                {{ ecoData.code }}
+                @if (getOpeningMoves(ecoData.code)) {
+                  - {{ getOpeningMoves(ecoData.code) }}
+                }
+                ({{ ecoData.count }} games)
+              </option>
+            }
+          </select>
+        </div>
+        <div class="filter-row">
+          <select
+            [value]="filterTimeControl()"
+            (change)="updateFilterTimeControl($event)"
+            aria-label="Filter by Time Control"
+          >
+            <option value="">All Time Controls</option>
+            @for (tcData of sortedTimeControls(); track tcData.tc) {
+              <option [value]="tcData.tc">
+                {{ tcData.tc }} ({{ tcData.count }} games)
+              </option>
+            }
+          </select>
+        </div>
+        <div class="filter-row">
+          <select
+            [value]="filterEvent()"
+            (change)="updateFilterEvent($event)"
+            aria-label="Filter by Event"
+          >
+            <option value="">All Events</option>
+            @for (evtData of sortedEvents(); track evtData.event) {
+              <option [value]="evtData.event">
+                {{ evtData.event }} ({{ evtData.count }} games)
+              </option>
+            }
+          </select>
+        </div>
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="filterRatingEnabled()"
+              (change)="toggleFilterRatingEnabled($event)"
+            />
+            Rating
+          </label>
+          <select
+            (change)="applyRatingPreset($event)"
+            class="preset-select"
+            aria-label="Rating Presets"
+          >
+            <option value="">Select Level...</option>
+            <option value="2000">Candidate Master (2000+)</option>
+            <option value="2200">National Master (2200+)</option>
+            <option value="2300">FIDE Master (2300+)</option>
+            <option value="2400">Intl. Master (2400+)</option>
+            <option value="2500">Grandmaster (2500+)</option>
+            <option value="2700">Super GM (2700+)</option>
+            <option value="3000">Chess engines (3000 - 4000)</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <input
+            type="number"
+            placeholder="White Rating >"
+            aria-label="Filter by White Rating Min"
+            [value]="filterWhiteRating()"
+            (input)="updateFilterWhiteRating($event)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+          <input
+            type="number"
+            placeholder="White Rating <"
+            aria-label="Filter by White Rating Max"
+            [value]="filterWhiteRatingMax()"
+            (input)="updateFilterWhiteRatingMax($event)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+        </div>
+        <div class="filter-row">
+          <input
+            type="number"
+            placeholder="Black Rating >"
+            aria-label="Filter by Black Rating Min"
+            [value]="filterBlackRating()"
+            (input)="updateFilterBlackRating($event)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+          <input
+            type="number"
+            placeholder="Black Rating <"
+            aria-label="Filter by Black Rating Max"
+            [value]="filterBlackRatingMax()"
+            (input)="updateFilterBlackRatingMax($event)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+        </div>
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="ignoreColor()"
+              (change)="toggleIgnoreColor($event)"
+            />
+            Ignore Color
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="filterMoves()"
+              (change)="toggleFilterMoves($event)"
+            />
+            Enter Starting Moves
+          </label>
+        </div>
+        <div class="filter-actions">
+          <button (click)="clearFilters()" class="secondary-button small">
+            Clear
+          </button>
+          <button (click)="applyFilter()" class="primary-button small">
+            Filter
+          </button>
+        </div>
+      </div>
+
+      <!-- Game List -->
+      @if (gamesMetadata().length > 0) {
+        <div class="game-list-header">
+          <span>Games: {{ filteredGameInfos().length }}</span>
+          <div class="game-nav-buttons">
+            <button
+              (click)="prevGame()"
+              [disabled]="currentGameIndex() === 0"
+              class="icon-btn"
+              aria-label="Previous Game"
+            >
+              ◀
+            </button>
+            <button
+              (click)="nextGame()"
+              [disabled]="currentGameIndex() === gamesMetadata().length - 1"
+              class="icon-btn"
+              aria-label="Next Game"
+            >
+              ▶
+            </button>
+          </div>
         </div>
 
-        <!-- Center Panel: Board -->
-        <div class="panel center-panel">
-            <div class="board-wrapper">
-                <div class="player-info top">
-                    <div class="player-name-group">
-                        <span class="name">{{ currentBlackPlayer() }}</span>
-                        <span class="turn-indicator black-turn" [class.active]="activeColor() === 'b'"
-                            title="Black to move"></span>
-                    </div>
-                    @if (showClocks()) {
-                    <span class="clock">{{ blackTimeRemaining() }}</span>
-                    }
-                </div>
+        @if (isFiltering()) {
+          <div class="filtering-indicator" role="status" aria-live="polite">
+            ⏳ Filtering...
+          </div>
+        }
 
-                <div class="board-container">
-                    <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
-
-                    @if (currentEvaluation()) {
-                    <div class="evaluation-bar-container">
-                        <div class="evaluation-fill" [style.height.%]="evaluationBarHeight()"></div>
-                        <div class="evaluation-text" [style.top.%]="100 - evaluationBarHeight()">
-                            {{ currentEvaluation() }}
-                        </div>
-                    </div>
-                    }
+        <div class="game-list" role="list">
+          @for (gameInfo of filteredGameInfos(); track gameInfo.number) {
+            <div
+              class="game-item"
+              role="listitem"
+              [class.active]="currentGameIndex() === gameInfo.number - 1"
+            >
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="selectedGames().has(gameInfo.number - 1)"
+                  (change)="toggleGameSelection(gameInfo.number - 1)"
+                  [attr.aria-label]="'Select Game ' + gameInfo.number"
+                />
+                <div
+                  class="game-info"
+                  (click)="
+                    loadGame(gameInfo.number - 1); $event.preventDefault()
+                  "
+                  (keydown.enter)="
+                    loadGame(gameInfo.number - 1); $event.preventDefault()
+                  "
+                  (keydown.space)="
+                    loadGame(gameInfo.number - 1); $event.preventDefault()
+                  "
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-label]="
+                    'Load Game ' +
+                    gameInfo.number +
+                    ': ' +
+                    gameInfo.white +
+                    ' vs ' +
+                    gameInfo.black
+                  "
+                >
+                  <div class="players">
+                    <span class="game-number">#{{ gameInfo.number }}</span>
+                    {{ gameInfo.white }} vs {{ gameInfo.black }}
+                  </div>
+                  <div class="result">{{ gameInfo.result }}</div>
                 </div>
-
-                <div class="player-info bottom">
-                    <div class="player-details">
-                        <div class="player-name-group">
-                            <span class="name">{{ currentWhitePlayer() }}</span>
-                            <span class="turn-indicator white-turn" [class.active]="activeColor() === 'w'"
-                                title="White to move"></span>
-                        </div>
-                    </div>
-                    @if (showClocks()) {
-                    <span class="clock">{{ whiteTimeRemaining() }}</span>
-                    }
-                </div>
+              </label>
             </div>
-
-            <!-- Game Result -->
-            <div class="game-result-display">{{ currentGameResult() }}</div>
-
-            <!-- Stockfish Analysis -->
-            @if (showBetterMoveBtn()) {
-            <div class="analysis-container">
-                <div class="analysis-controls">
-                    @if (!analysisVisible()) {
-                    <label class="depth-label">
-                        Depth:
-                        <input type="number" [value]="stockfishDepth()"
-                            (input)="stockfishDepth.set(+$any($event.target).value)" min="1" max="50"
-                            class="small-input depth-input">
-                    </label>
-                    <button (click)="analysisVisible.set(true)" class="primary-button small">Show Better Move</button>
-                    }
-                </div>
-
-                @if (analysisVisible()) {
-                <div class="analysis-result">
-                    @if (isAnalyzing()) {
-                    <span class="analyzing-text">Thinking...</span>
-                    } @else if (bestMoveInfo(); as info) {
-                    <div class="best-move">
-                        <div class="best-move-header">
-                            <strong>Best: {{ info.move }} @if(info.score) { <span class="eval-score">({{ info.score
-                                    }})</span> }</strong>
-                            <button (click)="autoplayBestLine()" class="primary-button xsmall" title="Play Best Line">▶
-                                Play
-                            </button>
-                        </div>
-                        <div class="pv-line">
-                            @for (pvMove of info.pv; track $index) {
-                            <button class="pv-move-btn" (click)="previewPvMove(pvMove.fen)">{{ pvMove.san }}</button>
-                            }
-                        </div>
-                    </div>
-                    }
-                </div>
-                }
-            </div>
-            }
-
-
-            <!-- Move Navigation -->
-            <div class="move-navigation">
-                <button (click)="start()" [disabled]="currentMoveIndex() === -1" class="nav-btn"
-                    aria-label="First Move">|&lt;</button>
-                <button (click)="prev()" [disabled]="currentMoveIndex() === -1" class="nav-btn"
-                    aria-label="Previous Move">&lt;</button>
-                <span class="move-status" aria-live="polite">{{ currentMoveIndex() + 1 }} / {{ moves().length }}</span>
-                <button (click)="next()" [disabled]="currentMoveIndex() >= moves().length - 1" class="nav-btn"
-                    aria-label="Next Move">&gt;</button>
-                <button (click)="end()" [disabled]="currentMoveIndex() >= moves().length - 1" class="nav-btn"
-                    aria-label="Last Move">&gt;|</button>
-            </div>
+          }
+          @if (filteredGameInfos().length === 0) {
+            <div class="no-games">No games match filters</div>
+          }
         </div>
 
-        <!-- Right Panel: Moves & Tools -->
-        <div class="panel right-panel">
-            <!-- Move List -->
-            <div class="move-list-section">
-                <h3>Moves</h3>
-                <div class="move-list" role="list" #moveList>
-                    @for (move of moves(); track $index) {
-                    @if ($index % 2 === 0) {
-                    <span class="move-number">{{ ($index / 2) + 1 }}.</span>
-                    }
-                    <button class="move-btn" [class.active]="$index === currentMoveIndex()"
-                        [class.last-move]="highlightLastMove() && $index === moves().length - 1"
-                        (click)="jumpToMove($index)"
-                        [attr.aria-label]="'Jump to move ' + (($index / 2) + 1) + ( $index % 2 === 0 ? ' White ' : ' Black ') + move">
-                        {{ move }}
-                    </button>
-                    }
-                </div>
-            </div>
-
-            <!-- Replay Controls -->
-            <div class="replay-section">
-                <h3>Replay</h3>
-                <div class="replay-options">
-                    <label><input type="radio" name="mode" [value]="'realtime'" [checked]="replayMode() === 'realtime'"
-                            (change)="replayMode.set('realtime')"> Real Time</label>
-                    <label><input type="radio" name="mode" [value]="'proportional'"
-                            [checked]="replayMode() === 'proportional'" (change)="replayMode.set('proportional')">
-                        Proportional</label>
-                    <label><input type="radio" name="mode" [value]="'fixed'" [checked]="replayMode() === 'fixed'"
-                            (change)="replayMode.set('fixed')"> Fixed</label>
-                </div>
-
-                @if (replayMode() === 'proportional') {
-                <div class="option-input">
-                    <input type="number" [value]="proportionalDuration()" (input)="onProportionalDurationChange($event)"
-                        step="0.1" class="small-input" aria-label="Proportional Duration in Minutes"> min/game
-                </div>
-                <div class="option-input">
-                    <input type="number" [value]="minSecondsBetweenMoves()"
-                        (input)="onMinSecondsBetweenMovesChange($event)" step="0.1" class="small-input"
-                        aria-label="Min Seconds Between Moves"> min sec/move
-                </div>
-                }
-
-                @if (replayMode() === 'fixed') {
-                <div class="option-input">
-                    <input type="number" [value]="fixedTime()" (input)="onFixedTimeChange($event)" step="0.1"
-                        class="small-input" aria-label="Fixed Time per Move in Seconds"> sec/move
-                </div>
-                }
-
-                <div class="option-row" style="margin-top: 8px; display: flex; align-items: center; gap: 4px;">
-                    <label class="checkbox-label"
-                        style="display: flex; align-items: center; gap: 4px; white-space: nowrap;">
-                        <input type="checkbox" [checked]="stopOnError()" (change)="toggleStopOnError($event)">
-                        Stop on Error (&gt;
-                    </label>
-                    <input type="number" [value]="stopOnErrorThreshold()" (input)="updateStopOnErrorThreshold($event)"
-                        step="0.1" class="small-input" style="width: 50px;" [disabled]="!stopOnError()">
-                    )
-                </div>
-
-                <div class="replay-actions">
-                    <button (click)="replayGame()" class="action-btn">Replay</button>
-                    @if (canContinueReplay()) {
-                    <button (click)="continueReplay()" class="action-btn">Continue</button>
-                    }
-                    <button (click)="stopSequence()" class="action-btn stop">Stop</button>
-                </div>
-                @if (canShowReplayAll()) {
-                <button (click)="replayAllSelectedGames()" class="action-btn full-width">Replay Selected ({{
-                    selectedGamesCount() }})</button>
-                }
-            </div>
-
-            <!-- PGN Input (Collapsible-ish) -->
-            <div class="pgn-input-section">
-                <textarea [value]="pgnInput()" (input)="onPgnInputChange($event)" rows="3" placeholder="Paste PGN..."
-                    aria-label="PGN Input"></textarea>
-                <div class="clipboard-buttons">
-                    <button (click)="loadFromClipboard()" class="small-btn">Load from Clipboard</button>
-                    <button (click)="copyToClipboard()" class="small-btn">Copy to Clipboard</button>
-                </div>
-            </div>
-
-            <!-- Load Section -->
-            <div class="load-section">
-                <h3>Load Games</h3>
-                <!-- Sample buttons removed, controlled by parent -->
-                <div class="file-inputs">
-                    <label class="file-input-label">
-                        📂 Zip
-                        <input type="file" accept=".zip" (change)="onPgnZipSelected($event)" [disabled]="isLoading()">
-                    </label>
-                    <label class="file-input-label">
-                        📄 PGN
-                        <input type="file" accept=".pgn" (change)="onPgnFileSelected($event)" [disabled]="isLoading()">
-                    </label>
-                </div>
-                <div class="lichess-date-picker">
-                    <label>Lichess Database:</label>
-                    <div class="date-selectors">
-                        <select (change)="onLichessYearChange($event)" aria-label="Select Year">
-                            @for (year of getLichessYears(); track year) {
-                            <option [value]="year" [selected]="year === lichessYear()">{{ year }}</option>
-                            }
-                        </select>
-                        <select (change)="onLichessMonthChange($event)" aria-label="Select Month">
-                            @for (month of getLichessMonths(); track month) {
-                            <option [value]="month" [selected]="month === lichessMonth()">{{
-                                month.toString().padStart(2, '0') }}
-                            </option>
-                            }
-                        </select>
-                        <button (click)="loadFromLichess()" [disabled]="isLoading()" class="action-btn">Load</button>
-                    </div>
-                    <div class="license-info">
-                        <small>📜 Licensed under <a
-                                href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal" target="_blank"
-                                rel="noopener noreferrer">CC0</a> by <a href="https://database.lichess.org"
-                                target="_blank" rel="noopener noreferrer">Lichess</a></small>
-                    </div>
-                </div>
-                <div class="url-input-section">
-                    <input type="text" [value]="urlInput()" (input)="onUrlInputChange($event)"
-                        placeholder="Enter PGN URL (supports .zst)" class="url-input" aria-label="PGN URL">
-                    <button (click)="loadFromUrl()" [disabled]="isLoading() || !urlInput()" class="action-btn">Load
-                        URL</button>
-                </div>
-                @if (isLoading()) {
-                <div class="loading-indicator" role="status" aria-live="polite">
-                    @if (loadingProgress() > 0) {
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" [style.width.%]="loadingProgress()"></div>
-                        <span class="progress-text">{{ loadingProgress() }}%</span>
-                    </div>
-                    }
-                    <div class="loading-status">{{ loadingStatus() || '⏳ Loading...' }}</div>
-                </div>
-                }
-            </div>
+        <div class="selection-controls">
+          <div class="selection-controls">
+            <span class="selection-count"
+              >{{ selectedGamesCount() }} selected</span
+            >
+          </div>
         </div>
+      } @else {
+        <div class="empty-state">No games loaded</div>
+      }
     </div>
+
+    <!-- Center Panel: Board -->
+    <div class="panel center-panel">
+      <div class="board-wrapper">
+        <div class="player-info top">
+          <div class="player-name-group">
+            <span class="name">{{ currentBlackPlayer() }}</span>
+            <span
+              class="turn-indicator black-turn"
+              [class.active]="activeColor() === 'b'"
+              title="Black to move"
+            ></span>
+          </div>
+          @if (showClocks()) {
+            <span class="clock">{{ blackTimeRemaining() }}</span>
+          }
+        </div>
+
+        <div class="board-container">
+          <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
+
+          @if (currentEvaluation()) {
+            <div class="evaluation-bar-container">
+              <div
+                class="evaluation-fill"
+                [style.height.%]="evaluationBarHeight()"
+              ></div>
+              <div
+                class="evaluation-text"
+                [style.top.%]="100 - evaluationBarHeight()"
+              >
+                {{ currentEvaluation() }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="player-info bottom">
+          <div class="player-details">
+            <div class="player-name-group">
+              <span class="name">{{ currentWhitePlayer() }}</span>
+              <span
+                class="turn-indicator white-turn"
+                [class.active]="activeColor() === 'w'"
+                title="White to move"
+              ></span>
+            </div>
+          </div>
+          @if (showClocks()) {
+            <span class="clock">{{ whiteTimeRemaining() }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Game Result -->
+      <div class="game-result-display">{{ currentGameResult() }}</div>
+
+      <!-- Stockfish Analysis -->
+      @if (showBetterMoveBtn()) {
+        <div class="analysis-container">
+          <div class="analysis-controls">
+            @if (!analysisVisible()) {
+              <label class="depth-label">
+                Depth:
+                <input
+                  type="number"
+                  [value]="stockfishDepth()"
+                  (input)="stockfishDepth.set(+$any($event.target).value)"
+                  min="1"
+                  max="50"
+                  class="small-input depth-input"
+                />
+              </label>
+              <button
+                (click)="analysisVisible.set(true)"
+                class="primary-button small"
+              >
+                Show Better Move
+              </button>
+            }
+          </div>
+
+          @if (analysisVisible()) {
+            <div class="analysis-result">
+              @if (isAnalyzing()) {
+                <span class="analyzing-text">Thinking...</span>
+              } @else if (bestMoveInfo(); as info) {
+                <div class="best-move">
+                  <div class="best-move-header">
+                    <strong
+                      >Best: {{ info.move }}
+                      @if (info.score) {
+                        <span class="eval-score">({{ info.score }})</span>
+                      }
+                    </strong>
+                    <button
+                      (click)="autoplayBestLine()"
+                      class="primary-button xsmall"
+                      title="Play Best Line"
+                    >
+                      ▶ Play
+                    </button>
+                  </div>
+                  <div class="pv-line">
+                    @for (pvMove of info.pv; track $index) {
+                      <button
+                        class="pv-move-btn"
+                        (click)="previewPvMove(pvMove.fen)"
+                      >
+                        {{ pvMove.san }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Move Navigation -->
+      <div class="move-navigation">
+        <button
+          (click)="start()"
+          [disabled]="currentMoveIndex() === -1"
+          class="nav-btn"
+          aria-label="First Move"
+        >
+          |&lt;
+        </button>
+        <button
+          (click)="prev()"
+          [disabled]="currentMoveIndex() === -1"
+          class="nav-btn"
+          aria-label="Previous Move"
+        >
+          &lt;
+        </button>
+        <span class="move-status" aria-live="polite"
+          >{{ currentMoveIndex() + 1 }} / {{ moves().length }}</span
+        >
+        <button
+          (click)="next()"
+          [disabled]="currentMoveIndex() >= moves().length - 1"
+          class="nav-btn"
+          aria-label="Next Move"
+        >
+          &gt;
+        </button>
+        <button
+          (click)="end()"
+          [disabled]="currentMoveIndex() >= moves().length - 1"
+          class="nav-btn"
+          aria-label="Last Move"
+        >
+          &gt;|
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Panel: Moves & Tools -->
+    <div class="panel right-panel">
+      <!-- Move List -->
+      <div class="move-list-section">
+        <h3>Moves</h3>
+        <div class="move-list" role="list" #moveList>
+          @for (move of moves(); track $index) {
+            @if ($index % 2 === 0) {
+              <span class="move-number">{{ $index / 2 + 1 }}.</span>
+            }
+            <button
+              class="move-btn"
+              [class.active]="$index === currentMoveIndex()"
+              [class.last-move]="
+                highlightLastMove() && $index === moves().length - 1
+              "
+              (click)="jumpToMove($index)"
+              [attr.aria-label]="
+                'Jump to move ' +
+                ($index / 2 + 1) +
+                ($index % 2 === 0 ? ' White ' : ' Black ') +
+                move
+              "
+            >
+              {{ move }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Replay Controls -->
+      <div class="replay-section">
+        <h3>Replay</h3>
+        <div class="replay-options">
+          <label
+            ><input
+              type="radio"
+              name="mode"
+              [value]="'realtime'"
+              [checked]="replayMode() === 'realtime'"
+              (change)="replayMode.set('realtime')"
+            />
+            Real Time</label
+          >
+          <label
+            ><input
+              type="radio"
+              name="mode"
+              [value]="'proportional'"
+              [checked]="replayMode() === 'proportional'"
+              (change)="replayMode.set('proportional')"
+            />
+            Proportional</label
+          >
+          <label
+            ><input
+              type="radio"
+              name="mode"
+              [value]="'fixed'"
+              [checked]="replayMode() === 'fixed'"
+              (change)="replayMode.set('fixed')"
+            />
+            Fixed</label
+          >
+        </div>
+
+        @if (replayMode() === "proportional") {
+          <div class="option-input">
+            <input
+              type="number"
+              [value]="proportionalDuration()"
+              (input)="onProportionalDurationChange($event)"
+              step="0.1"
+              class="small-input"
+              aria-label="Proportional Duration in Minutes"
+            />
+            min/game
+          </div>
+          <div class="option-input">
+            <input
+              type="number"
+              [value]="minSecondsBetweenMoves()"
+              (input)="onMinSecondsBetweenMovesChange($event)"
+              step="0.1"
+              class="small-input"
+              aria-label="Min Seconds Between Moves"
+            />
+            min sec/move
+          </div>
+        }
+
+        @if (replayMode() === "fixed") {
+          <div class="option-input">
+            <input
+              type="number"
+              [value]="fixedTime()"
+              (input)="onFixedTimeChange($event)"
+              step="0.1"
+              class="small-input"
+              aria-label="Fixed Time per Move in Seconds"
+            />
+            sec/move
+          </div>
+        }
+
+        <div
+          class="option-row"
+          style="margin-top: 8px; display: flex; align-items: center; gap: 4px"
+        >
+          <label
+            class="checkbox-label"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              white-space: nowrap;
+            "
+          >
+            <input
+              type="checkbox"
+              [checked]="stopOnError()"
+              (change)="toggleStopOnError($event)"
+            />
+            Stop on Error (&gt;
+            <input
+              type="number"
+              [value]="stopOnErrorThreshold()"
+              (input)="updateStopOnErrorThreshold($event)"
+              step="0.1"
+              class="small-input"
+              style="width: 50px"
+              [disabled]="!stopOnError()"
+            />
+            )
+          </label>
+        </div>
+
+        <div class="replay-actions">
+          <button (click)="replayGame()" class="action-btn">Replay</button>
+          @if (canContinueReplay()) {
+            <button (click)="continueReplay()" class="action-btn">
+              Continue
+            </button>
+          }
+          <button (click)="stopSequence()" class="action-btn stop">Stop</button>
+        </div>
+        @if (canShowReplayAll()) {
+          <button
+            (click)="replayAllSelectedGames()"
+            class="action-btn full-width"
+          >
+            Replay Selected ({{ selectedGamesCount() }})
+          </button>
+        }
+      </div>
+
+      <!-- PGN Input (Collapsible-ish) -->
+      <div class="pgn-input-section">
+        <textarea
+          [value]="pgnInput()"
+          (input)="onPgnInputChange($event)"
+          rows="3"
+          placeholder="Paste PGN..."
+          aria-label="PGN Input"
+        ></textarea>
+        <div class="clipboard-buttons">
+          <button (click)="loadFromClipboard()" class="small-btn">
+            Load from Clipboard
+          </button>
+          <button (click)="copyToClipboard()" class="small-btn">
+            Copy to Clipboard
+          </button>
+        </div>
+      </div>
+
+      <!-- Load Section -->
+      <div class="load-section">
+        <h3>Load Games</h3>
+        <!-- Sample buttons removed, controlled by parent -->
+        <div class="file-inputs">
+          <label class="file-input-label">
+            📂 Zip
+            <input
+              type="file"
+              accept=".zip"
+              (change)="onPgnZipSelected($event)"
+              [disabled]="isLoading()"
+            />
+          </label>
+          <label class="file-input-label">
+            📄 PGN
+            <input
+              type="file"
+              accept=".pgn"
+              (change)="onPgnFileSelected($event)"
+              [disabled]="isLoading()"
+            />
+          </label>
+        </div>
+        <div class="lichess-date-picker">
+          <label>Lichess Database:</label>
+          <div class="date-selectors">
+            <select
+              (change)="onLichessYearChange($event)"
+              aria-label="Select Year"
+            >
+              @for (year of getLichessYears(); track year) {
+                <option [value]="year" [selected]="year === lichessYear()">
+                  {{ year }}
+                </option>
+              }
+            </select>
+            <select
+              (change)="onLichessMonthChange($event)"
+              aria-label="Select Month"
+            >
+              @for (month of getLichessMonths(); track month) {
+                <option [value]="month" [selected]="month === lichessMonth()">
+                  {{ month.toString().padStart(2, "0") }}
+                </option>
+              }
+            </select>
+            <button
+              (click)="loadFromLichess()"
+              [disabled]="isLoading()"
+              class="action-btn"
+            >
+              Load
+            </button>
+          </div>
+          <div class="license-info">
+            <small
+              >📜 Licensed under
+              <a
+                href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal"
+                target="_blank"
+                rel="noopener noreferrer"
+                >CC0</a
+              >
+              by
+              <a
+                href="https://database.lichess.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Lichess</a
+              ></small
+            >
+          </div>
+        </div>
+        <div class="url-input-section">
+          <input
+            type="text"
+            [value]="urlInput()"
+            (input)="onUrlInputChange($event)"
+            placeholder="Enter PGN URL (supports .zst)"
+            class="url-input"
+            aria-label="PGN URL"
+          />
+          <button
+            (click)="loadFromUrl()"
+            [disabled]="isLoading() || !urlInput()"
+            class="action-btn"
+          >
+            Load URL
+          </button>
+        </div>
+        @if (isLoading()) {
+          <div class="loading-indicator" role="status" aria-live="polite">
+            @if (loadingProgress() > 0) {
+              <div class="progress-bar-container">
+                <div
+                  class="progress-bar"
+                  [style.width.%]="loadingProgress()"
+                ></div>
+                <span class="progress-text">{{ loadingProgress() }}%</span>
+              </div>
+            }
+            <div class="loading-status">
+              {{ loadingStatus() || "⏳ Loading..." }}
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 </div>

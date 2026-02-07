@@ -162,12 +162,20 @@
 	gap: 0.25rem;
 }
 
-.filter-row input[type="text"] {
+.filter-row input[type="text"],
+.filter-row select {
 	flex: 1;
 	padding: 0.25rem;
 	border: 1px solid #ced4da;
 	border-radius: 3px;
 	font-size: 0.85rem;
+	background: white;
+	cursor: pointer;
+}
+
+.filter-row select[multiple] {
+	height: auto;
+	min-height: 80px;
 }
 
 .rating-input {

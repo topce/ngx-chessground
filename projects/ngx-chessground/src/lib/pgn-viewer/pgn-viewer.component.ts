@@ -55,7 +55,11 @@ export class NgxPgnViewerComponent {
 	}
 
 	updateFilterResult(event: Event) {
-		this.filterResult.set((event.target as HTMLInputElement).value);
+		const select = event.target as HTMLSelectElement;
+		const selectedOptions = Array.from(select.selectedOptions).map(
+			(option) => option.value,
+		);
+		this.filterResult.set(selectedOptions);
 	}
 
 	updateFilterEco(event: Event) {
@@ -111,7 +115,7 @@ export class NgxPgnViewerComponent {
 	// Filter Signals
 	filterWhite = signal<string>('');
 	filterBlack = signal<string>('');
-	filterResult = signal<string>('');
+	filterResult = signal<string[]>([]);
 	filterMoves = signal<boolean>(false);
 	ignoreColor = signal<boolean>(false);
 	filterRatingEnabled = signal<boolean>(false);
@@ -494,7 +498,10 @@ export class NgxPgnViewerComponent {
 			if (!dests.has(from)) {
 				dests.set(from, []);
 			}
-			dests.get(from)!.push(move.to as Key);
+			const destArray = dests.get(from);
+			if (destArray) {
+				destArray.push(move.to as Key);
+			}
 		}
 
 		return dests;
@@ -723,7 +730,7 @@ export class NgxPgnViewerComponent {
 		// const games = this.games(); // REMOVED
 		const fWhite = this.filterWhite();
 		const fBlack = this.filterBlack();
-		const fResult = this.filterResult();
+		const fResult = this.filterResult().join(',');
 		const fMoves = this.filterMoves();
 		const fIgnoreColor = this.ignoreColor();
 		const fRatingEnabled = this.filterRatingEnabled();
@@ -773,9 +780,16 @@ export class NgxPgnViewerComponent {
 	}
 
 	clearFilters() {
+		// Stop any ongoing replay
+		this.stopReplay();
+		this.isReplayingSequence = false;
+		this.showBetterMoveBtn.set(false);
+		this.analysisVisible.set(false);
+
+		// Clear all filter fields
 		this.filterWhite.set('');
 		this.filterBlack.set('');
-		this.filterResult.set('');
+		this.filterResult.set([]);
 		this.filterMoves.set(false);
 		this.ignoreColor.set(false);
 		this.filterRatingEnabled.set(false);
@@ -787,6 +801,8 @@ export class NgxPgnViewerComponent {
 		this.filterTimeControl.set('');
 		this.filterEvent.set('');
 		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
+
+		// Apply filter to reset view
 		this.applyFilter();
 	}
 

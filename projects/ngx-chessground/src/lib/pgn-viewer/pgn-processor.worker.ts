@@ -144,7 +144,11 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	} = criteria;
 	const fWhiteLower = white.toLowerCase();
 	const fBlackLower = black.toLowerCase();
-	const fResultLower = result.toLowerCase();
+	// Split comma-separated results into array, filter out empty strings
+	const fResultArray = result
+		.split(',')
+		.map((r) => r.trim().toLowerCase())
+		.filter((r) => r.length > 0);
 	const fEcoLower = eco.toLowerCase();
 	const fTimeControl = timeControl;
 	const fEventLower = event.toLowerCase();
@@ -181,11 +185,18 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		}
 
 		if (!matchWhite || !matchBlack) continue;
-		if (
-			fResultLower &&
-			!normalizeResult(info.result).includes(normalizeResult(result))
-		)
-			continue;
+		// Result filtering - check if game result matches any of the selected results
+		if (fResultArray.length > 0) {
+			const normalizedGameResult = normalizeResult(info.result);
+			let resultMatch = false;
+			for (const selectedResult of fResultArray) {
+				if (normalizedGameResult.includes(normalizeResult(selectedResult))) {
+					resultMatch = true;
+					break;
+				}
+			}
+			if (!resultMatch) continue;
+		}
 
 		// ECO filtering
 		if (fEcoLower && (!info.eco || !info.eco.toLowerCase().includes(fEcoLower)))
