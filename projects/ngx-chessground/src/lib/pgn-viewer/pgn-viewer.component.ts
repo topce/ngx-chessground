@@ -717,6 +717,9 @@ export class NgxPgnViewerComponent {
 	}
 
 	applyFilter() {
+		// Stop any ongoing replay when filter is applied
+		this.stopReplay();
+
 		// const games = this.games(); // REMOVED
 		const fWhite = this.filterWhite();
 		const fBlack = this.filterBlack();

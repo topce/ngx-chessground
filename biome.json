@@ -8,7 +8,8 @@
 	"files": {
 		"ignoreUnknown": false,
 		"includes": [
-			"./projects/**"
+			"./projects/**",
+			"!!**/projects/ngx-chessground/assets/stockfish/stockfish.js"
 		]
 	},
 	"formatter": {
