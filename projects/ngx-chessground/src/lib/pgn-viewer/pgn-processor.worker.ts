@@ -53,6 +53,7 @@ export interface GameMetadata {
 	blackElo: number;
 	eco?: string;
 	timeControl?: string;
+	timeControlNormalized?: string;
 	event?: string;
 }
 
@@ -203,7 +204,7 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 			continue;
 
 		// TimeControl filtering
-		if (fTimeControl && info.timeControl !== fTimeControl) continue;
+		if (fTimeControl && info.timeControlNormalized !== fTimeControl) continue;
 
 		// Event filtering
 		if (
@@ -524,6 +525,7 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 	const blackElo = blackEloMatch ? parseInt(blackEloMatch[1], 10) || 0 : 0;
 	const eco = ecoMatch ? ecoMatch[1] : undefined;
 	const timeControl = timeControlMatch ? timeControlMatch[1] : undefined;
+	const timeControlNormalized = normalizeTimeControl(timeControl);
 	const event = eventMatch ? eventMatch[1] : undefined;
 
 	return {
@@ -535,8 +537,80 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 		blackElo,
 		eco,
 		timeControl,
+		timeControlNormalized,
 		event,
 	};
+}
+
+function normalizeTimeControl(raw?: string): string | undefined {
+	if (!raw) return undefined;
+	const trimmed = raw.trim();
+	if (!trimmed || trimmed === '?' || trimmed === '-') return undefined;
+	const lower = trimmed.toLowerCase();
+
+	// Strip leading tokens like "g:" or "g "
+	const cleaned = lower.replace(/^g\s*:\s*/i, '').replace(/^g\s+/i, '');
+
+	// Handle colon formats: h:m:s -> base = h:m, increment = s
+	let match = cleaned.match(/^(\d+):(\d+):(\d+)$/);
+	if (match) {
+		const hours = parseInt(match[1], 10);
+		const minutes = parseInt(match[2], 10);
+		const incSeconds = parseInt(match[3], 10);
+		if (
+			!Number.isNaN(hours) &&
+			!Number.isNaN(minutes) &&
+			!Number.isNaN(incSeconds)
+		) {
+			const baseSeconds = hours * 3600 + minutes * 60;
+			return `${baseSeconds}+${incSeconds}`;
+		}
+	}
+
+	// Handle colon formats: m:s -> base minutes, increment seconds
+	match = cleaned.match(/^(\d+):(\d+)$/);
+	if (match) {
+		const baseMinutes = parseInt(match[1], 10);
+		const incSeconds = parseInt(match[2], 10);
+		if (!Number.isNaN(baseMinutes) && !Number.isNaN(incSeconds)) {
+			const baseSeconds = baseMinutes * 60;
+			return `${baseSeconds}+${incSeconds}`;
+		}
+	}
+
+	// Handle common base+increment formats
+	match = cleaned.match(
+		/(\d+)\s*(?:min|m|')?\s*\+\s*(\d+)\s*(?:sec|s|''|"|\b)?/,
+	);
+	if (match) {
+		const baseVal = parseInt(match[1], 10);
+		const incVal = parseInt(match[2], 10);
+		if (!Number.isNaN(baseVal) && !Number.isNaN(incVal)) {
+			const baseHasMinutes = /\bmin\b|\bmins\b|\bminutes\b|\bminute\b|'/i.test(
+				cleaned,
+			);
+			const baseIsMinutes = baseHasMinutes || baseVal <= 180;
+			const baseSeconds = baseIsMinutes ? baseVal * 60 : baseVal;
+
+			const incHasMinutes =
+				/\binc\b.*\bmin\b|\bmin\b.*\binc\b|\bminutes\b.*\binc\b/i.test(cleaned);
+			const incSeconds = incHasMinutes ? incVal * 60 : incVal;
+			return `${baseSeconds}+${incSeconds}`;
+		}
+	}
+
+	// Textual formats: try extracting minutes and seconds
+	const baseMinMatch = cleaned.match(/(\d+)\s*(?:min|mins|minutes|')/i);
+	const incSecMatch = cleaned.match(/(\d+)\s*(?:sec|secs|seconds|''|s)\b/i);
+	if (baseMinMatch && incSecMatch) {
+		const baseMinutes = parseInt(baseMinMatch[1], 10);
+		const incSeconds = parseInt(incSecMatch[1], 10);
+		if (!Number.isNaN(baseMinutes) && !Number.isNaN(incSeconds)) {
+			return `${baseMinutes * 60}+${incSeconds}`;
+		}
+	}
+
+	return undefined;
 }
 
 function extractMovesFast(pgn: string): string[] {

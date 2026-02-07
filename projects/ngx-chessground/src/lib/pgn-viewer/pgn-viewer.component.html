@@ -81,9 +81,12 @@
             aria-label="Filter by Time Control"
           >
             <option value="">All Time Controls</option>
-            @for (tcData of sortedTimeControls(); track tcData.tc) {
-              <option [value]="tcData.tc">
-                {{ tcData.tc }} ({{ tcData.count }} games)
+            @for (tcData of sortedTimeControls(); track tcData.key) {
+              <option
+                [value]="tcData.key"
+                [attr.title]="tcData.originalsSummary"
+              >
+                {{ tcData.label }} ({{ tcData.count }} games)
               </option>
             }
           </select>

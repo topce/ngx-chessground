@@ -30,6 +30,7 @@ interface GameMetadata {
 	blackElo?: number;
 	eco?: string; // eco is optional in worker message
 	timeControl?: string;
+	timeControlNormalized?: string;
 	event?: string;
 }
 
@@ -131,7 +132,9 @@ export class NgxPgnViewerComponent {
 	uniqueWhitePlayers = signal<string[]>([]);
 	uniqueBlackPlayers = signal<string[]>([]);
 	uniqueEcoCodes = signal<Map<string, number>>(new Map());
-	uniqueTimeControls = signal<Map<string, number>>(new Map());
+	uniqueTimeControls = signal<
+		Map<string, { count: number; originals: Map<string, number> }>
+	>(new Map());
 	uniqueEvents = signal<Map<string, number>>(new Map());
 
 	// Computed for sorted ECO codes by popularity
@@ -145,8 +148,13 @@ export class NgxPgnViewerComponent {
 	sortedTimeControls = computed(() => {
 		const tcMap = this.uniqueTimeControls();
 		return Array.from(tcMap.entries())
-			.sort((a, b) => b[1] - a[1]) // Sort by count descending
-			.map(([tc, count]) => ({ tc, count }));
+			.sort((a, b) => b[1].count - a[1].count)
+			.map(([key, data]) => ({
+				key,
+				count: data.count,
+				label: this.formatTimeControlKey(key),
+				originalsSummary: this.formatOriginalsSummary(data.originals),
+			}));
 	});
 
 	sortedEvents = computed(() => {
@@ -632,15 +640,28 @@ export class NgxPgnViewerComponent {
 				}
 			}
 
-			// Count Time Controls
-			const timeControls = new Map<string, number>();
+			// Count Time Controls (normalized with originals mapping)
+			const timeControls = new Map<
+				string,
+				{ count: number; originals: Map<string, number> }
+			>();
 			const events = new Map<string, number>();
 			for (const meta of payload.metadata) {
-				if (meta.timeControl) {
-					timeControls.set(
-						meta.timeControl,
-						(timeControls.get(meta.timeControl) || 0) + 1,
-					);
+				const normalized = meta.timeControlNormalized;
+				const original = meta.timeControl?.trim();
+				if (normalized) {
+					const existing = timeControls.get(normalized) || {
+						count: 0,
+						originals: new Map<string, number>(),
+					};
+					existing.count += 1;
+					if (original) {
+						existing.originals.set(
+							original,
+							(existing.originals.get(original) || 0) + 1,
+						);
+					}
+					timeControls.set(normalized, existing);
 				}
 				if (meta.event && !meta.event.includes('?')) {
 					events.set(meta.event, (events.get(meta.event) || 0) + 1);
@@ -721,6 +742,37 @@ export class NgxPgnViewerComponent {
 			console.error('Worker error:', payload);
 			this.isLoading.set(false);
 		}
+	}
+
+	private formatTimeControlKey(key: string): string {
+		const match = key.match(/^(\d+)\+(\d+)$/);
+		if (!match) return key;
+		const baseSeconds = parseInt(match[1], 10);
+		const incrementSeconds = parseInt(match[2], 10);
+		if (Number.isNaN(baseSeconds) || Number.isNaN(incrementSeconds)) {
+			return key;
+		}
+		if (baseSeconds % 60 === 0) {
+			const baseMinutes = baseSeconds / 60;
+			if (baseMinutes <= 180) {
+				return `${baseMinutes}+${incrementSeconds}`;
+			}
+		}
+		return `${baseSeconds}+${incrementSeconds}`;
+	}
+
+	private formatOriginalsSummary(
+		originals: Map<string, number>,
+		maxItems = 6,
+	): string {
+		const entries = Array.from(originals.entries()).sort((a, b) => b[1] - a[1]);
+		const head = entries
+			.slice(0, maxItems)
+			.map(([value, count]) => `${value} (${count})`)
+			.join(', ');
+		const rest =
+			entries.length > maxItems ? ` +${entries.length - maxItems} more` : '';
+		return head ? `Originals: ${head}${rest}` : '';
 	}
 
 	applyFilter() {
