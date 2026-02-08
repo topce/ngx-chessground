@@ -92,7 +92,20 @@ export class NgxPgnViewerComponent {
 	}
 
 	toggleFilterMoves(event: Event) {
-		this.filterMoves.set((event.target as HTMLInputElement).checked);
+		const checked = (event.target as HTMLInputElement).checked;
+		this.filterMoves.set(checked);
+		this.interactiveMoves.set([]);
+		this.activeFilterMoves = [];
+
+		if (checked) {
+			this.savedGameMoveIndex = this.currentMoveIndex();
+			this.chess.reset();
+			this.currentMoveIndex.set(-1);
+			this.currentFen.set(this.chess.fen());
+		} else if (this.savedGameMoveIndex !== null) {
+			this.jumpToMove(this.savedGameMoveIndex);
+			this.savedGameMoveIndex = null;
+		}
 	}
 
 	getOpeningMoves(code: string): string {
@@ -174,6 +187,7 @@ export class NgxPgnViewerComponent {
 	@ViewChild('moveList') moveList!: ElementRef<HTMLElement>;
 	private worker: Worker | null = null;
 	private activeFilterMoves: string[] = [];
+	private savedGameMoveIndex: number | null = null;
 
 	// Track moves made during interactive mode
 	private interactiveMoves = signal<string[]>([]);
@@ -837,6 +851,7 @@ export class NgxPgnViewerComponent {
 		this.isReplayingSequence = false;
 		this.showBetterMoveBtn.set(false);
 		this.analysisVisible.set(false);
+		const hadFilterMoves = this.filterMoves();
 
 		// Clear all filter fields
 		this.filterWhite.set('');
@@ -853,6 +868,12 @@ export class NgxPgnViewerComponent {
 		this.filterTimeControl.set('');
 		this.filterEvent.set('');
 		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
+		this.interactiveMoves.set([]);
+		this.activeFilterMoves = [];
+		if (hadFilterMoves && this.savedGameMoveIndex !== null) {
+			this.jumpToMove(this.savedGameMoveIndex);
+			this.savedGameMoveIndex = null;
+		}
 
 		// Apply filter to reset view
 		this.applyFilter();
