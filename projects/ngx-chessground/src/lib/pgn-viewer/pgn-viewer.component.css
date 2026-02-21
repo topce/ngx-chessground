@@ -1,14 +1,21 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	width: 100%;
+}
+
 /* Layout Containers */
 .pgn-viewer-container {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
-	/* Full viewport height */
+	flex: 1;
+	min-height: 0;
 	width: 100%;
 	background-color: #f8f9fa;
 	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	overflow: hidden;
-	/* Prevent page scrolling */
 }
 
 .header-controls {
@@ -18,6 +25,7 @@
 .main-content {
 	display: flex;
 	flex: 1;
+	min-height: 0;
 	overflow: hidden;
 	/* Internal panels scroll */
 }
@@ -27,6 +35,7 @@
 	flex-direction: column;
 	padding: 0.5rem;
 	background-color: #fff;
+	overflow-y: auto;
 }
 
 .left-panel {
@@ -40,9 +49,10 @@
 	flex: 1;
 	background-color: #f0f2f5;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	gap: 1rem;
 	padding: 1rem;
+	overflow-y: auto;
 }
 
 .right-panel {
@@ -50,6 +60,29 @@
 	min-width: 250px;
 	border-left: 1px solid #ddd;
 	gap: 0.5rem;
+}
+
+/* Mobile responsive layout */
+@media (max-width: 850px) {
+	.main-content {
+		flex-direction: column;
+		overflow-y: auto;
+	}
+
+	.left-panel,
+	.right-panel {
+		width: 100%;
+		min-width: 100%;
+		border: none;
+	}
+
+	.left-panel {
+		border-bottom: 1px solid #ddd;
+	}
+
+	.right-panel {
+		border-top: 1px solid #ddd;
+	}
 }
 
 /* Header Elements */
@@ -274,7 +307,7 @@
 	align-items: stretch;
 	gap: 0.5rem;
 	width: 100%;
-	max-width: calc(100vh - 200px);
+	max-width: calc(100vh - 350px);
 }
 
 .player-info {
@@ -685,11 +718,15 @@ button {
 }
 
 ngx-chessground {
-	width: 100%;
-	max-width: calc(100vh - 200px);
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	align-self: flex-start;
 	/* Leave room for headers/controls */
 	aspect-ratio: 1 / 1;
 	display: block;
+	margin-right: 20px;
+	margin-bottom: 20px;
 }
 
 ::ng-deep #chessground-examples {
@@ -707,6 +744,10 @@ ngx-chessground {
 ::ng-deep .cg-wrap {
 	width: 100% !important;
 	height: 100% !important;
+}
+
+::ng-deep .cg-wrap piece {
+	will-change: auto !important;
 }
 
 /* Evaluation Bar Container */
