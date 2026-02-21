@@ -120,12 +120,10 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: linear-gradient(
-		90deg,
-		transparent,
-		rgba(255, 255, 255, 0.3),
-		transparent
-	);
+	background: linear-gradient(90deg,
+			transparent,
+			rgba(255, 255, 255, 0.3),
+			transparent);
 	background-size: 200% 100%;
 	animation: shimmer 2s infinite;
 }
@@ -273,8 +271,10 @@
 .board-wrapper {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: stretch;
 	gap: 0.5rem;
+	width: 100%;
+	max-width: calc(100vh - 200px);
 }
 
 .player-info {
@@ -682,6 +682,31 @@ button {
 	gap: 8px;
 	width: 100%;
 	/* Ensure it takes full width of parent */
+}
+
+ngx-chessground {
+	width: 100%;
+	max-width: calc(100vh - 200px);
+	/* Leave room for headers/controls */
+	aspect-ratio: 1 / 1;
+	display: block;
+}
+
+::ng-deep #chessground-examples {
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+
+::ng-deep #chessground-examples>section {
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+
+::ng-deep .cg-wrap {
+	width: 100% !important;
+	height: 100% !important;
 }
 
 /* Evaluation Bar Container */
