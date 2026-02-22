@@ -1,16 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxPgnViewerComponent } from 'ngx-chessground';
+import { SponsorDialogComponent } from './sponsor-dialog.component';
 
 @Component({
 	selector: 'app-pgn-viewer',
 	standalone: true,
-	imports: [CommonModule, NgxPgnViewerComponent],
+	imports: [CommonModule, NgxPgnViewerComponent, MatDialogModule],
 	templateUrl: './pgn-viewer.component.html',
 	styleUrls: ['./pgn-viewer.component.css'],
 })
 export class PgnViewerComponent implements AfterViewInit {
 	@ViewChild(NgxPgnViewerComponent) pgnViewer!: NgxPgnViewerComponent;
+	private dialog = inject(MatDialog);
 	// Fischer's Evergreen Game: Donald Byrne vs. Robert James Fischer
 	readonly fischerEvergreen = `[Event "Third Rosenwald Trophy"]
 [Site "New York, NY USA"]
@@ -63,5 +66,11 @@ export class PgnViewerComponent implements AfterViewInit {
 
 	loadTopce() {
 		this.currentPgn = this.topceEvergreen;
+	}
+
+	openSponsor() {
+		this.dialog.open(SponsorDialogComponent, {
+			width: '600px',
+		});
 	}
 }

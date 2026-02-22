@@ -24,7 +24,18 @@ If you are a chess lover and find this project useful, please consider sponsorin
 
 Your support helps me maintain the library, add new features, and keep the application up-to-date with the latest Angular and Chessground releases.
 
-✨ **Sponsor Perk**: Sponsors can request to have their favorite or "evergreen" chess game permanently added to the demo application's built-in game list!
+✨ **Sponsor Perk**: Sponsors can request to have their favorite or "evergreen" chess game permanently added to the demo application's built-in game list! 
+
+<div align="center">
+  <a href="https://github.com/topce/ngx-chessground/pulls">
+    <img src="https://img.shields.io/badge/♟️_Your_Evergreen_Game_Could_Be_Here!-Submit_PR-%23EA4AAA?style=for-the-badge" alt="Submit your evergreen game PR" />
+  </a>
+</div>
+
+**How to add your game:**
+1. Sponsor the project via [GitHub Sponsors](https://github.com/sponsors/topce).
+2. Submit a Pull Request (PR) to this repository.
+3. In your PR, include the **PGN file**, brief **game details**, and your **Sponsor Name**.
 
 ---
 
