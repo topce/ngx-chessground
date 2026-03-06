@@ -1,0 +1,1451 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  FilterCriteria</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#black" 
+>
+                                            black
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#eco" 
+>
+                                            eco
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#event" 
+>
+                                            event
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#ignoreColor" 
+>
+                                            ignoreColor
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#maxBlackRating" 
+>
+                                            maxBlackRating
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#maxWhiteRating" 
+>
+                                            maxWhiteRating
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#minBlackRating" 
+>
+                                            minBlackRating
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#minWhiteRating" 
+>
+                                            minWhiteRating
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#moves" 
+>
+                                            moves
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#result" 
+>
+                                            result
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#targetMoves" 
+>
+                                            targetMoves
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#timeControl" 
+>
+                                            timeControl
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#white" 
+>
+                                            white
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="black"></a>
+                                        <span class="name "><b>black</b>
+                                            <a href="#black">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>black:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="eco"></a>
+                                        <span class="name "><b>eco</b>
+                                            <a href="#eco">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>eco:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="event"></a>
+                                        <span class="name "><b>event</b>
+                                            <a href="#event">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>event:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="ignoreColor"></a>
+                                        <span class="name "><b>ignoreColor</b>
+                                            <a href="#ignoreColor">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>ignoreColor:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="maxBlackRating"></a>
+                                        <span class="name "><b>maxBlackRating</b>
+                                            <a href="#maxBlackRating">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>maxBlackRating:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="maxWhiteRating"></a>
+                                        <span class="name "><b>maxWhiteRating</b>
+                                            <a href="#maxWhiteRating">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>maxWhiteRating:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="minBlackRating"></a>
+                                        <span class="name "><b>minBlackRating</b>
+                                            <a href="#minBlackRating">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>minBlackRating:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="minWhiteRating"></a>
+                                        <span class="name "><b>minWhiteRating</b>
+                                            <a href="#minWhiteRating">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>minWhiteRating:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="moves"></a>
+                                        <span class="name "><b>moves</b>
+                                            <a href="#moves">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>moves:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="result"></a>
+                                        <span class="name "><b>result</b>
+                                            <a href="#result">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>result:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="targetMoves"></a>
+                                        <span class="name "><b>targetMoves</b>
+                                            <a href="#targetMoves">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>targetMoves:     <code>string[]</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>string[]</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="timeControl"></a>
+                                        <span class="name "><b>timeControl</b>
+                                            <a href="#timeControl">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>timeControl:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="white"></a>
+                                        <span class="name "><b>white</b>
+                                            <a href="#white">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>white:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Chess } from &#x27;chess.js&#x27;;
+import { parsePgn } from &#x27;chessops/pgn&#x27;;
+
+// Define types for messages
+export type WorkerMessage &#x3D;
+	| { type: &#x27;load&#x27;; payload: string; id: number }
+	| { type: &#x27;filter&#x27;; payload: FilterCriteria; id: number }
+	| { type: &#x27;loadGame&#x27;; payload: number; id: number };
+
+export interface FilterCriteria {
+	white: string;
+	black: string;
+	result: string;
+	moves: boolean;
+	ignoreColor: boolean;
+	targetMoves: string[];
+	minWhiteRating: number;
+	minBlackRating: number;
+	maxWhiteRating: number;
+	maxBlackRating: number;
+	eco: string;
+	timeControl: string;
+	event: string;
+}
+
+export type WorkerResponse &#x3D;
+	| {
+			type: &#x27;load&#x27;;
+			payload: { count: number; metadata: GameMetadata[] };
+			id: number;
+	  }
+	| { type: &#x27;filter&#x27;; payload: number[]; id: number }
+	| {
+			type: &#x27;loadGame&#x27;;
+			payload: {
+				moves: string[];
+				pgn: string;
+				evaluations: (string | null)[];
+				error?: string;
+			};
+			id: number;
+	  }
+	| { type: &#x27;error&#x27;; payload: string; id: number };
+
+export interface GameMetadata {
+	number: number;
+	white: string;
+	black: string;
+	result: string;
+	whiteElo: number;
+	blackElo: number;
+	eco?: string;
+	timeControl?: string;
+	timeControlNormalized?: string;
+	event?: string;
+}
+
+// State
+let games: string[] &#x3D; [];
+let gameMetadata: GameMetadata[] &#x3D; [];
+const gameMovesCache &#x3D; new Map&lt;number, string[]&gt;();
+
+addEventListener(&#x27;message&#x27;, ({ data }: { data: WorkerMessage }) &#x3D;&gt; {
+	try {
+		switch (data.type) {
+			case &#x27;load&#x27;:
+				handleLoad(data.payload, data.id);
+				break;
+			case &#x27;filter&#x27;:
+				handleFilter(data.payload, data.id);
+				break;
+			case &#x27;loadGame&#x27;:
+				handleLoadGame(data.payload, data.id);
+				break;
+		}
+	} catch (e) {
+		postMessage({ type: &#x27;error&#x27;, payload: String(e), id: data.id });
+	}
+});
+
+function handleLoad(pgn: string, id: number) {
+	// Reset state
+	games &#x3D; [];
+	gameMetadata &#x3D; [];
+	gameMovesCache.clear();
+
+	// Split PGN
+	const allGames &#x3D; splitPgn(pgn);
+
+	// Filter out non-standard variants (keep Standard or if Variant tag is missing)
+	games &#x3D; allGames.filter((g) &#x3D;&gt; {
+		const variantMatch &#x3D; g.match(/\[Variant\s+&quot;([^&quot;]+)&quot;\]/);
+		if (!variantMatch) return true; // Default is Standard
+		return variantMatch[1] &#x3D;&#x3D;&#x3D; &#x27;Standard&#x27;;
+	});
+
+	// Extract metadata
+	gameMetadata &#x3D; games.map((game, index) &#x3D;&gt; extractGameInfo(game, index));
+
+	postMessage({
+		type: &#x27;load&#x27;,
+		id,
+		payload: {
+			count: games.length,
+			metadata: gameMetadata,
+		},
+	});
+}
+
+function normalizeResult(result: string): string {
+	const lower &#x3D; result.toLowerCase();
+	// Normalize draw results - convert both ½-½ and 1/2-1/2 to &quot;draw&quot;
+	if (lower.includes(&#x27;½&#x27;) || lower.includes(&#x27;1/2&#x27;)) {
+		return &#x27;draw&#x27;;
+	}
+	// Normalize white wins
+	if (lower.includes(&#x27;1-0&#x27;)) {
+		return &#x27;1-0&#x27;;
+	}
+	// Normalize black wins
+	if (lower.includes(&#x27;0-1&#x27;)) {
+		return &#x27;0-1&#x27;;
+	}
+	// Return as-is for other cases (e.g., &quot;*&quot;)
+	return lower;
+}
+
+function handleFilter(criteria: FilterCriteria, id: number) {
+	const {
+		white,
+		black,
+		result,
+		moves,
+		ignoreColor,
+		targetMoves,
+		minWhiteRating,
+		minBlackRating,
+		maxWhiteRating,
+		maxBlackRating,
+		eco,
+		timeControl,
+		event,
+	} &#x3D; criteria;
+	const fWhiteLower &#x3D; white.toLowerCase();
+	const fBlackLower &#x3D; black.toLowerCase();
+	// Split comma-separated results into array, filter out empty strings
+	const fResultArray &#x3D; result
+		.split(&#x27;,&#x27;)
+		.map((r) &#x3D;&gt; r.trim().toLowerCase())
+		.filter((r) &#x3D;&gt; r.length &gt; 0);
+	const fEcoLower &#x3D; eco.toLowerCase();
+	const fTimeControl &#x3D; timeControl;
+	const fEventLower &#x3D; event.toLowerCase();
+
+	// Clear cache when filtering by moves to ensure fresh parsing with updated logic
+	if (moves &amp;&amp; targetMoves.length &gt; 0) {
+		gameMovesCache.clear();
+	}
+
+	const matches: number[] &#x3D; [];
+
+	for (let i &#x3D; 0; i &lt; games.length; i++) {
+		const info &#x3D; gameMetadata[i];
+		const whiteName &#x3D; info.white.toLowerCase();
+		const blackName &#x3D; info.black.toLowerCase();
+
+		let matchWhite &#x3D; true;
+		let matchBlack &#x3D; true;
+
+		if (ignoreColor) {
+			if (
+				fWhiteLower &amp;&amp;
+				!(whiteName.includes(fWhiteLower) || blackName.includes(fWhiteLower))
+			)
+				matchWhite &#x3D; false;
+			if (
+				fBlackLower &amp;&amp;
+				!(whiteName.includes(fBlackLower) || blackName.includes(fBlackLower))
+			)
+				matchBlack &#x3D; false;
+		} else {
+			if (fWhiteLower &amp;&amp; !whiteName.includes(fWhiteLower)) matchWhite &#x3D; false;
+			if (fBlackLower &amp;&amp; !blackName.includes(fBlackLower)) matchBlack &#x3D; false;
+		}
+
+		if (!matchWhite || !matchBlack) continue;
+		// Result filtering - check if game result matches any of the selected results
+		if (fResultArray.length &gt; 0) {
+			const normalizedGameResult &#x3D; normalizeResult(info.result);
+			let resultMatch &#x3D; false;
+			for (const selectedResult of fResultArray) {
+				if (normalizedGameResult.includes(normalizeResult(selectedResult))) {
+					resultMatch &#x3D; true;
+					break;
+				}
+			}
+			if (!resultMatch) continue;
+		}
+
+		// ECO filtering
+		if (fEcoLower &amp;&amp; (!info.eco || !info.eco.toLowerCase().includes(fEcoLower)))
+			continue;
+
+		// TimeControl filtering
+		if (fTimeControl &amp;&amp; info.timeControlNormalized !&#x3D;&#x3D; fTimeControl) continue;
+
+		// Event filtering
+		if (
+			fEventLower &amp;&amp;
+			(!info.event || !info.event.toLowerCase().includes(fEventLower))
+		)
+			continue;
+
+		// Rating filtering
+		if (ignoreColor) {
+			// &quot;search games where both players get higher rating that min of inupt of fields&quot;
+			// If one field is empty (0), we should probably ignore it or treat it as 0.
+			// Assuming 0 means &quot;no filter&quot;.
+			// If both are provided, we take the minimum of the two inputs.
+			// If only one is provided, we use that one.
+			// If neither, we skip rating check.
+
+			// Min Rating Logic
+			let minThreshold &#x3D; 0;
+			if (minWhiteRating &gt; 0 &amp;&amp; minBlackRating &gt; 0) {
+				minThreshold &#x3D; Math.min(minWhiteRating, minBlackRating);
+			} else if (minWhiteRating &gt; 0) {
+				minThreshold &#x3D; minWhiteRating;
+			} else if (minBlackRating &gt; 0) {
+				minThreshold &#x3D; minBlackRating;
+			}
+
+			if (minThreshold &gt; 0) {
+				if (info.whiteElo &lt; minThreshold || info.blackElo &lt; minThreshold)
+					continue;
+			}
+
+			// Max Rating Logic
+			// Similar logic: if ignoreColor is on, we want to filter games where players are &quot;smaller&quot; than the max.
+			// If we follow the &quot;both players&quot; logic from min:
+			// &quot;search games where both players get lower rating than max of input fields&quot;
+			let maxThreshold &#x3D; 0;
+			if (maxWhiteRating &gt; 0 &amp;&amp; maxBlackRating &gt; 0) {
+				maxThreshold &#x3D; Math.max(maxWhiteRating, maxBlackRating);
+			} else if (maxWhiteRating &gt; 0) {
+				maxThreshold &#x3D; maxWhiteRating;
+			} else if (maxBlackRating &gt; 0) {
+				maxThreshold &#x3D; maxBlackRating;
+			}
+
+			if (maxThreshold &gt; 0) {
+				if (info.whiteElo &gt; maxThreshold || info.blackElo &gt; maxThreshold)
+					continue;
+			}
+		} else {
+			if (minWhiteRating &gt; 0 &amp;&amp; info.whiteElo &lt; minWhiteRating) continue;
+			if (minBlackRating &gt; 0 &amp;&amp; info.blackElo &lt; minBlackRating) continue;
+
+			if (maxWhiteRating &gt; 0 &amp;&amp; info.whiteElo &gt; maxWhiteRating) continue;
+			if (maxBlackRating &gt; 0 &amp;&amp; info.blackElo &gt; maxBlackRating) continue;
+		}
+
+		// Move filtering
+		if (moves &amp;&amp; targetMoves.length &gt; 0) {
+			const pgn &#x3D; games[i];
+
+			// 1. Fast String Pre-check
+			if (!pgn.includes(targetMoves[0])) {
+				continue;
+			}
+
+			let gameMoves &#x3D; gameMovesCache.get(i);
+			if (!gameMoves) {
+				// 2. Lightweight Parse
+				gameMoves &#x3D; extractMovesFast(pgn);
+				gameMovesCache.set(i, gameMoves);
+			}
+
+			if (!gameMoves) {
+				continue;
+			}
+
+			let moveMatch &#x3D; true;
+			if (targetMoves.length &gt; gameMoves.length) {
+				moveMatch &#x3D; false;
+			} else {
+				for (let j &#x3D; 0; j &lt; targetMoves.length; j++) {
+					if (gameMoves[j] !&#x3D;&#x3D; targetMoves[j]) {
+						moveMatch &#x3D; false;
+						break;
+					}
+				}
+			}
+			if (!moveMatch) {
+				continue;
+			}
+		}
+
+		matches.push(i);
+	}
+
+	// Sort matches by sum of Elo ratings (descending)
+	matches.sort((a, b) &#x3D;&gt; {
+		const sumA &#x3D; gameMetadata[a].whiteElo + gameMetadata[a].blackElo;
+		const sumB &#x3D; gameMetadata[b].whiteElo + gameMetadata[b].blackElo;
+		return sumB - sumA;
+	});
+
+	postMessage({
+		type: &#x27;filter&#x27;,
+		id,
+		payload: matches,
+	});
+}
+
+function handleLoadGame(index: number, id: number) {
+	if (index &lt; 0 || index &gt;&#x3D; games.length) {
+		throw new Error(&#x27;Game index out of bounds&#x27;);
+	}
+
+	const pgn &#x3D; games[index];
+	let moves: string[] &#x3D; [];
+	let evaluations: (string | null)[] &#x3D; [];
+	let errorMsg: string | undefined;
+	let cleanPgn &#x3D; pgn;
+
+	try {
+		const tempChess &#x3D; new Chess();
+
+		// We need to extract evaluations BEFORE cleaning the PGN too aggressively,
+		// because some cleaning steps might remove comments or mess up the mapping.
+		// However, standard chess.js loadPgn parses comments.
+		// Let&#x27;s try to parse with chess.js first on the original PGN (or slightly cleaned).
+
+		// If we use the &quot;cleanPgn&quot; logic from before, we might lose comments if we strip them.
+		// But the previous logic had a fallback that stripped comments.
+		// Let&#x27;s try to parse the original PGN first to get comments.
+
+		try {
+			// Try parsing the original PGN (maybe with minor cleanup) to get comments
+			tempChess.loadPgn(pgn);
+			moves &#x3D; tempChess.history();
+			const comments &#x3D; tempChess.getComments();
+			// comments is array of { fen: string, comment: string }
+			// We need to map these to moves.
+			// The &#x27;moves&#x27; array corresponds to the game history.
+			// We can replay the game and match FENs.
+
+			const tempChess2 &#x3D; new Chess();
+			evaluations &#x3D; moves.map((move) &#x3D;&gt; {
+				tempChess2.move(move);
+				const fen &#x3D; tempChess2.fen();
+				const commentObj &#x3D; comments.find((c) &#x3D;&gt; c.fen &#x3D;&#x3D;&#x3D; fen);
+				if (commentObj) {
+					const match &#x3D; commentObj.comment.match(/\[%eval\s+([^\]]+)\]/);
+					return match ? match[1] : null;
+				}
+				return null;
+			});
+		} catch (_e) {
+			// If strict parsing fails, we fall back to the cleaning logic,
+			// but we might lose evaluations if the cleaning strips comments.
+			// For now, let&#x27;s proceed with the cleaning logic for moves,
+			// and accept that we might not get evaluations in broken PGNs.
+
+			// Clean up PGN:
+			// 1. Remove ?! ? ! attached to moves (chess.js might not like them)
+			cleanPgn &#x3D; cleanPgn.replace(/([a-h1-8NBRQK])([?!]+)/g, &#x27;$1&#x27;);
+
+			// 2. Merge adjacent comments } { to } { which chess.js might handle better,
+			//    OR actually merge them into one block { ... ... } to avoid parser issues with multiple blocks.
+			//    Replacing &quot;} {&quot; with &quot; &quot; effectively merges them.
+			cleanPgn &#x3D; cleanPgn.replace(/\}\s*\{/g, &#x27; &#x27;);
+
+			// 3. Normalize headers: ensure each header is on its own line
+			cleanPgn &#x3D; cleanPgn.replace(/\]\s*\[/g, &#x27;]\n[&#x27;);
+
+			// 4. Ensure blank line after the last header and before moves or result
+			//    Look for ] followed by something that looks like a move (digit or piece) or result
+			cleanPgn &#x3D; cleanPgn.replace(
+				/\]\s*(\d+\.|[a-hNBRQK]|\*|1-0|0-1|1\/2-1\/2)/g,
+				&#x27;]\n\n$1&#x27;,
+			);
+
+			// 5. Remove &quot;1...&quot; style move numbering (Black&#x27;s move indicators)
+			cleanPgn &#x3D; cleanPgn.replace(/\d+\.\.\./g, &#x27; &#x27;);
+
+			// 6. Remove numeric annotation glyphs like $1, $2... (standard PGN but chess.js might fail)
+			cleanPgn &#x3D; cleanPgn.replace(/\$\d+/g, &#x27;&#x27;);
+
+			try {
+				tempChess.loadPgn(cleanPgn);
+				moves &#x3D; tempChess.history();
+				// Try to get comments again from the cleaned PGN
+				const comments &#x3D; tempChess.getComments();
+				const tempChess2 &#x3D; new Chess();
+				evaluations &#x3D; moves.map((move) &#x3D;&gt; {
+					tempChess2.move(move);
+					const fen &#x3D; tempChess2.fen();
+					const commentObj &#x3D; comments.find((c) &#x3D;&gt; c.fen &#x3D;&#x3D;&#x3D; fen);
+					if (commentObj) {
+						const match &#x3D; commentObj.comment.match(/\[%eval\s+([^\]]+)\]/);
+						return match ? match[1] : null;
+					}
+					return null;
+				});
+			} catch (_e1) {
+				// console.warn(&#x27;Strict parsing failed, trying chessops fallback&#x27;, e1);
+
+				try {
+					// Fallback: Try chessops
+					const games &#x3D; parsePgn(cleanPgn);
+					if (games.length &gt; 0) {
+						const game &#x3D; games[0];
+						moves &#x3D; [];
+						evaluations &#x3D; []; // Chessops might have comments in the node tree
+						let node &#x3D; game.moves;
+						while (node.children.length &gt; 0) {
+							const child &#x3D; node.children[0]; // Main line
+							if (child.data?.san) {
+								moves.push(child.data.san);
+								// Extract eval from comments if present
+								let evalVal &#x3D; null;
+								if (child.data.comments) {
+									for (const comment of child.data.comments) {
+										const match &#x3D; comment.match(/\[%eval\s+([^\]]+)\]/);
+										if (match) {
+											evalVal &#x3D; match[1];
+											break;
+										}
+									}
+								}
+								evaluations.push(evalVal);
+							}
+							node &#x3D; child;
+						}
+						// If we successfully parsed moves, clear the error
+						errorMsg &#x3D; undefined;
+					} else {
+						throw new Error(&#x27;Chessops found no games&#x27;);
+					}
+				} catch (_e2) {
+					// console.warn(&#x27;Chessops parsing failed, retrying with stripped comments&#x27;, e2);
+
+					// Fallback 2: Strip all comments and recursive variations
+					// Remove { ... } comments
+					cleanPgn &#x3D; cleanPgn.replace(/\{[^}]*\}/g, &#x27;&#x27;);
+					// Remove ( ... ) variations
+					cleanPgn &#x3D; cleanPgn.replace(/\([^)]*\)/g, &#x27;&#x27;);
+					// Clean up double spaces created by removals
+					cleanPgn &#x3D; cleanPgn.replace(/\s+/g, &#x27; &#x27;);
+
+					tempChess.loadPgn(cleanPgn);
+					moves &#x3D; tempChess.history();
+					evaluations &#x3D; []; // No comments, no evals
+					errorMsg &#x3D; undefined;
+				}
+			}
+		}
+
+		// We can update the cache with the high-quality moves if we want,
+		// but for now let&#x27;s just return them.
+		gameMovesCache.set(index, moves);
+	} catch (e) {
+		console.error(&#x27;Error parsing game moves&#x27;, e);
+		errorMsg &#x3D; String(e);
+		moves &#x3D; [];
+		evaluations &#x3D; [];
+	}
+
+	postMessage({
+		type: &#x27;loadGame&#x27;,
+		id,
+		payload: { moves, pgn: cleanPgn, evaluations, error: errorMsg },
+	});
+}
+
+// --- Helpers ---
+
+function splitPgn(pgn: string): string[] {
+	// Split by [Event &quot; tag, allowing for it to be anywhere (not just start of line)
+	// This handles cases where games are concatenated on the same line.
+	const parts &#x3D; pgn.split(/(?&#x3D;\[Event\s+&quot;)/);
+	const result: string[] &#x3D; [];
+	for (const part of parts) {
+		const trimmed &#x3D; part.trim();
+		if (trimmed.length &gt; 0 &amp;&amp; /^\[Event\s+&quot;/.test(trimmed)) {
+			result.push(trimmed);
+		}
+	}
+	return result;
+}
+
+function extractGameInfo(pgn: string, index: number): GameMetadata {
+	const whiteMatch &#x3D; pgn.match(/\[White\s+&quot;([^&quot;]+)&quot;\]/);
+	const blackMatch &#x3D; pgn.match(/\[Black\s+&quot;([^&quot;]+)&quot;\]/);
+	const resultMatch &#x3D; pgn.match(/\[Result\s+&quot;([^&quot;]+)&quot;\]/);
+
+	const whiteEloMatch &#x3D; pgn.match(/\[WhiteElo\s+&quot;([^&quot;]+)&quot;\]/);
+	const blackEloMatch &#x3D; pgn.match(/\[BlackElo\s+&quot;([^&quot;]+)&quot;\]/);
+	const whiteTitleMatch &#x3D; pgn.match(/\[WhiteTitle\s+&quot;([^&quot;]+)&quot;\]/);
+	const blackTitleMatch &#x3D; pgn.match(/\[BlackTitle\s+&quot;([^&quot;]+)&quot;\]/);
+	const ecoMatch &#x3D; pgn.match(/\[ECO\s+&quot;([^&quot;]+)&quot;\]/);
+	const timeControlMatch &#x3D; pgn.match(/\[TimeControl\s+&quot;([^&quot;]+)&quot;\]/);
+	const eventMatch &#x3D; pgn.match(/\[Event\s+&quot;([^&quot;]+)&quot;\]/);
+
+	let white &#x3D; whiteMatch ? whiteMatch[1] : &#x27;Unknown&#x27;;
+	let black &#x3D; blackMatch ? blackMatch[1] : &#x27;Unknown&#x27;;
+	const result &#x3D; resultMatch ? resultMatch[1] : &#x27;*&#x27;;
+
+	if (whiteTitleMatch) white &#x3D; &#x60;${whiteTitleMatch[1]} ${white}&#x60;;
+	if (whiteEloMatch) white &#x3D; &#x60;${white} (${whiteEloMatch[1]})&#x60;;
+
+	if (blackTitleMatch) black &#x3D; &#x60;${blackTitleMatch[1]} ${black}&#x60;;
+	if (blackEloMatch) black &#x3D; &#x60;${black} (${blackEloMatch[1]})&#x60;;
+
+	let formattedResult &#x3D; result;
+	if (result &#x3D;&#x3D;&#x3D; &#x27;1-0&#x27;) formattedResult &#x3D; &#x27;1-0&#x27;;
+	else if (result &#x3D;&#x3D;&#x3D; &#x27;0-1&#x27;) formattedResult &#x3D; &#x27;0-1&#x27;;
+	else if (result &#x3D;&#x3D;&#x3D; &#x27;1/2-1/2&#x27;) formattedResult &#x3D; &#x27;½-½&#x27;;
+
+	const whiteElo &#x3D; whiteEloMatch ? parseInt(whiteEloMatch[1], 10) || 0 : 0;
+	const blackElo &#x3D; blackEloMatch ? parseInt(blackEloMatch[1], 10) || 0 : 0;
+	const eco &#x3D; ecoMatch ? ecoMatch[1] : undefined;
+	const timeControl &#x3D; timeControlMatch ? timeControlMatch[1] : undefined;
+	const timeControlNormalized &#x3D; normalizeTimeControl(timeControl);
+	const event &#x3D; eventMatch ? eventMatch[1] : undefined;
+
+	return {
+		number: index + 1,
+		white,
+		black,
+		result: formattedResult,
+		whiteElo,
+		blackElo,
+		eco,
+		timeControl,
+		timeControlNormalized,
+		event,
+	};
+}
+
+function normalizeTimeControl(raw?: string): string | undefined {
+	if (!raw) return undefined;
+	const trimmed &#x3D; raw.trim();
+	if (!trimmed || trimmed &#x3D;&#x3D;&#x3D; &#x27;?&#x27; || trimmed &#x3D;&#x3D;&#x3D; &#x27;-&#x27;) return undefined;
+	const lower &#x3D; trimmed.toLowerCase();
+
+	// Strip leading tokens like &quot;g:&quot; or &quot;g &quot;
+	const cleaned &#x3D; lower.replace(/^g\s*:\s*/i, &#x27;&#x27;).replace(/^g\s+/i, &#x27;&#x27;);
+
+	// Handle colon formats: h:m:s -&gt; base &#x3D; h:m, increment &#x3D; s
+	let match &#x3D; cleaned.match(/^(\d+):(\d+):(\d+)$/);
+	if (match) {
+		const hours &#x3D; parseInt(match[1], 10);
+		const minutes &#x3D; parseInt(match[2], 10);
+		const incSeconds &#x3D; parseInt(match[3], 10);
+		if (
+			!Number.isNaN(hours) &amp;&amp;
+			!Number.isNaN(minutes) &amp;&amp;
+			!Number.isNaN(incSeconds)
+		) {
+			const baseSeconds &#x3D; hours * 3600 + minutes * 60;
+			return &#x60;${baseSeconds}+${incSeconds}&#x60;;
+		}
+	}
+
+	// Handle colon formats: m:s -&gt; base minutes, increment seconds
+	match &#x3D; cleaned.match(/^(\d+):(\d+)$/);
+	if (match) {
+		const baseMinutes &#x3D; parseInt(match[1], 10);
+		const incSeconds &#x3D; parseInt(match[2], 10);
+		if (!Number.isNaN(baseMinutes) &amp;&amp; !Number.isNaN(incSeconds)) {
+			const baseSeconds &#x3D; baseMinutes * 60;
+			return &#x60;${baseSeconds}+${incSeconds}&#x60;;
+		}
+	}
+
+	// Handle common base+increment formats
+	match &#x3D; cleaned.match(
+		/(\d+)\s*(?:min|m|&#x27;)?\s*\+\s*(\d+)\s*(?:sec|s|&#x27;&#x27;|&quot;|\b)?/,
+	);
+	if (match) {
+		const baseVal &#x3D; parseInt(match[1], 10);
+		const incVal &#x3D; parseInt(match[2], 10);
+		if (!Number.isNaN(baseVal) &amp;&amp; !Number.isNaN(incVal)) {
+			const baseHasMinutes &#x3D; /\bmin\b|\bmins\b|\bminutes\b|\bminute\b|&#x27;/i.test(
+				cleaned,
+			);
+			const baseIsMinutes &#x3D; baseHasMinutes || baseVal &lt;&#x3D; 180;
+			const baseSeconds &#x3D; baseIsMinutes ? baseVal * 60 : baseVal;
+
+			const incHasMinutes &#x3D;
+				/\binc\b.*\bmin\b|\bmin\b.*\binc\b|\bminutes\b.*\binc\b/i.test(cleaned);
+			const incSeconds &#x3D; incHasMinutes ? incVal * 60 : incVal;
+			return &#x60;${baseSeconds}+${incSeconds}&#x60;;
+		}
+	}
+
+	// Textual formats: try extracting minutes and seconds
+	const baseMinMatch &#x3D; cleaned.match(/(\d+)\s*(?:min|mins|minutes|&#x27;)/i);
+	const incSecMatch &#x3D; cleaned.match(/(\d+)\s*(?:sec|secs|seconds|&#x27;&#x27;|s)\b/i);
+	if (baseMinMatch &amp;&amp; incSecMatch) {
+		const baseMinutes &#x3D; parseInt(baseMinMatch[1], 10);
+		const incSeconds &#x3D; parseInt(incSecMatch[1], 10);
+		if (!Number.isNaN(baseMinutes) &amp;&amp; !Number.isNaN(incSeconds)) {
+			return &#x60;${baseMinutes * 60}+${incSeconds}&#x60;;
+		}
+	}
+
+	return undefined;
+}
+
+function extractMovesFast(pgn: string): string[] {
+	// 1. Isolate the move text (after the headers)
+	// NOTE: We must NOT use lastIndexOf(&#x27;]&#x27;) here because Lichess PGNs often
+	// include bracket tags in comments like [%clk ...] / [%eval ...], which
+	// appear after the headers and would truncate the move text.
+	let moveText &#x3D; pgn;
+	if (pgn.startsWith(&#x27;[&#x27;)) {
+		// Walk line-by-line until we pass the header tag section.
+		// Standard PGN: consecutive tag lines, then a blank line, then movetext.
+		let pos &#x3D; 0;
+		let sawTagLine &#x3D; false;
+		while (pos &lt; pgn.length) {
+			const nextNl &#x3D; pgn.indexOf(&#x27;\n&#x27;, pos);
+			const lineEnd &#x3D; nextNl &#x3D;&#x3D;&#x3D; -1 ? pgn.length : nextNl;
+			const rawLine &#x3D; pgn.slice(pos, lineEnd);
+			const line &#x3D; rawLine.replace(/\r$/, &#x27;&#x27;);
+			const trimmed &#x3D; line.trim();
+
+			if (trimmed.startsWith(&#x27;[&#x27;) &amp;&amp; trimmed.endsWith(&#x27;]&#x27;)) {
+				sawTagLine &#x3D; true;
+				pos &#x3D; nextNl &#x3D;&#x3D;&#x3D; -1 ? pgn.length : nextNl + 1;
+				continue;
+			}
+
+			// Blank line after headers -&gt; movetext starts after it.
+			if (sawTagLine &amp;&amp; trimmed.length &#x3D;&#x3D;&#x3D; 0) {
+				moveText &#x3D; pgn.slice(nextNl &#x3D;&#x3D;&#x3D; -1 ? pgn.length : nextNl + 1);
+				break;
+			}
+
+			// First non-tag line: assume movetext begins here.
+			moveText &#x3D; pgn.slice(pos);
+			break;
+		}
+	}
+
+	// 2. Remove comments { ... } and ( ... ) and ; ...
+	// This is a simple regex approach. Nested comments might fail but are rare in standard PGNs for display.
+	moveText &#x3D; moveText.replace(/\{[^}]*\}/g, &#x27; &#x27;); // Remove {} comments
+	moveText &#x3D; moveText.replace(/\([^)]*\)/g, &#x27; &#x27;); // Remove () variations
+	moveText &#x3D; moveText.replace(/;.*$/gm, &#x27; &#x27;); // Remove ; comments
+
+	// 3. Remove move numbers (1. or 1...) and result (1-0, 0-1, 1/2-1/2, *)
+	moveText &#x3D; moveText.replace(/\d+\.+/g, &#x27; &#x27;);
+	moveText &#x3D; moveText.replace(/(1-0|0-1|1\/2-1\/2|\*)/g, &#x27; &#x27;);
+
+	// 4. Remove NAG symbols ($1, $2, etc.)
+	moveText &#x3D; moveText.replace(/\$\d+/g, &#x27; &#x27;);
+
+	// 5. Split by whitespace and filter empty
+	const rawMoves &#x3D; moveText
+		.trim()
+		.split(/\s+/)
+		.filter((m) &#x3D;&gt; m.length &gt; 0 &amp;&amp; m !&#x3D;&#x3D; &#x27;.&#x27;);
+
+	// 6. Strip move annotations (!,?,!?,?!) from each move
+	const strippedMoves &#x3D; rawMoves.map((move) &#x3D;&gt; move.replace(/[!?]+$/g, &#x27;&#x27;));
+
+	// 7. Filter out invalid moves (stray brackets, etc.) - only keep valid SAN notation
+	// Valid SAN: starts with piece letter (NBRQK) or pawn move (a-h), or castling (O-O, O-O-O)
+	// Can include capture (x), promotion (&#x3D;), check (+), checkmate (#)
+	const filtered &#x3D; strippedMoves.filter((move) &#x3D;&gt; {
+		if (!move) return false;
+		// Remove any remaining special characters that aren&#x27;t part of SAN
+		if (/^[{}()\[\]]/.test(move)) return false;
+		// Check if it looks like a valid chess move
+		// Valid patterns: e4, Nf3, exd5, O-O, O-O-O, e8&#x3D;Q, Nxf7+, etc.
+		return /^([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](&#x3D;[NBRQ])?|O-O(-O)?)[+#]?$/.test(
+			move,
+		);
+	});
+	return filtered;
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'FilterCriteria.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

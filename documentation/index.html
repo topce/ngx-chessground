@@ -97,48 +97,124 @@
                    <div class="content-data">
 
 
-<h1>NgxChessground</h1>
-<p><a href="https://badge.fury.io/js/ngx-chessground"><img src="https://badge.fury.io/js/ngx-chessground.svg" alt="npm version" class="img-responsive"></a>
-<a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL-3.0" class="img-responsive"></a></p>
-<p>Angular wrapper for <a href="https://github.com/ornicar/chessground">ornicar/chessground</a>, the premier open-source chess UI library.</p>
-<h2>Demo</h2>
-<p>Check out the live demo at <a href="https://topce.github.io/ngx-chessground/">https://topce.github.io/ngx-chessground/</a></p>
-<h2>Features</h2>
-<ul>
-<li>Complete Angular wrapper for chessground</li>
-<li>Easy integration with Angular applications</li>
-<li>All features from the original chessground library</li>
-<li>Compatible with Angular 20</li>
-<li>Enhanced examples with game replay functionality</li>
-</ul>
-<h2>Repository Structure</h2>
-<p>This repository contains two Angular projects:</p>
+<div align="center">
+  <h1>♟️ NgxChessground</h1>
+  <p><strong>The premier Angular wrapper for the world-class open-source chess UI library.</strong></p>
+
+<p>  <a href="https://badge.fury.io/js/ngx-chessground"><img src="https://badge.fury.io/js/ngx-chessground.svg" alt="npm version" class="img-responsive"></a>
+  <a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL-3.0" class="img-responsive"></a> 
+  <a href="https://github.com/sponsors/topce"><img src="https://img.shields.io/badge/Sponsor-%23EA4AAA.svg?logo=github&logoColor=white" alt="GitHub Sponsors" class="img-responsive"></a></p>
+  <br />
+  <h3>
+    <a href="https://topce.github.io/ngx-chessground/">Live Demo</a>
+    <span> | </span>
+    <a href="https://github.com/topce/ngx-chessground/issues">Report a Bug</a>
+  </h3>
+</div>
+
+<hr />
+
+<h2>💖 Sponsor this Project</h2>
+<p>If you are a chess lover and find this project useful, please consider sponsoring it to support further development! </p>
+<p><strong><a href="https://github.com/sponsors/topce">👉 Sponsor on GitHub</a></strong></p>
+<p>Your support helps me maintain the library, add new features, and keep the application up-to-date with the latest Angular and Chessground releases.</p>
+<p>✨ <strong>Sponsor Perk</strong>: Sponsors can request to have their favorite or &quot;evergreen&quot; chess game permanently added to the demo application&#39;s built-in game list! </p>
+<div align="center">
+  <a href="https://github.com/topce/ngx-chessground/pulls">
+    <img src="https://img.shields.io/badge/♟️_Your_Evergreen_Game_Could_Be_Here!-Submit_PR-%23EA4AAA?style=for-the-badge" alt="Submit your evergreen game PR" />
+  </a>
+</div>
+
+<p><strong>How to add your game:</strong></p>
 <ol>
-<li><strong>ngx-chessground</strong> - Angular library that wraps the chessground chess UI</li>
-<li><strong>ngx-chessground-example</strong> - Demo application with various examples, including:<ul>
-<li>All examples from the original chessground-examples repository</li>
-<li>Game replay with different time controls:<ul>
-<li>One second per move</li>
-<li>Real-time replay</li>
-<li>Proportional replay (fit to one minute)</li>
-</ul>
-</li>
-<li>Option to play against yourself (like Robert James Fischer)</li>
-</ul>
-</li>
+<li>Sponsor the project via <a href="https://github.com/sponsors/topce">GitHub Sponsors</a>.</li>
+<li>Submit a Pull Request (PR) to this repository.</li>
+<li>In your PR, include the <strong>PGN file</strong>, brief <strong>game details</strong>, and your <strong>Sponsor Name</strong>.</li>
 </ol>
-<h2>Installation</h2>
+<hr>
+<h2>🚀 Features</h2>
+<h3>🛠️ Library Features</h3>
+<ul>
+<li>🧩 <strong>Complete Angular Wrapper</strong>: Seamlessly adds <a href="https://github.com/ornicar/chessground">ornicar/chessground</a> into any Angular application.</li>
+<li>⚡ <strong>Full Compatibility</strong>: All features from the original chessground library are preserved.</li>
+<li>🆙 <strong>Modern Angular</strong>: Compatible with Angular 21 out of the box.</li>
+</ul>
+<h3>🎮 Application Features (PGN Viewer &amp; Demo)</h3>
+<ul>
+<li>📖 <strong>Comprehensive PGN Viewer</strong>: Load and navigate through complex chess games effortlessly.</li>
+<li>⏪ <strong>Game Replay Options</strong>:<ul>
+<li>Step-by-step manual replay.</li>
+<li>Real-time replay (watch exactly as the game was played).</li>
+<li>Proportional replay (fit to one minute or predefined speeds).</li>
+<li>Customizable minimum time delay between moves.</li>
+</ul>
+</li>
+<li>🔍 <strong>Advanced Filtering</strong>:<ul>
+<li>Filter by ECO codes, player names, and time controls.</li>
+<li>Dynamically filter games by playing the specific starting opening moves on the board!</li>
+<li>Include or exclude drawn games instantly.</li>
+</ul>
+</li>
+<li>🤖 <strong>Stockfish Integration (&quot;Stop on error&quot;)</strong>:<ul>
+<li>Background game analysis via Stockfish web worker.</li>
+<li>Auto-halts replays when a blunder or significant error occurs.</li>
+<li>Instantly reveals Stockfish&#39;s suggested best move and Principal Variation (PV) lines.</li>
+</ul>
+</li>
+<li>💡 <strong>ECO Moves Tooltips</strong>: Hover over ECO codes to see the exact opening move sequence.</li>
+<li>🎭 <strong>Play Against Yourself</strong>: A specialized mode for analyzing positions or practicing openings like Robert James Fischer.</li>
+<li>📱 <strong>Mobile-Ready</strong>: Responsive design with interactive elements tailored for all devices.</li>
+<li>📥 <strong>Progressive Web App (PWA)</strong>: Installable as a standalone app directly on your device.</li>
+</ul>
+<hr>
+<h2>📚 How to Use the Application</h2>
+<p>The demo application (<code>ngx-chessground-example</code>) is a powerful tool for exploring chess games and features. Here are a few guides to get you started:</p>
+<details>
+<summary><strong>📱 Install as SPA (PWA)</strong></summary>
+
+<ol>
+<li>Open the <a href="https://topce.github.io/ngx-chessground/">live demo</a> in a supported browser (e.g., Chrome, Edge, Safari).</li>
+<li>Look for the &quot;Install&quot; icon in the address bar (or in your browser&#39;s menu options: &quot;Install App&quot; or &quot;Add to Home Screen&quot;).</li>
+<li>Click Install and the application will be available on your desktop/home screen, working offline where applicable.</details></li>
+</ol>
+<details>
+<summary><strong>♟️ Filter by Starting Opening Moves</strong></summary>
+
+<ol>
+<li>Load a PGN file containing multiple games.</li>
+<li>In the &quot;<strong>Filter by Starting Moves</strong>&quot; section, check the enable box.</li>
+<li>Use the board to play the specific opening moves you want to filter by (e.g., <code>1. e4 e5</code>).</li>
+<li>Click the &quot;<strong>Filter</strong>&quot; button. The application will instantly list only the games matching that exact opening sequence.</details></li>
+</ol>
+<details>
+<summary><strong>🤖 Use "Stop on error" (Stockfish Integration)</strong></summary>
+
+<ol>
+<li>Load a game into the PGN Viewer.</li>
+<li>Toggle the &quot;<strong>Stop on error</strong>&quot; checkbox.</li>
+<li>Start the auto-replay.</li>
+<li>The application analyzes the game utilizing the built-in Stockfish web worker. If a significant mistake is detected, the replay will automatically halt.</li>
+<li>The UI will display Stockfish&#39;s suggested best move and the optimal continuation line (PV), allowing you to study the critical moment.</details></li>
+</ol>
+<hr>
+<h2>🏗️ Repository Structure</h2>
+<p>This repository contains two robust projects:</p>
+<ol>
+<li>📦 <strong>ngx-chessground</strong> - The core Angular library.</li>
+<li>🕹️ <strong>ngx-chessground-example</strong> - The fully-featured demo application and PGN viewer.</li>
+</ol>
+<hr>
+<h2>📦 Installation</h2>
 <h3>For Users</h3>
-<p>Install the library in your Angular project:</p>
+<p>Install the library in your Angular project via npm:</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm install ngx-chessground chess.js chessground snabbdom</code></pre></div><h3>For Contributors</h3>
-<p>Clone and set up the development environment:</p>
+<p>Clone and set up the development environment quickly:</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-bash">git clone https://github.com/topce/ngx-chessground.git
 cd ngx-chessground
 npm install
-npm start</code></pre></div><h2>Documentation</h2>
-<p>To generate and view the documentation:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run compodoc</code></pre></div><p>This will start a documentation server at <a href="http://localhost:9090">http://localhost:9090</a></p>
-<h2>Usage</h2>
+npm start</code></pre></div><hr>
+<h2>💻 Usage Quick Start</h2>
+<p>First, import the module:</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-typescript">import { NgxChessgroundModule } from &#39;ngx-chessground&#39;;
 
 &#64;NgModule({
@@ -146,60 +222,62 @@ npm start</code></pre></div><h2>Documentation</h2>
     NgxChessgroundModule
   ]
 })
-export class AppModule { }</code></pre></div><p>Then in your component template:</p>
+export class AppModule { }</code></pre></div><p>Then use the component in your template:</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-html">&lt;ngx-chessground
   [width]=&quot;400&quot;
   [height]=&quot;400&quot;
   [config]=&quot;config&quot;&gt;
-&lt;/ngx-chessground&gt;</code></pre></div><h2>Publishing</h2>
-<p>To publish the library to npm:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run publish:lib</code></pre></div><p>Or use the PowerShell script for a guided publishing process:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-powershell">.\publish.ps1</code></pre></div><h2>Version Compatibility</h2>
+&lt;/ngx-chessground&gt;</code></pre></div><hr>
+<h2>📖 Documentation</h2>
+<p>To generate and view the detailed documentation locally:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run compodoc</code></pre></div><p>The documentation server will start at <code>http://localhost:9090</code></p>
+<hr>
+<h2>📊 Version Compatibility</h2>
 <table class="table table-bordered compodoc-table">
 <thead>
 <tr>
 <th>NgxChessground</th>
-<th>Angular</th>
+<th>Angular Framework</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><strong>21.x</strong></td>
+<td>21.x</td>
+</tr>
+<tr>
+<td><strong>20.x</strong></td>
 <td>20.x</td>
-<td>20.x</td>
 </tr>
 <tr>
+<td><strong>19.x</strong></td>
 <td>19.x</td>
-<td>19.x</td>
 </tr>
 <tr>
+<td><strong>18.x</strong></td>
 <td>18.x</td>
-<td>18.x</td>
 </tr>
 <tr>
+<td><strong>17.x</strong></td>
 <td>17.x</td>
-<td>17.x</td>
 </tr>
 <tr>
-<td>16.x</td>
+<td><strong>16.x</strong></td>
 <td>16.x</td>
 </tr>
 <tr>
-<td>15.x</td>
+<td><strong>15.x</strong></td>
 <td>15.x</td>
 </tr>
 </tbody>
 </table>
-<h2>Roadmap</h2>
-<ul>
-<li>Create Angular components for online playing (piece promotion in progress)</li>
-<li>Develop a full-featured Angular PGN viewer</li>
-<li>Add comprehensive testing suite</li>
-<li>Enhance accessibility features</li>
-</ul>
-<h2>License</h2>
-<p>GPL-3.0 or later</p>
-<h2>Contributing</h2>
-<p>Contributions are welcome! Please feel free to submit a Pull Request.</p>
+<hr>
+<h2>🤝 Contributing</h2>
+<p>Contributions, issues, and feature requests are welcome! 
+Feel free to check out the <a href="https://github.com/topce/ngx-chessground/issues">issues page</a> or submit a Pull Request.</p>
+<hr>
+<h2>📄 License</h2>
+<p>Released under the <strong>GPL-3.0</strong> License (or later).</p>
 
 
 

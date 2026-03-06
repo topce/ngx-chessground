@@ -160,6 +160,9 @@
                             <a href="#defaults" title="projects/ngx-chessground/src/units/basics.ts" ><b>defaults</b>&nbsp;&nbsp;&nbsp;(projects/.../basics.ts)</a>
                         </li>
                         <li>
+                            <a href="#ECO_MOVES" title="projects/ngx-chessground/src/lib/pgn-viewer/eco-moves.ts" ><b>ECO_MOVES</b>&nbsp;&nbsp;&nbsp;(projects/.../eco-moves.ts)</a>
+                        </li>
+                        <li>
                             <a href="#enabledFalse" title="projects/ngx-chessground/src/units/svg.ts" ><b>enabledFalse</b>&nbsp;&nbsp;&nbsp;(projects/.../svg.ts)</a>
                         </li>
                         <li>
@@ -167,6 +170,15 @@
                         </li>
                         <li>
                             <a href="#fullRandom" title="projects/ngx-chessground/src/units/in3d.ts" ><b>fullRandom</b>&nbsp;&nbsp;&nbsp;(projects/.../in3d.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#gameMetadata" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts" ><b>gameMetadata</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-processor.worker.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#gameMovesCache" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts" ><b>gameMovesCache</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-processor.worker.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#games" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts" ><b>games</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-processor.worker.ts)</a>
                         </li>
                         <li>
                             <a href="#in3dDefaults" title="projects/ngx-chessground/src/units/in3d.ts" ><b>in3dDefaults</b>&nbsp;&nbsp;&nbsp;(projects/.../in3d.ts)</a>
@@ -266,7 +278,7 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Autoshapes&quot;,
+	name: &#x27;Autoshapes&#x27;,
 	run(el) {
 		function sets() {
 			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) &#x3D;&gt;
@@ -326,7 +338,7 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Brush modifiers&quot;,
+	name: &#x27;Brush modifiers&#x27;,
 	run(el) {
 		function sets() {
 			return [shapeSet1, shapeSet2, shapeSet3].map((set: DrawShape[]) &#x3D;&gt;
@@ -386,7 +398,7 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Automatically changing shapes (high diff)&quot;,
+	name: &#x27;Automatically changing shapes (high diff)&#x27;,
 	run(el) {
 		const cg &#x3D; Chessground(el, { drawable: { shapes: shapeSet1 } });
 		const delay &#x3D; 1000;
@@ -436,7 +448,7 @@ Creates a Chessground instance that cycles through different shape sets at regul
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Automatically changing shapes (low diff)&quot;,
+	name: &#x27;Automatically changing shapes (low diff)&#x27;,
 	run(el) {
 		const cg &#x3D; Chessground(el, { drawable: { shapes: shapeSet1 } });
 		const delay &#x3D; 1000;
@@ -485,7 +497,7 @@ Creates a Chessground instance that cycles through different shape sets at regul
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Shapes not enabled, but visible&quot;,
+	name: &#x27;Shapes not enabled, but visible&#x27;,
 	run: (el) &#x3D;&gt;
 		Chessground(el, {
 			drawable: {
@@ -526,7 +538,7 @@ Creates a Chessground instance that cycles through different shape sets at regul
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Preset user shapes&quot;,
+	name: &#x27;Preset user shapes&#x27;,
 	run: (el) &#x3D;&gt; Chessground(el, { drawable: { shapes: shapeSet1 } }),
 }</code>
                     </td>
@@ -562,27 +574,27 @@ This unit initializes a Chessground instance with predefined drawable shapes.</p
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>[
-	{ orig: &quot;a3&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;a4&quot;, brush: &quot;blue&quot; },
-	{ orig: &quot;a5&quot;, brush: &quot;yellow&quot; },
-	{ orig: &quot;a6&quot;, brush: &quot;red&quot; },
-	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;a6&quot;, dest: &quot;c8&quot;, brush: &quot;blue&quot; },
-	{ orig: &quot;f8&quot;, dest: &quot;f4&quot;, brush: &quot;yellow&quot; },
+	{ orig: &#x27;a3&#x27;, brush: &#x27;green&#x27; },
+	{ orig: &#x27;a4&#x27;, brush: &#x27;blue&#x27; },
+	{ orig: &#x27;a5&#x27;, brush: &#x27;yellow&#x27; },
+	{ orig: &#x27;a6&#x27;, brush: &#x27;red&#x27; },
+	{ orig: &#x27;e2&#x27;, dest: &#x27;e4&#x27;, brush: &#x27;green&#x27; },
+	{ orig: &#x27;a6&#x27;, dest: &#x27;c8&#x27;, brush: &#x27;blue&#x27; },
+	{ orig: &#x27;f8&#x27;, dest: &#x27;f4&#x27;, brush: &#x27;yellow&#x27; },
 	{
-		orig: &quot;h5&quot;,
-		brush: &quot;green&quot;,
+		orig: &#x27;h5&#x27;,
+		brush: &#x27;green&#x27;,
 		piece: {
-			color: &quot;white&quot;,
-			role: &quot;knight&quot;,
+			color: &#x27;white&#x27;,
+			role: &#x27;knight&#x27;,
 		},
 	},
 	{
-		orig: &quot;h6&quot;,
-		brush: &quot;red&quot;,
+		orig: &#x27;h6&#x27;,
+		brush: &#x27;red&#x27;,
 		piece: {
-			color: &quot;black&quot;,
-			role: &quot;queen&quot;,
+			color: &#x27;black&#x27;,
+			role: &#x27;queen&#x27;,
 			scale: 0.6,
 		},
 	},
@@ -620,19 +632,19 @@ Each shape can represent a square highlight, an arrow, or a piece on the board.<
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>[
-	{ orig: &quot;c1&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;d1&quot;, brush: &quot;blue&quot; },
-	{ orig: &quot;e1&quot;, brush: &quot;yellow&quot; },
-	{ orig: &quot;e2&quot;, dest: &quot;e4&quot;, brush: &quot;green&quot; },
-	{ orig: &quot;h6&quot;, dest: &quot;h8&quot;, brush: &quot;blue&quot; },
-	{ orig: &quot;b3&quot;, dest: &quot;d6&quot;, brush: &quot;red&quot; },
-	{ orig: &quot;a1&quot;, dest: &quot;e1&quot;, brush: &quot;red&quot; },
+	{ orig: &#x27;c1&#x27;, brush: &#x27;green&#x27; },
+	{ orig: &#x27;d1&#x27;, brush: &#x27;blue&#x27; },
+	{ orig: &#x27;e1&#x27;, brush: &#x27;yellow&#x27; },
+	{ orig: &#x27;e2&#x27;, dest: &#x27;e4&#x27;, brush: &#x27;green&#x27; },
+	{ orig: &#x27;h6&#x27;, dest: &#x27;h8&#x27;, brush: &#x27;blue&#x27; },
+	{ orig: &#x27;b3&#x27;, dest: &#x27;d6&#x27;, brush: &#x27;red&#x27; },
+	{ orig: &#x27;a1&#x27;, dest: &#x27;e1&#x27;, brush: &#x27;red&#x27; },
 	{
-		orig: &quot;f5&quot;,
-		brush: &quot;green&quot;,
+		orig: &#x27;f5&#x27;,
+		brush: &#x27;green&#x27;,
 		piece: {
-			color: &quot;black&quot;,
-			role: &quot;bishop&quot;,
+			color: &#x27;black&#x27;,
+			role: &#x27;bishop&#x27;,
 		},
 	},
 ]</code>
@@ -668,7 +680,7 @@ Each shape can represent a square highlight or an arrow between two squares.</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>[{ orig: &quot;e5&quot;, brush: &quot;blue&quot; }]</code>
+                        <i>Default value : </i><code>[{ orig: &#x27;e5&#x27;, brush: &#x27;blue&#x27; }]</code>
                     </td>
                 </tr>
 
@@ -701,7 +713,7 @@ Each shape can represent a square highlight or an arrow between two squares.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Shapes not visible&quot;,
+	name: &#x27;Shapes not visible&#x27;,
 	run: (el) &#x3D;&gt;
 		Chessground(el, {
 			drawable: {
@@ -745,18 +757,18 @@ Each shape can represent a square highlight or an arrow between two squares.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;FEN: switch (puzzle bug)&quot;,
+	name: &#x27;FEN: switch (puzzle bug)&#x27;,
 	run(cont) {
 		const configs: Array&lt;() &#x3D;&gt; { fen: string; lastMove: Key[] }&gt; &#x3D; [
 			() &#x3D;&gt; ({
-				orientation: &quot;black&quot;,
-				fen: &quot;rnbqkb1r/pp1ppppp/5n2/8/3N1B2/8/PPP1PPPP/RN1QKB1R b KQkq - 0 4&quot;,
-				lastMove: [&quot;f3&quot;, &quot;d4&quot;],
+				orientation: &#x27;black&#x27;,
+				fen: &#x27;rnbqkb1r/pp1ppppp/5n2/8/3N1B2/8/PPP1PPPP/RN1QKB1R b KQkq - 0 4&#x27;,
+				lastMove: [&#x27;f3&#x27;, &#x27;d4&#x27;],
 			}),
 			() &#x3D;&gt; ({
-				orientation: &quot;white&quot;,
-				fen: &quot;2r2rk1/4bp1p/pp2p1p1/4P3/4bP2/PqN1B2Q/1P3RPP/2R3K1 w - - 1 23&quot;,
-				lastMove: [&quot;b4&quot;, &quot;b3&quot;],
+				orientation: &#x27;white&#x27;,
+				fen: &#x27;2r2rk1/4bp1p/pp2p1p1/4P3/4bP2/PqN1B2Q/1P3RPP/2R3K1 w - - 1 23&#x27;,
+				lastMove: [&#x27;b4&#x27;, &#x27;b3&#x27;],
 			}),
 		];
 		const cg &#x3D; Chessground(cont, configs[0]());
@@ -809,17 +821,17 @@ to demonstrate a puzzle bug in a chess game.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Castling&quot;,
+	name: &#x27;Castling&#x27;,
 	run(el) {
 		const fen &#x3D;
-			&quot;rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4&quot;;
+			&#x27;rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4&#x27;;
 
 		const chess &#x3D; new Chess(fen);
 		const cg &#x3D; Chessground(el, {
 			fen,
 			turnColor: toColor(chess),
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
 				dests: toDests(chess),
 			},
@@ -862,22 +874,22 @@ to demonstrate a puzzle bug in a chess game.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Conflicting hold/premove&quot;,
+	name: &#x27;Conflicting hold/premove&#x27;,
 	run(el) {
 		const cg &#x3D; Chessground(el, {
-			fen: &quot;8/8/5p2/4P3/8/8/8/8&quot;,
-			turnColor: &quot;black&quot;,
+			fen: &#x27;8/8/5p2/4P3/8/8/8/8&#x27;,
+			turnColor: &#x27;black&#x27;,
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
-				dests: new Map([[&quot;e5&quot;, [&quot;f6&quot;]]]),
+				dests: new Map([[&#x27;e5&#x27;, [&#x27;f6&#x27;]]]),
 			},
 		});
 		setTimeout(() &#x3D;&gt; {
-			cg.move(&quot;f6&quot;, &quot;e5&quot;);
+			cg.move(&#x27;f6&#x27;, &#x27;e5&#x27;);
 			cg.playPremove();
 			cg.set({
-				turnColor: &quot;white&quot;,
+				turnColor: &#x27;white&#x27;,
 				movable: {
 					dests: undefined,
 				},
@@ -920,12 +932,12 @@ where a black pawn moves to a square that a white pawn is attempting to move to.
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Play legal moves from initial position&quot;,
+	name: &#x27;Play legal moves from initial position&#x27;,
 	run(el) {
 		const chess &#x3D; new Chess();
 		const cg &#x3D; Chessground(el, {
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
 				dests: toDests(chess),
 			},
@@ -934,9 +946,9 @@ where a black pawn moves to a square that a white pawn is attempting to move to.
 			},
 			events: {
 				move: (_orig: Key, _dest: Key, _capturedPiece?: Piece) &#x3D;&gt; {
-					console.log(_orig);
-					console.log(_dest);
-					console.log(_capturedPiece);
+					// console.log(_orig);
+					// console.log(_dest);
+					// console.log(_capturedPiece);
 				},
 			},
 		});
@@ -979,7 +991,7 @@ and allows playing legal moves from that position.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Watch 2 random AIs&quot;,
+	name: &#x27;Watch 2 random AIs&#x27;,
 	run(el) {
 		const chess &#x3D; new Chess();
 		const cg &#x3D; Chessground(el, {
@@ -1037,12 +1049,12 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Play vs random AI&quot;,
+	name: &#x27;Play vs random AI&#x27;,
 	run(el) {
 		const chess &#x3D; new Chess();
 		const cg &#x3D; Chessground(el, {
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
 				dests: toDests(chess),
 			},
@@ -1089,7 +1101,7 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Play vs random AI; slow animations&quot;,
+	name: &#x27;Play vs random AI; slow animations&#x27;,
 	run(el) {
 		const chess &#x3D; new Chess();
 		const cg &#x3D; Chessground(el, {
@@ -1097,7 +1109,7 @@ The game is displayed on a Chessground board with animations.</p>
 				duration: 5000,
 			},
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
 				dests: toDests(chess),
 			},
@@ -1147,12 +1159,12 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Highlight king in check&quot;,
+	name: &#x27;Highlight king in check&#x27;,
 	run(el) {
-		const fen &#x3D; &quot;r1bqkbnr/1ppppBpp/p1n5/8/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 0 1&quot;;
+		const fen &#x3D; &#x27;r1bqkbnr/1ppppBpp/p1n5/8/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 0 1&#x27;;
 		const cg &#x3D; Chessground(el, {
 			fen,
-			turnColor: &quot;black&quot;,
+			turnColor: &#x27;black&#x27;,
 			highlight: {
 				check: true,
 			},
@@ -1195,7 +1207,7 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Default configuration&quot;,
+	name: &#x27;Default configuration&#x27;,
 	run(el) {
 		return Chessground(el);
 	},
@@ -1232,11 +1244,11 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;From FEN, from black POV&quot;,
+	name: &#x27;From FEN, from black POV&#x27;,
 	run(el) {
 		return Chessground(el, {
-			fen: &quot;2r3k1/pp2Qpbp/4b1p1/3p4/3n1PP1/2N4P/Pq6/R2K1B1R w -&quot;,
-			orientation: &quot;black&quot;,
+			fen: &#x27;2r3k1/pp2Qpbp/4b1p1/3p4/3n1PP1/2N4P/Pq6/R2K1B1R w -&#x27;,
+			orientation: &#x27;black&#x27;,
 		});
 	},
 }</code>
@@ -1272,13 +1284,13 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Last move: crazyhouse&quot;,
+	name: &#x27;Last move: crazyhouse&#x27;,
 	run(el) {
 		const cg &#x3D; Chessground(el);
 		setTimeout(() &#x3D;&gt; {
-			cg.set({ lastMove: [&quot;e2&quot;, &quot;e4&quot;] });
-			setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&quot;g6&quot;] }), 1000);
-			setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&quot;e1&quot;] }), 2000);
+			cg.set({ lastMove: [&#x27;e2&#x27;, &#x27;e4&#x27;] });
+			setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&#x27;g6&#x27;] }), 1000);
+			setTimeout(() &#x3D;&gt; cg.set({ lastMove: [&#x27;e1&#x27;] }), 2000);
 		});
 		return cg;
 	},
@@ -1318,25 +1330,25 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Animation: conflict&quot;,
+	name: &#x27;Animation: conflict&#x27;,
 	run(el) {
 		const cg &#x3D; Chessground(el, {
 			animation: {
 				duration: 500,
 			},
-			fen: &quot;8/8/5p2/4P3/4K3/8/8/8&quot;,
-			turnColor: &quot;black&quot;,
+			fen: &#x27;8/8/5p2/4P3/4K3/8/8/8&#x27;,
+			turnColor: &#x27;black&#x27;,
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
 			},
 		});
 		setTimeout(() &#x3D;&gt; {
-			cg.move(&quot;f6&quot;, &quot;e5&quot;);
+			cg.move(&#x27;f6&#x27;, &#x27;e5&#x27;);
 			cg.set({
-				turnColor: &quot;white&quot;,
+				turnColor: &#x27;white&#x27;,
 				movable: {
-					dests: new Map([[&quot;e4&quot;, [&quot;e5&quot;, &quot;d5&quot;, &quot;f5&quot;]]]),
+					dests: new Map([[&#x27;e4&#x27;, [&#x27;e5&#x27;, &#x27;d5&#x27;, &#x27;f5&#x27;]]]),
 				},
 			});
 			cg.playPremove();
@@ -1376,7 +1388,7 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Animation: different role&quot;,
+	name: &#x27;Animation: different role&#x27;,
 	run(el) {
 		const cg &#x3D; Chessground(el, {
 			animation: {
@@ -1385,13 +1397,13 @@ The game is displayed on a Chessground board with animations.</p>
 			highlight: {
 				lastMove: false,
 			},
-			fen: &quot;8/8/4n3/5p2/4P3/8/8/8&quot;,
-			turnColor: &quot;white&quot;,
+			fen: &#x27;8/8/4n3/5p2/4P3/8/8/8&#x27;,
+			turnColor: &#x27;white&#x27;,
 		});
 		setTimeout(() &#x3D;&gt; {
-			cg.move(&quot;e4&quot;, &quot;f5&quot;);
+			cg.move(&#x27;e4&#x27;, &#x27;f5&#x27;);
 			setTimeout(() &#x3D;&gt; {
-				cg.move(&quot;e6&quot;, &quot;f5&quot;);
+				cg.move(&#x27;e6&#x27;, &#x27;f5&#x27;);
 			}, 500);
 		}, 200);
 		return cg;
@@ -1429,27 +1441,27 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Animation: while holding&quot;,
+	name: &#x27;Animation: while holding&#x27;,
 
 	run(el) {
 		const cg &#x3D; Chessground(el, {
-			fen: &quot;8/8/5p2/4P3/4K3/8/8/8&quot;,
-			turnColor: &quot;black&quot;,
+			fen: &#x27;8/8/5p2/4P3/4K3/8/8/8&#x27;,
+			turnColor: &#x27;black&#x27;,
 			animation: {
 				duration: 5000,
 			},
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
 				showDests: false,
 			},
 		});
 		setTimeout(() &#x3D;&gt; {
-			cg.move(&quot;f6&quot;, &quot;e5&quot;);
+			cg.move(&#x27;f6&#x27;, &#x27;e5&#x27;);
 			cg.set({
-				turnColor: &quot;white&quot;,
+				turnColor: &#x27;white&#x27;,
 				movable: {
-					dests: new Map([[&quot;e4&quot;, [&quot;e5&quot;, &quot;d5&quot;, &quot;f5&quot;]]]),
+					dests: new Map([[&#x27;e4&#x27;, [&#x27;e5&#x27;, &#x27;d5&#x27;, &#x27;f5&#x27;]]]),
 				},
 			});
 			cg.playPremove();
@@ -1489,7 +1501,7 @@ The game is displayed on a Chessground board with animations.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Animation: same role&quot;,
+	name: &#x27;Animation: same role&#x27;,
 	run(el) {
 		const cg &#x3D; Chessground(el, {
 			animation: {
@@ -1498,13 +1510,13 @@ The game is displayed on a Chessground board with animations.</p>
 			highlight: {
 				lastMove: false,
 			},
-			fen: &quot;8/8/4p3/5p2/4B3/8/8/8&quot;,
-			turnColor: &quot;white&quot;,
+			fen: &#x27;8/8/4p3/5p2/4B3/8/8/8&#x27;,
+			turnColor: &#x27;white&#x27;,
 		});
 		setTimeout(() &#x3D;&gt; {
-			cg.move(&quot;e4&quot;, &quot;f5&quot;);
+			cg.move(&#x27;e4&#x27;, &#x27;f5&#x27;);
 			setTimeout(() &#x3D;&gt; {
-				cg.move(&quot;e6&quot;, &quot;f5&quot;);
+				cg.move(&#x27;e6&#x27;, &#x27;f5&#x27;);
 			}, 500);
 		}, 200);
 		return cg;
@@ -1521,6 +1533,548 @@ and animates two moves sequentially with a delay between them.</p>
 </div>
                 </td>
             </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>projects/ngx-chessground/src/lib/pgn-viewer/eco-moves.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ECO_MOVES"></a>
+                    <span class="name">
+                        <span ><b>ECO_MOVES</b></span>
+                        <a href="#ECO_MOVES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Record&lt;string, string&gt;</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+	A00: &#x27;1. a3 | 1. g3 | 1. b4 | 1. c3 | 1. Nc3&#x27;,
+	A01: &#x27;1. b3&#x27;,
+	A02: &#x27;1. f4&#x27;,
+	A03: &#x27;1. f4 d5&#x27;,
+	A04: &#x27;1. Nf3&#x27;,
+	A05: &#x27;1. Nf3 Nf6&#x27;,
+	A06: &#x27;1. Nf3 d5&#x27;,
+	A07: &#x27;1. Nf3 d5 2. g3&#x27;,
+	A08: &#x27;1. Nf3 d5 2. g3 c5 3. Bg2&#x27;,
+	A09: &#x27;1. Nf3 d5 2. c4&#x27;,
+	A10: &#x27;1. c4&#x27;,
+	A11: &#x27;1. c4 c6&#x27;,
+	A12: &#x27;1. Nf3 d5 2. c4 c6 3. b3&#x27;,
+	A13: &#x27;1. c4 e6&#x27;,
+	A14: &#x27;1. Nf3 Nf6 2. c4 e6 3. g3 d5 4. Bg2 Be7 5. O-O&#x27;,
+	A15: &#x27;1. c4 Nf6&#x27;,
+	A16: &#x27;1. c4 Nf6 2. Nc3&#x27;,
+	A17: &#x27;1. c4 Nf6 2. Nc3 e6&#x27;,
+	A18: &#x27;1. c4 Nf6 2. Nc3 e6 3. e4&#x27;,
+	A19: &#x27;1. c4 Nf6 2. Nc3 e6 3. e4 c5&#x27;,
+	A20: &#x27;1. c4 e5&#x27;,
+	A21: &#x27;1. c4 e5 2. Nc3&#x27;,
+	A22: &#x27;1. c4 e5 2. Nc3 Nf6&#x27;,
+	A23: &#x27;1. c4 e5 2. Nc3 Nf6 3. g3 c6&#x27;,
+	A24: &#x27;1. c4 e5 2. Nc3 Nf6 3. g3 g6&#x27;,
+	A25: &#x27;1. c4 e5 2. Nc3 Nc6&#x27;,
+	A26: &#x27;1. c4 e5 2. Nc3 Nc6 3. g3 g6 4. Bg2 Bg7 5. d3 d6&#x27;,
+	A27: &#x27;1. c4 e5 2. Nc3 Nc6 3. Nf3&#x27;,
+	A28: &#x27;1. c4 e5 2. Nc3 Nf6 3. Nf3 Nc6&#x27;,
+	A29: &#x27;1. c4 e5 2. Nc3 Nf6 3. Nf3 Nc6 4. g3&#x27;,
+	A30: &#x27;1. c4 c5&#x27;,
+	A31: &#x27;1. d4 Nf6 2. c4 c5 3. Nf3&#x27;,
+	A32: &#x27;1. d4 Nf6 2. c4 c5 3. Nf3 cxd4 4. Nxd4 e6&#x27;,
+	A33: &#x27;1. Nf3 Nf6 2. c4 c5 3. Nc3 Nc6 4. d4 cxd4 5. Nxd4 e6&#x27;,
+	A34: &#x27;1. c4 c5 2. Nc3&#x27;,
+	A35: &#x27;1. c4 c5 2. Nc3 Nc6&#x27;,
+	A36: &#x27;1. c4 c5 2. Nc3 Nc6 3. g3&#x27;,
+	A37: &#x27;1. c4 c5 2. Nc3 Nc6 3. g3 g6 4. Bg2 Bg7 5. Nf3&#x27;,
+	A38: &#x27;1. Nf3 Nf6 2. c4 c5 3. Nc3 Nc6 4. g3 g6 5. Bg2 Bg7&#x27;,
+	A39: &#x27;1. Nf3 Nf6 2. c4 c5 3. Nc3 Nc6 4. g3 g6 5. Bg2 Bg7 6. O-O O-O 7. d4&#x27;,
+	A40: &#x27;1. d4&#x27;,
+	A41: &#x27;1. d4 d6&#x27;,
+	A42: &#x27;1. d4 g6 2. c4 Bg7 3. Nc3 d6 4. e4&#x27;,
+	A43: &#x27;1. d4 c5&#x27;,
+	A44: &#x27;1. d4 c5 2. d5 e5&#x27;,
+	A45: &#x27;1. d4 Nf6&#x27;,
+	A46: &#x27;1. d4 Nf6 2. Nf3&#x27;,
+	A47: &#x27;1. d4 Nf6 2. Nf3 b6&#x27;,
+	A48: &#x27;1. d4 Nf6 2. Nf3 g6&#x27;,
+	A49: &#x27;1. d4 Nf6 2. Nf3 g6 3. g3&#x27;,
+	A50: &#x27;1. d4 Nf6 2. c4&#x27;,
+	A51: &#x27;1. d4 Nf6 2. c4 e5&#x27;,
+	A52: &#x27;1. d4 Nf6 2. c4 e5 3. dxe5 Ng4&#x27;,
+	A53: &#x27;1. d4 Nf6 2. c4 d6&#x27;,
+	A54: &#x27;1. d4 Nf6 2. c4 d6 3. Nc3 e5&#x27;,
+	A55: &#x27;1. d4 Nf6 2. c4 d6 3. Nc3 Nbd7 4. e4 e5 5. Nf3&#x27;,
+	A56: &#x27;1. d4 Nf6 2. c4 c5&#x27;,
+	A57: &#x27;1. d4 Nf6 2. c4 c5 3. d5 b5&#x27;,
+	A58: &#x27;1. d4 Nf6 2. c4 c5 3. d5 b5 4. cxb5 a6 5. bxa6&#x27;,
+	A59: &#x27;1. d4 Nf6 2. c4 c5 3. d5 b5 4. cxb5 a6 5. bxa6 Bxa6 6. Nc3 d6 7. e4&#x27;,
+	A60: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6&#x27;,
+	A61: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6&#x27;,
+	A62: &#x27;1. d4 Nf6 2. c4 e6 3. g3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. Bg2 Bg7 8. Nf3 O-O&#x27;,
+	A63: &#x27;1. d4 Nf6 2. c4 e6 3. g3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. Bg2 Bg7 8. Nf3 O-O 9. O-O Nbd7&#x27;,
+	A64: &#x27;1. d4 Nf6 2. c4 e6 3. g3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. Bg2 Bg7 8. Nf3 O-O 9. O-O a6 10. a4 Nbd7 11. Nd2 Re8&#x27;,
+	A65: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4&#x27;,
+	A66: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. f4&#x27;,
+	A67: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. f4 Bg7 8. Bb5+&#x27;,
+	A68: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. f4 Bg7 8. Nf3&#x27;,
+	A69: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f4 O-O 6. Nf3 c5 7. d5 e6 8. Be2 exd5 9. cxd5 Re8&#x27;,
+	A70: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. e4&#x27;,
+	A71: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. e4 Bg7 8. Bg5&#x27;,
+	A72: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O&#x27;,
+	A73: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O 9. O-O&#x27;,
+	A74: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O 9. O-O a6 10. a4&#x27;,
+	A75: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. e4 Bg7 8. Be2 O-O 9. O-O a6 10. a4 Bg4&#x27;,
+	A76: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O 9. O-O Re8&#x27;,
+	A77: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O 9. O-O Re8 10. Nd2&#x27;,
+	A78: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. e4 Bg7 8. Be2 O-O 9. O-O Re8 10. Nd2 Na6&#x27;,
+	A79: &#x27;1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O 9. O-O Re8 10. Nd2 Na6 11. f3&#x27;,
+	A80: &#x27;1. d4 f5&#x27;,
+	A81: &#x27;1. d4 f5 2. g3&#x27;,
+	A82: &#x27;1. d4 f5 2. e4&#x27;,
+	A83: &#x27;1. d4 f5 2. e4 fxe4 3. Nc3 Nf6 4. Bg5&#x27;,
+	A84: &#x27;1. d4 f5 2. c4&#x27;,
+	A85: &#x27;1. d4 f5 2. c4 Nf6 3. Nc3&#x27;,
+	A86: &#x27;1. d4 f5 2. c4 Nf6 3. g3&#x27;,
+	A87: &#x27;1. d4 f5 2. c4 Nf6 3. g3 g6 4. Bg2 Bg7 5. Nf3&#x27;,
+	A88: &#x27;1. d4 f5 2. g3 Nf6 3. Bg2 g6 4. Nf3 Bg7 5. O-O O-O 6. c4 d6 7. Nc3 c6&#x27;,
+	A89: &#x27;1. d4 f5 2. g3 Nf6 3. Bg2 g6 4. Nf3 Bg7 5. O-O O-O 6. c4 d6 7. Nc3 Nc6&#x27;,
+	A90: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6&#x27;,
+	A91: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7&#x27;,
+	A92: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O&#x27;,
+	A93: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O 6. O-O d5 7. b3&#x27;,
+	A94: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O 6. O-O d5 7. b3 c6 8. Ba3&#x27;,
+	A95: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O 6. O-O d5 7. Nc3 c6&#x27;,
+	A96: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O 6. O-O d6&#x27;,
+	A97: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O 6. O-O d6 7. Nc3 Qe8&#x27;,
+	A98: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O 6. O-O d6 7. Nc3 Qe8 8. Qc2&#x27;,
+	A99: &#x27;1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Be7 5. Nf3 O-O 6. O-O d6 7. Nc3 Qe8 8. b3&#x27;,
+	B00: &#x27;1. e4&#x27;,
+	B07: &#x27;1. e4 d6&#x27;,
+	B01: &#x27;1. e4 d5&#x27;,
+	B02: &#x27;1. e4 Nf6&#x27;,
+	B03: &#x27;1. e4 Nf6 2. e5 Nd5 3. d4&#x27;,
+	B04: &#x27;1. e4 Nf6 2. e5 Nd5 3. d4 d6 4. Nf3&#x27;,
+	B05: &#x27;1. e4 Nf6 2. e5 Nd5 3. d4 d6 4. Nf3 Bg4&#x27;,
+	B06: &#x27;1. e4 g6&#x27;,
+	B08: &#x27;1. e4 d6 2. d4 Nf6 3. Nc3 g6 4. Nf3&#x27;,
+	B09: &#x27;1. e4 d6 2. d4 Nf6 3. Nc3 g6 4. f4&#x27;,
+	B10: &#x27;1. e4 c6&#x27;,
+	B11: &#x27;1. e4 c6 2. Nc3 d5 3. Nf3 Bg4&#x27;,
+	B12: &#x27;1. e4 c6 2. d4&#x27;,
+	B13: &#x27;1. e4 c6 2. d4 d5 3. exd5&#x27;,
+	B14: &#x27;1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 Nf6 5. Nc3 e6&#x27;,
+	B15: &#x27;1. e4 c6 2. d4 d5 3. Nc3&#x27;,
+	B16: &#x27;1. e4 c6 2. d4 d5 3. Nd2 dxe4 4. Nxe4 h6&#x27;,
+	B17: &#x27;1. e4 c6 2. d4 d5 3. Nd2 dxe4 4. Nxe4 Nd7&#x27;,
+	B18: &#x27;1. e4 c6 2. d4 d5 3. Nd2 dxe4 4. Nxe4 Bf5&#x27;,
+	B19: &#x27;1. e4 c6 2. d4 d5 3. Nc3 dxe4 4. Nxe4 Bf5 5. Ng3 Bg6 6. h4 h6 7. Nf3&#x27;,
+	B20: &#x27;1. e4 c5&#x27;,
+	B21: &#x27;1. e4 c5 2. f4&#x27;,
+	B22: &#x27;1. e4 c5 2. c3&#x27;,
+	B23: &#x27;1. e4 c5 2. Nc3&#x27;,
+	B24: &#x27;1. e4 c5 2. Nc3 Nc6 3. g3&#x27;,
+	B25: &#x27;1. e4 c5 2. Nc3 Nc6 3. g3 g6 4. Bg2 Bg7 5. d3 d6&#x27;,
+	B26: &#x27;1. e4 c5 2. Nc3 Nc6 3. g3 g6 4. Bg2 Bg7 5. d3 d6 6. Be3&#x27;,
+	B27: &#x27;1. e4 c5 2. Nf3&#x27;,
+	B28: &#x27;1. e4 c5 2. Nf3 a6&#x27;,
+	B29: &#x27;1. e4 c5 2. Nf3 Nf6&#x27;,
+	B30: &#x27;1. e4 c5 2. Nf3 Nc6&#x27;,
+	B31: &#x27;1. e4 c5 2. Nf3 Nc6 3. Bb5 g6&#x27;,
+	B32: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4&#x27;,
+	B33: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6&#x27;,
+	B34: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 g6 5. Nc3&#x27;,
+	B35: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 g6 5. Nc3 Bg7 6. Be3 Nf6 7. Bc4&#x27;,
+	B36: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 g6 5. c4&#x27;,
+	B37: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 g6 5. c4 Bg7&#x27;,
+	B38: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 g6 5. c4 Bg7 6. Be3&#x27;,
+	B39: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 g6 5. c4 Bg7 6. Be3 Nf6 7. Nc3 Ng4&#x27;,
+	B40: &#x27;1. e4 c5 2. Nf3 e6&#x27;,
+	B41: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 a6&#x27;,
+	B42: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 a6 5. Bd3&#x27;,
+	B43: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 a6 5. Nc3&#x27;,
+	B44: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nc6&#x27;,
+	B45: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nc6 5. Nc3&#x27;,
+	B46: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nc6 5. Nc3 a6&#x27;,
+	B47: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nc6 5. Nc3 Qc7&#x27;,
+	B48: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nc6 5. Nc3 Qc7 6. Be3&#x27;,
+	B49: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Qc7 5. Nc3 e6 6. Be3 a6 7. f3&#x27;,
+	B50: &#x27;1. e4 c5 2. Nf3 d6&#x27;,
+	B51: &#x27;1. e4 c5 2. Nf3 d6 3. Bb5+&#x27;,
+	B52: &#x27;1. e4 c5 2. Nf3 d6 3. Bb5+ Bd7&#x27;,
+	B53: &#x27;1. e4 c5 2. Nf3 d6 3. d4 Nd7&#x27;,
+	B54: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4&#x27;,
+	B55: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. f3 e5 6. Bb5+&#x27;,
+	B56: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3&#x27;,
+	B57: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4&#x27;,
+	B58: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Be2&#x27;,
+	B59: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Be2 e5 7. Nb3&#x27;,
+	B60: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bg5&#x27;,
+	B61: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Qd2&#x27;,
+	B62: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bg5 e6&#x27;,
+	B63: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bg5 e6 7. Qd2&#x27;,
+	B64: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bg5 e6 7. Qd2 Be7 8. O-O-O O-O 9. f4&#x27;,
+	B65: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bg5 e6 7. Qd2 Be7 8. O-O-O O-O 9. f4 Nxd4&#x27;,
+	B66: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bg5 e6 7. Qd2 a6&#x27;,
+	B67: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Bg5 e6 7. Qd2 a6 8. O-O-O Bd7&#x27;,
+	B68: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Bg5 e6 7. Qd2 a6 8. O-O-O Bd7 9. f4 Be7&#x27;,
+	B69: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Bg5 e6 7. Qd2 a6 8. O-O-O Bd7 9. f4 Be7 10. Nf3 b5 11. Bxf6&#x27;,
+	B70: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6&#x27;,
+	B71: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. f4&#x27;,
+	B72: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3&#x27;,
+	B73: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be2 Bg7 7. O-O Nc6 8. Be3&#x27;,
+	B74: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be2 Bg7 7. O-O O-O 8. Be3 Nc6 9. Nb3&#x27;,
+	B75: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3 Bg7 7. f3&#x27;,
+	B76: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3 Bg7 7. f3 O-O&#x27;,
+	B77: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3 Bg7 7. f3 O-O 8. Qd2 Nc6 9. Bc4&#x27;,
+	B78: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3 Bg7 7. f3 O-O 8. Qd2 Nc6 9. Bc4 Bd7 10. O-O-O&#x27;,
+	B79: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3 Bg7 7. f3 O-O 8. Qd2 Nc6 9. Bc4 Bd7 10. h4 Qa5 11. O-O-O Rfc8 12. Bb3&#x27;,
+	B80: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6&#x27;,
+	B81: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. g4&#x27;,
+	B82: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. f4&#x27;,
+	B83: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Be2&#x27;,
+	B84: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 e6&#x27;,
+	B85: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. f4 e6 7. Be2 Qc7 8. O-O Nc6&#x27;,
+	B86: &#x27;1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Bc4&#x27;,
+	B87: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bc4 e6 7. Bb3 b5&#x27;,
+	B88: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Bc4 e6&#x27;,
+	B89: &#x27;1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 d6 6. Bc4 e6 7. Be3&#x27;,
+	B90: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6&#x27;,
+	B91: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. g3&#x27;,
+	B92: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2&#x27;,
+	B93: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. f4&#x27;,
+	B94: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5&#x27;,
+	B95: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 e6&#x27;,
+	B96: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 e6 7. f4&#x27;,
+	B97: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 e6 7. f4 Qb6&#x27;,
+	B98: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 e6 7. f4 Be7&#x27;,
+	B99: &#x27;1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 e6 7. f4 Be7 8. Qf3 Qc7 9. O-O-O Nbd7&#x27;,
+	C00: &#x27;1. e4 e6&#x27;,
+	C01: &#x27;1. e4 e6 2. d4 d5 3. exd5&#x27;,
+	C02: &#x27;1. e4 e6 2. d4 d5 3. e5&#x27;,
+	C03: &#x27;1. e4 e6 2. d4 d5 3. Nd2&#x27;,
+	C04: &#x27;1. e4 e6 2. d4 d5 3. Nd2 Nc6 4. Ngf3 Nf6&#x27;,
+	C05: &#x27;1. e4 e6 2. d4 d5 3. Nd2 Nf6&#x27;,
+	C06: &#x27;1. e4 e6 2. d4 d5 3. Nd2 Nf6 4. e5 Nfd7 5. Bd3 c5 6. c3 Nc6 7. Ne2 cxd4 8. cxd4&#x27;,
+	C07: &#x27;1. e4 e6 2. d4 d5 3. Nd2 c5&#x27;,
+	C08: &#x27;1. e4 e6 2. d4 d5 3. Nd2 c5 4. exd5 exd5&#x27;,
+	C09: &#x27;1. e4 e6 2. d4 d5 3. Nd2 c5 4. exd5 exd5 5. Ngf3 Nc6&#x27;,
+	C10: &#x27;1. e4 e6 2. d4 d5 3. Nc3&#x27;,
+	C11: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Nf6&#x27;,
+	C12: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Nf6 4. Bg5 Bb4&#x27;,
+	C13: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Nf6 4. Bg5 Be7&#x27;,
+	C14: &#x27;1. e4 e6 2. d4 d5 3. Nc3 a6 4. Nf3 Nf6 5. e5 Nfd7 6. Bg5&#x27;,
+	C15: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Bb4&#x27;,
+	C16: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. e5&#x27;,
+	C17: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. e5 c5&#x27;,
+	C18: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. e5 c5 5. a3 Bxc3+&#x27;,
+	C19: &#x27;1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. e5 c5 5. a3 Bxc3+ 6. bxc3 Ne7&#x27;,
+	C20: &#x27;1. e4 e5&#x27;,
+	C21: &#x27;1. e4 e5 2. d4 exd4&#x27;,
+	C22: &#x27;1. e4 e5 2. d4 exd4 3. Qxd4 Nc6&#x27;,
+	C23: &#x27;1. e4 e5 2. Bc4&#x27;,
+	C24: &#x27;1. e4 e5 2. Bc4 Nf6&#x27;,
+	C25: &#x27;1. e4 e5 2. Nc3&#x27;,
+	C26: &#x27;1. e4 e5 2. Nc3 Nf6&#x27;,
+	C27: &#x27;1. e4 e5 2. Nc3 Nf6 3. Bc4 Nxe4&#x27;,
+	C28: &#x27;1. e4 e5 2. Nc3 Nc6 3. Bc4 Nf6&#x27;,
+	C29: &#x27;1. e4 e5 2. Nc3 Nf6 3. f4&#x27;,
+	C30: &#x27;1. e4 e5 2. f4&#x27;,
+	C31: &#x27;1. e4 e5 2. f4 d5&#x27;,
+	C32: &#x27;1. e4 e5 2. f4 d5 3. exd5 e4 4. d3 Nf6&#x27;,
+	C33: &#x27;1. e4 e5 2. f4 exf4&#x27;,
+	C34: &#x27;1. e4 e5 2. f4 exf4 3. Nf3&#x27;,
+	C35: &#x27;1. e4 e5 2. f4 exf4 3. Nf3 Be7&#x27;,
+	C36: &#x27;1. e4 e5 2. f4 exf4 3. Nf3 d5&#x27;,
+	C37: &#x27;1. e4 e5 2. f4 exf4 3. Nf3 g5 4. d4&#x27;,
+	C38: &#x27;1. e4 e5 2. f4 exf4 3. Nf3 g5 4. Bc4 Bg7&#x27;,
+	C39: &#x27;1. e4 e5 2. f4 exf4 3. Nf3 g5 4. h4&#x27;,
+	C40: &#x27;1. e4 e5 2. Nf3&#x27;,
+	C41: &#x27;1. e4 e5 2. Nf3 d6&#x27;,
+	C42: &#x27;1. e4 e5 2. Nf3 Nf6&#x27;,
+	C43: &#x27;1. e4 e5 2. Nf3 Nf6 3. d4&#x27;,
+	C44: &#x27;1. e4 e5 2. Nf3 Nc6&#x27;,
+	C45: &#x27;1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4&#x27;,
+	C46: &#x27;1. e4 e5 2. Nf3 Nc6 3. Nc3&#x27;,
+	C47: &#x27;1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6&#x27;,
+	C48: &#x27;1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6 4. Bb5&#x27;,
+	C49: &#x27;1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6 4. Bb5 Bb4&#x27;,
+	C50: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4&#x27;,
+	C51: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4&#x27;,
+	C52: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4 Bxb4 5. c3 Ba5&#x27;,
+	C53: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3&#x27;,
+	C54: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. O-O&#x27;,
+	C55: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6&#x27;,
+	C56: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d4 exd4 5. O-O Nxe4&#x27;,
+	C57: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5&#x27;,
+	C58: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 5. exd5 Na5&#x27;,
+	C59: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 5. exd5 Na5 6. Bb5+ c6 7. dxc6 bxc6 8. Be2 h6&#x27;,
+	C60: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5&#x27;,
+	C61: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 Nd4&#x27;,
+	C62: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 d6&#x27;,
+	C63: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 f5&#x27;,
+	C64: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 Bc5&#x27;,
+	C65: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 Nf6&#x27;,
+	C66: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 Nf6 4. O-O d6&#x27;,
+	C67: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 Nf6 4. O-O Nxe4&#x27;,
+	C68: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bc4&#x27;,
+	C69: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 dxc6 5. O-O&#x27;,
+	C70: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6&#x27;,
+	C71: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 d6&#x27;,
+	C72: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 d6 5. O-O&#x27;,
+	C73: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 d6 5. Bxc6+&#x27;,
+	C74: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 d6 5. c3&#x27;,
+	C75: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 d6 5. c3 Bd7&#x27;,
+	C76: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 g6 4. c3 a6 5. Ba4 d6 6. d4 Bd7&#x27;,
+	C77: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6&#x27;,
+	C78: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O&#x27;,
+	C79: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O d6&#x27;,
+	C80: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Nxe4&#x27;,
+	C81: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Nxe4 6. d4 b5 7. Bb3 d5 8. dxe5 Be6 9. Qe2&#x27;,
+	C82: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Nxe4 6. d4 b5 7. Bb3 d5 8. dxe5 Be6 9. c3&#x27;,
+	C83: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Nxe4 6. d4 b5 7. Bb3 d5 8. dxe5 Be6 9. c3 Be7&#x27;,
+	C84: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7&#x27;,
+	C85: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Bxc6&#x27;,
+	C86: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Qe2&#x27;,
+	C87: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1&#x27;,
+	C88: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5&#x27;,
+	C89: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 O-O 8. c3 d5&#x27;,
+	C90: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O&#x27;,
+	C91: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. d4&#x27;,
+	C92: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3&#x27;,
+	C93: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 h6&#x27;,
+	C94: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8&#x27;,
+	C95: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4&#x27;,
+	C96: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2&#x27;,
+	C97: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5&#x27;,
+	C98: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 11. d4 Qc7 12. Nbd2 Nc6&#x27;,
+	C99: &#x27;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 O-O 8. c3 d6 9. h3 Na5 10. Bc2 c5 11. d4 Qc7 12. Nbd2 cxd4&#x27;,
+	&#x27;C89 &#x27;:
+		&#x27;1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 O-O 8.c3 d5 9.exd5 Nxd5 10.Nxe5 Nxe5 11.Rxe5 c6 12.g3 &#x27;,
+	&#x27;C90 &#x27;:
+		&#x27;1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 O-O 8.c3 Na5 9.Bc2 c5 10.d4 Qc7 11.h3 Nc6 12.d5 Nd8 13.Nbd2 g5 &#x27;,
+	&#x27;C95 &#x27;:
+		&#x27;1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O 9.h3 Nb8 10.d4 Nbd7 11.Nbd2 Bb7 12.Bc2 Re8 13.Nf1 Bf8 14.Bg5 &#x27;,
+	&#x27;C98 &#x27;:
+		&#x27;1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O 9.h3 Na5 10.Bc2 c5 11.d4 Qc7 12.Nbd2 Nc6 13.dxe5 dxe5 14.a4 &#x27;,
+	D00: &#x27;1. d4 d5&#x27;,
+	D01: &#x27;1. d4 d5 2. Nc3 e6 3. Bf4&#x27;,
+	D02: &#x27;1. d4 d5 2. Nf3&#x27;,
+	D03: &#x27;1. d4 d5 2. Nf3 Nf6 3. Bg5&#x27;,
+	D04: &#x27;1. d4 d5 2. Nf3 Nf6 3. e3&#x27;,
+	D05: &#x27;1. d4 d5 2. Nf3 Nf6 3. e3 e6&#x27;,
+	D06: &#x27;1. d4 d5 2. c4&#x27;,
+	D07: &#x27;1. d4 d5 2. c4 Nc6&#x27;,
+	D08: &#x27;1. d4 d5 2. c4 e5&#x27;,
+	D09: &#x27;1. d4 d5 2. c4 e5 3. dxe5 d4 4. Nf3 Nc6 5. g3&#x27;,
+	D10: &#x27;1. d4 d5 2. c4 c6&#x27;,
+	D11: &#x27;1. d4 d5 2. c4 c6 3. Nf3&#x27;,
+	D12: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. e3 Bf5&#x27;,
+	D13: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. cxd5&#x27;,
+	D14: &#x27;1. d4 d5 2. c4 c6 3. cxd5 cxd5 4. Nc3 Nf6 5. Nf3 Nc6 6. Bf4 Bf5&#x27;,
+	D15: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. Nc3&#x27;,
+	D16: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. Nc3 dxc4 5. a4&#x27;,
+	D17: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. Nc3 dxc4 5. a4 Bf5&#x27;,
+	D18: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. Nc3 dxc4 5. a4 Bf5 6. e3&#x27;,
+	D19: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. Nc3 dxc4 5. a4 Bf5 6. e3 e6 7. Bxc4 Bb4 8. O-O&#x27;,
+	D20: &#x27;1. d4 d5 2. c4 dxc4&#x27;,
+	D21: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3&#x27;,
+	D22: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3 a6&#x27;,
+	D23: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3 Nf6&#x27;,
+	D24: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3 Nf6 4. Nc3&#x27;,
+	D25: &#x27;1. d4 d5 2. Nf3 Nf6 3. c4 dxc4&#x27;,
+	D26: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3 Nf6 4. e3 e6&#x27;,
+	D27: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3 Nf6 4. e3 e6 5. Bxc4 c5 6. O-O a6&#x27;,
+	D28: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3 Nf6 4. e3 e6 5. Bxc4 c5 6. O-O a6 7. Qe2&#x27;,
+	D29: &#x27;1. d4 d5 2. c4 dxc4 3. Nf3 Nf6 4. e3 e6 5. Bxc4 c5 6. O-O a6 7. Qe2 b5 8. Bb3 Bb7&#x27;,
+	D30: &#x27;1. d4 d5 2. c4 e6&#x27;,
+	D31: &#x27;1. d4 d5 2. c4 e6 3. Nc3&#x27;,
+	D32: &#x27;1. d4 d5 2. c4 e6 3. Nc3 c5&#x27;,
+	D33: &#x27;1. d4 d5 2. c4 e6 3. Nc3 c5 4. cxd5 exd5 5. Nf3 Nc6 6. g3&#x27;,
+	D34: &#x27;1. d4 d5 2. c4 e6 3. Nc3 c5 4. cxd5 exd5 5. Nf3 Nc6 6. g3 Nf6 7. Bg2 Be7&#x27;,
+	D35: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6&#x27;,
+	D36: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 d5 4. cxd5 exd5 5. Bg5 c6 6. Qc2&#x27;,
+	D37: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Nf3&#x27;,
+	D38: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Nf3 Bb4&#x27;,
+	D39: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. Nc3 Bb4 5. Bg5 dxc4&#x27;,
+	D40: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. Nc3 c5&#x27;,
+	D41: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. Nc3 c5 5. cxd5&#x27;,
+	D42: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. Nc3 c5 5. cxd5 Nxd5 6. e3 Nc6 7. Bd3&#x27;,
+	D43: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. Nc3 e6&#x27;,
+	D44: &#x27;1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. Nc3 e6 5. Bg5 dxc4&#x27;,
+	D45: &#x27;1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. e3 e6 5. Nf3&#x27;,
+	D46: &#x27;1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. e3 e6 5. Nf3 Nbd7 6. Bd3&#x27;,
+	D47: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Nf3 c6 5. e3 Nbd7 6. Bd3 dxc4&#x27;,
+	D48: &#x27;1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. e3 e6 5. Nf3 Nbd7 6. Bd3 dxc4 7. Bxc4 b5 8. Bd3 a6&#x27;,
+	D49: &#x27;1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. e3 e6 5. Nf3 Nbd7 6. Bd3 dxc4 7. Bxc4 b5 8. Bd3 a6 9. e4 c5 10. e5 cxd4 11. Nxb5&#x27;,
+	D50: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5&#x27;,
+	D51: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Nbd7&#x27;,
+	D52: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Nbd7 5. e3 c6 6. Nf3&#x27;,
+	D53: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7&#x27;,
+	D54: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 d5 4. Bg5 Be7 5. e3 O-O 6. Rc1&#x27;,
+	D55: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3&#x27;,
+	D56: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 h6 7. Bh4&#x27;,
+	D57: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 h6 7. Bh4 Ne4 8. Bxe7 Qxe7 9. cxd5&#x27;,
+	D58: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. Nc3 Be7 5. Bg5 h6 6. Bh4 O-O 7. e3 b6&#x27;,
+	D59: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Be7 4. Nf3 Nf6 5. Bg5 h6 6. Bh4 O-O 7. e3 b6 8. cxd5 Nxd5&#x27;,
+	D60: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 Nbd7&#x27;,
+	D61: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 Nbd7 7. Qc2&#x27;,
+	D62: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. Nc3 Be7 5. Bg5 O-O 6. e3 Nbd7 7. Qc2 c5 8. cxd5&#x27;,
+	D63: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 Nbd7 7. Rc1&#x27;,
+	D64: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. Nc3 Be7 5. Bg5 O-O 6. e3 Nbd7 7. Rc1 c6 8. Qc2&#x27;,
+	D65: &#x27;1. d4 d5 2. Nf3 Nf6 3. c4 e6 4. Nc3 Be7 5. Bg5 O-O 6. e3 Nbd7 7. Rc1 c6 8. Qc2 a6 9. cxd5&#x27;,
+	D66: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 Nbd7 7. Rc1 c6 8. Bd3&#x27;,
+	D67: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 Nbd7 7. Rc1 c6 8. Bd3 dxc4 9. Bxc4 Nd5&#x27;,
+	D68: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 Nbd7 7. Rc1 c6 8. Bd3 dxc4 9. Bxc4 Nd5 10. Bxe7 Qxe7 11. O-O Nxc3 12. Rxc3 e5&#x27;,
+	D69: &#x27;1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Be7 5. e3 O-O 6. Nf3 Nbd7 7. Rc1 c6 8. Bd3 dxc4 9. Bxc4 Nd5 10. Bxe7 Qxe7 11. O-O Nxc3 12. Rxc3 e5 13. dxe5&#x27;,
+	D70: &#x27;1. d4 Nf6 2. c4 g6 3. f3 d5&#x27;,
+	D71: &#x27;1. d4 Nf6 2. c4 Nc6 3. g3 d5&#x27;,
+	D72: &#x27;1. d4 Nf6 2. c4 g6 3. g3 d5 4. Bg2 Bg7 5. cxd5 Nxd5 6. e4 Nb6 7. Ne2&#x27;,
+	D73: &#x27;1. d4 Nf6 2. c4 g6 3. g3 Bg7 4. Bg2 d5 5. Nf3&#x27;,
+	D74: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 d5 6. cxd5 Nxd5 7. O-O&#x27;,
+	D75: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. Nf3 O-O 5. g3 d5 6. cxd5 Nxd5 7. Bg2 c5 8. O-O&#x27;,
+	D76: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 d5 6. cxd5 Nxd5 7. O-O Nb6&#x27;,
+	D77: &#x27;1. d4 Nf6 2. c4 g6 3. g3 d5 4. Bg2 Bg7 5. Nf3 O-O 6. O-O&#x27;,
+	D78: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 c6 6. O-O d5&#x27;,
+	D79: &#x27;1. d4 Nf6 2. c4 g6 3. g3 d5 4. Bg2 Bg7 5. Nf3 O-O 6. O-O c6 7. cxd5&#x27;,
+	D80: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5&#x27;,
+	D81: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Qb3&#x27;,
+	D82: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Bf4&#x27;,
+	D83: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Bf4 Bg7 5. e3 O-O&#x27;,
+	D84: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Bf4 Bg7 5. e3 O-O 6. cxd5&#x27;,
+	D85: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. cxd5&#x27;,
+	D86: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. cxd5 Nxd5 5. e4 Nxc3 6. bxc3 Bg7 7. Bc4&#x27;,
+	D87: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. cxd5 Nxd5 5. e4 Nxc3 6. bxc3 Bg7 7. Bc4 O-O 8. Ne2 c5&#x27;,
+	D88: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. cxd5 Nxd5 5. e4 Nxc3 6. bxc3 Bg7 7. Bc4 O-O 8. Ne2 c5 9. O-O Nc6 10. Be3 cxd4&#x27;,
+	D89: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. cxd5 Nxd5 5. e4 Nxc3 6. bxc3 Bg7 7. Bc4 O-O 8. Ne2 c5 9. O-O Nc6 10. Be3 cxd4 11. cxd4 Bg4 12. f3 Na5 13. Bd3&#x27;,
+	D90: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3&#x27;,
+	D91: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. Bg5&#x27;,
+	D92: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. Bf4&#x27;,
+	D93: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. Bf4 O-O 6. e3&#x27;,
+	D94: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. e3&#x27;,
+	D95: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. e3 O-O 6. Qb3&#x27;,
+	D96: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. Qb3&#x27;,
+	D97: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. Qb3 dxc4 6. Qxc4 O-O 7. e4&#x27;,
+	D98: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. Qb3 dxc4 6. Qxc4 O-O 7. e4 Bg4&#x27;,
+	D99: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. Qb3 dxc4 6. Qxc4 O-O 7. e4 Bg4 8. Be3 Nfd7 9. Qb3&#x27;,
+	E00: &#x27;1. d4 Nf6 2. c4 e6&#x27;,
+	E01: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2&#x27;,
+	E02: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 dxc4&#x27;,
+	E03: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 dxc4 5. Qa4+ Nbd7 6. Qxc4&#x27;,
+	E04: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 dxc4 5. Nf3&#x27;,
+	E05: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 dxc4 5. Nf3 Be7&#x27;,
+	E06: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 Be7&#x27;,
+	E07: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 Be7 5. Nf3 O-O 6. O-O Nbd7&#x27;,
+	E08: &#x27;1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 Be7 5. Nf3 O-O 6. O-O Nbd7 7. Qc2&#x27;,
+	E09: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 d5 4. g3 Be7 5. Bg2 O-O 6. O-O Nbd7 7. Qc2 c6 8. Nbd2&#x27;,
+	E10: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3&#x27;,
+	E11: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 Bb4+&#x27;,
+	E12: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6&#x27;,
+	E13: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6 4. Nc3 Bb4 5. Bg5 h6 6. Bh4 Bb7&#x27;,
+	E14: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6 4. e3&#x27;,
+	E15: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6 4. g3&#x27;,
+	E16: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6 4. g3 Bb7 5. Bg2 Bb4+&#x27;,
+	E17: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6 4. Nc3 Bb7 5. a3&#x27;,
+	E18: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6 4. g3 Bb7 5. Bg2 Be7 6. O-O O-O 7. Nc3&#x27;,
+	E19: &#x27;1. d4 Nf6 2. c4 e6 3. Nf3 b6 4. g3 Bb7 5. Bg2 Be7 6. O-O O-O 7. Nc3 Ne4 8. Qc2 Nxc3 9. Qxc3&#x27;,
+	E20: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4&#x27;,
+	E21: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Nf3&#x27;,
+	E22: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qb3&#x27;,
+	E23: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qb3 c5 5. dxc5 Nc6&#x27;,
+	E24: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. a3&#x27;,
+	E25: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. f3 d5 5. a3 Bxc3+ 6. bxc3 c5 7. cxd5&#x27;,
+	E26: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. a3 Bxc3+ 5. bxc3 c5 6. e3&#x27;,
+	E27: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. a3 Bxc3+ 5. bxc3 O-O&#x27;,
+	E28: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. a3 Bxc3+ 6. bxc3&#x27;,
+	E29: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 c5 5. Bd3 Nc6 6. a3 Bxc3+ 7. bxc3 O-O&#x27;,
+	E30: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Bg5&#x27;,
+	E31: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Bg5 h6 5. Bh4 c5 6. d5 d6&#x27;,
+	E32: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2&#x27;,
+	E33: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 Nc6&#x27;,
+	E34: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 d5&#x27;,
+	E35: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 d5 5. cxd5 exd5&#x27;,
+	E36: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 d5 5. a3&#x27;,
+	E37: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 d5 5. a3 Bxc3+ 6. Qxc3 Ne4 7. Qc2&#x27;,
+	E38: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 c5&#x27;,
+	E39: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 c5 5. dxc5 O-O&#x27;,
+	E40: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3&#x27;,
+	E41: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 c5&#x27;,
+	E42: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 c5 5. Ne2&#x27;,
+	E43: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 b6&#x27;,
+	E44: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 b6 5. Ne2&#x27;,
+	E45: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 b6 5. Ne2 Ba6&#x27;,
+	E46: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O&#x27;,
+	E47: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3&#x27;,
+	E48: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5&#x27;,
+	E49: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5 6. a3 Bxc3+ 7. bxc3&#x27;,
+	E50: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Nf3&#x27;,
+	E51: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Nf3 d5&#x27;,
+	E52: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5 6. Nf3 b6&#x27;,
+	E53: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5 6. Nf3 c5&#x27;,
+	E54: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 c5 5. Nf3 cxd4 6. exd4 d5&#x27;,
+	E55: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5 6. Nf3 c5 7. O-O dxc4 8. Bxc4 Nbd7&#x27;,
+	E56: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5 6. Nf3 c5 7. O-O Nc6&#x27;,
+	E57: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Nf3 d5 6. Bd3 c5 7. O-O Nc6 8. a3 dxc4 9. Bxc4 cxd4&#x27;,
+	E58: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Nf3 d5 6. Bd3 c5 7. O-O Nc6 8. a3 Bxc3&#x27;,
+	E59: &#x27;1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Nf3 d5 6. Bd3 c5 7. O-O Nc6 8. a3 Bxc3 9. bxc3 dxc4&#x27;,
+	E60: &#x27;1. d4 Nf6 2. c4 g6&#x27;,
+	E61: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3&#x27;,
+	E62: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. Nf3 d6 5. g3&#x27;,
+	E63: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 d6 6. O-O Nc6 7. Nc3 a6&#x27;,
+	E64: &#x27;1. d4 Nf6 2. c4 g6 3. g3 Bg7 4. Bg2 O-O 5. Nc3 d6 6. Nf3 c5&#x27;,
+	E65: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 d6 6. O-O c5 7. Nc3&#x27;,
+	E66: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 d6 6. O-O c5 7. Nc3 Nc6 8. d5&#x27;,
+	E67: &#x27;1. d4 Nf6 2. c4 g6 3. g3 Bg7 4. Bg2 O-O 5. Nc3 d6 6. Nf3 Nbd7&#x27;,
+	E68: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 d6 6. O-O Nbd7 7. Nc3 e5 8. e4&#x27;,
+	E69: &#x27;1. d4 Nf6 2. c4 g6 3. Nf3 Bg7 4. g3 O-O 5. Bg2 d6 6. O-O Nbd7 7. Nc3 e5 8. e4 c6 9. h3&#x27;,
+	E70: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4&#x27;,
+	E71: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. h3&#x27;,
+	E72: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. g3&#x27;,
+	E73: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Be2&#x27;,
+	E74: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Be2 O-O 6. Bg5 c5&#x27;,
+	E75: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Be2 O-O 6. Bg5 c5 7. d5 e6&#x27;,
+	E76: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f4&#x27;,
+	E77: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Be2 O-O 6. f4&#x27;,
+	E78: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f4 O-O 6. Nf3 c5 7. Be2&#x27;,
+	E79: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f4 O-O 6. Nf3 c5 7. Be2 cxd4 8. Nxd4 Nc6 9. Be3&#x27;,
+	E80: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3&#x27;,
+	E81: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O&#x27;,
+	E82: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 b6&#x27;,
+	E83: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 Nc6&#x27;,
+	E84: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 Nc6 7. Nge2 a6 8. Qd2 Rb8&#x27;,
+	E85: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 e5&#x27;,
+	E86: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 e5 7. Nge2 c6&#x27;,
+	E87: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 e5 7. d5&#x27;,
+	E88: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 e5 7. d5 c6&#x27;,
+	E89: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. f3 O-O 6. Be3 e5 7. d5 c6 8. Nge2&#x27;,
+	E90: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3&#x27;,
+	E91: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2&#x27;,
+	E92: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5&#x27;,
+	E93: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5 7. d5 Nbd7&#x27;,
+	E94: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5 7. O-O&#x27;,
+	E95: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5 7. O-O Nbd7 8. Re1&#x27;,
+	E96: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5 7. O-O Nbd7 8. Re1 c6 9. Bf1 a5&#x27;,
+	E97: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5 7. O-O Nc6&#x27;,
+	E98: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5 7. O-O Nc6 8. d5 Ne7 9. Ne1&#x27;,
+	E99: &#x27;1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. e4 d6 5. Nf3 O-O 6. Be2 e5 7. O-O Nc6 8. d5 Ne7 9. Ne1 Nd7 10. f3 f5&#x27;,
+	&#x27;E12 &#x27;:
+		&#x27;1.d4 Nf6 2.c4 e6 3.Nf3 b6 4.a3 Bb7 5.Nc3 d5 6.cxd5 Nxd5 7.Qc2 c5 8.e4 Nxc3 9.bxc3 Nc6 10.Bb2 cxd4 11.cxd4 Rc8 12.Rd1 Bd6 &#x27;,
+	&#x27;E80 &#x27;:
+		&#x27;1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.f3 e5 6.d5 Nh5 7.Be3 Na6 8.Qd2 Qh4+ 9.g3 Nxg3 10.Qf2 Nxf1 11.Qxh4 Nxe3 12.Kf2 Nxc4 &#x27;,
+}</code>
+                    </td>
+                </tr>
+
 
         </tbody>
     </table>
@@ -1547,14 +2101,14 @@ and animates two moves sequentially with a delay between them.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;3D theme: watch 2 random AIs&quot;,
+	name: &#x27;3D theme: watch 2 random AIs&#x27;,
 	run(cont) {
 		const el &#x3D; wrapped(cont);
 
 		const chess &#x3D; new Chess();
 		const delay &#x3D; 300;
 		const cg &#x3D; Chessground(el, {
-			orientation: &quot;black&quot;,
+			orientation: &#x27;black&#x27;,
 			addPieceZIndex: true,
 			movable: {
 				free: false,
@@ -1607,7 +2161,7 @@ and animates two moves sequentially with a delay between them.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;3D theme&quot;,
+	name: &#x27;3D theme&#x27;,
 	run(cont) {
 		const el &#x3D; wrapped(cont);
 		const cg &#x3D; Chessground(el, {
@@ -1649,16 +2203,16 @@ and animates two moves sequentially with a delay between them.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;3D theme: play vs random AI&quot;,
+	name: &#x27;3D theme: play vs random AI&#x27;,
 	run(cont) {
 		const el &#x3D; wrapped(cont);
 
 		const chess &#x3D; new Chess();
 		const cg &#x3D; Chessground(el, {
-			orientation: &quot;black&quot;,
+			orientation: &#x27;black&#x27;,
 			addPieceZIndex: true,
 			movable: {
-				color: &quot;white&quot;,
+				color: &#x27;white&#x27;,
 				free: false,
 				dests: toDests(chess),
 			},
@@ -1687,6 +2241,87 @@ and animates two moves sequentially with a delay between them.</p>
         </tbody>
     </table>
 </section>
+    <h3>projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="gameMetadata"></a>
+                    <span class="name">
+                        <span ><b>gameMetadata</b></span>
+                        <a href="#gameMetadata"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/GameMetadata.html" target="_self" >GameMetadata[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="gameMovesCache"></a>
+                    <span class="name">
+                        <span ><b>gameMovesCache</b></span>
+                        <a href="#gameMovesCache"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Map&lt;number, string[]&gt;()</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="games"></a>
+                    <span class="name">
+                        <span ><b>games</b></span>
+                        <a href="#games"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
     <h3>projects/ngx-chessground/src/units/zh.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -1709,20 +2344,20 @@ and animates two moves sequentially with a delay between them.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Crazyhouse: lastMove &#x3D; drop&quot;,
+	name: &#x27;Crazyhouse: lastMove &#x3D; drop&#x27;,
 	run(cont) {
 		const configs: Array&lt;() &#x3D;&gt; { fen: string; lastMove: Key[] }&gt; &#x3D; [
 			() &#x3D;&gt; ({
-				fen: &quot;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&quot;,
-				lastMove: [&quot;e5&quot;, &quot;d4&quot;],
+				fen: &#x27;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&#x27;,
+				lastMove: [&#x27;e5&#x27;, &#x27;d4&#x27;],
 			}),
 			() &#x3D;&gt; ({
-				fen: &quot;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&quot;,
-				lastMove: [&quot;f4&quot;],
+				fen: &#x27;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&#x27;,
+				lastMove: [&#x27;f4&#x27;],
 			}),
 			() &#x3D;&gt; ({
-				fen: &quot;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&quot;,
-				lastMove: [&quot;e1&quot;],
+				fen: &#x27;Bn2kb1r/p1p2ppp/4q3/2Pp4/3p1NP1/2B2n2/PPP2P1P/R2KqB1R/RNpp w k - 42 22&#x27;,
+				lastMove: [&#x27;e1&#x27;],
 			}),
 		];
 		const cg &#x3D; Chessground(cont, configs[0]());
@@ -1778,7 +2413,7 @@ The configurations are cycled through with a delay between each change.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;replay pgn game one second per move&quot;,
+	name: &#x27;replay pgn game one second per move&#x27;,
 	run(el) {
 		const chess: ChessInstance &#x3D; new Chess();
 		chess.loadPgn(pgn);
@@ -1839,7 +2474,7 @@ The configurations are cycled through with a delay between each change.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;replay pgn game in proprtional time 1 minute&quot;,
+	name: &#x27;replay pgn game in proprtional time 1 minute&#x27;,
 	run(el) {
 		const chess: ChessInstance &#x3D; new Chess();
 		chess.loadPgn(pgn);
@@ -1925,7 +2560,7 @@ The configurations are cycled through with a delay between each change.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;replay pgn game in real time&quot;,
+	name: &#x27;replay pgn game in real time&#x27;,
 	run(el) {
 		const chess: ChessInstance &#x3D; new Chess();
 		chess.loadPgn(pgn);
@@ -1941,7 +2576,7 @@ The configurations are cycled through with a delay between each change.</p>
 
 		const comments: { fen: string; comment: string }[] &#x3D; chess.getComments();
 		const header &#x3D; chess.header();
-		const timeControl &#x3D; header.TimeControl?.split(&quot;+&quot;);
+		const timeControl &#x3D; header.TimeControl?.split(&#x27;+&#x27;);
 		let timeControlInSeconds &#x3D; 180;
 		if (timeControl) {
 			const total &#x3D; Number.parseInt(timeControl[0], 10);
@@ -2102,7 +2737,7 @@ with timestamps for each move.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Perf: piece move&quot;,
+	name: &#x27;Perf: piece move&#x27;,
 	run(cont) {
 		const cg &#x3D; Chessground(cont, {
 			animation: { duration: 500 },
@@ -2112,9 +2747,9 @@ with timestamps for each move.</p>
 			if (!cg.state.dom.elements.board.offsetParent) {
 				return;
 			}
-			cg.move(&quot;e2&quot;, &quot;a8&quot;);
+			cg.move(&#x27;e2&#x27;, &#x27;a8&#x27;);
 			setTimeout(() &#x3D;&gt; {
-				cg.move(&quot;a8&quot;, &quot;e2&quot;);
+				cg.move(&#x27;a8&#x27;, &#x27;e2&#x27;);
 				setTimeout(run, delay);
 			}, delay);
 		}
@@ -2154,12 +2789,12 @@ with timestamps for each move.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;Perf: square select&quot;,
+	name: &#x27;Perf: square select&#x27;,
 	run(cont) {
 		const cg &#x3D; Chessground(cont, {
 			movable: {
 				free: false,
-				dests: new Map([[&quot;e2&quot;, [&quot;e3&quot;, &quot;e4&quot;, &quot;d3&quot;, &quot;f3&quot;]]]),
+				dests: new Map([[&#x27;e2&#x27;, [&#x27;e3&#x27;, &#x27;e4&#x27;, &#x27;d3&#x27;, &#x27;f3&#x27;]]]),
 			},
 		});
 		const delay &#x3D; 500;
@@ -2167,9 +2802,9 @@ with timestamps for each move.</p>
 			if (!cg.state.dom.elements.board.offsetParent) {
 				return;
 			}
-			cg.selectSquare(&quot;e2&quot;);
+			cg.selectSquare(&#x27;e2&#x27;);
 			setTimeout(() &#x3D;&gt; {
-				cg.selectSquare(&quot;d4&quot;);
+				cg.selectSquare(&#x27;d4&#x27;);
 				setTimeout(run, delay);
 			}, delay);
 		}
@@ -2212,7 +2847,7 @@ with timestamps for each move.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-	name: &quot;View only: 2 random AIs&quot;,
+	name: &#x27;View only: 2 random AIs&#x27;,
 	run(el) {
 		const chess &#x3D; new Chess();
 		const cg &#x3D; Chessground(el, {

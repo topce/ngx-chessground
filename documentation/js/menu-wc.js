@@ -87,6 +87,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     <a href="injectables/NgxChessgroundService.html" data-type="entity-link" >NgxChessgroundService</a>
                                 </li>
                                 <li class="link">
+                                    <a href="injectables/PgnViewerEngineService.html" data-type="entity-link" >PgnViewerEngineService</a>
+                                </li>
+                                <li class="link">
                                     <a href="injectables/PromotionService.html" data-type="entity-link" >PromotionService</a>
                                 </li>
                             </ul>
@@ -99,6 +102,15 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             <span class="icon ion-ios-arrow-down"></span>
                         </div>
                         <ul class="links collapse " ${ isNormalMode ? ' id="interfaces-links"' : 'id="xs-interfaces-links"' }>
+                            <li class="link">
+                                <a href="interfaces/FilterCriteria.html" data-type="entity-link" >FilterCriteria</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/GameMetadata.html" data-type="entity-link" >GameMetadata</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/PgnViewerEngineCallbacks.html" data-type="entity-link" >PgnViewerEngineCallbacks</a>
+                            </li>
                             <li class="link">
                                 <a href="interfaces/PromotionDialogData.html" data-type="entity-link" >PromotionDialogData</a>
                             </li>

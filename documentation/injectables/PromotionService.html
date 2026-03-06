@@ -305,31 +305,31 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, inject } from &quot;@angular/core&quot;;
-import { MatDialog } from &quot;@angular/material/dialog&quot;;
-import { firstValueFrom } from &quot;rxjs&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, inject } from &#x27;@angular/core&#x27;;
+import { MatDialog } from &#x27;@angular/material/dialog&#x27;;
+import { firstValueFrom } from &#x27;rxjs&#x27;;
 import {
 	PromotionDialogComponent,
 	type PromotionDialogData,
 	type PromotionPiece,
-} from &quot;./promotion-dialog.component&quot;;
+} from &#x27;./promotion-dialog.component&#x27;;
 
 @Injectable({
-	providedIn: &quot;root&quot;,
+	providedIn: &#x27;root&#x27;,
 })
 export class PromotionService {
 	private readonly dialog &#x3D; inject(MatDialog);
 
-	async showPromotionDialog(color: &quot;white&quot; | &quot;black&quot;): Promise&lt;PromotionPiece&gt; {
+	async showPromotionDialog(color: &#x27;white&#x27; | &#x27;black&#x27;): Promise&lt;PromotionPiece&gt; {
 		const dialogRef &#x3D; this.dialog.open(PromotionDialogComponent, {
-			width: &quot;350px&quot;,
+			width: &#x27;350px&#x27;,
 			disableClose: true,
 			hasBackdrop: true,
 			data: { color } as PromotionDialogData,
 		});
 
 		const result &#x3D; await firstValueFrom(dialogRef.afterClosed());
-		return result ?? &quot;q&quot;; // Default to queen if dialog is closed without selection
+		return result ?? &#x27;q&#x27;; // Default to queen if dialog is closed without selection
 	}
 }
 </code></pre>

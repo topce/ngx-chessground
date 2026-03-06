@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
 	MAT_DIALOG_DATA,
@@ -16,8 +16,10 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
 @Component({
 	selector: 'ngx-promotion-dialog',
-	standalone: true,
 	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+  // TODO: This component has been partially migrated to be zoneless-compatible.
+  // After testing, this should be updated to ChangeDetectionStrategy.OnPush.
+  changeDetection: ChangeDetectionStrategy.Default,
 	template: `
     <div class="promotion-dialog">
       <h2 mat-dialog-title>Choose Promotion Piece</h2>
@@ -29,7 +31,7 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
             (click)="selectPiece('q')"
             [attr.aria-label]="'Promote to Queen'"
           >
-            <div class="piece-icon queen {{ data.color }}"></div>
+            <div class="piece-icon queen {{ data().color }}"></div>
             <span class="piece-label">Queen</span>
           </button>
           
@@ -39,7 +41,7 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
             (click)="selectPiece('r')"
             [attr.aria-label]="'Promote to Rook'"
           >
-            <div class="piece-icon rook {{ data.color }}"></div>
+            <div class="piece-icon rook {{ data().color }}"></div>
             <span class="piece-label">Rook</span>
           </button>
           
@@ -49,7 +51,7 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
             (click)="selectPiece('b')"
             [attr.aria-label]="'Promote to Bishop'"
           >
-            <div class="piece-icon bishop {{ data.color }}"></div>
+            <div class="piece-icon bishop {{ data().color }}"></div>
             <span class="piece-label">Bishop</span>
           </button>
           
@@ -59,7 +61,7 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
             (click)="selectPiece('n')"
             [attr.aria-label]="'Promote to Knight'"
           >
-            <div class="piece-icon knight {{ data.color }}"></div>
+            <div class="piece-icon knight {{ data().color }}"></div>
             <span class="piece-label">Knight</span>
           </button>
         </div>
@@ -177,7 +179,7 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 })
 export class PromotionDialogComponent {
 	readonly dialogRef = inject(MatDialogRef<PromotionDialogComponent>);
-	readonly data = inject<PromotionDialogData>(MAT_DIALOG_DATA);
+  readonly data = signal(inject<PromotionDialogData>(MAT_DIALOG_DATA));
 
 	selectPiece(piece: PromotionPiece): void {
 		this.dialogRef.close(piece);

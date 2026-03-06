@@ -148,7 +148,7 @@
         <h3>Implements</h3>
     </p>
     <p class="comment">
-                <code>AfterViewInit</code>
+                    <code><a href="https://angular.io/api/core/AfterViewInit" target="_blank" >AfterViewInit</a></code>
     </p>
 
 
@@ -177,10 +177,6 @@
                 <td class="col-md-9"><code>ngx-chessground-table</code></td>
             </tr>
 
-            <tr>
-                <td class="col-md-3">standalone</td>
-                <td class="col-md-9"><code>true</code></td>
-            </tr>
 
             <tr>
                 <td class="col-md-3">imports</td>
@@ -290,8 +286,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -340,19 +336,19 @@ Now uses enhanced units with promotion dialog support.</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>viewChild.required&lt;NgxChessgroundComponent&gt;(&quot;chess&quot;)</code>
+                        <i>Default value : </i><code>viewChild.required&lt;NgxChessgroundComponent&gt;(&#x27;chess&#x27;)</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:43</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>A readonly property that references the <code>NgxChessgroundComponent</code> instance.
-This property is decorated with <code>@ViewChild</code> to query the component with the template reference variable <code>chess</code>.</p>
+This property uses a signal-based view query to access the component with the template reference variable <code>chess</code>.</p>
 </div>
                 </td>
             </tr>
@@ -385,7 +381,7 @@ This property is decorated with <code>@ViewChild</code> to query the component w
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -404,16 +400,15 @@ This property is decorated with <code>@ViewChild</code> to query the component w
 	Component,
 	inject,
 	viewChild,
-} from &quot;@angular/core&quot;;
-import * as play from &quot;../../units/play&quot;;
-import { NgxChessgroundComponent } from &quot;../ngx-chessground/ngx-chessground.component&quot;;
-import { PromotionService } from &quot;../promotion-dialog/promotion.service&quot;;
+} from &#x27;@angular/core&#x27;;
+import * as play from &#x27;../../units/play&#x27;;
+import { NgxChessgroundComponent } from &#x27;../ngx-chessground/ngx-chessground.component&#x27;;
+import { PromotionService } from &#x27;../promotion-dialog/promotion.service&#x27;;
 
 @Component({
-	selector: &quot;ngx-chessground-table&quot;,
-	standalone: true,
-	templateUrl: &quot;./ngx-chessground-table.component.html&quot;,
-	styleUrls: [&quot;./ngx-chessground-table.component.scss&quot;],
+	selector: &#x27;ngx-chessground-table&#x27;,
+	templateUrl: &#x27;./ngx-chessground-table.component.html&#x27;,
+	styleUrls: [&#x27;./ngx-chessground-table.component.scss&#x27;],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgxChessgroundComponent],
 })
@@ -428,7 +423,7 @@ import { PromotionService } from &quot;../promotion-dialog/promotion.service&quo
  * &lt;ngx-chessground-table&gt;&lt;/ngx-chessground-table&gt;
  *
  * @remarks
- * This component uses the &#x60;@ViewChild&#x60; decorator to query the &#x60;NgxChessgroundComponent&#x60; instance with the template reference variable &#x60;chess&#x60;.
+ * This component uses a signal-based view query to reference the &#x60;NgxChessgroundComponent&#x60; instance with the template reference variable &#x60;chess&#x60;.
  * The &#x60;ngAfterViewInit&#x60; lifecycle hook is used to set the initial run function for the &#x60;ngxChessgroundComponent&#x60;.
  *
  * @see https://angular.io/api/core/AfterViewInit
@@ -436,13 +431,13 @@ import { PromotionService } from &quot;../promotion-dialog/promotion.service&quo
 export class NgxChessgroundTableComponent implements AfterViewInit {
 	/**
 	 * A readonly property that references the &#x60;NgxChessgroundComponent&#x60; instance.
-	 * This property is decorated with &#x60;@ViewChild&#x60; to query the component with the template reference variable &#x60;chess&#x60;.
+	 * This property uses a signal-based view query to access the component with the template reference variable &#x60;chess&#x60;.
 	 *
 	 * @readonly
 	 * @type {NgxChessgroundComponent}
 	 */
 	readonly ngxChessgroundComponent &#x3D;
-		viewChild.required&lt;NgxChessgroundComponent&gt;(&quot;chess&quot;);
+		viewChild.required&lt;NgxChessgroundComponent&gt;(&#x27;chess&#x27;);
 
 	private readonly promotionService &#x3D; inject(PromotionService);
 

@@ -17,7 +17,6 @@ import { NgxChessgroundService } from '../ngx-chessground.service';
 	styleUrls: ['./ngx-chessground.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	providers: [NgxChessgroundService],
-	standalone: true,
 })
 /**
  * Component representing a chessboard using the ngx-chessground library.

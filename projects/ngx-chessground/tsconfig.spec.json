@@ -1,0 +1,16 @@
+{
+	"extends": "./tsconfig.lib.json",
+	"compilerOptions": {
+		"outDir": "../../out-tsc/spec",
+		"declaration": false,
+		"types": ["node"]
+	},
+	"include": [
+		"src/**/*.spec.ts",
+		"src/**/*.test.ts",
+		"src/test-providers.ts"
+	],
+	"exclude": [
+		"src/**/*.worker.ts"
+	]
+}

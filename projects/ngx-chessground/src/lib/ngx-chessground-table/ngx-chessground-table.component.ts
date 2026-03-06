@@ -11,7 +11,6 @@ import { PromotionService } from '../promotion-dialog/promotion.service';
 
 @Component({
 	selector: 'ngx-chessground-table',
-	standalone: true,
 	templateUrl: './ngx-chessground-table.component.html',
 	styleUrls: ['./ngx-chessground-table.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +27,7 @@ import { PromotionService } from '../promotion-dialog/promotion.service';
  * <ngx-chessground-table></ngx-chessground-table>
  *
  * @remarks
- * This component uses the `@ViewChild` decorator to query the `NgxChessgroundComponent` instance with the template reference variable `chess`.
+ * This component uses a signal-based view query to reference the `NgxChessgroundComponent` instance with the template reference variable `chess`.
  * The `ngAfterViewInit` lifecycle hook is used to set the initial run function for the `ngxChessgroundComponent`.
  *
  * @see https://angular.io/api/core/AfterViewInit
@@ -36,7 +35,7 @@ import { PromotionService } from '../promotion-dialog/promotion.service';
 export class NgxChessgroundTableComponent implements AfterViewInit {
 	/**
 	 * A readonly property that references the `NgxChessgroundComponent` instance.
-	 * This property is decorated with `@ViewChild` to query the component with the template reference variable `chess`.
+	 * This property uses a signal-based view query to access the component with the template reference variable `chess`.
 	 *
 	 * @readonly
 	 * @type {NgxChessgroundComponent}

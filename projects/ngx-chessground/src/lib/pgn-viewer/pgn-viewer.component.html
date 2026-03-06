@@ -359,7 +359,7 @@
                 <input
                   type="number"
                   [value]="stockfishDepth()"
-                  (input)="stockfishDepth.set(+$any($event.target).value)"
+                  (input)="onStockfishDepthChange($event)"
                   min="1"
                   max="50"
                   class="small-input depth-input"

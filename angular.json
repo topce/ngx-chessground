@@ -10,12 +10,13 @@
 			"prefix": "ngx-chessgroung",
 			"architect": {
 				"build": {
-					"builder": "@angular-devkit/build-angular:ng-packagr",
+					"builder": "@angular/build:ng-packagr",
 					"options": {
 						"tsConfig": "projects/ngx-chessground/tsconfig.lib.json",
 						"project": "projects/ngx-chessground/ng-package.json"
 					},
 					"configurations": {
+						"development": {},
 						"production": {
 							"tsConfig": "projects/ngx-chessground/tsconfig.lib.prod.json"
 						}
@@ -28,6 +29,17 @@
 							"projects/ngx-chessground/**/*.ts",
 							"projects/ngx-chessground/**/*.html"
 						]
+					}
+				},
+				"test": {
+					"builder": "@angular/build:unit-test",
+					"options": {
+						"buildTarget": "ngx-chessground:build",
+						"tsConfig": "projects/ngx-chessground/tsconfig.spec.json",
+						"providersFile": "projects/ngx-chessground/src/test-providers.ts",
+						"runnerConfig": "projects/ngx-chessground/vitest.config.ts",
+						"coverage": true,
+						"coverageReporters": ["text", "html"]
 					}
 				}
 			},

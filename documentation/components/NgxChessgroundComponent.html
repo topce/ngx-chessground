@@ -148,7 +148,7 @@
         <h3>Implements</h3>
     </p>
     <p class="comment">
-                <code>AfterViewInit</code>
+                    <code><a href="https://angular.io/api/core/AfterViewInit" target="_blank" >AfterViewInit</a></code>
     </p>
 
 
@@ -183,10 +183,6 @@
                 <td class="col-md-9"><code>ngx-chessground</code></td>
             </tr>
 
-            <tr>
-                <td class="col-md-3">standalone</td>
-                <td class="col-md-9"><code>true</code></td>
-            </tr>
 
 
             <tr>
@@ -227,6 +223,11 @@
                             <li>
                                     <span class="modifier">Readonly</span>
                                 <a href="#elementView" >elementView</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#ngxChessgroundService" >ngxChessgroundService</a>
                             </li>
                         </ul>
                     </td>
@@ -297,12 +298,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(ngxChessgroundService: <a href="../injectables/NgxChessgroundService.html" target="_self">NgxChessgroundService</a>)</code>
+<code>constructor()</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:37</a></div>
                             </td>
                         </tr>
 
@@ -310,39 +311,6 @@
                     <td class="col-md-4">
                             <div class="io-description"><p>Constructor for the NgxChessgroundComponent.</p>
 </div>
-                            <div>
-                                    <b>Parameters :</b>
-                                    <table class="params">
-                                        <thead>
-                                            <tr>
-                                                <td>Name</td>
-                                                    <td>Type</td>
-                                                <td>Optional</td>
-                                                    <td>Description</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                <tr>
-                                                        <td>ngxChessgroundService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/NgxChessgroundService.html" target="_self" >NgxChessgroundService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                        <td>
-                                                                <ul>
-<li>The service used to interact with the chessboard.</li>
-</ul>
-
-                                                        </td>
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                            </div>
                     </td>
                 </tr>
             </tbody>
@@ -436,8 +404,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -478,8 +446,8 @@ Calls the redraw method to update the chessboard.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:68</a></div>
                         </td>
                     </tr>
 
@@ -523,8 +491,8 @@ Retrieves the chessboard element and the function to redraw it, then calls the s
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -568,7 +536,7 @@ Retrieves the chessboard element and the function to redraw it, then calls the s
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>viewChild.required&lt;ElementRef&gt;(&quot;chessboard&quot;)</code>
+                        <i>Default value : </i><code>viewChild.required&lt;ElementRef&gt;(&#x27;chessboard&#x27;)</code>
                     </td>
                 </tr>
                     <tr>
@@ -586,6 +554,39 @@ Retrieves the chessboard element and the function to redraw it, then calls the s
 
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngxChessgroundService"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>ngxChessgroundService</b></span>
+                        <a href="#ngxChessgroundService"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>inject(NgxChessgroundService)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts:37</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
 </section>
 
 </div>
@@ -600,17 +601,17 @@ Retrieves the chessboard element and the function to redraw it, then calls the s
 	effect,
 	model,
 	viewChild,
-} from &quot;@angular/core&quot;;
-import type { Api } from &quot;chessground/api&quot;;
-import { NgxChessgroundService } from &quot;../ngx-chessground.service&quot;;
+	inject,
+} from &#x27;@angular/core&#x27;;
+import type { Api } from &#x27;chessground/api&#x27;;
+import { NgxChessgroundService } from &#x27;../ngx-chessground.service&#x27;;
 
 @Component({
-	selector: &quot;ngx-chessground&quot;,
-	templateUrl: &quot;./ngx-chessground.component.html&quot;,
-	styleUrls: [&quot;./ngx-chessground.component.scss&quot;],
+	selector: &#x27;ngx-chessground&#x27;,
+	templateUrl: &#x27;./ngx-chessground.component.html&#x27;,
+	styleUrls: [&#x27;./ngx-chessground.component.scss&#x27;],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	providers: [NgxChessgroundService],
-	standalone: true,
 })
 /**
  * Component representing a chessboard using the ngx-chessground library.
@@ -621,18 +622,19 @@ export class NgxChessgroundComponent implements AfterViewInit {
 	 * A reference to the chessboard element in the view.
 	 * @readonly
 	 */
-	readonly elementView &#x3D; viewChild.required&lt;ElementRef&gt;(&quot;chessboard&quot;);
+	readonly elementView &#x3D; viewChild.required&lt;ElementRef&gt;(&#x27;chessboard&#x27;);
 
 	/**
 	 * A function that takes an HTMLElement and returns an Api object.
 	 */
 	runFunction &#x3D; model&lt;(el: HTMLElement) &#x3D;&gt; Api&gt;();
 
+	private readonly ngxChessgroundService &#x3D; inject(NgxChessgroundService);
+
 	/**
 	 * Constructor for the NgxChessgroundComponent.
-	 * @param ngxChessgroundService - The service used to interact with the chessboard.
 	 */
-	constructor(private readonly ngxChessgroundService: NgxChessgroundService) {
+	constructor() {
 		effect(() &#x3D;&gt; {
 			this.redraw();
 		});

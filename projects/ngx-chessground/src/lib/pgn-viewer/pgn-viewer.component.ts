@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
 	ChangeDetectionStrategy,
 	Component,
 	computed,
 	effect,
+	type ElementRef,
+	inject,
 	input,
 	model,
+	type OnDestroy,
 	signal,
-	ViewChild,
-	ElementRef,
+	viewChild,
 } from '@angular/core';
 import { Chess, Move } from 'chess.js';
 import { Chessground } from 'chessground';
@@ -18,31 +21,25 @@ import { parsePgn } from 'chessops/pgn';
 import { loadAsync as loadZipAsync } from 'jszip';
 import { decompress as decompressZst } from 'fzstd';
 import { NgxChessgroundComponent } from '../ngx-chessground/ngx-chessground.component';
-import { WorkerResponse } from './pgn-processor.worker';
+import type {
+	FilterCriteria,
+	GameMetadata,
+	WorkerResponse,
+} from './pgn-processor.worker';
 import { ECO_MOVES } from './eco-moves';
-
-interface GameMetadata {
-	number: number;
-	white: string;
-	black: string;
-	result: string;
-	whiteElo?: number;
-	blackElo?: number;
-	eco?: string; // eco is optional in worker message
-	timeControl?: string;
-	timeControlNormalized?: string;
-	event?: string;
-}
+import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 
 @Component({
 	selector: 'ngx-pgn-viewer',
-	standalone: true,
-	imports: [CommonModule, NgxChessgroundComponent],
+	imports: [CommonModule, MatSnackBarModule, NgxChessgroundComponent],
 	templateUrl: './pgn-viewer.component.html',
 	styleUrls: ['./pgn-viewer.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NgxPgnViewerComponent {
+export class NgxPgnViewerComponent implements OnDestroy {
+	private readonly pgnViewerEngine = inject(PgnViewerEngineService);
+	private readonly snackBar = inject(MatSnackBar);
+
 	// Inputs
 	pgn = input<string>('');
 	highlightLastMove = input<boolean>(true);
@@ -184,10 +181,10 @@ export class NgxPgnViewerComponent {
 	private currentFilterId = 0;
 	// private gameMovesCache = new Map<number, string[]>(); // Moved to worker
 	private autoSelectOnFinish = false;
-	@ViewChild('moveList') moveList!: ElementRef<HTMLElement>;
-	private worker: Worker | null = null;
+	readonly moveList = viewChild<ElementRef<HTMLElement>>('moveList');
 	private activeFilterMoves: string[] = [];
 	private savedGameMoveIndex: number | null = null;
+	private readonly pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
 	// Track moves made during interactive mode
 	private interactiveMoves = signal<string[]>([]);
@@ -285,7 +282,6 @@ export class NgxPgnViewerComponent {
 
 	// Stockfish State
 	// Stockfish State
-	stockfishWorker: Worker | null = null;
 	isAnalyzing = signal<boolean>(false);
 	bestMoveInfo = signal<{
 		move: string;
@@ -402,15 +398,13 @@ export class NgxPgnViewerComponent {
 	stockfishDepth = signal<number>(18);
 
 	analyzePosition(fen: string) {
-		if (!this.stockfishWorker) return;
+		if (!this.pgnViewerEngine.analyzePosition(fen, this.stockfishDepth())) {
+			return;
+		}
 
 		this.isAnalyzing.set(true);
 		this.bestMoveInfo.set(null);
 		this.analyzedFen = fen;
-
-		this.stockfishWorker.postMessage('stop'); // Stop any previous
-		this.stockfishWorker.postMessage(`position fen ${fen}`);
-		this.stockfishWorker.postMessage(`go depth ${this.stockfishDepth()}`);
 	}
 
 	async autoplayBestLine() {
@@ -550,23 +544,11 @@ export class NgxPgnViewerComponent {
 	}
 
 	constructor() {
-		if (typeof Worker !== 'undefined') {
-			this.worker = new Worker(
-				new URL('./pgn-processor.worker', import.meta.url),
-			);
-			this.worker.onmessage = ({ data }) => this.handleWorkerMessage(data);
-
-			// Initialize Stockfish Worker
-			try {
-				this.stockfishWorker = new Worker('assets/stockfish/stockfish.js');
-				this.stockfishWorker.onmessage = (e) => this.handleStockfishMessage(e);
-				this.stockfishWorker.postMessage('uci');
-			} catch (e) {
-				console.error('Failed to load Stockfish worker:', e);
-			}
-		} else {
-			console.error('Web Workers are not supported in this environment.');
-		}
+		this.pgnViewerEngine.initialize({
+			onPgnMessage: (data) => this.handleWorkerMessage(data),
+			onStockfishMessage: (event) => this.handleStockfishMessage(event),
+			onError: (message, error) => console.error(message, error),
+		});
 
 		// Initialize Lichess database date picker with previous month
 		const now = new Date();
@@ -607,10 +589,45 @@ export class NgxPgnViewerComponent {
 		// Effect to auto-scroll move list when currentMoveIndex changes
 		effect(() => {
 			this.currentMoveIndex(); // Depend on currentMoveIndex
-			// Wait for DOM update
-			setTimeout(() => {
+			this.setDeferredTimeout(() => {
 				this.scrollToActiveMove();
-			}, 0);
+			});
+		});
+	}
+
+	ngOnDestroy(): void {
+		this.stopReplay();
+		this.pgnViewerEngine.dispose();
+
+		for (const timeoutId of this.pendingTimeouts) {
+			clearTimeout(timeoutId);
+		}
+		this.pendingTimeouts.clear();
+	}
+
+	onStockfishDepthChange(event: Event) {
+		const value = Number((event.target as HTMLInputElement).value);
+		this.stockfishDepth.set(Number.isFinite(value) ? value : 1);
+	}
+
+	private setDeferredTimeout(
+		callback: () => void,
+		delay = 0,
+	): ReturnType<typeof setTimeout> {
+		const timeoutId = setTimeout(() => {
+			this.pendingTimeouts.delete(timeoutId);
+			callback();
+		}, delay);
+
+		this.pendingTimeouts.add(timeoutId);
+		return timeoutId;
+	}
+
+	private showMessage(message: string, duration = 4000): void {
+		this.snackBar.open(message, 'Dismiss', {
+			duration,
+			horizontalPosition: 'end',
+			verticalPosition: 'top',
 		});
 	}
 
@@ -899,27 +916,23 @@ export class NgxPgnViewerComponent {
 		const myFilterId = this.currentFilterId;
 		this.isFiltering.set(true);
 
-		if (this.worker) {
-			this.worker.postMessage({
-				type: 'filter',
-				id: myFilterId,
-				payload: {
-					white: fWhite,
-					black: fBlack,
-					result: fResult,
-					moves: fMoves,
-					ignoreColor: fIgnoreColor,
-					minWhiteRating: fWhiteRating,
-					minBlackRating: fBlackRating,
-					maxWhiteRating: fWhiteRatingMax,
-					maxBlackRating: fBlackRatingMax,
-					eco: fEco,
-					timeControl: fTimeControl,
-					event: fEvent,
-					targetMoves: targetMoves,
-				},
-			});
-		}
+		const filterCriteria: FilterCriteria = {
+			white: fWhite,
+			black: fBlack,
+			result: fResult,
+			moves: fMoves,
+			ignoreColor: fIgnoreColor,
+			minWhiteRating: fWhiteRating,
+			minBlackRating: fBlackRating,
+			maxWhiteRating: fWhiteRatingMax,
+			maxBlackRating: fBlackRatingMax,
+			eco: fEco,
+			timeControl: fTimeControl,
+			event: fEvent,
+			targetMoves: targetMoves,
+		};
+
+		this.pgnViewerEngine.filterGames(filterCriteria, myFilterId);
 	}
 
 	// --- PGN Loading Logic ---
@@ -934,9 +947,7 @@ export class NgxPgnViewerComponent {
 			'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 		);
 
-		if (this.worker) {
-			this.worker.postMessage({ type: 'load', payload: pgn, id: Date.now() });
-		}
+		this.pgnViewerEngine.loadPgn(pgn, Date.now());
 	}
 
 	async loadFromClipboard() {
@@ -949,7 +960,7 @@ export class NgxPgnViewerComponent {
 			}
 		} catch (err) {
 			console.error('Failed to read clipboard contents: ', err);
-			alert('Failed to read clipboard');
+			this.showMessage('Failed to read clipboard.', 5000);
 		}
 	}
 
@@ -959,7 +970,7 @@ export class NgxPgnViewerComponent {
 			// Optional: You could add a temporary "Copied!" state here if desired
 		} catch (err) {
 			console.error('Failed to copy to clipboard: ', err);
-			alert('Failed to copy to clipboard');
+			this.showMessage('Failed to copy to clipboard.', 5000);
 		}
 	}
 
@@ -1048,7 +1059,7 @@ export class NgxPgnViewerComponent {
 		const month = this.lichessMonth();
 
 		if (!year || !month) {
-			alert('Please select a valid year and month');
+			this.showMessage('Please select a valid year and month.');
 			return;
 		}
 
@@ -1129,17 +1140,16 @@ export class NgxPgnViewerComponent {
 			}
 
 			this.loadingStatus.set('Processing games...');
-			// Use setTimeout to ensure change detection runs properly
-			setTimeout(() => {
+			this.setDeferredTimeout(() => {
 				this.loadPgnString(content);
 				this.loadGame(0);
 				this.isLoading.set(false);
 				this.loadingProgress.set(0);
 				this.loadingStatus.set('');
-			}, 0);
+			});
 		} catch (e) {
 			console.error('Error loading from URL:', e);
-			alert(`Error loading from URL: ${e} `);
+			this.showMessage(`Error loading from URL: ${String(e)}`, 6000);
 			this.isLoading.set(false);
 			this.loadingProgress.set(0);
 			this.loadingStatus.set('');
@@ -1161,19 +1171,18 @@ export class NgxPgnViewerComponent {
 
 			if (pgnFile) {
 				const content = await pgnFile.async('string');
-				// Use setTimeout to ensure change detection runs properly
-				setTimeout(() => {
+				this.setDeferredTimeout(() => {
 					this.loadPgnString(content);
 					this.loadGame(0);
 					this.isLoading.set(false);
-				}, 0);
+				});
 			} else {
-				alert('No PGN file found in the zip archive.');
+				this.showMessage('No PGN file found in the zip archive.');
 				this.isLoading.set(false);
 			}
 		} catch (e) {
 			console.error('Error loading zip file:', e);
-			alert('Error loading zip file.');
+			this.showMessage('Error loading zip file.', 5000);
 			this.isLoading.set(false);
 		}
 	}
@@ -1189,19 +1198,18 @@ export class NgxPgnViewerComponent {
 		reader.onload = (e) => {
 			const content = e.target?.result as string;
 			if (content) {
-				// Use setTimeout to ensure change detection runs properly
-				setTimeout(() => {
+				this.setDeferredTimeout(() => {
 					this.loadPgnString(content);
 					this.loadGame(0);
 					this.isLoading.set(false);
-				}, 0);
+				});
 			} else {
 				this.isLoading.set(false);
 			}
 		};
 		reader.onerror = () => {
 			this.isLoading.set(false);
-			alert('Error reading file.');
+			this.showMessage('Error reading file.', 5000);
 		};
 		reader.readAsText(file);
 	}
@@ -1220,13 +1228,7 @@ export class NgxPgnViewerComponent {
 			this.isLoading.set(true);
 
 			// Offload parsing to worker
-			if (this.worker) {
-				this.worker.postMessage({
-					type: 'loadGame',
-					payload: index,
-					id: Date.now(),
-				});
-			}
+			this.pgnViewerEngine.loadGame(index, Date.now());
 		}
 	}
 
@@ -1280,8 +1282,9 @@ export class NgxPgnViewerComponent {
 	}
 
 	private scrollToActiveMove() {
-		if (!this.moveList) return;
-		const container = this.moveList.nativeElement;
+		const moveList = this.moveList();
+		if (!moveList) return;
+		const container = moveList.nativeElement;
 		const activeElement = container.querySelector(
 			'.move-btn.active',
 		) as HTMLElement;
@@ -1443,7 +1446,7 @@ export class NgxPgnViewerComponent {
 		);
 
 		if (selected.length === 0) {
-			alert('No games selected. Please select games to replay.');
+			this.showMessage('No games selected. Please select games to replay.');
 			return;
 		}
 
@@ -1514,6 +1517,7 @@ export class NgxPgnViewerComponent {
 		this.isReplaying.set(false);
 		this.replayTimeouts.forEach((t) => {
 			clearTimeout(t);
+			this.pendingTimeouts.delete(t);
 		});
 		this.replayTimeouts = [];
 
@@ -1878,12 +1882,13 @@ export class NgxPgnViewerComponent {
 
 				if (isLast && onComplete) {
 					// Give a small buffer for the last animation
-					setTimeout(() => {
+					const completionTimeoutId = this.setDeferredTimeout(() => {
 						// Only call onComplete if we didn't stop manually (check isReplaying?)
 						// stopReplay() sets isReplaying to false.
 						// If we stopped on error, we don't proceed to next game in sequence.
 						if (onComplete) onComplete();
 					}, 500);
+					this.replayTimeouts.push(completionTimeoutId);
 				}
 			}, delay);
 			this.replayTimeouts.push(timeoutId);

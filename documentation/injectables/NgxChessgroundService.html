@@ -626,17 +626,17 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@angular/core&quot;;
-import { Chessground } from &quot;chessground&quot;;
-import type { Api } from &quot;chessground/api&quot;;
-import type { VNode } from &quot;snabbdom&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@angular/core&#x27;;
+import { Chessground } from &#x27;chessground&#x27;;
+import type { Api } from &#x27;chessground/api&#x27;;
+import type { VNode } from &#x27;snabbdom&#x27;;
 import {
 	attributesModule,
 	classModule,
 	eventListenersModule,
 	h,
 	init,
-} from &quot;snabbdom&quot;;
+} from &#x27;snabbdom&#x27;;
 
 @Injectable()
 /**
@@ -695,9 +695,9 @@ export class NgxChessgroundService {
 	 * @private
 	 */
 	private render(): VNode {
-		return h(&quot;div#chessground-examples&quot;, [
-			h(&quot;section.blue.merida&quot;, [
-				h(&quot;div.cg-wrap&quot;, {
+		return h(&#x27;div#chessground-examples&#x27;, [
+			h(&#x27;section.blue.merida&#x27;, [
+				h(&#x27;div.cg-wrap&#x27;, {
 					hook: {
 						insert: this.runUnit,
 						postpatch: this.runUnit,
@@ -716,7 +716,7 @@ export class NgxChessgroundService {
 	 */
 	private readonly runUnit &#x3D; (vnode: VNode, _ignore?: VNode) &#x3D;&gt; {
 		const el &#x3D; vnode.elm as HTMLElement;
-		el.className &#x3D; &quot;cg-wrap&quot;;
+		el.className &#x3D; &#x27;cg-wrap&#x27;;
 		this.cg &#x3D; Chessground(el);
 		return this.runFn(el);
 	};
