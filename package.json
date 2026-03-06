@@ -61,11 +61,11 @@
     "angular-eslint": "^21.3.0",
     "eslint": "10.0.2",
     "eslint-formatter-visualstudio": "9.0.1",
-    "jsdom": "^26.1.0",
+    "jsdom": "^28.1.0",
     "ng-packagr": "^21.2.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "8.56.1",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.18"
   },
   "repository": {
     "type": "git",
