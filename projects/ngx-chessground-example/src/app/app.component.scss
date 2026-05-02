@@ -3,9 +3,24 @@
 }
 
 .content {
-  padding: 20px;
+  min-height: calc(100vh - 64px);
 }
 
 mat-toolbar {
-  margin-bottom: 20px;
+  font-family: var(--font-heading);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+
+mat-toolbar .mat-mdc-button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color var(--transition-fast);
+  border-radius: var(--radius-md);
+}
+
+mat-toolbar .mat-mdc-button:hover {
+  background: rgba(255, 255, 255, 0.12);
 }

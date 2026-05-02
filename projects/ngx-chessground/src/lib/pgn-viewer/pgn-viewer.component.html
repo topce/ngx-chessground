@@ -227,7 +227,7 @@
 
         @if (isFiltering()) {
           <div class="filtering-indicator" role="status" aria-live="polite">
-            ⏳ Filtering...
+            Filtering...
           </div>
         }
 
@@ -561,14 +561,8 @@
           class="option-row"
           style="margin-top: 8px; display: flex; align-items: center; gap: 4px"
         >
-          <label
-            class="checkbox-label"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              white-space: nowrap;
-            "
+          <label class="checkbox-label"
+            style="display: flex; align-items: center; gap: 4px; white-space: nowrap"
           >
             <input
               type="checkbox"
@@ -582,8 +576,8 @@
               (input)="updateStopOnErrorThreshold($event)"
               step="0.1"
               class="small-input"
-              style="width: 50px"
               [disabled]="!stopOnError()"
+              aria-label="Stop on error threshold in centipawns"
             />
             )
           </label>
@@ -633,7 +627,7 @@
         <!-- Sample buttons removed, controlled by parent -->
         <div class="file-inputs">
           <label class="file-input-label">
-            📂 Zip
+            Zip
             <input
               type="file"
               accept=".zip"
@@ -642,7 +636,7 @@
             />
           </label>
           <label class="file-input-label">
-            📄 PGN
+            PGN
             <input
               type="file"
               accept=".pgn"
@@ -684,7 +678,7 @@
           </div>
           <div class="license-info">
             <small
-              >📜 Licensed under
+              >Licensed under
               <a
                 href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal"
                 target="_blank"
@@ -730,7 +724,7 @@
               </div>
             }
             <div class="loading-status">
-              {{ loadingStatus() || "⏳ Loading..." }}
+              {{ loadingStatus() || "Loading..." }}
             </div>
           </div>
         }
