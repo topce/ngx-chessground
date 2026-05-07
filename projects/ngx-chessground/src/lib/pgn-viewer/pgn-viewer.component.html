@@ -7,34 +7,96 @@
       <!-- Filters -->
       <div class="filter-section">
         <div class="filter-row">
-          <input
-            type="text"
-            placeholder="White"
-            aria-label="Filter by White player"
-            [value]="filterWhite()"
-            (input)="updateFilterWhite($event)"
-            list="white-players"
-          />
-          <datalist id="white-players">
-            @for (player of uniqueWhitePlayers(); track player) {
-              <option [value]="player"></option>
+          <div class="typeahead-wrapper">
+            <input
+              type="text"
+              placeholder="White"
+              aria-label="Filter by White player"
+              [value]="filterWhite()"
+              (input)="onWhiteTypeaheadInput($event)"
+              (focus)="openWhiteTypeahead()"
+              (blur)="closeWhiteTypeahead()"
+              (keydown)="onWhiteTypeaheadKeydown($event)"
+              autocomplete="off"
+            />
+            @if (whiteTypeaheadOpen() && filteredWhiteSuggestions().length > 0) {
+              <div class="typeahead-dropdown" role="listbox">
+                @for (player of filteredWhiteSuggestions(); track player; let i = $index) {
+                  <div
+                    class="typeahead-item"
+                    [class.active]="i === whiteTypeaheadIndex()"
+                    role="option"
+                    [attr.aria-selected]="i === whiteTypeaheadIndex()"
+                    (mousedown)="selectWhiteTypeahead(player)"
+                  >
+                    @for (segment of highlightText(player, filterWhite()); track $index) {
+                      @if (segment.match) {
+                        <span class="match-highlight">{{ segment.text }}</span>
+                      } @else {
+                        <span>{{ segment.text }}</span>
+                      }
+                    }
+                  </div>
+                }
+              </div>
             }
-          </datalist>
+            @if (whiteTypeaheadOpen() && filterWhite() && filteredWhiteSuggestions().length === 0) {
+              <div class="typeahead-dropdown">
+                <div class="typeahead-no-results">No matching players</div>
+              </div>
+            }
+          </div>
         </div>
         <div class="filter-row">
-          <input
-            type="text"
-            placeholder="Black"
-            aria-label="Filter by Black player"
-            [value]="filterBlack()"
-            (input)="updateFilterBlack($event)"
-            list="black-players"
-          />
-          <datalist id="black-players">
-            @for (player of uniqueBlackPlayers(); track player) {
-              <option [value]="player"></option>
+          <div class="typeahead-wrapper">
+            <input
+              type="text"
+              placeholder="Black"
+              aria-label="Filter by Black player"
+              [value]="filterBlack()"
+              (input)="onBlackTypeaheadInput($event)"
+              (focus)="openBlackTypeahead()"
+              (blur)="closeBlackTypeahead()"
+              (keydown)="onBlackTypeaheadKeydown($event)"
+              autocomplete="off"
+            />
+            @if (blackTypeaheadOpen() && filteredBlackSuggestions().length > 0) {
+              <div class="typeahead-dropdown" role="listbox">
+                @for (player of filteredBlackSuggestions(); track player; let i = $index) {
+                  <div
+                    class="typeahead-item"
+                    [class.active]="i === blackTypeaheadIndex()"
+                    role="option"
+                    [attr.aria-selected]="i === blackTypeaheadIndex()"
+                    (mousedown)="selectBlackTypeahead(player)"
+                  >
+                    @for (segment of highlightText(player, filterBlack()); track $index) {
+                      @if (segment.match) {
+                        <span class="match-highlight">{{ segment.text }}</span>
+                      } @else {
+                        <span>{{ segment.text }}</span>
+                      }
+                    }
+                  </div>
+                }
+              </div>
             }
-          </datalist>
+            @if (blackTypeaheadOpen() && filterBlack() && filteredBlackSuggestions().length === 0) {
+              <div class="typeahead-dropdown">
+                <div class="typeahead-no-results">No matching players</div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="ignoreColor()"
+              (change)="toggleIgnoreColor($event)"
+            />
+            Ignore Color
+          </label>
         </div>
         <div class="filter-row">
           <select
@@ -174,14 +236,6 @@
           />
         </div>
         <div class="filter-row">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [checked]="ignoreColor()"
-              (change)="toggleIgnoreColor($event)"
-            />
-            Ignore Color
-          </label>
           <label class="checkbox-label">
             <input
               type="checkbox"

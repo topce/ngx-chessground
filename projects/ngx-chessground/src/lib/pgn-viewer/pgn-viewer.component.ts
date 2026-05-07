@@ -52,6 +52,191 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterBlack.set((event.target as HTMLInputElement).value);
 	}
 
+	// ---- Typeahead Methods ----
+
+	openWhiteTypeahead() {
+		this.whiteTypeaheadOpen.set(true);
+		this.whiteTypeaheadIndex.set(0);
+	}
+
+	openBlackTypeahead() {
+		this.blackTypeaheadOpen.set(true);
+		this.blackTypeaheadIndex.set(0);
+	}
+
+	closeWhiteTypeahead() {
+		// Cancel any existing close timeout
+		if (this.whiteTypeaheadCloseTimeout) {
+			clearTimeout(this.whiteTypeaheadCloseTimeout);
+			this.pendingTimeouts.delete(this.whiteTypeaheadCloseTimeout);
+		}
+		// Delay to allow mousedown on dropdown item to fire first
+		this.whiteTypeaheadCloseTimeout = this.setDeferredTimeout(() => {
+			this.whiteTypeaheadOpen.set(false);
+			this.whiteTypeaheadCloseTimeout = null;
+		}, 200);
+	}
+
+	closeBlackTypeahead() {
+		if (this.blackTypeaheadCloseTimeout) {
+			clearTimeout(this.blackTypeaheadCloseTimeout);
+			this.pendingTimeouts.delete(this.blackTypeaheadCloseTimeout);
+		}
+		this.blackTypeaheadCloseTimeout = this.setDeferredTimeout(() => {
+			this.blackTypeaheadOpen.set(false);
+			this.blackTypeaheadCloseTimeout = null;
+		}, 200);
+	}
+
+	onWhiteTypeaheadInput(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterWhite.set(value);
+		// Cancel pending close when user types
+		if (this.whiteTypeaheadCloseTimeout) {
+			clearTimeout(this.whiteTypeaheadCloseTimeout);
+			this.pendingTimeouts.delete(this.whiteTypeaheadCloseTimeout);
+			this.whiteTypeaheadCloseTimeout = null;
+		}
+		this.whiteTypeaheadOpen.set(true);
+		this.whiteTypeaheadIndex.set(0);
+	}
+
+	onBlackTypeaheadInput(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		this.filterBlack.set(value);
+		if (this.blackTypeaheadCloseTimeout) {
+			clearTimeout(this.blackTypeaheadCloseTimeout);
+			this.pendingTimeouts.delete(this.blackTypeaheadCloseTimeout);
+			this.blackTypeaheadCloseTimeout = null;
+		}
+		this.blackTypeaheadOpen.set(true);
+		this.blackTypeaheadIndex.set(0);
+	}
+
+	selectWhiteTypeahead(player: string) {
+		// Cancel pending close timeout first
+		if (this.whiteTypeaheadCloseTimeout) {
+			clearTimeout(this.whiteTypeaheadCloseTimeout);
+			this.pendingTimeouts.delete(this.whiteTypeaheadCloseTimeout);
+			this.whiteTypeaheadCloseTimeout = null;
+		}
+		this.filterWhite.set(player);
+		this.whiteTypeaheadOpen.set(false);
+		this.whiteTypeaheadIndex.set(0);
+	}
+
+	selectBlackTypeahead(player: string) {
+		if (this.blackTypeaheadCloseTimeout) {
+			clearTimeout(this.blackTypeaheadCloseTimeout);
+			this.pendingTimeouts.delete(this.blackTypeaheadCloseTimeout);
+			this.blackTypeaheadCloseTimeout = null;
+		}
+		this.filterBlack.set(player);
+		this.blackTypeaheadOpen.set(false);
+		this.blackTypeaheadIndex.set(0);
+	}
+
+	onWhiteTypeaheadKeydown(event: KeyboardEvent) {
+		const items = this.filteredWhiteSuggestions();
+		if (!this.whiteTypeaheadOpen() || items.length === 0) {
+			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+				this.whiteTypeaheadOpen.set(true);
+				event.preventDefault();
+				return;
+			}
+			return;
+		}
+
+		switch (event.key) {
+			case 'ArrowDown':
+				event.preventDefault();
+				this.whiteTypeaheadIndex.update((i) =>
+					i < items.length - 1 ? i + 1 : 0,
+				);
+				break;
+			case 'ArrowUp':
+				event.preventDefault();
+				this.whiteTypeaheadIndex.update((i) =>
+					i > 0 ? i - 1 : items.length - 1,
+				);
+				break;
+			case 'Enter':
+				event.preventDefault();
+				const selected = items[this.whiteTypeaheadIndex()];
+				if (selected) {
+					this.selectWhiteTypeahead(selected);
+				}
+				break;
+			case 'Escape':
+				this.whiteTypeaheadOpen.set(false);
+				break;
+		}
+	}
+
+	onBlackTypeaheadKeydown(event: KeyboardEvent) {
+		const items = this.filteredBlackSuggestions();
+		if (!this.blackTypeaheadOpen() || items.length === 0) {
+			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+				this.blackTypeaheadOpen.set(true);
+				event.preventDefault();
+				return;
+			}
+			return;
+		}
+
+		switch (event.key) {
+			case 'ArrowDown':
+				event.preventDefault();
+				this.blackTypeaheadIndex.update((i) =>
+					i < items.length - 1 ? i + 1 : 0,
+				);
+				break;
+			case 'ArrowUp':
+				event.preventDefault();
+				this.blackTypeaheadIndex.update((i) =>
+					i > 0 ? i - 1 : items.length - 1,
+				);
+				break;
+			case 'Enter':
+				event.preventDefault();
+				const selected = items[this.blackTypeaheadIndex()];
+				if (selected) {
+					this.selectBlackTypeahead(selected);
+				}
+				break;
+			case 'Escape':
+				this.blackTypeaheadOpen.set(false);
+				break;
+		}
+	}
+
+	// Utility: split text into segments for match highlighting
+	highlightText(
+		text: string,
+		query: string,
+	): { text: string; match: boolean }[] {
+		const q = query.toLowerCase().trim();
+		if (!q) {
+			return [{ text, match: false }];
+		}
+		const idx = text.toLowerCase().indexOf(q);
+		if (idx === -1) {
+			return [{ text, match: false }];
+		}
+		const segments: { text: string; match: boolean }[] = [];
+		if (idx > 0) {
+			segments.push({ text: text.substring(0, idx), match: false });
+		}
+		segments.push({
+			text: text.substring(idx, idx + q.length),
+			match: true,
+		});
+		if (idx + q.length < text.length) {
+			segments.push({ text: text.substring(idx + q.length), match: false });
+		}
+		return segments;
+	}
+
 	updateFilterResult(event: Event) {
 		const select = event.target as HTMLSelectElement;
 		const selectedOptions = Array.from(select.selectedOptions).map(
@@ -141,6 +326,32 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// Autocomplete Signals
 	uniqueWhitePlayers = signal<string[]>([]);
 	uniqueBlackPlayers = signal<string[]>([]);
+
+	// Typeahead State
+	whiteTypeaheadOpen = signal<boolean>(false);
+	blackTypeaheadOpen = signal<boolean>(false);
+	whiteTypeaheadIndex = signal<number>(0);
+	blackTypeaheadIndex = signal<number>(0);
+	private whiteTypeaheadCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+	private blackTypeaheadCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+
+	// Typeahead Filtered Suggestions
+	filteredWhiteSuggestions = computed(() => {
+		const query = this.filterWhite().toLowerCase().trim();
+		if (!query) return this.uniqueWhitePlayers();
+		return this.uniqueWhitePlayers().filter((p) =>
+			p.toLowerCase().includes(query),
+		);
+	});
+
+	filteredBlackSuggestions = computed(() => {
+		const query = this.filterBlack().toLowerCase().trim();
+		if (!query) return this.uniqueBlackPlayers();
+		return this.uniqueBlackPlayers().filter((p) =>
+			p.toLowerCase().includes(query),
+		);
+	});
+
 	uniqueEcoCodes = signal<Map<string, number>>(new Map());
 	uniqueTimeControls = signal<
 		Map<string, { count: number; originals: Map<string, number> }>
@@ -1402,13 +1613,21 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	continueReplay() {
-		this.stopReplay();
+		this.stopReplay(false);
 		this.runReplayLogic();
 	}
 
 	private runReplayLogic() {
 		// Use the currently loaded PGN from the input area
 		const gamePgn = this.pgnInput();
+		const onComplete = this.replayResolve
+			? () => {
+					if (this.replayResolve) {
+						this.replayResolve();
+						this.replayResolve = null;
+					}
+				}
+			: undefined;
 
 		try {
 			const tempChess = new Chess();
@@ -1416,12 +1635,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			const history = tempChess.history({ verbose: true });
 
 			const timeOuts = this.calculateReplayTimeouts(history);
-			this.scheduleReplay(timeOuts, history.length);
+			this.scheduleReplay(timeOuts, history.length, onComplete);
 		} catch (_e) {
 			// console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
 			try {
 				const timeOuts = this.calculateReplayTimeoutsChessops(gamePgn);
-				this.scheduleReplay(timeOuts, timeOuts.length);
+				this.scheduleReplay(timeOuts, timeOuts.length, onComplete);
 			} catch (_e2) {
 				// console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
 				// Fallback: use moves list length and fixed time
@@ -1513,7 +1732,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		});
 	}
 
-	stopReplay() {
+	stopReplay(resolvePromise = true) {
 		this.isReplaying.set(false);
 		this.replayTimeouts.forEach((t) => {
 			clearTimeout(t);
@@ -1521,7 +1740,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		});
 		this.replayTimeouts = [];
 
-		if (this.replayResolve) {
+		if (resolvePromise && this.replayResolve) {
 			this.replayResolve();
 			this.replayResolve = null;
 		}
@@ -1867,8 +2086,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 							if (
 								Math.abs(currentEval - prevEval) > this.stopOnErrorThreshold()
 							) {
-								this.stopReplay();
-								this.isReplayingSequence = false;
+								this.stopReplay(false);
 
 								const prevFen = this.getFenBeforeMove(currentIdx);
 								if (prevFen) {
@@ -1880,7 +2098,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 					}
 				}
 
-				if (isLast && onComplete) {
+				if (isLast && onComplete && this.isReplaying()) {
 					// Give a small buffer for the last animation
 					const completionTimeoutId = this.setDeferredTimeout(() => {
 						// Only call onComplete if we didn't stop manually (check isReplaying?)

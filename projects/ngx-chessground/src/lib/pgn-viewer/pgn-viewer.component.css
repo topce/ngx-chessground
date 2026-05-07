@@ -172,6 +172,17 @@
   box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.15);
 }
 
+.filter-row input[type="text"]:-webkit-autofill,
+.filter-row input[type="text"]:-webkit-autofill:hover,
+.filter-row input[type="text"]:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--cg-bg-surface) inset !important;
+  -webkit-text-fill-color: var(--cg-text) !important;
+  caret-color: var(--cg-text);
+  transition: background-color 5000s ease-in-out 0s;
+  border-color: var(--cg-primary);
+  box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.15), 0 0 0px 1000px var(--cg-bg-surface) inset !important;
+}
+
 .filter-row select[multiple] {
   height: auto;
   min-height: 70px;
@@ -195,6 +206,90 @@
   justify-content: flex-end;
   gap: 0.35rem;
   margin-top: 0.25rem;
+}
+
+/* ---- Typeahead Dropdown ---- */
+.typeahead-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.typeahead-wrapper input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.typeahead-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--cg-bg-surface);
+  border: 1px solid var(--cg-primary);
+  border-top: 2px solid var(--cg-primary);
+  border-radius: 0 0 var(--cg-radius-md) var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-lg);
+  margin-top: -1px;
+}
+
+.typeahead-item {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: var(--cg-font-body);
+  color: var(--cg-text);
+  cursor: pointer;
+  transition: background-color var(--cg-transition);
+  border-bottom: 1px solid var(--cg-border-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.typeahead-item:last-child {
+  border-bottom: none;
+}
+
+.typeahead-item:hover,
+.typeahead-item.active {
+  background-color: var(--cg-primary-light);
+  color: var(--cg-primary);
+}
+
+.typeahead-item.active {
+  border-left: 3px solid var(--cg-primary);
+  font-weight: 600;
+}
+
+.typeahead-item .match-highlight {
+  color: var(--cg-primary);
+  font-weight: 700;
+  background-color: rgba(3, 105, 161, 0.1);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.typeahead-no-results {
+  padding: 0.5rem 0.6rem;
+  font-size: 0.8rem;
+  color: var(--cg-text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+.typeahead-dropdown::-webkit-scrollbar {
+  width: 5px;
+}
+
+.typeahead-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.typeahead-dropdown::-webkit-scrollbar-thumb {
+  background: var(--cg-border);
+  border-radius: 3px;
 }
 
 /* ---- Game List ---- */
