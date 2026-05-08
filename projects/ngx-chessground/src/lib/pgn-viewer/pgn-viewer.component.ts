@@ -1020,6 +1020,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	applyFilter() {
 		// Stop any ongoing replay when filter is applied
 		this.stopReplay();
+		this.isReplayingSequence = false;
 
 		// const games = this.games(); // REMOVED
 		const fWhite = this.filterWhite();

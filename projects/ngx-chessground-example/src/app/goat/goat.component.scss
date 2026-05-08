@@ -2,7 +2,7 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 56px);
   display: flex;
   justify-content: center;
 }
@@ -31,6 +31,7 @@ h1 {
   background-color: var(--bg-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color-light);
 }
 
 .resource-links {
@@ -52,7 +53,7 @@ h1 {
 .resource-links a {
   display: block;
   padding: 12px 15px;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   color: var(--text-inverse);
   text-decoration: none;
   border-radius: var(--radius-md);
@@ -62,8 +63,13 @@ h1 {
 }
 
 .resource-links a:hover {
-  background-color: var(--color-primary-hover);
+  background-color: var(--color-accent-hover);
   box-shadow: var(--shadow-md);
+}
+
+.resource-links a:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* Responsive adjustments */

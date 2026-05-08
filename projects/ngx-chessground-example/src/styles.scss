@@ -2,41 +2,48 @@
 
 @use "@angular/material" as mat;
 
-/* Design Tokens — NGX Chessground */
+/* ==========================================================================
+   Design Tokens — NGX Chessground
+   Style: Data-Dense Dashboard / B2B Professional
+   Typography: Fira Sans + Fira Code
+   ========================================================================== */
 :root {
   /* Primary palette */
-  --color-primary: #0369A1;
-  --color-primary-hover: #024f7a;
-  --color-primary-light: #e0f4ff;
-  --color-secondary: #0EA5E9;
-  --color-secondary-hover: #0284c7;
-  --color-cta: #22C55E;
-  --color-cta-hover: #16a34a;
-  --color-danger: #dc3545;
-  --color-danger-hover: #b91c1c;
+  --color-primary: #0F172A;
+  --color-primary-hover: #1E293B;
+  --color-primary-light: #E2E8F0;
+  --color-secondary: #334155;
+  --color-secondary-hover: #475569;
+  --color-accent: #0369A1;
+  --color-accent-hover: #0284C7;
+  --color-cta: #0369A1;
+  --color-cta-hover: #0284C7;
+  --color-danger: #DC2626;
+  --color-danger-hover: #B91C1C;
 
   /* Backgrounds */
-  --bg-page: #F0F9FF;
+  --bg-page: #F8FAFC;
   --bg-surface: #ffffff;
-  --bg-surface-alt: #f3f7fb;
-  --bg-hover: #e8f2f8;
+  --bg-surface-alt: #F1F5F9;
+  --bg-hover: #E2E8F0;
 
   /* Text */
-  --text-primary: #0C4A6E;
-  --text-secondary: #3b6e8a;
-  --text-muted: #7a9cb0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
   --text-inverse: #ffffff;
 
   /* Borders */
-  --border-color: #d0dde6;
-  --border-color-light: #e5eef4;
+  --border-color: #CBD5E1;
+  --border-color-light: #E2E8F0;
 
   /* Spacing */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 0.75rem;
-  --space-lg: 1rem;
-  --space-xl: 1.5rem;
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 0.75rem;   /* 12px */
+  --space-lg: 1rem;      /* 16px */
+  --space-xl: 1.5rem;    /* 24px */
+  --space-2xl: 2rem;     /* 32px */
 
   /* Border radius */
   --radius-sm: 4px;
@@ -46,9 +53,9 @@
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.10);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.08);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -56,9 +63,9 @@
   --transition-slow: 300ms ease;
 
   /* Typography */
-  --font-heading: "Poppins", sans-serif;
-  --font-body: "Open Sans", sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+  --font-heading: "Fira Sans", system-ui, sans-serif;
+  --font-body: "Fira Sans", system-ui, sans-serif;
+  --font-mono: "Fira Code", "JetBrains Mono", "Courier New", monospace;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.8rem;
   --font-size-base: 0.875rem;
@@ -66,29 +73,74 @@
   --font-size-xl: 1.1rem;
 
   /* Panel widths */
-  --panel-width: 300px;
-  --panel-min-width: 260px;
+  --panel-width: 320px;
+  --panel-min-width: 280px;
 
   /* Board */
-  --board-shadow: 0 4px 20px rgba(3, 105, 161, 0.12);
+  --board-shadow: 0 4px 20px rgba(15, 23, 42, 0.10);
 }
 
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
 
+/* ---- Light Theme (default) ---- */
 html {
   color-scheme: light;
   @include mat.theme(
     (
-      color: mat.$azure-palette,
+      color: mat.$cyan-palette,
     )
   );
+}
+
+/* ---- Dark Theme ---- */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  @include mat.theme(
+    (
+      color: mat.$cyan-palette,
+    )
+  );
+
+  --color-primary: #E2E8F0;
+  --color-primary-hover: #CBD5E1;
+  --color-primary-light: #1E293B;
+  --color-secondary: #94A3B8;
+  --color-secondary-hover: #CBD5E1;
+  --color-accent: #38BDF8;
+  --color-accent-hover: #7DD3FC;
+  --color-cta: #38BDF8;
+  --color-cta-hover: #7DD3FC;
+  --color-danger: #F87171;
+  --color-danger-hover: #FCA5A5;
+
+  --bg-page: #0F172A;
+  --bg-surface: #1E293B;
+  --bg-surface-alt: #334155;
+  --bg-hover: #334155;
+
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-inverse: #0F172A;
+
+  --border-color: #334155;
+  --border-color-light: #1E293B;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+
+  --board-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 body {
   height: 100%;
   margin: 0;
   font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
   background: var(--bg-page);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -99,16 +151,23 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 600;
   color: var(--text-primary);
+  line-height: 1.25;
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-accent);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-primary-hover);
+  color: var(--color-accent-hover);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--text-inverse);
 }
 
 /* Smooth scrolling */
@@ -118,9 +177,28 @@ html {
 
 /* Focus visible */
 :focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 /* Reduced motion */

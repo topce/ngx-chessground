@@ -6,6 +6,9 @@
   <button mat-button routerLink="/goat">GOAT</button>
   <button mat-button routerLink="/me">Me</button>
   <button mat-button routerLink="/pgn-viewer">PGN Viewer</button>
+  <button mat-icon-button (click)="toggleTheme()" aria-label="Toggle theme" class="theme-toggle">
+    {{ themeService.theme() === 'light' ? '🌙' : '☀️' }}
+  </button>
 </mat-toolbar>
 
 <div class="content">

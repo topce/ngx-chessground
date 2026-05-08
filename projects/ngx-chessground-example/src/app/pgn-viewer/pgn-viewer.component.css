@@ -34,7 +34,7 @@ ngx-pgn-viewer {
 button {
   padding: 0.45rem 1rem;
   cursor: pointer;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-md);
@@ -45,12 +45,17 @@ button {
 }
 
 button:hover {
-  background-color: var(--color-primary-hover);
+  background-color: var(--color-accent-hover);
   box-shadow: var(--shadow-sm);
 }
 
 button:active {
   transform: scale(0.97);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .sponsor-btn {

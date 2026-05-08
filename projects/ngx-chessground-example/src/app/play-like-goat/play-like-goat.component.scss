@@ -2,7 +2,7 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 56px);
   display: flex;
   justify-content: center;
 }
@@ -26,6 +26,7 @@
   border-radius: var(--radius-lg);
   padding: 15px;
   background-color: var(--bg-surface);
+  border: 1px solid var(--border-color-light);
   position: relative;
   z-index: 2;
 }

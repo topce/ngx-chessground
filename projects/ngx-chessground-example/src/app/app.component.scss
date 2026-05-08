@@ -3,7 +3,7 @@
 }
 
 .content {
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 56px);
 }
 
 mat-toolbar {
@@ -12,15 +12,24 @@ mat-toolbar {
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow-md);
+  height: 56px;
 }
 
 mat-toolbar .mat-mdc-button {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  transition: background-color var(--transition-fast);
-  border-radius: var(--radius-md);
+  letter-spacing: 0.01em;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  border-radius: var(--radius-sm);
 }
 
 mat-toolbar .mat-mdc-button:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.theme-toggle {
+  margin-left: 0.25rem;
+  font-size: 1.1rem;
+  line-height: 1;
 }
