@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,7 +24,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -107,35 +42,24 @@
 
 
 
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Interfaces</li>
-  <li class="breadcrumb-item"
+  <li>Interfaces</li>
+  <li
   >
   GameMetadata</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" 
-                class="nav-link"
-                class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
         </li>
-        <li class="nav-item">
-            <a href="#source" 
-                class="nav-link"
-                
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="info">
+    <div class="tab-pane fade active in" id="c-info">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -144,9 +68,19 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Metadata extracted from a single PGN game header.</p>
+<p>Used for displaying game lists, filtering, and sorting without parsing full move data.
+The <code>timeControlNormalized</code> field converts human-readable time controls
+(e.g. <code>&quot;90+30&quot;</code>, <code>&quot;3:0&quot;</code>) into a uniform <code>&quot;baseSeconds+incrementSeconds&quot;</code> format.</p>
+
+            </p>
 
 
-        <section data-compodoc="block-index">
+        <section>
             <h3 id="index">Index</h3>
             <table class="table table-sm table-bordered index-table">
                 <tbody>
@@ -231,7 +165,7 @@
 
 
 
-            <section data-compodoc="block-properties">
+            <section>
                 <h3 id="inputs">Properties</h3>
                     <table class="table table-sm table-bordered">
                         <tbody>
@@ -264,6 +198,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Black player display name (includes title and Elo if present).</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -297,6 +237,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Black player Elo rating (0 if missing).</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -335,6 +281,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>ECO (Encyclopedia of Chess Openings) code (e.g. <code>&quot;B33&quot;</code>).</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -373,6 +325,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Event/tournament name from the PGN header.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -406,6 +364,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>1-based game number within the loaded PGN collection.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -439,6 +403,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Normalized result: <code>&quot;1-0&quot;</code>, <code>&quot;0-1&quot;</code>, <code>&quot;½-½&quot;</code>, or <code>&quot;*&quot;</code>.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -477,6 +447,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Raw time control string from the PGN header.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -515,6 +491,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Normalized time control in <code>&quot;seconds+increment&quot;</code> format, or <code>undefined</code> if unparseable.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -548,6 +530,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>White player display name (includes title and Elo if present, e.g. <code>&quot;GM Carlsen (2850)&quot;</code>).</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -581,45 +569,105 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>White player Elo rating (0 if missing).</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
     </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="source">
+    <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Chess } from &#x27;chess.js&#x27;;
 import { parsePgn } from &#x27;chessops/pgn&#x27;;
 
-// Define types for messages
+/**
+ * Discriminated union of messages sent from the main thread to the PGN processor worker.
+ *
+ * Each message includes an &#x60;id&#x60; correlation field echoed back in the response
+ * so callers can match requests with responses.
+ */
 export type WorkerMessage &#x3D;
+	/** Load raw PGN text for parsing. */
 	| { type: &#x27;load&#x27;; payload: string; id: number }
+	/** Filter the currently loaded games by {@link FilterCriteria}. */
 	| { type: &#x27;filter&#x27;; payload: FilterCriteria; id: number }
+	/** Load the full move data for a game at the given index. */
 	| { type: &#x27;loadGame&#x27;; payload: number; id: number };
 
+/**
+ * Criteria for filtering a parsed game collection in the PGN processor worker.
+ *
+ * All string fields are matched case-insensitively as substrings.
+ * Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when unset.
+ *
+ * @example
+ * &#x60;&#x60;&#x60;typescript
+ * const criteria: FilterCriteria &#x3D; {
+ *   white: &#x27;carlsen&#x27;,
+ *   black: &#x27;&#x27;,
+ *   result: &#x27;1-0&#x27;,
+ *   moves: true,
+ *   ignoreColor: false,
+ *   targetMoves: [&#x27;e4&#x27;, &#x27;e5&#x27;, &#x27;Nf3&#x27;],
+ *   minWhiteRating: 2500,
+ *   minBlackRating: 2400,
+ *   maxWhiteRating: Infinity,
+ *   maxBlackRating: Infinity,
+ *   eco: &#x27;B33&#x27;,
+ *   timeControl: &#x27;180+2&#x27;,
+ *   event: &#x27;&#x27;,
+ * };
+ * &#x60;&#x60;&#x60;
+ */
 export interface FilterCriteria {
+	/** Filter by white player name (case-insensitive substring match). */
 	white: string;
+	/** Filter by black player name (case-insensitive substring match). */
 	black: string;
+	/** Comma-separated result strings: &#x60;&quot;1-0&quot;&#x60;, &#x60;&quot;0-1&quot;&#x60;, &#x60;&quot;draw&quot;&#x60;, or &#x60;&quot;*&quot;&#x60; for unfinished. */
 	result: string;
+	/** When &#x60;true&#x60;, filter games by the {@link targetMoves} opening sequence. */
 	moves: boolean;
+	/** When &#x60;true&#x60;, treat {@link white} and {@link black} fields as matching either color. */
 	ignoreColor: boolean;
+	/** SAN move sequence the game must be prefixed with (only used when {@link moves} is &#x60;true&#x60;). */
 	targetMoves: string[];
+	/** Minimum white Elo rating (inclusive). Default 0. */
 	minWhiteRating: number;
+	/** Minimum black Elo rating (inclusive). Default 0. */
 	minBlackRating: number;
+	/** Maximum white Elo rating (inclusive). Use &#x60;Infinity&#x60; for no upper bound. */
 	maxWhiteRating: number;
+	/** Maximum black Elo rating (inclusive). Use &#x60;Infinity&#x60; for no upper bound. */
 	maxBlackRating: number;
+	/** ECO code filter (case-insensitive substring, e.g. &#x60;&quot;B33&quot;&#x60;). */
 	eco: string;
+	/** Time control filter (case-insensitive substring, e.g. &#x60;&quot;180+2&quot;&#x60;). */
 	timeControl: string;
+	/** Event/tournament name filter (case-insensitive substring). */
 	event: string;
 }
 
+/**
+ * Discriminated union of responses sent from the PGN processor worker to the main thread.
+ *
+ * The &#x60;id&#x60; field matches the correlation ID from the originating {@link WorkerMessage}.
+ */
 export type WorkerResponse &#x3D;
+	/** Response to a &#x60;&#x27;load&#x27;&#x60; message with game count and metadata. */
 	| {
 			type: &#x27;load&#x27;;
 			payload: { count: number; metadata: GameMetadata[] };
 			id: number;
 	  }
+	/** Response to a &#x60;&#x27;filter&#x27;&#x60; message with matching game indices. */
 	| { type: &#x27;filter&#x27;; payload: number[]; id: number }
+	/** Response to a &#x60;&#x27;loadGame&#x27;&#x60; message with moves, cleaned PGN, evaluations, and optional error. */
 	| {
 			type: &#x27;loadGame&#x27;;
 			payload: {
@@ -630,24 +678,46 @@ export type WorkerResponse &#x3D;
 			};
 			id: number;
 	  }
+	/** Error response for any message type. */
 	| { type: &#x27;error&#x27;; payload: string; id: number };
 
+/**
+ * Metadata extracted from a single PGN game header.
+ *
+ * Used for displaying game lists, filtering, and sorting without parsing full move data.
+ * The &#x60;timeControlNormalized&#x60; field converts human-readable time controls
+ * (e.g. &#x60;&quot;90+30&quot;&#x60;, &#x60;&quot;3:0&quot;&#x60;) into a uniform &#x60;&quot;baseSeconds+incrementSeconds&quot;&#x60; format.
+ */
 export interface GameMetadata {
+	/** 1-based game number within the loaded PGN collection. */
 	number: number;
+	/** White player display name (includes title and Elo if present, e.g. &#x60;&quot;GM Carlsen (2850)&quot;&#x60;). */
 	white: string;
+	/** Black player display name (includes title and Elo if present). */
 	black: string;
+	/** Normalized result: &#x60;&quot;1-0&quot;&#x60;, &#x60;&quot;0-1&quot;&#x60;, &#x60;&quot;½-½&quot;&#x60;, or &#x60;&quot;*&quot;&#x60;. */
 	result: string;
+	/** White player Elo rating (0 if missing). */
 	whiteElo: number;
+	/** Black player Elo rating (0 if missing). */
 	blackElo: number;
+	/** ECO (Encyclopedia of Chess Openings) code (e.g. &#x60;&quot;B33&quot;&#x60;). */
 	eco?: string;
+	/** Raw time control string from the PGN header. */
 	timeControl?: string;
+	/** Normalized time control in &#x60;&quot;seconds+increment&quot;&#x60; format, or &#x60;undefined&#x60; if unparseable. */
 	timeControlNormalized?: string;
+	/** Event/tournament name from the PGN header. */
 	event?: string;
 }
 
-// State
+// --- Worker State ---
+
+/** Raw PGN text for each game, split by &#x60;[Event &quot;...&quot;&#x60; headers. */
 let games: string[] &#x3D; [];
+/** Parsed metadata for each game (header tags only, no move data). */
 let gameMetadata: GameMetadata[] &#x3D; [];
+/** LRU-like cache of parsed move arrays keyed by game index, cleared on re-filter. */
 const gameMovesCache &#x3D; new Map&lt;number, string[]&gt;();
 
 addEventListener(&#x27;message&#x27;, ({ data }: { data: WorkerMessage }) &#x3D;&gt; {
@@ -668,6 +738,13 @@ addEventListener(&#x27;message&#x27;, ({ data }: { data: WorkerMessage }) &#x3D;
 	}
 });
 
+/**
+ * Loads raw PGN text: splits into individual games, filters out non-Standard variants,
+ * extracts metadata, and posts a &#x60;&#x27;load&#x27;&#x60; response with game count and metadata.
+ *
+ * @param pgn — Raw PGN string potentially containing multiple games.
+ * @param id — Correlation ID echoed in the response.
+ */
 function handleLoad(pgn: string, id: number) {
 	// Reset state
 	games &#x3D; [];
@@ -697,6 +774,17 @@ function handleLoad(pgn: string, id: number) {
 	});
 }
 
+/**
+ * Normalizes PGN result strings into a canonical form.
+ *
+ * - &#x60;&quot;1-0&quot;&#x60; → &#x60;&quot;1-0&quot;&#x60; (white win)
+ * - &#x60;&quot;0-1&quot;&#x60; → &#x60;&quot;0-1&quot;&#x60; (black win)
+ * - &#x60;&quot;½-½&quot;&#x60;, &#x60;&quot;1/2-1/2&quot;&#x60; → &#x60;&quot;draw&quot;&#x60;
+ * - Unknown/unparseable → lowercased as-is
+ *
+ * @param result — Raw result string from a PGN &#x60;[Result &quot;...&quot;]&#x60; header.
+ * @returns Canonical result string.
+ */
 function normalizeResult(result: string): string {
 	const lower &#x3D; result.toLowerCase();
 	// Normalize draw results - convert both ½-½ and 1/2-1/2 to &quot;draw&quot;
@@ -715,6 +803,16 @@ function normalizeResult(result: string): string {
 	return lower;
 }
 
+/**
+ * Filters the currently loaded game collection by the given criteria.
+ *
+ * Matches are case-insensitive substring comparisons. When &#x60;moves&#x60; is &#x60;true&#x60;,
+ * tests whether each game&#x27;s opening sequence starts with &#x60;targetMoves&#x60;.
+ * Posts a &#x60;&#x27;filter&#x27;&#x60; response with an array of matching game indices.
+ *
+ * @param criteria — Filter parameters (player names, ECO, result, ratings, opening moves).
+ * @param id — Correlation ID echoed in the response.
+ */
 function handleFilter(criteria: FilterCriteria, id: number) {
 	const {
 		white,
@@ -903,6 +1001,17 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	});
 }
 
+/**
+ * Parses the full move data for a single game by index.
+ *
+ * Uses chess.js for primary parsing with fallback to chessops and stripped-comment parsing.
+ * Extracts move evaluations from &#x60;[%eval ...]&#x60; comment annotations when available.
+ * Results are cached in {@link gameMovesCache} to avoid re-parsing.
+ * Posts a &#x60;&#x27;loadGame&#x27;&#x60; response with moves, cleaned PGN, evaluations, and optional error.
+ *
+ * @param index — Zero-based game index in the &#x60;games&#x60; array.
+ * @param id — Correlation ID echoed in the response.
+ */
 function handleLoadGame(index: number, id: number) {
 	if (index &lt; 0 || index &gt;&#x3D; games.length) {
 		throw new Error(&#x27;Game index out of bounds&#x27;);
@@ -1067,6 +1176,15 @@ function handleLoadGame(index: number, id: number) {
 
 // --- Helpers ---
 
+/**
+ * Splits a multi-game PGN string into individual game strings.
+ *
+ * Splits on &#x60;[Event &quot;...&quot;&#x60; tag boundaries, which marks the start of each game.
+ * Handles concatenated games where the tag may appear anywhere in the text.
+ *
+ * @param pgn — Raw PGN string containing one or more games.
+ * @returns Array of individual game PGN strings.
+ */
 function splitPgn(pgn: string): string[] {
 	// Split by [Event &quot; tag, allowing for it to be anywhere (not just start of line)
 	// This handles cases where games are concatenated on the same line.
@@ -1081,6 +1199,17 @@ function splitPgn(pgn: string): string[] {
 	return result;
 }
 
+/**
+ * Extracts metadata from a single game&#x27;s PGN header tags.
+ *
+ * Parses White, Black, Result, WhiteElo, BlackElo, WhiteTitle, BlackTitle,
+ * ECO, TimeControl, and Event tags. Formats player names with title+Elo
+ * (e.g. &#x60;&quot;GM Carlsen (2850)&quot;&#x60;). Normalizes the time control field.
+ *
+ * @param pgn — Raw PGN string for a single game.
+ * @param index — Zero-based game index (result&#x27;s &#x60;number&#x60; will be &#x60;index + 1&#x60;).
+ * @returns Populated {@link GameMetadata} object.
+ */
 function extractGameInfo(pgn: string, index: number): GameMetadata {
 	const whiteMatch &#x3D; pgn.match(/\[White\s+&quot;([^&quot;]+)&quot;\]/);
 	const blackMatch &#x3D; pgn.match(/\[Black\s+&quot;([^&quot;]+)&quot;\]/);
@@ -1130,6 +1259,20 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 	};
 }
 
+/**
+ * Normalizes a PGN &#x60;[TimeControl &quot;...&quot;]&#x60; value into a uniform &#x60;&quot;baseSeconds+incrementSeconds&quot;&#x60; format.
+ *
+ * Handles formats including:
+ * - &#x60;&quot;h:m:s&quot;&#x60; (e.g. &#x60;&quot;1:30:0&quot;&#x60; → &#x60;&quot;5400+0&quot;&#x60;)
+ * - &#x60;&quot;m:s&quot;&#x60; (e.g. &#x60;&quot;90+30&quot;&#x60; → &#x60;&quot;5400+30&quot;&#x60;)
+ * - &#x60;&quot;base+inc&quot;&#x60; (e.g. &#x60;&quot;180+2&quot;&#x60; → &#x60;&quot;180+2&quot;&#x60;)
+ * - Textual: &#x60;&quot;90 min + 30 sec&quot;&#x60;, &#x60;&quot;3&#x27;&quot;&#x60;, &#x60;&quot;3 min&quot;&#x60;, etc.
+ *
+ * Heuristic: base values ≤ 180 are treated as minutes unless a &#x60;min&#x60;/&#x60;mins&#x60;/&#x60;&#x27;&#x60; suffix is present.
+ *
+ * @param raw — Raw time control string from the PGN header, or &#x60;undefined&#x60;.
+ * @returns Normalized string like &#x60;&quot;5400+30&quot;&#x60;, or &#x60;undefined&#x60; if unparseable.
+ */
 function normalizeTimeControl(raw?: string): string | undefined {
 	if (!raw) return undefined;
 	const trimmed &#x3D; raw.trim();
@@ -1201,6 +1344,19 @@ function normalizeTimeControl(raw?: string): string | undefined {
 	return undefined;
 }
 
+/**
+ * Extracts SAN moves from a PGN string without using a full chess engine parser.
+ *
+ * Used for filtering by opening moves — faster than full chess.js parsing.
+ * Steps:
+ * 1. Isolates move text after header tags, handling bracket comments like &#x60;[%clk ...]&#x60;.
+ * 2. Strips &#x60;{ ... }&#x60; and &#x60;( ... )&#x60; comments and &#x60;; ...&#x60; line comments.
+ * 3. Removes move numbers, result markers, and NAG symbols (&#x60;$1&#x60;, &#x60;$2&#x60;).
+ * 4. Splits by whitespace, strips &#x60;!&#x60;/&#x60;?&#x60; annotations, and validates SAN format.
+ *
+ * @param pgn — Raw PGN string for a single game (header tags + move text).
+ * @returns Array of clean, validated SAN move strings.
+ */
 function extractMovesFast(pgn: string): string[] {
 	// 1. Isolate the move text (after the headers)
 	// NOTE: We must NOT use lastIndexOf(&#x27;]&#x27;) here because Lichess PGNs often
@@ -1284,7 +1440,6 @@ function extractMovesFast(pgn: string): string[] {
 
 
 
-
                    </div><div class="search-results">
     <div class="has-results">
         <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
@@ -1315,19 +1470,6 @@ function extractMovesFast(pgn: string): string[] {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
-
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -1339,6 +1481,7 @@ function extractMovesFast(pgn: string): string[] {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

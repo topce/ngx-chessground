@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,7 +24,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -111,18 +46,12 @@
 
 
 
-
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Miscellaneous</li>
-  <li class="breadcrumb-item">Functions</li>
+  <li>Miscellaneous</li>
+  <li>Functions</li>
 </ol>
 
-<section data-compodoc="block-index">
+<section>
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -200,7 +129,7 @@
 </section>
 
     <h3>projects/ngx-chessground/src/units/util.ts</h3>
-    <section data-compodoc="block-methods">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -223,97 +152,99 @@
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Executes an AI move in a chess game after a specified delay.</p>
+                    <div class="io-description"><p>Executes an AI move in a chess game after a specified delay.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cg</td>
-                                            <td>
-                                                        <code>Api</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>cg</td>
+                                    <td>
+                                            <code>Api</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chessground API instance.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chess.js instance.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>delay</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>delay</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The delay in milliseconds before the AI makes a move.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>firstMove</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>firstMove</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>A boolean indicating if this is the first move of the game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -340,62 +271,64 @@
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Creates a function that makes a move on the chessboard and updates the state of the chess game.
+                    <div class="io-description"><p>Creates a function that makes a move on the chessboard and updates the state of the chess game.
 Uses window.prompt for pawn promotion (legacy method).</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cg</td>
-                                            <td>
-                                                        <code>Api</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>cg</td>
+                                    <td>
+                                            <code>Api</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chessground API instance.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chess.js instance representing the current state of the chess game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -422,80 +355,82 @@ Uses window.prompt for pawn promotion (legacy method).</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Creates an async function that makes a move on the chessboard and updates the state of the chess game.
+                    <div class="io-description"><p>Creates an async function that makes a move on the chessboard and updates the state of the chess game.
 Uses a promotion service for pawn promotion (modern method with dialog).</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cg</td>
-                                            <td>
-                                                        <code>Api</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>cg</td>
+                                    <td>
+                                            <code>Api</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chessground API instance.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chess.js instance representing the current state of the chess game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>promotionService</td>
-                                            <td>
-                                                            <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>promotionService</td>
+                                    <td>
+                                                <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The promotion service to handle pawn promotion dialog.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -522,51 +457,53 @@ Uses a promotion service for pawn promotion (modern method with dialog).</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Converts chess.js promotion character to chessground piece role.</p>
+                    <div class="io-description"><p>Converts chess.js promotion character to chessground piece role.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>promotion</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>promotion</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chess.js promotion character (&#39;q&#39;, &#39;r&#39;, &#39;b&#39;, &#39;n&#39;)</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>&quot;queen&quot; | &quot;rook&quot; | &quot;bishop&quot; | &quot;knight&quot;</code>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>&quot;queen&quot; | &quot;rook&quot; | &quot;bishop&quot; | &quot;knight&quot;</code>
 
-                        </div>
-                            <div class="io-description">
-                                <p>The corresponding chessground piece role (&#39;queen&#39;, &#39;rook&#39;, &#39;bishop&#39;, &#39;knight&#39;)</p>
+                    </div>
+                    <div class="io-description">
+                        <p>The corresponding chessground piece role (&#39;queen&#39;, &#39;rook&#39;, &#39;bishop&#39;, &#39;knight&#39;)</p>
 
-                            </div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -593,51 +530,53 @@ Uses a promotion service for pawn promotion (modern method with dialog).</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Converts the current turn of a chess game to a color string.</p>
+                    <div class="io-description"><p>Converts the current turn of a chess game to a color string.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>An instance of a chess game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Color</code>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>Color</code>
 
-                        </div>
-                            <div class="io-description">
-                                <p>The color string &quot;white&quot; if it&#39;s white&#39;s turn, otherwise &quot;black&quot;.</p>
+                    </div>
+                    <div class="io-description">
+                        <p>The color string &quot;white&quot; if it&#39;s white&#39;s turn, otherwise &quot;black&quot;.</p>
 
-                            </div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -664,58 +603,60 @@ Uses a promotion service for pawn promotion (modern method with dialog).</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Generates a map of possible destination squares for each piece on the board.</p>
+                    <div class="io-description"><p>Generates a map of possible destination squares for each piece on the board.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>An instance of the Chess game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Map&lt;Key, Key[]&gt;</code>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>Map&lt;Key, Key[]&gt;</code>
 
-                        </div>
-                            <div class="io-description">
-                                <p>A map where the keys are the squares with pieces that have legal moves,
+                    </div>
+                    <div class="io-description">
+                        <p>A map where the keys are the squares with pieces that have legal moves,
 and the values are arrays of destination squares for those pieces.</p>
 
-                            </div>
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>    <h3>projects/ngx-chessground/src/units/enhanced-util.ts</h3>
-    <section data-compodoc="block-methods">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -738,116 +679,118 @@ and the values are arrays of destination squares for those pieces.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Executes an AI move in a chess game after a specified delay.
+                    <div class="io-description"><p>Executes an AI move in a chess game after a specified delay.
 This enhanced version handles promotion with dialog support for player moves.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cg</td>
-                                            <td>
-                                                        <code>Api</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>cg</td>
+                                    <td>
+                                            <code>Api</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chessground API instance.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chess.js instance.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>delay</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>delay</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The delay in milliseconds before the AI makes a move.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>firstMove</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>firstMove</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>A boolean indicating if this is the first move of the game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>promotionService</td>
-                                            <td>
-                                                            <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>promotionService</td>
+                                    <td>
+                                                <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The service to handle promotion dialogs.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -874,82 +817,84 @@ This enhanced version handles promotion with dialog support for player moves.</p
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Creates a function that makes a move on the chessboard and updates the state of the chess game.
+                    <div class="io-description"><p>Creates a function that makes a move on the chessboard and updates the state of the chess game.
 This enhanced version uses a nice dialog for piece promotion instead of window.prompt().
 The function handles async promotion dialog by using Promises internally while maintaining
 synchronous event handler compatibility with chessground.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cg</td>
-                                            <td>
-                                                        <code>Api</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>cg</td>
+                                    <td>
+                                            <code>Api</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chessground API instance.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chess.js instance representing the current state of the chess game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>promotionService</td>
-                                            <td>
-                                                            <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
-                                            </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>promotionService</td>
+                                    <td>
+                                                <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The service to handle promotion dialogs.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -976,51 +921,53 @@ synchronous event handler compatibility with chessground.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Converts chess.js promotion character to chessground piece role.</p>
+                    <div class="io-description"><p>Converts chess.js promotion character to chessground piece role.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>promotion</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>promotion</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The chess.js promotion character (&#39;q&#39;, &#39;r&#39;, &#39;b&#39;, &#39;n&#39;)</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>&quot;queen&quot; | &quot;rook&quot; | &quot;bishop&quot; | &quot;knight&quot;</code>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>&quot;queen&quot; | &quot;rook&quot; | &quot;bishop&quot; | &quot;knight&quot;</code>
 
-                        </div>
-                            <div class="io-description">
-                                <p>The corresponding chessground piece role (&#39;queen&#39;, &#39;rook&#39;, &#39;bishop&#39;, &#39;knight&#39;)</p>
+                    </div>
+                    <div class="io-description">
+                        <p>The corresponding chessground piece role (&#39;queen&#39;, &#39;rook&#39;, &#39;bishop&#39;, &#39;knight&#39;)</p>
 
-                            </div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1047,58 +994,60 @@ synchronous event handler compatibility with chessground.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Generates a map of possible destination squares for each piece on the board.</p>
+                    <div class="io-description"><p>Generates a map of possible destination squares for each piece on the board.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>chess</td>
-                                            <td>
-                                                        <code>ChessInstance</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>chess</td>
+                                    <td>
+                                            <code>ChessInstance</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>An instance of the Chess game.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Map&lt;Key, Key[]&gt;</code>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>Map&lt;Key, Key[]&gt;</code>
 
-                        </div>
-                            <div class="io-description">
-                                <p>A map where the keys are the squares with pieces that have legal moves,
+                    </div>
+                    <div class="io-description">
+                        <p>A map where the keys are the squares with pieces that have legal moves,
 and the values are arrays of destination squares for those pieces.</p>
 
-                            </div>
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>    <h3>projects/ngx-chessground/src/units/enhanced-play.ts</h3>
-    <section data-compodoc="block-methods">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1121,43 +1070,45 @@ and the values are arrays of destination squares for those pieces.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Creates enhanced chess units that use promotion dialogs instead of prompts.
+                    <div class="io-description"><p>Creates enhanced chess units that use promotion dialogs instead of prompts.
 This factory function requires a PromotionService to be injected.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>promotionService</td>
-                                            <td>
-                                                            <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>promotionService</td>
+                                    <td>
+                                                <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>    <h3>projects/ngx-chessground/src/units/play.ts</h3>
-    <section data-compodoc="block-methods">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1180,43 +1131,45 @@ This factory function requires a PromotionService to be injected.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Factory function to create units that use dialog-based promotion.
+                    <div class="io-description"><p>Factory function to create units that use dialog-based promotion.
 This allows the components to pass in the PromotionService dependency.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>promotionService</td>
-                                            <td>
-                                                            <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>promotionService</td>
+                                    <td>
+                                                <code><a href="../injectables/PromotionService.html" target="_self" >PromotionService</a></code>
+                                    </td>
 
-                                            <td>
-                                                    Yes
-                                            </td>
+                                    <td>
+                                        Yes
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>    <h3>projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</h3>
-    <section data-compodoc="block-methods">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1239,53 +1192,70 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Extracts metadata from a single game&#39;s PGN header tags.</p>
+<p>Parses White, Black, Result, WhiteElo, BlackElo, WhiteTitle, BlackTitle,
+ECO, TimeControl, and Event tags. Formats player names with title+Elo
+(e.g. <code>&quot;GM Carlsen (2850)&quot;</code>). Normalizes the time control field.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>pgn</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>pgn</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>index</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/GameMetadata.html" target="_self" >GameMetadata</a></code>
+                                    <td>
+                                        <p>— Raw PGN string for a single game.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>index</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Zero-based game index (result&#39;s <code>number</code> will be <code>index + 1</code>).</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="../interfaces/GameMetadata.html" target="_self" >GameMetadata</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>Populated {@link GameMetadata} object.</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1312,41 +1282,59 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Extracts SAN moves from a PGN string without using a full chess engine parser.</p>
+<p>Used for filtering by opening moves — faster than full chess.js parsing.
+Steps:</p>
+<ol>
+<li>Isolates move text after header tags, handling bracket comments like <code>[%clk ...]</code>.</li>
+<li>Strips <code>{ ... }</code> and <code>( ... )</code> comments and <code>; ...</code> line comments.</li>
+<li>Removes move numbers, result markers, and NAG symbols (<code>$1</code>, <code>$2</code>).</li>
+<li>Splits by whitespace, strips <code>!</code>/<code>?</code> annotations, and validates SAN format.</li>
+</ol>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>pgn</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>pgn</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>string[]</code>
+                                    <td>
+                                        <p>— Raw PGN string for a single game (header tags + move text).</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>string[]</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>Array of clean, validated SAN move strings.</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1373,46 +1361,62 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Filters the currently loaded game collection by the given criteria.</p>
+<p>Matches are case-insensitive substring comparisons. When <code>moves</code> is <code>true</code>,
+tests whether each game&#39;s opening sequence starts with <code>targetMoves</code>.
+Posts a <code>&#39;filter&#39;</code> response with an array of matching game indices.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>criteria</td>
-                                            <td>
-                                                            <code><a href="../interfaces/FilterCriteria.html" target="_self" >FilterCriteria</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>criteria</td>
+                                    <td>
+                                                <code><a href="../interfaces/FilterCriteria.html" target="_self" >FilterCriteria</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <td>
+                                        <p>— Filter parameters (player names, ECO, result, ratings, opening moves).</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Correlation ID echoed in the response.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1439,46 +1443,60 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Loads raw PGN text: splits into individual games, filters out non-Standard variants,
+extracts metadata, and posts a <code>&#39;load&#39;</code> response with game count and metadata.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>pgn</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>pgn</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <td>
+                                        <p>— Raw PGN string potentially containing multiple games.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Correlation ID echoed in the response.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1505,46 +1523,63 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Parses the full move data for a single game by index.</p>
+<p>Uses chess.js for primary parsing with fallback to chessops and stripped-comment parsing.
+Extracts move evaluations from <code>[%eval ...]</code> comment annotations when available.
+Results are cached in <a href="../miscellaneous/variables.html#gameMovesCache">gameMovesCache</a> to avoid re-parsing.
+Posts a <code>&#39;loadGame&#39;</code> response with moves, cleaned PGN, evaluations, and optional error.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>index</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>index</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <td>
+                                        <p>— Zero-based game index in the <code>games</code> array.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Correlation ID echoed in the response.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1571,41 +1606,57 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Normalizes PGN result strings into a canonical form.</p>
+<ul>
+<li><code>&quot;1-0&quot;</code> → <code>&quot;1-0&quot;</code> (white win)</li>
+<li><code>&quot;0-1&quot;</code> → <code>&quot;0-1&quot;</code> (black win)</li>
+<li><code>&quot;½-½&quot;</code>, <code>&quot;1/2-1/2&quot;</code> → <code>&quot;draw&quot;</code></li>
+<li>Unknown/unparseable → lowercased as-is</li>
+</ul>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>result</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>result</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    <td>
+                                        <p>— Raw result string from a PGN <code>[Result &quot;...&quot;]</code> header.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>Canonical result string.</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1632,41 +1683,59 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Normalizes a PGN <code>[TimeControl &quot;...&quot;]</code> value into a uniform <code>&quot;baseSeconds+incrementSeconds&quot;</code> format.</p>
+<p>Handles formats including:</p>
+<ul>
+<li><code>&quot;h:m:s&quot;</code> (e.g. <code>&quot;1:30:0&quot;</code> → <code>&quot;5400+0&quot;</code>)</li>
+<li><code>&quot;m:s&quot;</code> (e.g. <code>&quot;90+30&quot;</code> → <code>&quot;5400+30&quot;</code>)</li>
+<li><code>&quot;base+inc&quot;</code> (e.g. <code>&quot;180+2&quot;</code> → <code>&quot;180+2&quot;</code>)</li>
+<li>Textual: <code>&quot;90 min + 30 sec&quot;</code>, <code>&quot;3&#39;&quot;</code>, <code>&quot;3 min&quot;</code>, etc.</li>
+</ul>
+<p>Heuristic: base values ≤ 180 are treated as minutes unless a <code>min</code>/<code>mins</code>/<code>&#39;</code> suffix is present.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>raw</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>raw</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    Yes
-                                            </td>
+                                    <td>
+                                        Yes
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>string | undefined</code>
+                                    <td>
+                                        <p>— Raw time control string from the PGN header, or <code>undefined</code>.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>string | undefined</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>Normalized string like <code>&quot;5400+30&quot;</code>, or <code>undefined</code> if unparseable.</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1693,47 +1762,59 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Splits a multi-game PGN string into individual game strings.</p>
+<p>Splits on <code>[Event &quot;...&quot;</code> tag boundaries, which marks the start of each game.
+Handles concatenated games where the tag may appear anywhere in the text.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>pgn</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>pgn</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>string[]</code>
+                                    <td>
+                                        <p>— Raw PGN string containing one or more games.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>string[]</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>Array of individual game PGN strings.</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>    <h3>projects/ngx-chessground/src/units/in3d.ts</h3>
-    <section data-compodoc="block-methods">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1756,44 +1837,46 @@ This allows the components to pass in the PromotionService dependency.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Creates a new <code>div</code> element, sets the class name of the provided container element to &quot;in3d staunton&quot;,
+                    <div class="io-description"><p>Creates a new <code>div</code> element, sets the class name of the provided container element to &quot;in3d staunton&quot;,
 clears its inner HTML, and appends the new <code>div</code> element to it.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cont</td>
-                                            <td>
-                                                        <code>HTMLElement</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>cont</td>
+                                    <td>
+                                            <code>HTMLElement</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                            <td>
-                                                    <ul>
+                                    <td>
+                                        <ul>
 <li>The container <code>HTMLElement</code> to be wrapped.</li>
 </ul>
 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -1831,19 +1914,6 @@ clears its inner HTML, and appends the new <code>div</code> element to it.</p>
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
-
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -1855,6 +1925,7 @@ clears its inner HTML, and appends the new <code>div</code> element to it.</p>
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

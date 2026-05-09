@@ -8,12 +8,33 @@ import {
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
+/**
+ * Data passed to the promotion dialog.
+ */
 export interface PromotionDialogData {
+	/** The color of the promoting pawn — determines piece set rendering. */
 	color: 'white' | 'black';
 }
 
+/**
+ * Legal promotion piece choices.
+ * - `'q'` — Queen
+ * - `'r'` — Rook
+ * - `'b'` — Bishop
+ * - `'n'` — Knight
+ */
 export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
+/**
+ * A Material dialog that lets the user choose a piece for pawn promotion.
+ *
+ * Displays four buttons (Queen, Rook, Bishop, Knight) styled with Unicode
+ * chess piece characters. On selection, the dialog closes with the chosen
+ * {@link PromotionPiece} string. If dismissed without selection, defaults to `'q'`.
+ *
+ * @remarks The component uses `ChangeDetectionStrategy.Default` for zoneless compatibility
+ *          but has been partially migrated and may be switched to `OnPush` after testing.
+ */
 @Component({
 	selector: 'ngx-promotion-dialog',
 	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
@@ -192,9 +213,16 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 	],
 })
 export class PromotionDialogComponent {
+	/** Reference to this dialog instance, used to close it with the selection result. */
 	readonly dialogRef = inject(MatDialogRef<PromotionDialogComponent>);
+	/** Dialog input data (reactive signal) containing the promoting pawn's color. */
   readonly data = signal(inject<PromotionDialogData>(MAT_DIALOG_DATA));
 
+	/**
+	 * Closes the dialog with the user's chosen promotion piece.
+	 *
+	 * @param piece — The selected piece: `'q'`, `'r'`, `'b'`, or `'n'`.
+	 */
 	selectPiece(piece: PromotionPiece): void {
 		this.dialogRef.close(piece);
 	}

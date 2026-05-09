@@ -10,10 +10,15 @@ import {
 	init,
 } from 'snabbdom';
 
-@Injectable()
 /**
  * Service to manage the Chessground instance and its rendering.
+ *
+ * Wraps snabbdom patching and chessground lifecycle. Each {@link NgxChessgroundComponent}
+ * instance creates its own service instance (provided at component level).
+ * Public methods (`redraw`, `toggleOrientation`) are called by the component;
+ * private helpers manage the virtual DOM tree and the chessground `Api` handle.
  */
+@Injectable()
 export class NgxChessgroundService {
 	/**
 	 * Initializes the patch function with the necessary modules.

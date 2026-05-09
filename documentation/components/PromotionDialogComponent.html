@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,7 +24,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -99,38 +34,30 @@
 
 
 
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Components</li>
-  <li class="breadcrumb-item"
+  <li>Components</li>
+  <li
   >
   PromotionDialogComponent</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
         </li>
-        <li class="nav-item">
-            <a href="#source" class="nav-link"
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
         </li>
-        <li class="nav-item">
-            <a href="#styleData" class="nav-link"
-                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        <li >
+            <a href="#styleData" role="tab" id="styleData-tab" data-toggle="tab" data-link="style">Styles</a>
         </li>
-        <li class="nav-item">
-            <a href="#tree" class="nav-link"
-                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        <li >
+            <a href="#tree" role="tab" id="tree-tab" data-toggle="tab" data-link="dom-tree">DOM Tree</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <div class="tab-pane fade active in" id="c-info"><p class="comment">
     <h3>File</h3>
 </p>
 <p class="comment">
@@ -138,16 +65,29 @@
 </p>
 
 
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>A Material dialog that lets the user choose a piece for pawn promotion.</p>
+<p>Displays four buttons (Queen, Rook, Bishop, Knight) styled with Unicode
+chess piece characters. On selection, the dialog closes with the chosen
+<a href="../miscellaneous/typealiases.html#PromotionPiece">PromotionPiece</a> string. If dismissed without selection, defaults to <code>&#39;q&#39;</code>.</p>
+<div><pre class="line-numbers"><code class="language-none">     but has been partially migrated and may be switched to `OnPush` after testing.</code></pre></div>
+    </p>
 
 
 
 
-<section data-compodoc="block-metadata">
+<section>
     <h3>Metadata</h3>
     <table class="table table-sm table-hover metadata">
         <tbody>
 
-
+            <tr>
+                <td class="col-md-3">changeDetection</td>
+                <td class="col-md-9"><code>ChangeDetectionStrategy.Default</code></td>
+            </tr>
 
 
 
@@ -165,19 +105,14 @@
 
 
             <tr>
-                <td class="col-md-3">imports</td>
-                <td class="col-md-9">
-                                <code><a href="https://angular.io/api/common/CommonModule" target="_blank" >CommonModule</a></code>
-                            <code>MatDialogModule</code>
-                            <code>MatButtonModule</code>
-                            <code>MatIconModule</code>
-                </td>
-            </tr>
-
-
-            <tr>
                 <td class="col-md-3">styles</td>
                 <td class="col-md-9"><code>
+    :host {
+      --promo-primary: #0369A1;
+      --promo-text: #0C4A6E;
+      --promo-border: #d0dde6;
+    }
+
     .promotion-dialog {
       padding: 0;
       min-width: 300px;
@@ -195,92 +130,100 @@
       flex-direction: column;
       align-items: center;
       padding: 20px 16px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
+      border: 2px solid var(--promo-border);
+      border-radius: 12px;
       background: white;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
       min-height: 100px;
     }
 
     .piece-button:hover {
-      border-color: #2196f3;
-      background: #f5f5f5;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-color: var(--promo-primary);
+      background: #e0f4ff;
+      box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
+    }
+
+    .piece-button:focus-visible {
+      outline: 3px solid var(--promo-primary);
+      outline-offset: 2px;
+    }
+
+    .piece-button:active {
+      transform: scale(0.97);
     }
 
     .piece-icon {
       width: 40px;
       height: 40px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .piece-label {
       font-size: 14px;
-      font-weight: 500;
-      color: #333;
+      font-weight: 600;
+      color: var(--promo-text);
     }
 
-    /* Chess piece icons using Unicode symbols as fallback */
     .piece-icon.queen.white::before {
       content: &#x27;♕&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.queen.black::before {
       content: &#x27;♛&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.white::before {
       content: &#x27;♖&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.black::before {
       content: &#x27;♜&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.white::before {
       content: &#x27;♗&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.black::before {
       content: &#x27;♝&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.white::before {
       content: &#x27;♘&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.black::before {
       content: &#x27;♞&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
 
     h2[mat-dialog-title] {
       text-align: center;
       margin: 0;
       padding: 20px 20px 0 20px;
-      color: #333;
+      color: var(--promo-text);
       font-size: 18px;
       font-weight: 600;
+      font-family: &quot;Poppins&quot;, &quot;Segoe UI&quot;, system-ui, sans-serif;
     }
   </code></td>
             </tr>
@@ -297,7 +240,7 @@
         (click)&#x3D;&quot;selectPiece(&#x27;q&#x27;)&quot;
         [attr.aria-label]&#x3D;&quot;&#x27;Promote to Queen&#x27;&quot;
       &gt;
-        &lt;div class&#x3D;&quot;piece-icon queen {{ data.color }}&quot;&gt;&lt;/div&gt;
+        &lt;div class&#x3D;&quot;piece-icon queen {{ data().color }}&quot;&gt;&lt;/div&gt;
         &lt;span class&#x3D;&quot;piece-label&quot;&gt;Queen&lt;/span&gt;
       &lt;/button&gt;
 
@@ -307,7 +250,7 @@
         (click)&#x3D;&quot;selectPiece(&#x27;r&#x27;)&quot;
         [attr.aria-label]&#x3D;&quot;&#x27;Promote to Rook&#x27;&quot;
       &gt;
-        &lt;div class&#x3D;&quot;piece-icon rook {{ data.color }}&quot;&gt;&lt;/div&gt;
+        &lt;div class&#x3D;&quot;piece-icon rook {{ data().color }}&quot;&gt;&lt;/div&gt;
         &lt;span class&#x3D;&quot;piece-label&quot;&gt;Rook&lt;/span&gt;
       &lt;/button&gt;
 
@@ -317,7 +260,7 @@
         (click)&#x3D;&quot;selectPiece(&#x27;b&#x27;)&quot;
         [attr.aria-label]&#x3D;&quot;&#x27;Promote to Bishop&#x27;&quot;
       &gt;
-        &lt;div class&#x3D;&quot;piece-icon bishop {{ data.color }}&quot;&gt;&lt;/div&gt;
+        &lt;div class&#x3D;&quot;piece-icon bishop {{ data().color }}&quot;&gt;&lt;/div&gt;
         &lt;span class&#x3D;&quot;piece-label&quot;&gt;Bishop&lt;/span&gt;
       &lt;/button&gt;
 
@@ -327,7 +270,7 @@
         (click)&#x3D;&quot;selectPiece(&#x27;n&#x27;)&quot;
         [attr.aria-label]&#x3D;&quot;&#x27;Promote to Knight&#x27;&quot;
       &gt;
-        &lt;div class&#x3D;&quot;piece-icon knight {{ data.color }}&quot;&gt;&lt;/div&gt;
+        &lt;div class&#x3D;&quot;piece-icon knight {{ data().color }}&quot;&gt;&lt;/div&gt;
         &lt;span class&#x3D;&quot;piece-label&quot;&gt;Knight&lt;/span&gt;
       &lt;/button&gt;
     &lt;/div&gt;
@@ -348,7 +291,7 @@
     </table>
 </section>
 
-    <section data-compodoc="block-index">
+    <section>
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -400,7 +343,7 @@
 
 
 
-    <section data-compodoc="block-methods">
+    <section>
     
     <h3 id="methods">
         Methods
@@ -418,62 +361,71 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>selectPiece(piece: <a href="../miscellaneous/typealiases.html#PromotionPiece" target="_self">PromotionPiece</a>)</code>
+<code>selectPiece(piece: <a href="../miscellaneouss/PromotionPiece.html" target="_self">PromotionPiece</a>)</code>
                 </td>
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="181"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts:181</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="226"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts:226</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Closes the dialog with the user&#39;s chosen promotion piece.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>piece</td>
-                                            <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#PromotionPiece" target="_self" >PromotionPiece</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>piece</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#PromotionPiece" target="_self" >PromotionPiece</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                                    <td>
+                                        <p>— The selected piece: <code>&#39;q&#39;</code>, <code>&#39;r&#39;</code>, <code>&#39;b&#39;</code>, or <code>&#39;n&#39;</code>.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>
-    <section data-compodoc="block-properties">
+    <section>
     
     <h3 id="inputs">
         Properties
@@ -492,21 +444,21 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>inject&lt;PromotionDialogData&gt;(MAT_DIALOG_DATA)</code>
+                        <i>Default value : </i><code>signal(inject&lt;PromotionDialogData&gt;(MAT_DIALOG_DATA))</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="179" class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts:179</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="219" class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts:219</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Dialog input data (reactive signal) containing the promoting pawn&#39;s color.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -524,21 +476,21 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
                         <i>Default value : </i><code>inject(MatDialogRef&lt;PromotionDialogComponent&gt;)</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="178" class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts:178</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="217" class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts:217</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Reference to this dialog instance, used to close it with the selection result.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -547,9 +499,9 @@
 </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="source">
+    <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CommonModule } from &#x27;@angular/common&#x27;;
-import { Component, inject } from &#x27;@angular/core&#x27;;
+import { ChangeDetectionStrategy, Component, inject, signal } from &#x27;@angular/core&#x27;;
 import { MatButtonModule } from &#x27;@angular/material/button&#x27;;
 import {
 	MAT_DIALOG_DATA,
@@ -558,15 +510,39 @@ import {
 } from &#x27;@angular/material/dialog&#x27;;
 import { MatIconModule } from &#x27;@angular/material/icon&#x27;;
 
+/**
+ * Data passed to the promotion dialog.
+ */
 export interface PromotionDialogData {
+	/** The color of the promoting pawn — determines piece set rendering. */
 	color: &#x27;white&#x27; | &#x27;black&#x27;;
 }
 
+/**
+ * Legal promotion piece choices.
+ * - &#x60;&#x27;q&#x27;&#x60; — Queen
+ * - &#x60;&#x27;r&#x27;&#x60; — Rook
+ * - &#x60;&#x27;b&#x27;&#x60; — Bishop
+ * - &#x60;&#x27;n&#x27;&#x60; — Knight
+ */
 export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; | &#x27;n&#x27;;
 
+/**
+ * A Material dialog that lets the user choose a piece for pawn promotion.
+ *
+ * Displays four buttons (Queen, Rook, Bishop, Knight) styled with Unicode
+ * chess piece characters. On selection, the dialog closes with the chosen
+ * {@link PromotionPiece} string. If dismissed without selection, defaults to &#x60;&#x27;q&#x27;&#x60;.
+ *
+ * @remarks The component uses &#x60;ChangeDetectionStrategy.Default&#x60; for zoneless compatibility
+ *          but has been partially migrated and may be switched to &#x60;OnPush&#x60; after testing.
+ */
 @Component({
 	selector: &#x27;ngx-promotion-dialog&#x27;,
 	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+  // TODO: This component has been partially migrated to be zoneless-compatible.
+  // After testing, this should be updated to ChangeDetectionStrategy.OnPush.
+  changeDetection: ChangeDetectionStrategy.Default,
 	template: &#x60;
     &lt;div class&#x3D;&quot;promotion-dialog&quot;&gt;
       &lt;h2 mat-dialog-title&gt;Choose Promotion Piece&lt;/h2&gt;
@@ -578,7 +554,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;q&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Queen&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon queen {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon queen {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Queen&lt;/span&gt;
           &lt;/button&gt;
           
@@ -588,7 +564,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;r&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Rook&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon rook {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon rook {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Rook&lt;/span&gt;
           &lt;/button&gt;
           
@@ -598,7 +574,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;b&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Bishop&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon bishop {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon bishop {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Bishop&lt;/span&gt;
           &lt;/button&gt;
           
@@ -608,7 +584,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;n&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Knight&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon knight {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon knight {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Knight&lt;/span&gt;
           &lt;/button&gt;
         &lt;/div&gt;
@@ -617,6 +593,12 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
   &#x60;,
 	styles: [
 		&#x60;
+    :host {
+      --promo-primary: #0369A1;
+      --promo-text: #0C4A6E;
+      --promo-border: #d0dde6;
+    }
+
     .promotion-dialog {
       padding: 0;
       min-width: 300px;
@@ -634,100 +616,115 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
       flex-direction: column;
       align-items: center;
       padding: 20px 16px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
+      border: 2px solid var(--promo-border);
+      border-radius: 12px;
       background: white;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
       min-height: 100px;
     }
 
     .piece-button:hover {
-      border-color: #2196f3;
-      background: #f5f5f5;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-color: var(--promo-primary);
+      background: #e0f4ff;
+      box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
+    }
+
+    .piece-button:focus-visible {
+      outline: 3px solid var(--promo-primary);
+      outline-offset: 2px;
+    }
+
+    .piece-button:active {
+      transform: scale(0.97);
     }
 
     .piece-icon {
       width: 40px;
       height: 40px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .piece-label {
       font-size: 14px;
-      font-weight: 500;
-      color: #333;
+      font-weight: 600;
+      color: var(--promo-text);
     }
 
-    /* Chess piece icons using Unicode symbols as fallback */
     .piece-icon.queen.white::before {
       content: &#x27;♕&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.queen.black::before {
       content: &#x27;♛&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.white::before {
       content: &#x27;♖&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.black::before {
       content: &#x27;♜&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.white::before {
       content: &#x27;♗&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.black::before {
       content: &#x27;♝&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.white::before {
       content: &#x27;♘&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.black::before {
       content: &#x27;♞&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
 
     h2[mat-dialog-title] {
       text-align: center;
       margin: 0;
       padding: 20px 20px 0 20px;
-      color: #333;
+      color: var(--promo-text);
       font-size: 18px;
       font-weight: 600;
+      font-family: &quot;Poppins&quot;, &quot;Segoe UI&quot;, system-ui, sans-serif;
     }
   &#x60;,
 	],
 })
 export class PromotionDialogComponent {
+	/** Reference to this dialog instance, used to close it with the selection result. */
 	readonly dialogRef &#x3D; inject(MatDialogRef&lt;PromotionDialogComponent&gt;);
-	readonly data &#x3D; inject&lt;PromotionDialogData&gt;(MAT_DIALOG_DATA);
+	/** Dialog input data (reactive signal) containing the promoting pawn&#x27;s color. */
+  readonly data &#x3D; signal(inject&lt;PromotionDialogData&gt;(MAT_DIALOG_DATA));
 
+	/**
+	 * Closes the dialog with the user&#x27;s chosen promotion piece.
+	 *
+	 * @param piece — The selected piece: &#x60;&#x27;q&#x27;&#x60;, &#x60;&#x27;r&#x27;&#x60;, &#x60;&#x27;b&#x27;&#x60;, or &#x60;&#x27;n&#x27;&#x60;.
+	 */
 	selectPiece(piece: PromotionPiece): void {
 		this.dialogRef.close(piece);
 	}
@@ -736,8 +733,14 @@ export class PromotionDialogComponent {
     </div>
 
 
-    <div class="tab-pane fade " id="styleData">
+    <div class="tab-pane fade " id="c-styleData">
             <pre class="line-numbers"><code class="language-scss">
+    :host {
+      --promo-primary: #0369A1;
+      --promo-text: #0C4A6E;
+      --promo-border: #d0dde6;
+    }
+
     .promotion-dialog {
       padding: 0;
       min-width: 300px;
@@ -755,98 +758,106 @@ export class PromotionDialogComponent {
       flex-direction: column;
       align-items: center;
       padding: 20px 16px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
+      border: 2px solid var(--promo-border);
+      border-radius: 12px;
       background: white;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
       min-height: 100px;
     }
 
     .piece-button:hover {
-      border-color: #2196f3;
-      background: #f5f5f5;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-color: var(--promo-primary);
+      background: #e0f4ff;
+      box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
+    }
+
+    .piece-button:focus-visible {
+      outline: 3px solid var(--promo-primary);
+      outline-offset: 2px;
+    }
+
+    .piece-button:active {
+      transform: scale(0.97);
     }
 
     .piece-icon {
       width: 40px;
       height: 40px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .piece-label {
       font-size: 14px;
-      font-weight: 500;
-      color: #333;
+      font-weight: 600;
+      color: var(--promo-text);
     }
 
-    /* Chess piece icons using Unicode symbols as fallback */
     .piece-icon.queen.white::before {
       content: &#x27;♕&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.queen.black::before {
       content: &#x27;♛&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.white::before {
       content: &#x27;♖&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.black::before {
       content: &#x27;♜&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.white::before {
       content: &#x27;♗&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.black::before {
       content: &#x27;♝&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.white::before {
       content: &#x27;♘&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.black::before {
       content: &#x27;♞&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
 
     h2[mat-dialog-title] {
       text-align: center;
       margin: 0;
       padding: 20px 20px 0 20px;
-      color: #333;
+      color: var(--promo-text);
       font-size: 18px;
       font-weight: 600;
+      font-family: &quot;Poppins&quot;, &quot;Segoe UI&quot;, system-ui, sans-serif;
     }
   
 </code></pre>
     </div>
 
-    <div class="tab-pane fade " id="tree">
+    <div class="tab-pane fade " id="c-tree">
         <div id="tree-container"></div>
         <div class="tree-legend">
             <div class="title">
@@ -867,18 +878,16 @@ export class PromotionDialogComponent {
     
 </div>
 
-<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/vis.min.js"></script>
 <script src="../js/libs/htmlparser.js"></script>
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
-        var COMPONENT_TEMPLATE = '<div><div class="promotion-dialog">  <h2 mat-dialog-title>Choose Promotion Piece</h2>  <mat-dialog-content>    <div class="promotion-pieces">      <button        mat-button        class="piece-button queen-btn"        (click)="selectPiece(\'q\')"        [attr.aria-label]="\'Promote to Queen\'"      >        <div class="piece-icon queen {{ data.color }}"></div>        <span class="piece-label">Queen</span>      </button>      <button        mat-button        class="piece-button rook-btn"        (click)="selectPiece(\'r\')"        [attr.aria-label]="\'Promote to Rook\'"      >        <div class="piece-icon rook {{ data.color }}"></div>        <span class="piece-label">Rook</span>      </button>      <button        mat-button        class="piece-button bishop-btn"        (click)="selectPiece(\'b\')"        [attr.aria-label]="\'Promote to Bishop\'"      >        <div class="piece-icon bishop {{ data.color }}"></div>        <span class="piece-label">Bishop</span>      </button>      <button        mat-button        class="piece-button knight-btn"        (click)="selectPiece(\'n\')"        [attr.aria-label]="\'Promote to Knight\'"      >        <div class="piece-icon knight {{ data.color }}"></div>        <span class="piece-label">Knight</span>      </button>    </div>  </mat-dialog-content></div></div>'
+        var COMPONENT_TEMPLATE = '<div><div class="promotion-dialog">  <h2 mat-dialog-title>Choose Promotion Piece</h2>  <mat-dialog-content>    <div class="promotion-pieces">      <button        mat-button        class="piece-button queen-btn"        (click)="selectPiece(\'q\')"        [attr.aria-label]="\'Promote to Queen\'"      >        <div class="piece-icon queen {{ data().color }}"></div>        <span class="piece-label">Queen</span>      </button>      <button        mat-button        class="piece-button rook-btn"        (click)="selectPiece(\'r\')"        [attr.aria-label]="\'Promote to Rook\'"      >        <div class="piece-icon rook {{ data().color }}"></div>        <span class="piece-label">Rook</span>      </button>      <button        mat-button        class="piece-button bishop-btn"        (click)="selectPiece(\'b\')"        [attr.aria-label]="\'Promote to Bishop\'"      >        <div class="piece-icon bishop {{ data().color }}"></div>        <span class="piece-label">Bishop</span>      </button>      <button        mat-button        class="piece-button knight-btn"        (click)="selectPiece(\'n\')"        [attr.aria-label]="\'Promote to Knight\'"      >        <div class="piece-icon knight {{ data().color }}"></div>        <span class="piece-label">Knight</span>      </button>    </div>  </mat-dialog-content></div></div>'
     var COMPONENTS = [{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'},{'name': 'NgxPgnViewerComponent', 'selector': 'ngx-pgn-viewer'},{'name': 'PromotionDialogComponent', 'selector': 'ngx-promotion-dialog'}];
     var DIRECTIVES = [];
     var ACTUAL_COMPONENT = {'name': 'PromotionDialogComponent'};
 </script>
 <script src="../js/tree.js"></script>
-
-
 
 
 
@@ -924,19 +933,6 @@ export class PromotionDialogComponent {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
-
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -948,6 +944,7 @@ export class PromotionDialogComponent {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

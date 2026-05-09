@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="./styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="./" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="./" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,13 +24,12 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content readme">
+               <div class="content getting-started">
                    <div class="content-data">
-
 
 <div align="center">
   <h1>♟️ NgxChessground</h1>
@@ -114,7 +48,7 @@
 
 <hr />
 
-<h2>💖 Sponsor this Project</h2>
+<h2 id="💖-sponsor-this-project">💖 Sponsor this Project</h2>
 <p>If you are a chess lover and find this project useful, please consider sponsoring it to support further development! </p>
 <p><strong><a href="https://github.com/sponsors/topce">👉 Sponsor on GitHub</a></strong></p>
 <p>Your support helps me maintain the library, add new features, and keep the application up-to-date with the latest Angular and Chessground releases.</p>
@@ -132,14 +66,17 @@
 <li>In your PR, include the <strong>PGN file</strong>, brief <strong>game details</strong>, and your <strong>Sponsor Name</strong>.</li>
 </ol>
 <hr>
-<h2>🚀 Features</h2>
-<h3>🛠️ Library Features</h3>
+<h2 id="🚀-features">🚀 Features</h2>
+<h3 id="🛠️-library-features">🛠️ Library Features</h3>
 <ul>
-<li>🧩 <strong>Complete Angular Wrapper</strong>: Seamlessly adds <a href="https://github.com/ornicar/chessground">ornicar/chessground</a> into any Angular application.</li>
-<li>⚡ <strong>Full Compatibility</strong>: All features from the original chessground library are preserved.</li>
-<li>🆙 <strong>Modern Angular</strong>: Compatible with Angular 21 out of the box.</li>
+<li>🧩 <strong>Standalone Components</strong>: <code>NgxChessgroundComponent</code>, <code>NgxChessgroundTableComponent</code>, <code>NgxPgnViewerComponent</code> — all standalone, import-ready.</li>
+<li>⚡ <strong>Full chessground API Access</strong>: The <code>runFunction</code> input gives you direct access to the chessground <code>Api</code> for complete control over board state, moves, animations, and events.</li>
+<li>📦 <strong>Pre-built Unit Presets</strong>: <code>initial</code>, <code>castling</code>, <code>playVsRandom</code>, <code>playFullRandom</code>, <code>slowAnim</code>, and more — pre-configured board setups ready to drop in.</li>
+<li>🔧 <strong>Utility Functions</strong>: Exported helpers — <code>toDests()</code>, <code>toColor()</code>, <code>playOtherSide()</code>, <code>aiPlay()</code> — for building custom chess UIs.</li>
+<li>🎨 <strong>Promotion Dialog</strong>: Built-in Material dialog for pawn promotion selection with queen/rook/bishop/knight options.</li>
+<li>🆙 <strong>Modern Angular</strong>: Standalone components, signal-based inputs, compatible with Angular 21 out of the box.</li>
 </ul>
-<h3>🎮 Application Features (PGN Viewer &amp; Demo)</h3>
+<h3 id="🎮-application-features-pgn-viewer--demo">🎮 Application Features (PGN Viewer &amp; Demo)</h3>
 <ul>
 <li>📖 <strong>Comprehensive PGN Viewer</strong>: Load and navigate through complex chess games effortlessly.</li>
 <li>⏪ <strong>Game Replay Options</strong>:<ul>
@@ -167,7 +104,7 @@
 <li>📥 <strong>Progressive Web App (PWA)</strong>: Installable as a standalone app directly on your device.</li>
 </ul>
 <hr>
-<h2>📚 How to Use the Application</h2>
+<h2 id="📚-how-to-use-the-application">📚 How to Use the Application</h2>
 <p>The demo application (<code>ngx-chessground-example</code>) is a powerful tool for exploring chess games and features. Here are a few guides to get you started:</p>
 <details>
 <summary><strong>📱 Install as SPA (PWA)</strong></summary>
@@ -197,42 +134,62 @@
 <li>The UI will display Stockfish&#39;s suggested best move and the optimal continuation line (PV), allowing you to study the critical moment.</details></li>
 </ol>
 <hr>
-<h2>🏗️ Repository Structure</h2>
+<h2 id="🏗️-repository-structure">🏗️ Repository Structure</h2>
 <p>This repository contains two robust projects:</p>
 <ol>
 <li>📦 <strong>ngx-chessground</strong> - The core Angular library.</li>
 <li>🕹️ <strong>ngx-chessground-example</strong> - The fully-featured demo application and PGN viewer.</li>
 </ol>
 <hr>
-<h2>📦 Installation</h2>
-<h3>For Users</h3>
+<h2 id="📦-installation">📦 Installation</h2>
+<h3 id="for-users">For Users</h3>
 <p>Install the library in your Angular project via npm:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm install ngx-chessground chess.js chessground snabbdom</code></pre></div><h3>For Contributors</h3>
+<div><pre class="line-numbers"><code class="language-bash">npm install ngx-chessground chess.js chessground snabbdom</code></pre></div><h3 id="for-contributors">For Contributors</h3>
 <p>Clone and set up the development environment quickly:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">git clone https://github.com/topce/ngx-chessground.git
+<div><pre class="line-numbers"><code class="language-bash">git clone https://github.com/topce/ngx-chessground.git
 cd ngx-chessground
 npm install
 npm start</code></pre></div><hr>
-<h2>💻 Usage Quick Start</h2>
-<p>First, import the module:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-typescript">import { NgxChessgroundModule } from &#39;ngx-chessground&#39;;
+<h2 id="💻-usage-quick-start">💻 Usage Quick Start</h2>
+<p>All components are <strong>standalone</strong> — import them directly.</p>
+<div><pre class="line-numbers"><code class="language-typescript">import { Component, signal } from &#39;&#64;angular/core&#39;;
+import { NgxChessgroundComponent } from &#39;ngx-chessground&#39;;
+import { Chessground } from &#39;chessground&#39;;
+import type { Api } from &#39;chessground/api&#39;;
 
-&#64;NgModule({
-  imports: [
-    NgxChessgroundModule
-  ]
+&#64;Component({
+  selector: &#39;app-board&#39;,
+  standalone: true,
+  imports: [NgxChessgroundComponent],
+  template: `&lt;ngx-chessground [runFunction]=&quot;myFn()&quot; /&gt;`
 })
-export class AppModule { }</code></pre></div><p>Then use the component in your template:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html">&lt;ngx-chessground
-  [width]=&quot;400&quot;
-  [height]=&quot;400&quot;
-  [config]=&quot;config&quot;&gt;
-&lt;/ngx-chessground&gt;</code></pre></div><hr>
-<h2>📖 Documentation</h2>
-<p>To generate and view the detailed documentation locally:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run compodoc</code></pre></div><p>The documentation server will start at <code>http://localhost:9090</code></p>
+export class BoardComponent {
+  groundApi = signal&lt;Api | null&gt;(null);
+
+  myFn = signal&lt;(el: HTMLElement) =&gt; Api&gt;((el) =&gt; {
+    const api = Chessground(el, {
+      fen: &#39;rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1&#39;,
+      orientation: &#39;white&#39;,
+      movable: { free: true, color: &#39;both&#39; }
+    });
+    this.groundApi.set(api);
+    return api;
+  });
+}</code></pre></div><p>The <code>runFunction</code> input receives the mounted DOM element and returns a chessground <code>Api</code> instance — giving you full control over board configuration.</p>
+<p>For PGN viewing, use the pre-built viewer component:</p>
+<div><pre class="line-numbers"><code class="language-html">&lt;ngx-pgn-viewer
+  [pgn]=&quot;pgnString&quot;
+  [highlightLastMove]=&quot;true&quot;
+/&gt;</code></pre></div><blockquote>
+<p>See the <a href="./projects/ngx-chessground/README.md"><strong>library README</strong></a> for comprehensive API documentation covering all components, services, unit presets, and utility functions.</p>
+</blockquote>
 <hr>
-<h2>📊 Version Compatibility</h2>
+<h2 id="📖-documentation">📖 Documentation</h2>
+<p>Comprehensive API documentation is available in the <a href="./projects/ngx-chessground/README.md">library README</a>.</p>
+<p>To generate and view detailed Compodoc documentation locally:</p>
+<div><pre class="line-numbers"><code class="language-bash">npm run compodoc</code></pre></div><p>The documentation server will start at <code>http://localhost:9090</code></p>
+<hr>
+<h2 id="📊-version-compatibility">📊 Version Compatibility</h2>
 <table class="table table-bordered compodoc-table">
 <thead>
 <tr>
@@ -272,17 +229,12 @@ export class AppModule { }</code></pre></div><p>Then use the component in your t
 </tbody>
 </table>
 <hr>
-<h2>🤝 Contributing</h2>
+<h2 id="🤝-contributing">🤝 Contributing</h2>
 <p>Contributions, issues, and feature requests are welcome! 
 Feel free to check out the <a href="https://github.com/topce/ngx-chessground/issues">issues page</a> or submit a Pull Request.</p>
 <hr>
-<h2>📄 License</h2>
+<h2 id="📄-license">📄 License</h2>
 <p>Released under the <strong>GPL-3.0</strong> License (or later).</p>
-
-
-
-
-
 
 
 
@@ -327,23 +279,10 @@ Feel free to check out the <a href="https://github.com/topce/ngx-chessground/iss
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 0;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'readme';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
             var COMPODOC_CURRENT_PAGE_URL = 'index.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
-
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
 
        <script src="./js/libs/custom-elements.min.js"></script>
        <script src="./js/libs/lit-html.js"></script>
@@ -356,6 +295,7 @@ Feel free to check out the <a href="https://github.com/topce/ngx-chessground/iss
        <script src="./js/libs/es6-shim.min.js"></script>
        <script src="./js/libs/EventDispatcher.js"></script>
        <script src="./js/libs/promise.min.js"></script>
+       <script src="./js/libs/zepto.min.js"></script>
 
        <script src="./js/compodoc.js"></script>
 

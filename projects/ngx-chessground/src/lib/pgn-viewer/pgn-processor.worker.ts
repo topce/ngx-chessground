@@ -3,35 +3,89 @@
 import { Chess } from 'chess.js';
 import { parsePgn } from 'chessops/pgn';
 
-// Define types for messages
+/**
+ * Discriminated union of messages sent from the main thread to the PGN processor worker.
+ *
+ * Each message includes an `id` correlation field echoed back in the response
+ * so callers can match requests with responses.
+ */
 export type WorkerMessage =
+	/** Load raw PGN text for parsing. */
 	| { type: 'load'; payload: string; id: number }
+	/** Filter the currently loaded games by {@link FilterCriteria}. */
 	| { type: 'filter'; payload: FilterCriteria; id: number }
+	/** Load the full move data for a game at the given index. */
 	| { type: 'loadGame'; payload: number; id: number };
 
+/**
+ * Criteria for filtering a parsed game collection in the PGN processor worker.
+ *
+ * All string fields are matched case-insensitively as substrings.
+ * Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when unset.
+ *
+ * @example
+ * ```typescript
+ * const criteria: FilterCriteria = {
+ *   white: 'carlsen',
+ *   black: '',
+ *   result: '1-0',
+ *   moves: true,
+ *   ignoreColor: false,
+ *   targetMoves: ['e4', 'e5', 'Nf3'],
+ *   minWhiteRating: 2500,
+ *   minBlackRating: 2400,
+ *   maxWhiteRating: Infinity,
+ *   maxBlackRating: Infinity,
+ *   eco: 'B33',
+ *   timeControl: '180+2',
+ *   event: '',
+ * };
+ * ```
+ */
 export interface FilterCriteria {
+	/** Filter by white player name (case-insensitive substring match). */
 	white: string;
+	/** Filter by black player name (case-insensitive substring match). */
 	black: string;
+	/** Comma-separated result strings: `"1-0"`, `"0-1"`, `"draw"`, or `"*"` for unfinished. */
 	result: string;
+	/** When `true`, filter games by the {@link targetMoves} opening sequence. */
 	moves: boolean;
+	/** When `true`, treat {@link white} and {@link black} fields as matching either color. */
 	ignoreColor: boolean;
+	/** SAN move sequence the game must be prefixed with (only used when {@link moves} is `true`). */
 	targetMoves: string[];
+	/** Minimum white Elo rating (inclusive). Default 0. */
 	minWhiteRating: number;
+	/** Minimum black Elo rating (inclusive). Default 0. */
 	minBlackRating: number;
+	/** Maximum white Elo rating (inclusive). Use `Infinity` for no upper bound. */
 	maxWhiteRating: number;
+	/** Maximum black Elo rating (inclusive). Use `Infinity` for no upper bound. */
 	maxBlackRating: number;
+	/** ECO code filter (case-insensitive substring, e.g. `"B33"`). */
 	eco: string;
+	/** Time control filter (case-insensitive substring, e.g. `"180+2"`). */
 	timeControl: string;
+	/** Event/tournament name filter (case-insensitive substring). */
 	event: string;
 }
 
+/**
+ * Discriminated union of responses sent from the PGN processor worker to the main thread.
+ *
+ * The `id` field matches the correlation ID from the originating {@link WorkerMessage}.
+ */
 export type WorkerResponse =
+	/** Response to a `'load'` message with game count and metadata. */
 	| {
 			type: 'load';
 			payload: { count: number; metadata: GameMetadata[] };
 			id: number;
 	  }
+	/** Response to a `'filter'` message with matching game indices. */
 	| { type: 'filter'; payload: number[]; id: number }
+	/** Response to a `'loadGame'` message with moves, cleaned PGN, evaluations, and optional error. */
 	| {
 			type: 'loadGame';
 			payload: {
@@ -42,24 +96,46 @@ export type WorkerResponse =
 			};
 			id: number;
 	  }
+	/** Error response for any message type. */
 	| { type: 'error'; payload: string; id: number };
 
+/**
+ * Metadata extracted from a single PGN game header.
+ *
+ * Used for displaying game lists, filtering, and sorting without parsing full move data.
+ * The `timeControlNormalized` field converts human-readable time controls
+ * (e.g. `"90+30"`, `"3:0"`) into a uniform `"baseSeconds+incrementSeconds"` format.
+ */
 export interface GameMetadata {
+	/** 1-based game number within the loaded PGN collection. */
 	number: number;
+	/** White player display name (includes title and Elo if present, e.g. `"GM Carlsen (2850)"`). */
 	white: string;
+	/** Black player display name (includes title and Elo if present). */
 	black: string;
+	/** Normalized result: `"1-0"`, `"0-1"`, `"½-½"`, or `"*"`. */
 	result: string;
+	/** White player Elo rating (0 if missing). */
 	whiteElo: number;
+	/** Black player Elo rating (0 if missing). */
 	blackElo: number;
+	/** ECO (Encyclopedia of Chess Openings) code (e.g. `"B33"`). */
 	eco?: string;
+	/** Raw time control string from the PGN header. */
 	timeControl?: string;
+	/** Normalized time control in `"seconds+increment"` format, or `undefined` if unparseable. */
 	timeControlNormalized?: string;
+	/** Event/tournament name from the PGN header. */
 	event?: string;
 }
 
-// State
+// --- Worker State ---
+
+/** Raw PGN text for each game, split by `[Event "..."` headers. */
 let games: string[] = [];
+/** Parsed metadata for each game (header tags only, no move data). */
 let gameMetadata: GameMetadata[] = [];
+/** LRU-like cache of parsed move arrays keyed by game index, cleared on re-filter. */
 const gameMovesCache = new Map<number, string[]>();
 
 addEventListener('message', ({ data }: { data: WorkerMessage }) => {
@@ -80,6 +156,13 @@ addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 	}
 });
 
+/**
+ * Loads raw PGN text: splits into individual games, filters out non-Standard variants,
+ * extracts metadata, and posts a `'load'` response with game count and metadata.
+ *
+ * @param pgn — Raw PGN string potentially containing multiple games.
+ * @param id — Correlation ID echoed in the response.
+ */
 function handleLoad(pgn: string, id: number) {
 	// Reset state
 	games = [];
@@ -109,6 +192,17 @@ function handleLoad(pgn: string, id: number) {
 	});
 }
 
+/**
+ * Normalizes PGN result strings into a canonical form.
+ *
+ * - `"1-0"` → `"1-0"` (white win)
+ * - `"0-1"` → `"0-1"` (black win)
+ * - `"½-½"`, `"1/2-1/2"` → `"draw"`
+ * - Unknown/unparseable → lowercased as-is
+ *
+ * @param result — Raw result string from a PGN `[Result "..."]` header.
+ * @returns Canonical result string.
+ */
 function normalizeResult(result: string): string {
 	const lower = result.toLowerCase();
 	// Normalize draw results - convert both ½-½ and 1/2-1/2 to "draw"
@@ -127,6 +221,16 @@ function normalizeResult(result: string): string {
 	return lower;
 }
 
+/**
+ * Filters the currently loaded game collection by the given criteria.
+ *
+ * Matches are case-insensitive substring comparisons. When `moves` is `true`,
+ * tests whether each game's opening sequence starts with `targetMoves`.
+ * Posts a `'filter'` response with an array of matching game indices.
+ *
+ * @param criteria — Filter parameters (player names, ECO, result, ratings, opening moves).
+ * @param id — Correlation ID echoed in the response.
+ */
 function handleFilter(criteria: FilterCriteria, id: number) {
 	const {
 		white,
@@ -315,6 +419,17 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	});
 }
 
+/**
+ * Parses the full move data for a single game by index.
+ *
+ * Uses chess.js for primary parsing with fallback to chessops and stripped-comment parsing.
+ * Extracts move evaluations from `[%eval ...]` comment annotations when available.
+ * Results are cached in {@link gameMovesCache} to avoid re-parsing.
+ * Posts a `'loadGame'` response with moves, cleaned PGN, evaluations, and optional error.
+ *
+ * @param index — Zero-based game index in the `games` array.
+ * @param id — Correlation ID echoed in the response.
+ */
 function handleLoadGame(index: number, id: number) {
 	if (index < 0 || index >= games.length) {
 		throw new Error('Game index out of bounds');
@@ -479,6 +594,15 @@ function handleLoadGame(index: number, id: number) {
 
 // --- Helpers ---
 
+/**
+ * Splits a multi-game PGN string into individual game strings.
+ *
+ * Splits on `[Event "..."` tag boundaries, which marks the start of each game.
+ * Handles concatenated games where the tag may appear anywhere in the text.
+ *
+ * @param pgn — Raw PGN string containing one or more games.
+ * @returns Array of individual game PGN strings.
+ */
 function splitPgn(pgn: string): string[] {
 	// Split by [Event " tag, allowing for it to be anywhere (not just start of line)
 	// This handles cases where games are concatenated on the same line.
@@ -493,6 +617,17 @@ function splitPgn(pgn: string): string[] {
 	return result;
 }
 
+/**
+ * Extracts metadata from a single game's PGN header tags.
+ *
+ * Parses White, Black, Result, WhiteElo, BlackElo, WhiteTitle, BlackTitle,
+ * ECO, TimeControl, and Event tags. Formats player names with title+Elo
+ * (e.g. `"GM Carlsen (2850)"`). Normalizes the time control field.
+ *
+ * @param pgn — Raw PGN string for a single game.
+ * @param index — Zero-based game index (result's `number` will be `index + 1`).
+ * @returns Populated {@link GameMetadata} object.
+ */
 function extractGameInfo(pgn: string, index: number): GameMetadata {
 	const whiteMatch = pgn.match(/\[White\s+"([^"]+)"\]/);
 	const blackMatch = pgn.match(/\[Black\s+"([^"]+)"\]/);
@@ -542,6 +677,20 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 	};
 }
 
+/**
+ * Normalizes a PGN `[TimeControl "..."]` value into a uniform `"baseSeconds+incrementSeconds"` format.
+ *
+ * Handles formats including:
+ * - `"h:m:s"` (e.g. `"1:30:0"` → `"5400+0"`)
+ * - `"m:s"` (e.g. `"90+30"` → `"5400+30"`)
+ * - `"base+inc"` (e.g. `"180+2"` → `"180+2"`)
+ * - Textual: `"90 min + 30 sec"`, `"3'"`, `"3 min"`, etc.
+ *
+ * Heuristic: base values ≤ 180 are treated as minutes unless a `min`/`mins`/`'` suffix is present.
+ *
+ * @param raw — Raw time control string from the PGN header, or `undefined`.
+ * @returns Normalized string like `"5400+30"`, or `undefined` if unparseable.
+ */
 function normalizeTimeControl(raw?: string): string | undefined {
 	if (!raw) return undefined;
 	const trimmed = raw.trim();
@@ -613,6 +762,19 @@ function normalizeTimeControl(raw?: string): string | undefined {
 	return undefined;
 }
 
+/**
+ * Extracts SAN moves from a PGN string without using a full chess engine parser.
+ *
+ * Used for filtering by opening moves — faster than full chess.js parsing.
+ * Steps:
+ * 1. Isolates move text after header tags, handling bracket comments like `[%clk ...]`.
+ * 2. Strips `{ ... }` and `( ... )` comments and `; ...` line comments.
+ * 3. Removes move numbers, result markers, and NAG symbols (`$1`, `$2`).
+ * 4. Splits by whitespace, strips `!`/`?` annotations, and validates SAN format.
+ *
+ * @param pgn — Raw PGN string for a single game (header tags + move text).
+ * @returns Array of clean, validated SAN move strings.
+ */
 function extractMovesFast(pgn: string): string[] {
 	// 1. Isolate the move text (after the headers)
 	// NOTE: We must NOT use lastIndexOf(']') here because Lichess PGNs often

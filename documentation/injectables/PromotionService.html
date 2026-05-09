@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,7 +24,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -102,33 +37,22 @@
 
 
 
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >PromotionService</li>
+  <li>Injectables</li>
+  <li >PromotionService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" 
-                class="nav-link"
-                class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
         </li>
-        <li class="nav-item">
-            <a href="#source" 
-                class="nav-link"
-                
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="info">
+    <div class="tab-pane fade active in" id="c-info">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -137,10 +61,22 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Service that opens a Material dialog for pawn promotion selection.</p>
+<p>Used by chess units and components when a pawn reaches the eighth rank.
+The dialog presents Queen, Rook, Bishop, and Knight options.</p>
+<p>Provided at root level so any component can inject it.</p>
+<div><pre class="line-numbers"><code class="language-typescript">const promotionService = inject(PromotionService);
+const piece = await promotionService.showPromotionDialog(&#39;white&#39;);
+// piece is &#39;q&#39;, &#39;r&#39;, &#39;b&#39;, or &#39;n&#39;</code></pre></div>
+            </p>
 
 
 
-            <section data-compodoc="block-index">
+            <section>
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -186,7 +122,7 @@
 </section>
 
 
-            <section data-compodoc="block-methods">
+            <section>
     
     <h3 id="methods">
         Methods
@@ -197,7 +133,7 @@
                 <td class="col-md-4">
                     <a name="showPromotionDialog"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
+                        <span class="modifier">Async</span>
                         <span ><b>showPromotionDialog</b></span>
                         <a href="#showPromotionDialog"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -205,63 +141,76 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <span class="modifier-icon icon ion-ios-reset"></span>
                     <code>showPromotionDialog(color: "white" | "black")</code>
                 </td>
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="16"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion.service.ts:16</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="42"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion.service.ts:42</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Opens the promotion dialog and returns the user&#39;s selection.</p>
+<p>The dialog is modal (disableClose) with a backdrop.
+Defaults to Queen (&#39;q&#39;) if the dialog is dismissed without selection.</p>
+<div><pre class="line-numbers"><code class="language-none">     `&#39;b&#39;` (Bishop), or `&#39;n&#39;` (Knight).</code></pre></div></div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>color</td>
-                                            <td>
-                                                        <code>&quot;white&quot; | &quot;black&quot;</code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>color</td>
+                                    <td>
+                                            <code>&quot;white&quot; | &quot;black&quot;</code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#PromotionPiece" target="_self" >Promise&lt;PromotionPiece&gt;</a></code>
+                                    <td>
+                                        <p>— The color of the promoting pawn (&#39;white&#39; or &#39;black&#39;).</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#PromotionPiece" target="_self" >Promise&lt;PromotionPiece&gt;</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>A Promise resolving to the chosen piece: <code>&#39;q&#39;</code> (Queen), <code>&#39;r&#39;</code> (Rook),
+<code>&#39;b&#39;</code> (Bishop), or <code>&#39;n&#39;</code> (Knight).</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>
-            <section data-compodoc="block-properties">
+            <section>
     
     <h3 id="inputs">
         Properties
@@ -281,21 +230,21 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
                         <i>Default value : </i><code>inject(MatDialog)</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion.service.ts:14</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">projects/ngx-chessground/src/lib/promotion-dialog/promotion.service.ts:30</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Material dialog service used to open the promotion dialog.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -304,7 +253,7 @@
     </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="source">
+    <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, inject } from &#x27;@angular/core&#x27;;
 import { MatDialog } from &#x27;@angular/material/dialog&#x27;;
 import { firstValueFrom } from &#x27;rxjs&#x27;;
@@ -314,12 +263,38 @@ import {
 	type PromotionPiece,
 } from &#x27;./promotion-dialog.component&#x27;;
 
+/**
+ * Service that opens a Material dialog for pawn promotion selection.
+ *
+ * Used by chess units and components when a pawn reaches the eighth rank.
+ * The dialog presents Queen, Rook, Bishop, and Knight options.
+ *
+ * Provided at root level so any component can inject it.
+ *
+ * @example
+ * &#x60;&#x60;&#x60;typescript
+ * const promotionService &#x3D; inject(PromotionService);
+ * const piece &#x3D; await promotionService.showPromotionDialog(&#x27;white&#x27;);
+ * // piece is &#x27;q&#x27;, &#x27;r&#x27;, &#x27;b&#x27;, or &#x27;n&#x27;
+ * &#x60;&#x60;&#x60;
+ */
 @Injectable({
 	providedIn: &#x27;root&#x27;,
 })
 export class PromotionService {
+	/** Material dialog service used to open the promotion dialog. */
 	private readonly dialog &#x3D; inject(MatDialog);
 
+	/**
+	 * Opens the promotion dialog and returns the user&#x27;s selection.
+	 *
+	 * The dialog is modal (disableClose) with a backdrop.
+	 * Defaults to Queen (&#x27;q&#x27;) if the dialog is dismissed without selection.
+	 *
+	 * @param color — The color of the promoting pawn (&#x27;white&#x27; or &#x27;black&#x27;).
+	 * @returns A Promise resolving to the chosen piece: &#x60;&#x27;q&#x27;&#x60; (Queen), &#x60;&#x27;r&#x27;&#x60; (Rook),
+	 *          &#x60;&#x27;b&#x27;&#x60; (Bishop), or &#x60;&#x27;n&#x27;&#x60; (Knight).
+	 */
 	async showPromotionDialog(color: &#x27;white&#x27; | &#x27;black&#x27;): Promise&lt;PromotionPiece&gt; {
 		const dialogRef &#x3D; this.dialog.open(PromotionDialogComponent, {
 			width: &#x27;350px&#x27;,
@@ -336,7 +311,6 @@ export class PromotionService {
     </div>
 
 </div>
-
 
 
 
@@ -379,19 +353,6 @@ export class PromotionService {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
-
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -403,6 +364,7 @@ export class PromotionService {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

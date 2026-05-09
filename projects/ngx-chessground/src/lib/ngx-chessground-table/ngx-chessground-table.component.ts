@@ -9,6 +9,20 @@ import * as play from '../../units/play';
 import { NgxChessgroundComponent } from '../ngx-chessground/ngx-chessground.component';
 import { PromotionService } from '../promotion-dialog/promotion.service';
 
+/**
+ * A table-style chessboard demo component.
+ *
+ * Displays a single chessboard initialized with the "Play legal moves from initial position"
+ * unit preset, enhanced with dialog-based pawn promotion via {@link PromotionService}.
+ *
+ * Implements {@link AfterViewInit} to set the run function on the child
+ * {@link NgxChessgroundComponent} once the view is ready.
+ *
+ * @example
+ * ```html
+ * <ngx-chessground-table />
+ * ```
+ */
 @Component({
 	selector: 'ngx-chessground-table',
 	templateUrl: './ngx-chessground-table.component.html',
@@ -16,44 +30,24 @@ import { PromotionService } from '../promotion-dialog/promotion.service';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgxChessgroundComponent],
 })
-/**
- * The `NgxChessgroundTableComponent` class is an Angular component that implements the `AfterViewInit` lifecycle hook.
- * It is responsible for managing the chessboard table and initializing the chessground component after the view has been fully initialized.
- *
- * @class
- * @implements {AfterViewInit}
- *
- * @example
- * <ngx-chessground-table></ngx-chessground-table>
- *
- * @remarks
- * This component uses a signal-based view query to reference the `NgxChessgroundComponent` instance with the template reference variable `chess`.
- * The `ngAfterViewInit` lifecycle hook is used to set the initial run function for the `ngxChessgroundComponent`.
- *
- * @see https://angular.io/api/core/AfterViewInit
- */
 export class NgxChessgroundTableComponent implements AfterViewInit {
 	/**
-	 * A readonly property that references the `NgxChessgroundComponent` instance.
-	 * This property uses a signal-based view query to access the component with the template reference variable `chess`.
+	 * Signal-based view query for the child chessboard component.
 	 *
-	 * @readonly
-	 * @type {NgxChessgroundComponent}
+	 * References the `NgxChessgroundComponent` with template variable `#chess`.
+	 * Used in {@link ngAfterViewInit} to set the initial board configuration.
 	 */
 	readonly ngxChessgroundComponent =
 		viewChild.required<NgxChessgroundComponent>('chess');
 
+	/** Injected promotion dialog service for pawn promotion UX. */
 	private readonly promotionService = inject(PromotionService);
 
 	/**
-	 * Lifecycle hook that is called after a component's view has been fully initialized.
-	 * This method is used to perform any additional initialization tasks that require
-	 * access to the component's view.
+	 * Initializes the chessboard after the view is rendered.
 	 *
-	 * In this implementation, it sets the initial run function for the ngxChessgroundComponent.
-	 * Now uses enhanced units with promotion dialog support.
-	 *
-	 * @see https://angular.io/api/core/AfterViewInit
+	 * Creates unit presets enhanced with dialog-based promotion and assigns
+	 * the "initial" unit's run function to the child chessground component.
 	 */
 	ngAfterViewInit(): void {
 		const enhancedUnits = play.createPlayUnitsWithDialog(this.promotionService);

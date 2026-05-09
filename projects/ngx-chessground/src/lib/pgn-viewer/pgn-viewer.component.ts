@@ -29,6 +29,23 @@ import type {
 import { ECO_MOVES } from './eco-moves';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 
+/**
+ * A full-featured PGN viewer component for Angular applications.
+ *
+ * Supports loading single or multi-game PGN files, navigating moves, auto-replay
+ * with configurable timing modes, Stockfish-powered position analysis ("stop on error"),
+ * filtering by player/ECO/opening moves, and batch replay across multiple games.
+ *
+ * All components used are standalone. Import this component directly:
+ * ```typescript
+ * imports: [NgxPgnViewerComponent]
+ * ```
+ *
+ * @example Basic usage
+ * ```html
+ * <ngx-pgn-viewer [pgn]="pgnString" [highlightLastMove]="true" />
+ * ```
+ */
 @Component({
 	selector: 'ngx-pgn-viewer',
 	imports: [CommonModule, MatSnackBarModule, NgxChessgroundComponent],
@@ -37,33 +54,62 @@ import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgxPgnViewerComponent implements OnDestroy {
+	/** Service managing the PGN processor and Stockfish Web Workers. */
 	private readonly pgnViewerEngine = inject(PgnViewerEngineService);
+	/** Material snackbar service for user notifications. */
 	private readonly snackBar = inject(MatSnackBar);
 
-	// Inputs
+	// ---- Inputs ----
+
+	/**
+	 * PGN string to load and display.
+	 * Supports plain PGN, multi-game PGN, gzip-compressed (`.pgn.gz`), and ZIP archives.
+	 */
 	pgn = input<string>('');
+	/**
+	 * Whether to highlight the last played move on the board with colored squares.
+	 * @default true
+	 */
 	highlightLastMove = input<boolean>(true);
 
+	/**
+	 * Updates the white player name filter from an input event.
+	 * @param event — Input event from the white filter text field.
+	 */
 	updateFilterWhite(event: Event) {
 		this.filterWhite.set((event.target as HTMLInputElement).value);
 	}
 
+	/**
+	 * Updates the black player name filter from an input event.
+	 * @param event — Input event from the black filter text field.
+	 */
 	updateFilterBlack(event: Event) {
 		this.filterBlack.set((event.target as HTMLInputElement).value);
 	}
 
 	// ---- Typeahead Methods ----
 
+	/**
+	 * Opens the white player typeahead dropdown and resets the selection index.
+	 */
 	openWhiteTypeahead() {
 		this.whiteTypeaheadOpen.set(true);
 		this.whiteTypeaheadIndex.set(0);
 	}
 
+	/**
+	 * Opens the black player typeahead dropdown and resets the selection index.
+	 */
 	openBlackTypeahead() {
 		this.blackTypeaheadOpen.set(true);
 		this.blackTypeaheadIndex.set(0);
 	}
 
+	/**
+	 * Closes the white player typeahead dropdown after a 200ms delay
+	 * (allows mousedown on dropdown items to fire before close).
+	 */
 	closeWhiteTypeahead() {
 		// Cancel any existing close timeout
 		if (this.whiteTypeaheadCloseTimeout) {
@@ -77,6 +123,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}, 200);
 	}
 
+	/**
+	 * Closes the black player typeahead dropdown after a 200ms delay
+	 * (allows mousedown on dropdown items to fire before close).
+	 */
 	closeBlackTypeahead() {
 		if (this.blackTypeaheadCloseTimeout) {
 			clearTimeout(this.blackTypeaheadCloseTimeout);
@@ -88,6 +138,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}, 200);
 	}
 
+	/**
+	 * Handles input events on the white player typeahead, updating the filter
+	 * and keeping the dropdown open.
+	 * @param event — Input event from the white filter typeahead field.
+	 */
 	onWhiteTypeaheadInput(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.filterWhite.set(value);
@@ -101,6 +156,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.whiteTypeaheadIndex.set(0);
 	}
 
+	/**
+	 * Handles input events on the black player typeahead.
+	 * @param event — Input event from the black filter typeahead field.
+	 */
 	onBlackTypeaheadInput(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.filterBlack.set(value);
@@ -113,6 +172,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.blackTypeaheadIndex.set(0);
 	}
 
+	/**
+	 * Selects a player from the white typeahead dropdown and closes it.
+	 * @param player — The selected player name.
+	 */
 	selectWhiteTypeahead(player: string) {
 		// Cancel pending close timeout first
 		if (this.whiteTypeaheadCloseTimeout) {
@@ -125,6 +188,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.whiteTypeaheadIndex.set(0);
 	}
 
+	/**
+	 * Selects a player from the black typeahead dropdown and closes it.
+	 * @param player — The selected player name.
+	 */
 	selectBlackTypeahead(player: string) {
 		if (this.blackTypeaheadCloseTimeout) {
 			clearTimeout(this.blackTypeaheadCloseTimeout);
@@ -136,6 +203,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.blackTypeaheadIndex.set(0);
 	}
 
+	/**
+	 * Handles keyboard navigation in the white player typeahead dropdown.
+	 *
+	 * Arrow keys navigate the list, Enter selects, Escape closes.
+	 * If the dropdown is closed, ArrowDown/ArrowUp reopen it.
+	 *
+	 * @param event — Keyboard event from the white typeahead input field.
+	 */
 	onWhiteTypeaheadKeydown(event: KeyboardEvent) {
 		const items = this.filteredWhiteSuggestions();
 		if (!this.whiteTypeaheadOpen() || items.length === 0) {
@@ -173,6 +248,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Handles keyboard navigation in the black player typeahead dropdown.
+	 *
+	 * Arrow keys navigate the list, Enter selects, Escape closes.
+	 * If the dropdown is closed, ArrowDown/ArrowUp reopen it.
+	 *
+	 * @param event — Keyboard event from the black typeahead input field.
+	 */
 	onBlackTypeaheadKeydown(event: KeyboardEvent) {
 		const items = this.filteredBlackSuggestions();
 		if (!this.blackTypeaheadOpen() || items.length === 0) {
@@ -210,7 +293,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
-	// Utility: split text into segments for match highlighting
+	/**
+	 * Splits text into match/non-match segments for typeahead highlighting.
+	 *
+	 * Used to render bold matching portions of player names in the typeahead dropdown.
+	 *
+	 * @param text — Full text to segment (e.g. a player name).
+	 * @param query — Search query string to match against.
+	 * @returns Array of `{ text, match }` objects for template rendering.
+	 */
 	highlightText(
 		text: string,
 		query: string,
@@ -237,6 +328,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return segments;
 	}
 
+	/**
+	 * Updates the result filter from a multi-select dropdown change event.
+	 *
+	 * @param event — Change event from the result `<select>` element.
+	 */
 	updateFilterResult(event: Event) {
 		const select = event.target as HTMLSelectElement;
 		const selectedOptions = Array.from(select.selectedOptions).map(
@@ -245,34 +341,79 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterResult.set(selectedOptions);
 	}
 
+	/**
+	 * Updates the ECO code filter from a dropdown change event.
+	 *
+	 * @param event — Change event from the ECO `<select>` element.
+	 */
 	updateFilterEco(event: Event) {
 		this.filterEco.set((event.target as HTMLSelectElement).value);
 	}
 
+	/**
+	 * Updates the time control filter from a dropdown change event.
+	 *
+	 * @param event — Change event from the time control `<select>` element.
+	 */
 	updateFilterTimeControl(event: Event) {
 		this.filterTimeControl.set((event.target as HTMLSelectElement).value);
 	}
 
+	/**
+	 * Updates the minimum white rating filter from an input event.
+	 *
+	 * @param event — Input event from the white rating `<input>` field.
+	 */
 	updateFilterWhiteRating(event: Event) {
 		this.filterWhiteRating.set((event.target as HTMLInputElement).value);
 	}
 
+	/**
+	 * Updates the maximum white rating filter from an input event.
+	 *
+	 * @param event — Input event from the white rating max `<input>` field.
+	 */
 	updateFilterWhiteRatingMax(event: Event) {
 		this.filterWhiteRatingMax.set((event.target as HTMLInputElement).value);
 	}
 
+	/**
+	 * Updates the minimum black rating filter from an input event.
+	 *
+	 * @param event — Input event from the black rating `<input>` field.
+	 */
 	updateFilterBlackRating(event: Event) {
 		this.filterBlackRating.set((event.target as HTMLInputElement).value);
 	}
 
+	/**
+	 * Updates the maximum black rating filter from an input event.
+	 *
+	 * @param event — Input event from the black rating max `<input>` field.
+	 */
 	updateFilterBlackRatingMax(event: Event) {
 		this.filterBlackRatingMax.set((event.target as HTMLInputElement).value);
 	}
 
+	/**
+	 * Toggles the "ignore color" checkbox — when enabled, player name filters
+	 * match either white or black fields interchangeably.
+	 *
+	 * @param event — Change event from the ignore-color checkbox.
+	 */
 	toggleIgnoreColor(event: Event) {
 		this.ignoreColor.set((event.target as HTMLInputElement).checked);
 	}
 
+	/**
+	 * Toggles interactive opening-move filtering mode.
+	 *
+	 * When enabled, the board becomes editable so the user can play moves
+	 * to define an opening sequence filter. The current game position is
+	 * saved and restored when the mode is exited.
+	 *
+	 * @param event — Change event from the filter-moves checkbox.
+	 */
 	toggleFilterMoves(event: Event) {
 		const checked = (event.target as HTMLInputElement).checked;
 		this.filterMoves.set(checked);
@@ -290,52 +431,93 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Looks up the defining move sequence for an ECO opening code.
+	 *
+	 * @param code — ECO code (e.g. `"B33"`).
+	 * @returns Pipe-separated SAN move sequence, or empty string if not found.
+	 */
 	getOpeningMoves(code: string): string {
 		return ECO_MOVES[code] || '';
 	}
 
-	// State Signals
-	// games = signal<string[]>([]);
+	// ---- State Signals ----
+
+	/** Parsed game metadata for all games in the loaded PGN. */
 	gamesMetadata = signal<GameMetadata[]>([]);
+	/** Zero-based index of the currently active game. */
 	currentGameIndex = signal<number>(0);
+	/** Array of SAN move strings for the loaded game. */
 	moves = signal<string[]>([]);
-	currentMoveIndex = signal<number>(-1); // -1 means start position
+	/** Zero-based index of the current move (-1 means start position, before any move). */
+	currentMoveIndex = signal<number>(-1);
+	/** Current board position in FEN notation. */
 	currentFen = signal<string>(
 		'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 	);
+	/** Whether PGN data is being loaded/parsed. */
 	isLoading = signal<boolean>(false);
+	/** Loading progress percentage (0–100). */
 	loadingProgress = signal<number>(0);
+	/** Human-readable loading status message. */
 	loadingStatus = signal<string>('');
+	/** Set of selected game indices for batch operations like replay-all. */
 	selectedGames = signal<Set<number>>(new Set());
 
-	// Filter Signals
+	// ---- Filter Signals ----
+
+	/** Current white player filter text. */
 	filterWhite = signal<string>('');
+	/** Current black player filter text. */
 	filterBlack = signal<string>('');
+	/** Selected result filters (e.g. `["1-0", "draw"]`). */
 	filterResult = signal<string[]>([]);
+	/** Whether opening-move filtering is active. */
 	filterMoves = signal<boolean>(false);
+	/** Whether to swap white/black when filtering (match either color). */
 	ignoreColor = signal<boolean>(false);
+	/** Whether Elo rating filter fields are enabled. */
 	filterRatingEnabled = signal<boolean>(false);
+	/** Minimum white Elo rating filter value (as string for input binding). */
 	filterWhiteRating = signal<string>('2000');
+	/** Minimum black Elo rating filter value (as string for input binding). */
 	filterBlackRating = signal<string>('2000');
+	/** Maximum white Elo rating filter value (as string for input binding). */
 	filterWhiteRatingMax = signal<string>('2900');
+	/** Maximum black Elo rating filter value (as string for input binding). */
 	filterBlackRatingMax = signal<string>('2900');
+	/** ECO code filter value. */
 	filterEco = signal<string>('');
+	/** Time control filter value (e.g. `"180+2"`). */
 	filterTimeControl = signal<string>('');
+	/** Event/tournament name filter value. */
 	filterEvent = signal<string>('');
 
-	// Autocomplete Signals
+	// ---- Autocomplete Signals ----
+
+	/** Unique white player names from the loaded PGN (for typeahead). */
 	uniqueWhitePlayers = signal<string[]>([]);
+	/** Unique black player names from the loaded PGN (for typeahead). */
 	uniqueBlackPlayers = signal<string[]>([]);
 
-	// Typeahead State
+	// ---- Typeahead State ----
+
+	/** Whether the white player typeahead dropdown is open. */
 	whiteTypeaheadOpen = signal<boolean>(false);
+	/** Whether the black player typeahead dropdown is open. */
 	blackTypeaheadOpen = signal<boolean>(false);
+	/** Currently highlighted index in the white typeahead dropdown. */
 	whiteTypeaheadIndex = signal<number>(0);
+	/** Currently highlighted index in the black typeahead dropdown. */
 	blackTypeaheadIndex = signal<number>(0);
+	/** Timeout handle for delayed closing of the white typeahead dropdown. */
 	private whiteTypeaheadCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+	/** Timeout handle for delayed closing of the black typeahead dropdown. */
 	private blackTypeaheadCloseTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	// Typeahead Filtered Suggestions
+	// ---- Typeahead Filtered Suggestions ----
+
+	/** Filtered white player suggestions based on current filter text. */
 	filteredWhiteSuggestions = computed(() => {
 		const query = this.filterWhite().toLowerCase().trim();
 		if (!query) return this.uniqueWhitePlayers();
@@ -344,6 +526,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		);
 	});
 
+	/** Filtered black player suggestions based on current filter text. */
 	filteredBlackSuggestions = computed(() => {
 		const query = this.filterBlack().toLowerCase().trim();
 		if (!query) return this.uniqueBlackPlayers();
@@ -352,20 +535,24 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		);
 	});
 
+	/** Unique ECO codes mapped to occurrence counts in the loaded PGN. */
 	uniqueEcoCodes = signal<Map<string, number>>(new Map());
+	/** Unique time controls mapped to occurrence counts and original format strings. */
 	uniqueTimeControls = signal<
 		Map<string, { count: number; originals: Map<string, number> }>
 	>(new Map());
+	/** Unique event/tournament names mapped to occurrence counts. */
 	uniqueEvents = signal<Map<string, number>>(new Map());
 
-	// Computed for sorted ECO codes by popularity
+	/** ECO codes sorted by popularity (most frequent first). */
 	sortedEcoCodes = computed(() => {
 		const ecoMap = this.uniqueEcoCodes();
 		return Array.from(ecoMap.entries())
-			.sort((a, b) => b[1] - a[1]) // Sort by count descending
+			.sort((a, b) => b[1] - a[1])
 			.map(([code, count]) => ({ code, count }));
 	});
 
+	/** Time controls sorted by popularity with human-readable labels and original summaries. */
 	sortedTimeControls = computed(() => {
 		const tcMap = this.uniqueTimeControls();
 		return Array.from(tcMap.entries())
@@ -378,42 +565,54 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			}));
 	});
 
+	/** Events sorted by popularity (most frequent first). */
 	sortedEvents = computed(() => {
 		const eventMap = this.uniqueEvents();
 		return Array.from(eventMap.entries())
-			.sort((a, b) => b[1] - a[1]) // Sort by count descending
+			.sort((a, b) => b[1] - a[1])
 			.map(([event, count]) => ({ event, count }));
 	});
 
-	// Filtering State
+	// ---- Filtering State ----
+
+	/** Indices of games matching the current filter criteria. */
 	filteredGamesIndices = signal<number[]>([]);
+	/** Whether a filter operation is in progress. */
 	isFiltering = signal<boolean>(false);
-	// private filterTimeout: any = null;
+	/** Monotonic counter used as correlation ID for filter requests to the worker. */
 	private currentFilterId = 0;
-	// private gameMovesCache = new Map<number, string[]>(); // Moved to worker
+	/** When `true`, auto-select the first matching game after filtering completes. */
 	private autoSelectOnFinish = false;
+	/** View query for the move list scroll container. */
 	readonly moveList = viewChild<ElementRef<HTMLElement>>('moveList');
+	/** Currently active opening move sequence for interactive mode filtering. */
 	private activeFilterMoves: string[] = [];
+	/** Saved move index before entering filter-moves mode (restored when exiting). */
 	private savedGameMoveIndex: number | null = null;
+	/** Active deferred timeout handles that should be cancelled on destroy. */
 	private readonly pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
-	// Track moves made during interactive mode
+	/** Moves made by the user during interactive opening-move filtering mode. */
 	private interactiveMoves = signal<string[]>([]);
 
-	// Flag to uncheck filterMoves after filtering completes
+	/** Flag to uncheck the filter-moves toggle after a filter operation completes. */
 	private shouldUncheckFilterMoves = false;
 
-	// Computed values for better reactivity
+	// ---- Computed Values ----
+
+	/** Number of currently selected games for batch operations. */
 	selectedGamesCount = computed(() => this.selectedGames().size);
+	/** Whether the replay-all button should be visible (multiple games + selection). */
 	canShowReplayAll = computed(
 		() => this.gamesMetadata().length > 1 && this.selectedGamesCount() > 0,
 	);
+	/** Display string: "Game X of Y". */
 	currentGameInfo = computed(
 		() =>
 			`Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length} `,
 	);
 
-	// Current game player info
+	/** Display name of the white player for the current game. */
 	currentWhitePlayer = computed(() => {
 		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
@@ -426,6 +625,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return metadata[currentIndex].white;
 	});
 
+	/** Display name of the black player for the current game. */
 	currentBlackPlayer = computed(() => {
 		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
@@ -438,6 +638,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return metadata[currentIndex].black;
 	});
 
+	/** Formatted result string for the current game. */
 	currentGameResult = computed(() => {
 		const metadata = this.gamesMetadata();
 		const currentIndex = this.currentGameIndex();
@@ -450,10 +651,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return metadata[currentIndex].result;
 	});
 
-	// Last move squares for board highlighting
+	/**
+	 * Computed from-to squares of the last move for board highlighting.
+	 * Returns `undefined` when highlighting is disabled or no move has been played.
+	 */
 	lastMoveSquares = computed<[Key, Key] | undefined>(() => {
 		if (!this.highlightLastMove()) return undefined;
-		// Depend on currentMoveIndex and currentFen to trigger recomputation when position changes
 		this.currentMoveIndex();
 		this.currentFen();
 		const history = this.chess.history({ verbose: true });
@@ -462,48 +665,72 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return [lastMove.from as Key, lastMove.to as Key];
 	});
 
-	// Game information for display (filtered)
+	/** Filtered game metadata for the current filter results. */
 	filteredGameInfos = computed(() => {
 		const metadata = this.gamesMetadata();
 		const indices = this.filteredGamesIndices();
 		return indices.map((i) => metadata[i]);
 	});
 
-	// Replay State
+	// ---- Replay State ----
+
+	/** Replay timing mode: fixed, realtime (clock-based), or proportional scaling. */
 	replayMode = signal<'realtime' | 'proportional' | 'fixed'>('fixed');
-	proportionalDuration = signal<number>(1); // minutes
-	minSecondsBetweenMoves = signal<number>(1); // seconds
-	fixedTime = signal<number>(1); // seconds
+	/** Total duration in minutes when `replayMode` is `'proportional'`. */
+	proportionalDuration = signal<number>(1);
+	/** Minimum seconds between moves in `'proportional'` and `'realtime'` modes. */
+	minSecondsBetweenMoves = signal<number>(1);
+	/** Fixed seconds between moves when `replayMode` is `'fixed'`. */
+	fixedTime = signal<number>(1);
+	/** Whether to pause replay when a large evaluation change is detected. */
 	stopOnError = signal<boolean>(false);
+	/** Evaluation change threshold (in pawns) that triggers a stop. */
 	stopOnErrorThreshold = signal<number>(1.0);
 
-	// Clock State
+	// ---- Clock State ----
+
+	/** Display string for white's remaining clock time. */
 	whiteTimeRemaining = signal<string>('');
+	/** Display string for black's remaining clock time. */
 	blackTimeRemaining = signal<string>('');
+	/** Whether either clock has been populated (controls clock display visibility). */
 	showClocks = computed(
 		() => this.whiteTimeRemaining() !== '' || this.blackTimeRemaining() !== '',
 	);
 
-	// Computed for replay status
+	/** Whether a replay is currently in progress. */
 	isReplaying = signal<boolean>(false);
+	/** Whether the replay can be continued from the current move. */
 	canContinueReplay = computed(
 		() =>
 			!this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1,
 	);
 
-	// Stockfish State
-	// Stockfish State
+	// ---- Stockfish State ----
+
+	/** Whether Stockfish is currently analyzing a position. */
 	isAnalyzing = signal<boolean>(false);
+	/** Stockfish analysis result: best move, PV line, and optional score. */
 	bestMoveInfo = signal<{
 		move: string;
 		pv: { san: string; fen: string }[];
 		score?: string;
 	} | null>(null);
+	/** Whether to show the "Show Better Move" button after a stop-on-error event. */
 	showBetterMoveBtn = signal<boolean>(false);
+	/** Whether the Stockfish analysis panel is currently visible. */
 	analysisVisible = signal<boolean>(false);
 
-	// ... (keeping other props matching existing file if they were in range, but I'll try to target specific blocks)
-
+	/**
+	 * Converts UCI move strings to SAN notation with resulting FENs.
+	 *
+	 * Used by Stockfish message handling to convert the engine's UCI PV line
+	 * into human-readable SAN for display.
+	 *
+	 * @param fen — Starting FEN position.
+	 * @param uciMoves — Array of UCI move strings (e.g. `["e2e4", "e7e5"]`).
+	 * @returns Array of `{ san, fen }` objects, one per successful move.
+	 */
 	private uciToSan(
 		fen: string,
 		uciMoves: string[],
@@ -530,6 +757,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Handles UCI protocol messages from the Stockfish Web Worker.
+	 *
+	 * Parses `info ... pv ...` lines to extract the best move, PV line,
+	 * and score (centipawns or mate). Updates {@link bestMoveInfo} and
+	 * sets {@link isAnalyzing} to `false` on `bestmove`.
+	 *
+	 * @param event — Message event from the Stockfish worker.
+	 */
 	private handleStockfishMessage(event: MessageEvent) {
 		const line = event.data;
 		if (typeof line !== 'string') return;
@@ -599,15 +835,31 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Jumps the board display to a given FEN (used for PV preview in analysis).
+	 *
+	 * @param fen — FEN string to display on the board.
+	 */
 	previewPvMove(fen: string) {
 		this.currentFen.set(fen);
 	}
 
+	/** FEN position currently being analyzed by Stockfish. */
 	private analyzedFen: string | null = null;
 
-	// Stockfish Analysis Config
+	// ---- Stockfish Analysis Config ----
+
+	/** Stockfish search depth in plies. */
 	stockfishDepth = signal<number>(18);
 
+	/**
+	 * Sends a FEN position to Stockfish for analysis at the configured depth.
+	 *
+	 * Stops any in-progress analysis before starting. Sets {@link isAnalyzing}
+	 * and clears any previous {@link bestMoveInfo}.
+	 *
+	 * @param fen — FEN string of the position to analyze.
+	 */
 	analyzePosition(fen: string) {
 		if (!this.pgnViewerEngine.analyzePosition(fen, this.stockfishDepth())) {
 			return;
@@ -618,78 +870,102 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.analyzedFen = fen;
 	}
 
+	/**
+	 * Auto-plays the Stockfish best line on the board with 1-second delays.
+	 *
+	 * Iterates through the PV (principal variation) moves stored in
+	 * {@link bestMoveInfo} and displays each resulting FEN.
+	 */
 	async autoplayBestLine() {
 		const info = this.bestMoveInfo();
 		if (!info || !info.pv || info.pv.length === 0) return;
 
-		// Disable interactions or show indicator if needed
 		for (const move of info.pv) {
 			this.currentFen.set(move.fen);
-			// Wait for 1 second
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 	}
 
-	// UI State
+	// ---- UI State ----
+
+	/** Raw PGN text bound to the PGN textarea. */
 	pgnInput = signal<string>('');
+	/** URL input for fetching remote PGN files. */
 	urlInput = signal<string>('');
 
-	// Evaluation State
+	// ---- Evaluation State ----
+
+	/** Per-move evaluation strings from `[%eval ...]` PGN comments. */
 	evaluations = signal<(string | null)[]>([]);
+	/** Evaluation string at the current move index, or `null` at start position. */
 	currentEvaluation = computed(() => {
 		const evals = this.evaluations();
 		const index = this.currentMoveIndex();
 		if (index >= 0 && index < evals.length) {
 			return evals[index];
 		}
-		return null; // Start position or no eval
+		return null;
 	});
 
+	/**
+	 * Computed height percentage (0–100) for the evaluation bar.
+	 *
+	 * Maps centipawn scores linearly from -5.0 (0%) to +5.0 (100%).
+	 * Mate scores force 0% or 100%.
+	 */
 	evaluationBarHeight = computed(() => {
 		const evalStr = this.currentEvaluation();
-		if (!evalStr) return 50; // 50% for neutral/unknown
+		if (!evalStr) return 50;
 
-		// Handle mate
 		if (evalStr.startsWith('#')) {
 			const mateIn = parseInt(evalStr.substring(1), 10);
-			if (mateIn > 0) return 100; // White mates
-			if (mateIn < 0) return 0; // Black mates
-			return 50; // Should not happen for valid mate
+			if (mateIn > 0) return 100;
+			if (mateIn < 0) return 0;
+			return 50;
 		}
 
-		// Handle numeric eval
 		const evalNum = parseFloat(evalStr);
 		if (Number.isNaN(evalNum)) return 50;
 
-		// Sigmoid-like clamping
-		// +5 is winning (near 100%), -5 is losing (near 0%)
-		// 0 is 50%
-		// Formula: 50 + (eval / 10) * 50, clamped to [5, 95] to always show some color?
-		// Or standard sigmoid: 1 / (1 + exp(-k * eval))
-		// Let's use a simple linear clamp for now, maxing out at +/- 5.0
 		const maxEval = 5.0;
 		const clampedEval = Math.max(-maxEval, Math.min(maxEval, evalNum));
 		const percentage = 50 + (clampedEval / maxEval) * 50;
 		return percentage;
 	});
 
+	/** Active side to move: `'w'` or `'b'` parsed from the current FEN. */
 	activeColor = computed(() => {
 		const fen = this.currentFen();
 		const parts = fen.split(' ');
 		return parts.length > 1 ? parts[1] : 'w';
 	});
 
-	// Lichess Database Date Picker State - using model for two-way binding
+	// ---- Lichess Database Date Picker State ----
+
+	/** Selected year for Lichess database queries (two-way bound via `model`). */
 	lichessYear = model<number>(new Date().getFullYear());
+	/** Selected month (1–12) for Lichess database queries (two-way bound via `model`). */
 	lichessMonth = model<number>(1);
 
-	// Internal Objects
+	// ---- Internal Objects ----
+
+	/** chess.js instance used for move validation and board state management. */
 	private chess = new Chess();
+	/** Active replay timeout handles (cleared when replay stops). */
 	private replayTimeouts: ReturnType<typeof setTimeout>[] = [];
+	/** Resolve function for the replay-async Promise (called when replay completes). */
 	private replayResolve: (() => void) | null = null;
+	/** Whether a batch replay sequence across multiple games is in progress. */
 	private isReplayingSequence = false;
 
-	// Computed
+	/**
+	 * Computed run function for the child {@link NgxChessgroundComponent}.
+	 *
+	 * Reacts to changes in FEN, filter-moves mode, and last-move squares.
+	 * In filter-moves mode the board is editable with legal-move highlighting;
+	 * otherwise it is view-only. This is the primary binding between the
+	 * PGN viewer state and the chessboard display.
+	 */
 	runFunction = computed<(el: HTMLElement) => Api>(() => {
 		const fen = this.currentFen();
 		const isEditable = this.filterMoves();
@@ -715,7 +991,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		};
 	});
 
-	// Helper method to get legal move destinations for the current position
+	/**
+	 * Computes legal move destinations for the current chess.js position.
+	 *
+	 * Returns a `Map<fromSquare, toSquare[]>` suitable for chessground's
+	 * `movable.dests` configuration in interactive filter-moves mode.
+	 *
+	 * @returns Map of legal destination squares keyed by origin square.
+	 */
 	private getMovableDests(): Map<Key, Key[]> {
 		const dests = new Map<Key, Key[]>();
 		const moves = this.chess.moves({ verbose: true });
@@ -734,7 +1017,16 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return dests;
 	}
 
-	// Helper method to handle moves made on the board
+	/**
+	 * Processes a move made by the user on the interactive board during filter-moves mode.
+	 *
+	 * If the move is legal, it's appended to {@link interactiveMoves} and the
+	 * board is updated via chess.js. The move is added to {@link activeFilterMoves}
+	 * if it belongs to the opening line being filtered.
+	 *
+	 * @param orig — Origin square (e.g. `"e2"`).
+	 * @param dest — Destination square (e.g. `"e4"`).
+	 */
 	private handleBoardMove(orig: string, dest: string) {
 		try {
 			// Try to make the move
@@ -754,6 +1046,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Initializes the PGN viewer engine workers and sets up reactive effects.
+	 *
+	 * Three effects are registered:
+	 * 1. Auto-updates the Lichess URL when year/month selection changes.
+	 * 2. Loads the initial PGN from the bound input when provided.
+	 * 3. Auto-scrolls the move list when the current move index changes.
+	 */
 	constructor() {
 		this.pgnViewerEngine.initialize({
 			onPgnMessage: (data) => this.handleWorkerMessage(data),
@@ -806,6 +1106,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		});
 	}
 
+	/**
+	 * Cleans up replay timeouts, workers, and all pending deferred timeouts.
+	 *
+	 * Called automatically by Angular when the component is destroyed.
+	 */
 	ngOnDestroy(): void {
 		this.stopReplay();
 		this.pgnViewerEngine.dispose();
@@ -816,11 +1121,26 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.pendingTimeouts.clear();
 	}
 
+	/**
+	 * Updates the Stockfish search depth from an input event.
+	 *
+	 * @param event — Input event from the depth slider/number input.
+	 */
 	onStockfishDepthChange(event: Event) {
 		const value = Number((event.target as HTMLInputElement).value);
 		this.stockfishDepth.set(Number.isFinite(value) ? value : 1);
 	}
 
+	/**
+	 * Creates a tracked `setTimeout` that is automatically cancelled on destroy.
+	 *
+	 * All timeout handles are stored in {@link pendingTimeouts} and cleared
+	 * in {@link ngOnDestroy} to prevent memory leaks.
+	 *
+	 * @param callback — Function to execute after the delay.
+	 * @param delay — Delay in milliseconds (default 0).
+	 * @returns The timeout handle.
+	 */
 	private setDeferredTimeout(
 		callback: () => void,
 		delay = 0,
@@ -834,6 +1154,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return timeoutId;
 	}
 
+	/**
+	 * Shows a Material snackbar notification to the user.
+	 *
+	 * @param message — Text to display in the snackbar.
+	 * @param duration — Auto-dismiss duration in milliseconds (default 4000).
+	 */
 	private showMessage(message: string, duration = 4000): void {
 		this.snackBar.open(message, 'Dismiss', {
 			duration,
@@ -842,6 +1168,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		});
 	}
 
+	/**
+	 * Routes PGN processor worker responses to the appropriate handler logic.
+	 *
+	 * Handles `'load'` (populate metadata, unique players, ECO codes),
+	 * `'filter'` (update filtered indices, auto-select game),
+	 * `'loadGame'` (display moves, evaluations, clocks), and `'error'` messages.
+	 *
+	 * @param data — Response from the PGN processor worker.
+	 */
 	private handleWorkerMessage(data: WorkerResponse) {
 		const { type, payload, id } = data;
 		if (type === 'load') {
@@ -986,6 +1321,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Formats a normalized time control key for display.
+	 *
+	 * Converts `"seconds+increment"` (e.g. `"5400+30"`) to a human-readable
+	 * form using minutes when divisible by 60 and ≤ 180 (e.g. `"90+30"`).
+	 *
+	 * @param key — Normalized time control string like `"5400+30"`.
+	 * @returns Display-friendly time control string.
+	 */
 	private formatTimeControlKey(key: string): string {
 		const match = key.match(/^(\d+)\+(\d+)$/);
 		if (!match) return key;
@@ -1003,6 +1347,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return `${baseSeconds}+${incrementSeconds}`;
 	}
 
+	/**
+	 * Builds a summary string of the most common original time control formats.
+	 *
+	 * @param originals — Map of original format strings to occurrence counts.
+	 * @param maxItems — Maximum number of entries to include (default 6).
+	 * @returns Summary string like `"Originals: 90+30 (500), 180+2 (300) +3 more"`.
+	 */
 	private formatOriginalsSummary(
 		originals: Map<string, number>,
 		maxItems = 6,
@@ -1017,6 +1368,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return head ? `Originals: ${head}${rest}` : '';
 	}
 
+	/**
+	 * Applies the current filter criteria and re-runs game filtering.
+	 *
+	 * Stops any in-progress replay and delegates to {@link runFilterLogic}
+	 * with the values from the filter signal state. Auto-selects the first
+	 * matching game when filtering completes.
+	 */
 	applyFilter() {
 		// Stop any ongoing replay when filter is applied
 		this.stopReplay();
@@ -1074,6 +1432,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Resets all filter fields to their default values and stops any in-progress replay.
+	 *
+	 * If the filter-moves mode was active, it's exited and the saved position is restored.
+	 */
 	clearFilters() {
 		// Stop any ongoing replay
 		this.stopReplay();
@@ -1108,8 +1471,27 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.applyFilter();
 	}
 
+	/**
+	 * Sends filter criteria to the PGN processor worker and tracks the request.
+	 *
+	 * Increments a monotonic filter ID to detect stale responses.
+	 * Called by {@link applyFilter} after collecting current signal values.
+	 *
+	 * @param fWhite — White player filter text.
+	 * @param fBlack — Black player filter text.
+	 * @param fResult — Comma-separated result filter string.
+	 * @param fMoves — Whether opening-move filtering is enabled.
+	 * @param fIgnoreColor — Whether to swap white/black matching.
+	 * @param fWhiteRating — Minimum white Elo.
+	 * @param fBlackRating — Minimum black Elo.
+	 * @param fWhiteRatingMax — Maximum white Elo.
+	 * @param fBlackRatingMax — Maximum black Elo.
+	 * @param fEco — ECO code filter.
+	 * @param fTimeControl — Time control filter.
+	 * @param fEvent — Event name filter.
+	 * @param targetMoves — SAN move sequence to match.
+	 */
 	private runFilterLogic(
-		// games: string[], // REMOVED
 		fWhite: string,
 		fBlack: string,
 		fResult: string,
@@ -1149,6 +1531,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// --- PGN Loading Logic ---
 
+	/**
+	 * Loads a raw PGN string into the viewer, resetting current game state.
+	 *
+	 * Delegates to {@link PgnViewerEngineService.loadPgn} for background parsing.
+	 * The worker response (via {@link handleWorkerMessage}) populates metadata
+	 * and triggers the first game load.
+	 *
+	 * @param pgn — Raw PGN text (supports multi-game, compressed formats).
+	 */
 	loadPgnString(pgn: string) {
 		// Reset state to ensure UI updates
 		this.moves.set([]);
@@ -1162,6 +1553,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.pgnViewerEngine.loadPgn(pgn, Date.now());
 	}
 
+	/**
+	 * Reads PGN text from the system clipboard and loads it into the viewer.
+	 *
+	 * Uses the Clipboard API. On failure, shows an error snackbar.
+	 */
 	async loadFromClipboard() {
 		try {
 			const text = await navigator.clipboard.readText();
@@ -1176,6 +1572,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Copies the current PGN text to the system clipboard.
+	 *
+	 * Uses the Clipboard API. On failure, shows an error snackbar.
+	 */
 	async copyToClipboard() {
 		try {
 			await navigator.clipboard.writeText(this.pgnInput());
@@ -1186,37 +1587,73 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Updates the proportional replay duration from an input event.
+	 *
+	 * @param event — Change event from the proportional duration input.
+	 */
 	onProportionalDurationChange(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.proportionalDuration.set(parseFloat(value) || 1);
 	}
 
+	/**
+	 * Updates the minimum-seconds-between-moves setting from an input event.
+	 *
+	 * @param event — Change event from the minimum seconds input.
+	 */
 	onMinSecondsBetweenMovesChange(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.minSecondsBetweenMoves.set(parseFloat(value) || 0.1);
 	}
 
+	/**
+	 * Updates the fixed-time replay setting from an input event.
+	 *
+	 * @param event — Change event from the fixed time input.
+	 */
 	onFixedTimeChange(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.fixedTime.set(parseFloat(value) || 1);
 	}
 
+	/**
+	 * Updates the PGN input text from a textarea change event.
+	 *
+	 * @param event — Change event from the PGN textarea input.
+	 */
 	onPgnInputChange(event: Event) {
 		const value = (event.target as HTMLTextAreaElement).value;
 		this.pgnInput.set(value);
 	}
 
+	/**
+	 * Updates the URL input from a text input change event.
+	 *
+	 * @param event — Change event from the URL text input.
+	 */
 	onUrlInputChange(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.urlInput.set(value);
 	}
 
+	/**
+	 * Updates the event filter from a select element change event.
+	 *
+	 * @param event — Change event from the event filter `<select>` element.
+	 */
 	updateFilterEvent(event: Event) {
 		const value = (event.target as HTMLSelectElement).value;
 		this.filterEvent.set(value);
 	}
 
-	// Lichess Database Date Picker Methods
+	/**
+	 * Returns the list of years available in the Lichess database picker.
+	 *
+	 * Years range from 2020 to the current year.
+	 *
+	 * @returns Array of available year numbers.
+	 */
 	getLichessYears(): number[] {
 		const currentYear = new Date().getFullYear();
 		const years: number[] = [];
@@ -1226,6 +1663,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return years;
 	}
 
+	/**
+	 * Returns the list of months available for the currently selected Lichess year.
+	 *
+	 * For past years, all 12 months are available. For the current year,
+	 * only months up to (current month - 1) are available.
+	 *
+	 * @returns Array of available month numbers (1–12).
+	 */
 	getLichessMonths(): number[] {
 		const selectedYear = this.lichessYear();
 		const now = new Date();
@@ -1248,6 +1693,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Updates the Lichess year selection and adjusts the month if needed.
+	 *
+	 * If the currently selected month is not available for the new year,
+	 * it falls back to the last available month.
+	 *
+	 * @param event — Change event from the year `<select>` element.
+	 */
 	onLichessYearChange(event: Event) {
 		const value = (event.target as HTMLSelectElement).value;
 		const year = parseInt(value, 10);
@@ -1260,12 +1713,23 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Updates the Lichess month selection from a select element change event.
+	 *
+	 * @param event — Change event from the month `<select>` element.
+	 */
 	onLichessMonthChange(event: Event) {
 		const value = (event.target as HTMLSelectElement).value;
 		const month = parseInt(value, 10);
 		this.lichessMonth.set(month);
 	}
 
+	/**
+	 * Loads a PGN file from the Lichess broadcast database.
+	 *
+	 * Constructs the URL from the selected year and month
+	 * (`lichess_db_broadcast_YYYY-MM.pgn.zst`) and delegates to {@link loadFromUrl}.
+	 */
 	loadFromLichess() {
 		const year = this.lichessYear();
 		const month = this.lichessMonth();
@@ -1284,6 +1748,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.loadFromUrl();
 	}
 
+	/**
+	 * Fetches a PGN file from the URL in {@link urlInput} and loads it into the viewer.
+	 *
+	 * Supports plain `.pgn`, gzip-compressed `.pgn.gz`, and zstd-compressed `.pgn.zst`.
+	 * Shows a progress bar during download and delegates decompression/parsing.
+	 */
 	async loadFromUrl() {
 		const url = this.urlInput();
 		if (!url) return;
@@ -1368,6 +1838,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Reads a user-selected ZIP file containing PGN files and loads the first
+	 * `.pgn` entry found.
+	 *
+	 * Uses jszip to extract the archive.
+	 *
+	 * @param event — Change event from the ZIP file `<input>` element.
+	 */
 	async onPgnZipSelected(event: Event) {
 		const input = event.target as HTMLInputElement;
 		if (!input.files || input.files.length === 0) return;
@@ -1399,6 +1877,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Reads a user-selected PGN file from a file input and loads it into the viewer.
+	 *
+	 * Handles `.pgn` and `.pgn.gz` files via the browser's FileReader API.
+	 *
+	 * @param event — Change event from the file `<input>` element.
+	 */
 	onPgnFileSelected(event: Event) {
 		const input = event.target as HTMLInputElement;
 		if (!input.files || input.files.length === 0) return;
@@ -1426,24 +1911,32 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		reader.readAsText(file);
 	}
 
-	// --- Sample Loading ---
-	// Sample loading methods removed. Use input binding from parent.
-
 	// --- Game Logic ---
 
+	/**
+	 * Loads a specific game by its index in the parsed game list.
+	 *
+	 * Delegates parsing to the PGN processor worker. The response
+	 * (via {@link handleWorkerMessage}) updates moves, evaluations, and clocks.
+	 *
+	 * @param index — Zero-based game index.
+	 */
 	loadGame(index: number) {
 		const count = this.gamesMetadata().length;
 		if (index >= 0 && index < count) {
 			this.currentGameIndex.set(index);
-			this.moves.set([]); // Clear moves immediately
+			this.moves.set([]);
 			this.pgnInput.set('Loading...');
 			this.isLoading.set(true);
-
-			// Offload parsing to worker
 			this.pgnViewerEngine.loadGame(index, Date.now());
 		}
 	}
 
+	/**
+	 * Toggles a game's selection state for batch replay operations.
+	 *
+	 * @param index — Zero-based game index to toggle.
+	 */
 	toggleGameSelection(index: number) {
 		const selected = new Set(this.selectedGames());
 		if (selected.has(index)) {
@@ -1454,6 +1947,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.selectedGames.set(selected);
 	}
 
+	/** Selects all games in the current filtered list for batch replay. */
 	selectAllGames() {
 		const indices = this.filteredGamesIndices();
 		const selected = new Set<number>();
@@ -1463,16 +1957,19 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.selectedGames.set(selected);
 	}
 
+	/** Clears all game selections. */
 	clearSelection() {
 		this.selectedGames.set(new Set());
 	}
 
+	/** Advances to the next game in the list, if available. */
 	nextGame() {
 		if (this.currentGameIndex() < this.gamesMetadata().length - 1) {
 			this.loadGame(this.currentGameIndex() + 1);
 		}
 	}
 
+	/** Moves to the previous game in the list, if available. */
 	prevGame() {
 		if (this.currentGameIndex() > 0) {
 			this.loadGame(this.currentGameIndex() - 1);
@@ -1481,6 +1978,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// --- Navigation Logic ---
 
+	/**
+	 * Jumps the board to a specific move index, replaying all moves up to that point.
+	 *
+	 * `-1` resets to the starting position before any moves.
+	 *
+	 * @param index — The target move index (-1 for start position).
+	 */
 	jumpToMove(index: number) {
 		const moves = this.moves();
 		if (index >= -1 && index < moves.length) {
@@ -1493,6 +1997,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/** Scrolls the move list container to keep the active move visible. */
 	private scrollToActiveMove() {
 		const moveList = this.moveList();
 		if (!moveList) return;
@@ -1509,6 +2014,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Advances to the next move in the current game.
+	 *
+	 * Updates the board, move index, and clock display.
+	 */
 	next() {
 		const moves = this.moves();
 		const currentIdx = this.currentMoveIndex();
@@ -1518,9 +2028,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.currentMoveIndex.set(currentIdx + 1);
 			this.currentFen.set(this.chess.fen());
 
-			// Update clocks
 			const nextMoveIdx = currentIdx + 1;
-			// clockHistory has initial state at index 0, so move 1 state is at index 1
 			if (nextMoveIdx + 1 < this.clockHistory.length) {
 				const clocks = this.clockHistory[nextMoveIdx + 1];
 				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
@@ -1529,15 +2037,18 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Goes back one move in the current game.
+	 *
+	 * Undoes the last move on the board and updates the clock display.
+	 */
 	prev() {
 		if (this.currentMoveIndex() >= 0) {
 			this.chess.undo();
 			this.currentMoveIndex.update((i) => i - 1);
 			this.currentFen.set(this.chess.fen());
 
-			// Update clocks
 			const currentIdx = this.currentMoveIndex();
-			// clockHistory has initial state at index 0
 			if (currentIdx + 1 >= 0 && currentIdx + 1 < this.clockHistory.length) {
 				const clocks = this.clockHistory[currentIdx + 1];
 				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
@@ -1546,16 +2057,30 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/** Stops any in-progress replay sequence and cancels pending timeouts. */
 	stopSequence() {
 		this.isReplayingSequence = false;
 		this.stopReplay();
 	}
 
+	/**
+	 * Toggles the rating filter enable/disable checkbox.
+	 *
+	 * @param event — Change event from the rating-filter checkbox.
+	 */
 	toggleFilterRatingEnabled(event: Event) {
 		const checked = (event.target as HTMLInputElement).checked;
 		this.filterRatingEnabled.set(checked);
 	}
 
+	/**
+	 * Applies a rating preset (e.g. "2000+", "2500+", "3000+") from a dropdown.
+	 *
+	 * Sets the minimum rating to the selected value and the maximum to 3000
+	 * (or 4000 for the "3000+" tier).
+	 *
+	 * @param event — Change event from the rating preset `<select>` element.
+	 */
 	applyRatingPreset(event: Event) {
 		const value = (event.target as HTMLSelectElement).value;
 		if (!value) return;
@@ -1570,24 +2095,38 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterBlackRatingMax.set(max);
 	}
 
+	/**
+	 * Toggles the "stop on error" replay option.
+	 *
+	 * @param event — Change event from the stop-on-error checkbox.
+	 */
 	toggleStopOnError(event: Event) {
 		const checked = (event.target as HTMLInputElement).checked;
 		this.stopOnError.set(checked);
 	}
 
+	/**
+	 * Updates the stop-on-error evaluation threshold from an input event.
+	 *
+	 * @param event — Input event from the threshold number field.
+	 */
 	updateStopOnErrorThreshold(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
 		this.stopOnErrorThreshold.set(parseFloat(value) || 1.0);
 	}
 
+	/**
+	 * Resets the board to the starting position (before any moves).
+	 *
+	 * Also restores initial clock times if clock history data is available.
+	 */
 	start() {
 		this.chess.reset();
 		this.currentMoveIndex.set(-1);
 		this.currentFen.set(this.chess.fen());
 
-		// Reset clocks if we have clock info for the start
 		if (this.clockHistory.length > 0) {
-			const startClocks = this.clockHistory[0]; // Initial clocks before any move
+			const startClocks = this.clockHistory[0];
 			if (startClocks) {
 				this.whiteTimeRemaining.set(this.formatTime(startClocks.white));
 				this.blackTimeRemaining.set(this.formatTime(startClocks.black));
@@ -1595,6 +2134,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Jumps to the final position of the current game.
+	 *
+	 * Replays all moves from the start to reach the end-of-game position.
+	 */
 	end() {
 		this.chess.reset();
 		const moves = this.moves();
@@ -1607,17 +2151,35 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// --- Replay Logic ---
 
+	/**
+	 * Starts an auto-replay of the current game from the beginning.
+	 *
+	 * Stops any in-progress replay, resets to the start position,
+	 * then runs the replay logic with timing based on the selected mode.
+	 */
 	replayGame() {
 		this.stopReplay();
 		this.start();
 		this.runReplayLogic();
 	}
 
+	/**
+	 * Continues an auto-replay from the current move position.
+	 *
+	 * Preserves the replay Promise (doesn't resolve it prematurely)
+	 * so batch replay sequences can resume from where they left off.
+	 */
 	continueReplay() {
 		this.stopReplay(false);
 		this.runReplayLogic();
 	}
 
+	/**
+	 * Executes the replay logic for the currently loaded game.
+	 *
+	 * Parses the game PGN, calculates move timing based on the selected
+	 * {@link replayMode}, and schedules the replay via {@link scheduleReplay}.
+	 */
 	private runReplayLogic() {
 		// Use the currently loaded PGN from the input area
 		const gamePgn = this.pgnInput();
@@ -1654,6 +2216,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Sequentially replays all selected games in the filtered game list.
+	 *
+	 * Each game is loaded, replayed from start to finish, then a 2-second pause
+	 * is inserted before the next game. Respects the current filter sort order.
+	 */
 	async replayAllSelectedGames() {
 		this.stopReplay();
 		this.isReplayingSequence = true;
@@ -1688,6 +2256,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Returns a Promise that resolves when the current game's replay completes.
+	 *
+	 * Used by batch replay sequences to await each game's auto-play before
+	 * moving to the next selected game.
+	 *
+	 * @returns Promise resolved by {@link scheduleReplay} via {@link replayResolve}.
+	 */
 	private replayGameAsync(): Promise<void> {
 		return new Promise((resolve) => {
 			this.stopReplay();
@@ -1733,6 +2309,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		});
 	}
 
+	/**
+	 * Stops any in-progress replay, clears scheduled timeouts, and optionally
+	 * resolves the replay Promise used by batch replay sequences.
+	 *
+	 * @param resolvePromise — When `true` (default), resolve any pending replay Promise.
+	 */
 	stopReplay(resolvePromise = true) {
 		this.isReplaying.set(false);
 		this.replayTimeouts.forEach((t) => {
@@ -1747,6 +2329,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/**
+	 * Calculates replay timeouts by parsing clock comments from the PGN via chessops.
+	 *
+	 * Fallback used when chess.js parsing fails. Reads `[%clk h:m:s]` comments
+	 * to determine think time per move in `'realtime'` and `'proportional'` modes.
+	 *
+	 * @param pgn — Raw PGN string for the game.
+	 * @returns Array of seconds delays, one per move.
+	 */
 	private calculateReplayTimeoutsChessops(pgn: string): number[] {
 		const games = parsePgn(pgn);
 		if (games.length === 0) throw new Error('No games found by chessops');
@@ -1849,9 +2440,22 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return thinkTimes.map((_, i) => (i + 1) * 1);
 	}
 
-	// Store clock history for replay: index 0 is start, index 1 is after move 1, etc.
+	/**
+	 * Clock state at each half-move: remaining seconds for white and black.
+	 * Index 0 is the initial clock state. Populated by {@link calculateReplayTimeouts}.
+	 */
 	private clockHistory: { white: number; black: number }[] = [];
 
+	/**
+	 * Calculates per-move replay delays from game history and clock comments.
+	 *
+	 * Parses `[%clk h:m:s]` comments to compute think times. Supports three modes:
+	 * `'fixed'` (constant delay), `'realtime'` (actual think time), and
+	 * `'proportional'` (scaled to fit {@link proportionalDuration}).
+	 *
+	 * @param history — Verbose move history from chess.js.
+	 * @returns Array of seconds delays, one per move.
+	 */
 	private calculateReplayTimeouts(history: Move[]): number[] {
 		const timeOuts: number[] = [];
 		this.clockHistory = [];
@@ -2011,6 +2615,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return timeOuts;
 	}
 
+	/**
+	 * Formats a duration in seconds as a clock display string.
+	 *
+	 * @param seconds — Duration in seconds.
+	 * @returns Formatted string: `"h:mm:ss"` or `"m:ss"`.
+	 */
 	private formatTime(seconds: number): string {
 		const h = Math.floor(seconds / 3600);
 		const m = Math.floor((seconds % 3600) / 60);
@@ -2022,16 +2632,35 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return `${m}:${s.toString().padStart(2, '0')} `;
 	}
 
+	/**
+	 * Parses a `[%eval ...]` PGN comment value into a numeric score.
+	 *
+	 * Mate scores (`#3`, `#-2`) are converted to large values near ±20.
+	 * Centipawn scores are parsed as floats.
+	 *
+	 * @param evalStr — Raw evaluation string, or `null`.
+	 * @returns Numeric evaluation score, or `null` if unparseable.
+	 */
 	private parseEval(evalStr: string | null): number | null {
 		if (!evalStr) return null;
 		if (evalStr.startsWith('#')) {
 			const val = parseInt(evalStr.substring(1), 10);
-			// 20.0 is equivalent to 20 pawns. Positive if mate for white (e.g. #3), negative if for black (e.g. #-3)
 			return val > 0 ? 20 + 10 / Math.abs(val) : -(20 + 10 / Math.abs(val));
 		}
 		return parseFloat(evalStr);
 	}
 
+	/**
+	 * Schedules timed callbacks to auto-play moves during replay.
+	 *
+	 * Uses the selected replay mode timing, handles the "stop on error" feature
+	 * (pauses when evaluation change exceeds {@link stopOnErrorThreshold}),
+	 * and calls the optional `onComplete` callback after the last move.
+	 *
+	 * @param timeOuts — Per-move delays in seconds.
+	 * @param totalMoves — Total number of moves in the game.
+	 * @param onComplete — Optional callback when replay finishes.
+	 */
 	private scheduleReplay(
 		timeOuts: number[],
 		totalMoves: number,
@@ -2114,7 +2743,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
-	// Helper to get FEN at specific move index
+	/**
+	 * Returns the FEN string representing the position before a given move.
+	 *
+	 * Used by the "stop on error" feature to determine the position where
+	 * a large evaluation swing occurred.
+	 *
+	 * @param moveIndex — The 0-based move index. Returns the FEN before this move.
+	 * @returns FEN string, or `null` on error.
+	 */
 	private getFenBeforeMove(moveIndex: number): string | null {
 		try {
 			const tempChess = new Chess();

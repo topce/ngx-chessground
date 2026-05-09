@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,7 +24,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -111,18 +46,12 @@
 
 
 
-
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Miscellaneous</li>
-  <li class="breadcrumb-item">Variables</li>
+  <li>Miscellaneous</li>
+  <li>Variables</li>
 </ol>
 
-<section data-compodoc="block-index">
+<section>
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -235,6 +164,9 @@
                             <a href="#slowAnim" title="projects/ngx-chessground/src/units/play.ts" ><b>slowAnim</b>&nbsp;&nbsp;&nbsp;(projects/.../play.ts)</a>
                         </li>
                         <li>
+                            <a href="#testProviders" title="projects/ngx-chessground/src/test-providers.ts" ><b>testProviders</b>&nbsp;&nbsp;&nbsp;(projects/.../test-providers.ts)</a>
+                        </li>
+                        <li>
                             <a href="#viewOnlyFullRandom" title="projects/ngx-chessground/src/units/viewOnly.ts" ><b>viewOnlyFullRandom</b>&nbsp;&nbsp;&nbsp;(projects/.../viewOnly.ts)</a>
                         </li>
                         <li>
@@ -257,7 +189,7 @@
 </section>
 
     <h3>projects/ngx-chessground/src/units/svg.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -736,7 +668,7 @@ Each shape can represent a square highlight or an arrow between two squares.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/fen.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -800,7 +732,7 @@ to demonstrate a puzzle bug in a chess game.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/play.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1138,7 +1070,7 @@ The game is displayed on a Chessground board with animations.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/basics.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1309,7 +1241,7 @@ The game is displayed on a Chessground board with animations.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/anim.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1538,7 +1470,7 @@ and animates two moves sequentially with a delay between them.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/lib/pgn-viewer/eco-moves.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2075,12 +2007,52 @@ and animates two moves sequentially with a delay between them.</p>
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Mapping from ECO (Encyclopedia of Chess Openings) codes to their defining move sequences.</p>
+<p>Each entry maps an ECO code (e.g. <code>&#39;A00&#39;</code>, <code>&#39;B33&#39;</code>) to the pipe-separated sequence of
+standard algebraic notation (SAN) moves that identify the opening.</p>
+<p>Generated from a curated ECO database. Used by the PGN viewer for opening classification
+and filtering by specific opening lines.</p>
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>Category</th>
+<th>ECO Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Flank openings (A00–A99)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Semi-open games (B00–B99)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Open games / French (C00–C99)</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Closed / Semi-closed games (D00–D99)</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Indian defenses (E00–E99)</td>
+</tr>
+</tbody>
+</table>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/in3d.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2242,7 +2214,7 @@ and animates two moves sequentially with a delay between them.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2266,6 +2238,12 @@ and animates two moves sequentially with a delay between them.</p>
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Parsed metadata for each game (header tags only, no move data).</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -2282,7 +2260,7 @@ and animates two moves sequentially with a delay between them.</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
+                        <i>Type : </i>    <code>miscellaneous</code>
 
                     </td>
                 </tr>
@@ -2292,6 +2270,12 @@ and animates two moves sequentially with a delay between them.</p>
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>LRU-like cache of parsed move arrays keyed by game index, cleared on re-filter.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -2318,12 +2302,18 @@ and animates two moves sequentially with a delay between them.</p>
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Raw PGN text for each game, split by <code>[Event &quot;...&quot;</code> headers.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/zh.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2392,7 +2382,7 @@ The configurations are cycled through with a delay between each change.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/pgn.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2643,12 +2633,6 @@ The configurations are cycled through with a delay between each change.</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
                         <i>Default value : </i><code>&#x60;[Event &quot;Rated Blitz game&quot;]
 [Site &quot;https://lichess.org/hvB20kxq&quot;]
 [Date &quot;2018.05.19&quot;]
@@ -2716,7 +2700,7 @@ with timestamps for each move.</p>
     </table>
 </section>
     <h3>projects/ngx-chessground/src/units/perf.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2825,8 +2809,52 @@ with timestamps for each move.</p>
         </tbody>
     </table>
 </section>
+    <h3>projects/ngx-chessground/src/test-providers.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="testProviders"></a>
+                    <span class="name">
+                        <span ><b>testProviders</b></span>
+                        <a href="#testProviders"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>EnvironmentProviders[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+	provideZonelessChangeDetection(),
+]</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Default test providers for ngx-chessground test environments.</p>
+<p>Configures zoneless change detection (via <a href="provideZonelessChangeDetection">provideZonelessChangeDetection</a>)
+to match the library&#39;s production behavior. Import this array in your TestBed
+<code>providers</code> configuration:</p>
+<div><pre class="line-numbers"><code class="language-typescript">import testProviders from &#39;ngx-chessground/test-providers&#39;;
+
+TestBed.configureTestingModule({
+  providers: [...testProviders],
+});</code></pre></div></div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
     <h3>projects/ngx-chessground/src/units/viewOnly.ts</h3>
-    <section data-compodoc="block-properties">
+    <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -2923,19 +2951,6 @@ features two random AIs making moves.</p>
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
-
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -2947,6 +2962,7 @@ features two random AIs making moves.</p>
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

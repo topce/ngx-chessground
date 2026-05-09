@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,7 +24,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -107,35 +42,24 @@
 
 
 
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Interfaces</li>
-  <li class="breadcrumb-item"
+  <li>Interfaces</li>
+  <li
   >
   PromotionDialogData</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" 
-                class="nav-link"
-                class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
         </li>
-        <li class="nav-item">
-            <a href="#source" 
-                class="nav-link"
-                
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="info">
+    <div class="tab-pane fade active in" id="c-info">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -144,9 +68,16 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Data passed to the promotion dialog.</p>
+
+            </p>
 
 
-        <section data-compodoc="block-index">
+        <section>
             <h3 id="index">Index</h3>
             <table class="table table-sm table-bordered index-table">
                 <tbody>
@@ -173,7 +104,7 @@
 
 
 
-            <section data-compodoc="block-properties">
+            <section>
                 <h3 id="inputs">Properties</h3>
                     <table class="table table-sm table-bordered">
                         <tbody>
@@ -206,15 +137,21 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>The color of the promoting pawn — determines piece set rendering.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
     </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="source">
+    <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CommonModule } from &#x27;@angular/common&#x27;;
-import { Component, inject } from &#x27;@angular/core&#x27;;
+import { ChangeDetectionStrategy, Component, inject, signal } from &#x27;@angular/core&#x27;;
 import { MatButtonModule } from &#x27;@angular/material/button&#x27;;
 import {
 	MAT_DIALOG_DATA,
@@ -223,15 +160,39 @@ import {
 } from &#x27;@angular/material/dialog&#x27;;
 import { MatIconModule } from &#x27;@angular/material/icon&#x27;;
 
+/**
+ * Data passed to the promotion dialog.
+ */
 export interface PromotionDialogData {
+	/** The color of the promoting pawn — determines piece set rendering. */
 	color: &#x27;white&#x27; | &#x27;black&#x27;;
 }
 
+/**
+ * Legal promotion piece choices.
+ * - &#x60;&#x27;q&#x27;&#x60; — Queen
+ * - &#x60;&#x27;r&#x27;&#x60; — Rook
+ * - &#x60;&#x27;b&#x27;&#x60; — Bishop
+ * - &#x60;&#x27;n&#x27;&#x60; — Knight
+ */
 export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; | &#x27;n&#x27;;
 
+/**
+ * A Material dialog that lets the user choose a piece for pawn promotion.
+ *
+ * Displays four buttons (Queen, Rook, Bishop, Knight) styled with Unicode
+ * chess piece characters. On selection, the dialog closes with the chosen
+ * {@link PromotionPiece} string. If dismissed without selection, defaults to &#x60;&#x27;q&#x27;&#x60;.
+ *
+ * @remarks The component uses &#x60;ChangeDetectionStrategy.Default&#x60; for zoneless compatibility
+ *          but has been partially migrated and may be switched to &#x60;OnPush&#x60; after testing.
+ */
 @Component({
 	selector: &#x27;ngx-promotion-dialog&#x27;,
 	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+  // TODO: This component has been partially migrated to be zoneless-compatible.
+  // After testing, this should be updated to ChangeDetectionStrategy.OnPush.
+  changeDetection: ChangeDetectionStrategy.Default,
 	template: &#x60;
     &lt;div class&#x3D;&quot;promotion-dialog&quot;&gt;
       &lt;h2 mat-dialog-title&gt;Choose Promotion Piece&lt;/h2&gt;
@@ -243,7 +204,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;q&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Queen&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon queen {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon queen {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Queen&lt;/span&gt;
           &lt;/button&gt;
           
@@ -253,7 +214,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;r&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Rook&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon rook {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon rook {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Rook&lt;/span&gt;
           &lt;/button&gt;
           
@@ -263,7 +224,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;b&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Bishop&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon bishop {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon bishop {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Bishop&lt;/span&gt;
           &lt;/button&gt;
           
@@ -273,7 +234,7 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
             (click)&#x3D;&quot;selectPiece(&#x27;n&#x27;)&quot;
             [attr.aria-label]&#x3D;&quot;&#x27;Promote to Knight&#x27;&quot;
           &gt;
-            &lt;div class&#x3D;&quot;piece-icon knight {{ data.color }}&quot;&gt;&lt;/div&gt;
+            &lt;div class&#x3D;&quot;piece-icon knight {{ data().color }}&quot;&gt;&lt;/div&gt;
             &lt;span class&#x3D;&quot;piece-label&quot;&gt;Knight&lt;/span&gt;
           &lt;/button&gt;
         &lt;/div&gt;
@@ -282,6 +243,12 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
   &#x60;,
 	styles: [
 		&#x60;
+    :host {
+      --promo-primary: #0369A1;
+      --promo-text: #0C4A6E;
+      --promo-border: #d0dde6;
+    }
+
     .promotion-dialog {
       padding: 0;
       min-width: 300px;
@@ -299,100 +266,115 @@ export type PromotionPiece &#x3D; &#x27;q&#x27; | &#x27;r&#x27; | &#x27;b&#x27; 
       flex-direction: column;
       align-items: center;
       padding: 20px 16px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
+      border: 2px solid var(--promo-border);
+      border-radius: 12px;
       background: white;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
       min-height: 100px;
     }
 
     .piece-button:hover {
-      border-color: #2196f3;
-      background: #f5f5f5;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-color: var(--promo-primary);
+      background: #e0f4ff;
+      box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
+    }
+
+    .piece-button:focus-visible {
+      outline: 3px solid var(--promo-primary);
+      outline-offset: 2px;
+    }
+
+    .piece-button:active {
+      transform: scale(0.97);
     }
 
     .piece-icon {
       width: 40px;
       height: 40px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .piece-label {
       font-size: 14px;
-      font-weight: 500;
-      color: #333;
+      font-weight: 600;
+      color: var(--promo-text);
     }
 
-    /* Chess piece icons using Unicode symbols as fallback */
     .piece-icon.queen.white::before {
       content: &#x27;♕&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.queen.black::before {
       content: &#x27;♛&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.white::before {
       content: &#x27;♖&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.rook.black::before {
       content: &#x27;♜&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.white::before {
       content: &#x27;♗&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.bishop.black::before {
       content: &#x27;♝&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.white::before {
       content: &#x27;♘&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
-    
+
     .piece-icon.knight.black::before {
       content: &#x27;♞&#x27;;
       font-size: 40px;
-      color: #333;
+      color: #0C4A6E;
     }
 
     h2[mat-dialog-title] {
       text-align: center;
       margin: 0;
       padding: 20px 20px 0 20px;
-      color: #333;
+      color: var(--promo-text);
       font-size: 18px;
       font-weight: 600;
+      font-family: &quot;Poppins&quot;, &quot;Segoe UI&quot;, system-ui, sans-serif;
     }
   &#x60;,
 	],
 })
 export class PromotionDialogComponent {
+	/** Reference to this dialog instance, used to close it with the selection result. */
 	readonly dialogRef &#x3D; inject(MatDialogRef&lt;PromotionDialogComponent&gt;);
-	readonly data &#x3D; inject&lt;PromotionDialogData&gt;(MAT_DIALOG_DATA);
+	/** Dialog input data (reactive signal) containing the promoting pawn&#x27;s color. */
+  readonly data &#x3D; signal(inject&lt;PromotionDialogData&gt;(MAT_DIALOG_DATA));
 
+	/**
+	 * Closes the dialog with the user&#x27;s chosen promotion piece.
+	 *
+	 * @param piece — The selected piece: &#x60;&#x27;q&#x27;&#x60;, &#x60;&#x27;r&#x27;&#x60;, &#x60;&#x27;b&#x27;&#x60;, or &#x60;&#x27;n&#x27;&#x60;.
+	 */
 	selectPiece(piece: PromotionPiece): void {
 		this.dialogRef.close(piece);
 	}
@@ -400,7 +382,6 @@ export class PromotionDialogComponent {
 </code></pre>
     </div>
 </div>
-
 
 
 
@@ -438,19 +419,6 @@ export class PromotionDialogComponent {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
-
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -462,6 +430,7 @@ export class PromotionDialogComponent {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

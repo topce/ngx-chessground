@@ -12,75 +12,10 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
-          <script>
-               // Blocking script to avoid flickering dark mode
-               // Dark mode toggle button
-               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-               var darkModeState = useDark.matches;
-               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-               function checkToggle(check) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].checked = check;
-                    }
-               }
-
-               function toggleDarkMode(state) {
-                    if (window.localStorage) {
-                         localStorage.setItem('compodoc_darkmode-state', state);
-                    }
-
-                    checkToggle(state);
-
-                    const hasClass = document.body.classList.contains('dark');
-
-                    if (state) {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.add('dark');
-                         }
-                         if (!hasClass) {
-                              document.body.classList.add('dark');
-                         }
-                    } else {
-                         for (var i = 0; i < $darkModeToggles.length; i++) {
-                              $darkModeToggles[i].classList.remove('dark');
-                         }
-                         if (hasClass) {
-                              document.body.classList.remove('dark');
-                         }
-                    }
-               }
-
-               useDark.addEventListener('change', function (evt) {
-                    toggleDarkMode(evt.matches);
-               });
-               if (darkModeStateLocal) {
-                    darkModeState = darkModeStateLocal === 'true';
-               }
-               toggleDarkMode(darkModeState);
-          </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
-
-        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
-               <div class="d-flex">
-                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
-               </div>
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -89,7 +24,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="d-none d-md-block menu">
+               <div class="hidden-xs menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -102,33 +37,22 @@
 
 
 
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >PgnViewerEngineService</li>
+  <li>Injectables</li>
+  <li >PgnViewerEngineService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" 
-                class="nav-link"
-                class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
         </li>
-        <li class="nav-item">
-            <a href="#source" 
-                class="nav-link"
-                
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="info">
+    <div class="tab-pane fade active in" id="c-info">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -137,10 +61,24 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Service that manages Web Workers for background PGN processing and Stockfish analysis.</p>
+<p>Maintains two workers:</p>
+<ul>
+<li><strong>PGN processor</strong> — parses/filters PGN data off the main thread using <code>pgn-processor.worker</code>.</li>
+<li><strong>Stockfish</strong> — runs the Stockfish chess engine for position analysis via UCI protocol.</li>
+</ul>
+<p>Provided at root level so a single instance is shared across the application.
+Callers must call <a href="initialize">initialize</a> before using the service and <a href="dispose">dispose</a> when done.</p>
+
+            </p>
 
 
 
-            <section data-compodoc="block-index">
+            <section>
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -203,7 +141,7 @@
 </section>
 
 
-            <section data-compodoc="block-methods">
+            <section>
     
     <h3 id="methods">
         Methods
@@ -226,63 +164,78 @@
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:56</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="111"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:111</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Sends a FEN position to Stockfish for analysis at the given search depth.</p>
+<p>Stops any in-progress analysis before starting the new one.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>fen</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>fen</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>depth</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    <td>
+                                        <p>— FEN string of the position to analyze.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>depth</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Search depth in plies.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        <p><code>false</code> if the Stockfish worker is not available, <code>true</code> otherwise.</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -305,21 +258,25 @@
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:67</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="128"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:128</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Terminates both workers and releases resources.</p>
+<p>Sends a &#39;quit&#39; command to Stockfish before terminating to allow
+the engine to shut down gracefully.</p>
+</div>
 
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
-                        </div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -342,63 +299,76 @@
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:48</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="88"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:88</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Filters the parsed game list by the given criteria.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>payload</td>
-                                            <td>
-                                                            <code><a href="../interfaces/FilterCriteria.html" target="_self" >FilterCriteria</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../interfaces/FilterCriteria.html" target="_self" >FilterCriteria</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                                    <td>
+                                        <p>— Filter criteria (player names, ECO, draw inclusion, opening moves, ratings).</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Correlation ID echoed back in the worker response.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -421,51 +391,63 @@
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:20</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="48"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:48</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Creates and initializes both Web Workers.</p>
+<p>Disposes any existing workers first, then spawns new ones.
+The Stockfish worker is started in UCI mode immediately.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>callbacks</td>
-                                            <td>
-                                                            <code><a href="../interfaces/PgnViewerEngineCallbacks.html" target="_self" >PgnViewerEngineCallbacks</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>callbacks</td>
+                                    <td>
+                                                <code><a href="../interfaces/PgnViewerEngineCallbacks.html" target="_self" >PgnViewerEngineCallbacks</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    <td>
+                                        <p>— Event handlers for worker messages and errors.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        <p><code>true</code> if workers were created successfully, <code>false</code> if Web Workers are unsupported.</p>
+
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -488,63 +470,76 @@
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:52</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="98"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:98</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Loads the full move data for a specific game by its index in the parsed list.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>index</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>index</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                                    <td>
+                                        <p>— Zero-based index of the game to load.</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Correlation ID echoed back in the worker response.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -567,69 +562,82 @@
             </tr>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:44</a></div>
-                        </td>
-                    </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="78"
+                            class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:78</a></div>
+                </td>
+            </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Sends raw PGN text to the parser worker for processing.</p>
+</div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>pgn</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>pgn</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
 
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
+                                    <td>
+                                        No
+                                    </td>
 
 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                                    <td>
+                                        <p>— Raw PGN string (supports multi-game, compressed formats).</p>
 
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>— Correlation ID echoed back in the worker response for matching requests.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>
-            <section data-compodoc="block-properties">
+            <section>
     
     <h3 id="inputs">
         Properties
@@ -659,10 +667,16 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:35</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Web Worker for PGN parsing and filtering.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -691,10 +705,16 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts:37</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Web Worker running the Stockfish chess engine.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -703,26 +723,54 @@
     </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="source">
+    <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@angular/core&#x27;;
 import type {
 	FilterCriteria,
 	WorkerResponse,
 } from &#x27;./pgn-processor.worker&#x27;;
 
+/**
+ * Callback interface for PGN viewer engine events.
+ * Consumer components implement these handlers to react to worker messages.
+ */
 interface PgnViewerEngineCallbacks {
+	/** Called when the PGN processor worker sends a response (parse, filter, load results). */
 	onPgnMessage: (data: WorkerResponse) &#x3D;&gt; void;
+	/** Called when the Stockfish worker sends analysis output (UCI protocol messages). */
 	onStockfishMessage: (event: MessageEvent) &#x3D;&gt; void;
+	/** Optional error handler for worker initialization failures. */
 	onError?: (message: string, error?: unknown) &#x3D;&gt; void;
 }
 
+/**
+ * Service that manages Web Workers for background PGN processing and Stockfish analysis.
+ *
+ * Maintains two workers:
+ * - **PGN processor** — parses/filters PGN data off the main thread using &#x60;pgn-processor.worker&#x60;.
+ * - **Stockfish** — runs the Stockfish chess engine for position analysis via UCI protocol.
+ *
+ * Provided at root level so a single instance is shared across the application.
+ * Callers must call {@link initialize} before using the service and {@link dispose} when done.
+ */
 @Injectable({
 	providedIn: &#x27;root&#x27;,
 })
 export class PgnViewerEngineService {
+	/** Web Worker for PGN parsing and filtering. */
 	private pgnWorker: Worker | null &#x3D; null;
+	/** Web Worker running the Stockfish chess engine. */
 	private stockfishWorker: Worker | null &#x3D; null;
 
+	/**
+	 * Creates and initializes both Web Workers.
+	 *
+	 * Disposes any existing workers first, then spawns new ones.
+	 * The Stockfish worker is started in UCI mode immediately.
+	 *
+	 * @param callbacks — Event handlers for worker messages and errors.
+	 * @returns &#x60;true&#x60; if workers were created successfully, &#x60;false&#x60; if Web Workers are unsupported.
+	 */
 	initialize(callbacks: PgnViewerEngineCallbacks): boolean {
 		if (typeof Worker &#x3D;&#x3D;&#x3D; &#x27;undefined&#x27;) {
 			callbacks.onError?.(&#x27;Web Workers are not supported in this environment.&#x27;);
@@ -747,18 +795,45 @@ export class PgnViewerEngineService {
 		return true;
 	}
 
+	/**
+	 * Sends raw PGN text to the parser worker for processing.
+	 *
+	 * @param pgn — Raw PGN string (supports multi-game, compressed formats).
+	 * @param id — Correlation ID echoed back in the worker response for matching requests.
+	 */
 	loadPgn(pgn: string, id: number): void {
 		this.pgnWorker?.postMessage({ type: &#x27;load&#x27;, payload: pgn, id });
 	}
 
+	/**
+	 * Filters the parsed game list by the given criteria.
+	 *
+	 * @param payload — Filter criteria (player names, ECO, draw inclusion, opening moves, ratings).
+	 * @param id — Correlation ID echoed back in the worker response.
+	 */
 	filterGames(payload: FilterCriteria, id: number): void {
 		this.pgnWorker?.postMessage({ type: &#x27;filter&#x27;, payload, id });
 	}
 
+	/**
+	 * Loads the full move data for a specific game by its index in the parsed list.
+	 *
+	 * @param index — Zero-based index of the game to load.
+	 * @param id — Correlation ID echoed back in the worker response.
+	 */
 	loadGame(index: number, id: number): void {
 		this.pgnWorker?.postMessage({ type: &#x27;loadGame&#x27;, payload: index, id });
 	}
 
+	/**
+	 * Sends a FEN position to Stockfish for analysis at the given search depth.
+	 *
+	 * Stops any in-progress analysis before starting the new one.
+	 *
+	 * @param fen — FEN string of the position to analyze.
+	 * @param depth — Search depth in plies.
+	 * @returns &#x60;false&#x60; if the Stockfish worker is not available, &#x60;true&#x60; otherwise.
+	 */
 	analyzePosition(fen: string, depth: number): boolean {
 		if (!this.stockfishWorker) {
 			return false;
@@ -770,6 +845,12 @@ export class PgnViewerEngineService {
 		return true;
 	}
 
+	/**
+	 * Terminates both workers and releases resources.
+	 *
+	 * Sends a &#x27;quit&#x27; command to Stockfish before terminating to allow
+	 * the engine to shut down gracefully.
+	 */
 	dispose(): void {
 		this.pgnWorker?.terminate();
 		this.pgnWorker &#x3D; null;
@@ -784,7 +865,6 @@ export class PgnViewerEngineService {
     </div>
 
 </div>
-
 
 
 
@@ -827,19 +907,6 @@ export class PgnViewerEngineService {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
-       <script>
-               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-               checkToggle(darkModeState);
-               if ($darkModeToggleSwitchers.length > 0) {
-                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                              darkModeState = !darkModeState;
-                              toggleDarkMode(darkModeState);
-                         });
-                    }
-               }
-          </script>
-
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -851,6 +918,7 @@ export class PgnViewerEngineService {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

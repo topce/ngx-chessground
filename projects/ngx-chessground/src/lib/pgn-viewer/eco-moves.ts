@@ -1,4 +1,27 @@
-// Generated data
+/**
+ * Mapping from ECO (Encyclopedia of Chess Openings) codes to their defining move sequences.
+ *
+ * Each entry maps an ECO code (e.g. `'A00'`, `'B33'`) to the pipe-separated sequence of
+ * standard algebraic notation (SAN) moves that identify the opening.
+ *
+ * Generated from a curated ECO database. Used by the PGN viewer for opening classification
+ * and filtering by specific opening lines.
+ *
+ * | Category | ECO Range |
+ * |----------|-----------|
+ * | A        | Flank openings (A00–A99) |
+ * | B        | Semi-open games (B00–B99) |
+ * | C        | Open games / French (C00–C99) |
+ * | D        | Closed / Semi-closed games (D00–D99) |
+ * | E        | Indian defenses (E00–E99) |
+ *
+ * @example
+ * ```typescript
+ * import { ECO_MOVES } from 'ngx-chessground';
+ *
+ * const opening = ECO_MOVES['B33']; // "1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 e5"
+ * ```
+ */
 export const ECO_MOVES: Record<string, string> = {
 	A00: '1. a3 | 1. g3 | 1. b4 | 1. c3 | 1. Nc3',
 	A01: '1. b3',

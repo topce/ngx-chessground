@@ -42,9 +42,12 @@ Your support helps me maintain the library, add new features, and keep the appli
 ## 🚀 Features
 
 ### 🛠️ Library Features
-- 🧩 **Complete Angular Wrapper**: Seamlessly adds [ornicar/chessground](https://github.com/ornicar/chessground) into any Angular application.
-- ⚡ **Full Compatibility**: All features from the original chessground library are preserved.
-- 🆙 **Modern Angular**: Compatible with Angular 21 out of the box.
+- 🧩 **Standalone Components**: `NgxChessgroundComponent`, `NgxChessgroundTableComponent`, `NgxPgnViewerComponent` — all standalone, import-ready.
+- ⚡ **Full chessground API Access**: The `runFunction` input gives you direct access to the chessground `Api` for complete control over board state, moves, animations, and events.
+- 📦 **Pre-built Unit Presets**: `initial`, `castling`, `playVsRandom`, `playFullRandom`, `slowAnim`, and more — pre-configured board setups ready to drop in.
+- 🔧 **Utility Functions**: Exported helpers — `toDests()`, `toColor()`, `playOtherSide()`, `aiPlay()` — for building custom chess UIs.
+- 🎨 **Promotion Dialog**: Built-in Material dialog for pawn promotion selection with queen/rook/bishop/knight options.
+- 🆙 **Modern Angular**: Standalone components, signal-based inputs, compatible with Angular 21 out of the box.
 
 ### 🎮 Application Features (PGN Viewer & Demo)
 - 📖 **Comprehensive PGN Viewer**: Load and navigate through complex chess games effortlessly.
@@ -131,31 +134,55 @@ npm start
 
 ## 💻 Usage Quick Start
 
-First, import the module:
+All components are **standalone** — import them directly.
+
 ```typescript
-import { NgxChessgroundModule } from 'ngx-chessground';
+import { Component, signal } from '@angular/core';
+import { NgxChessgroundComponent } from 'ngx-chessground';
+import { Chessground } from 'chessground';
+import type { Api } from 'chessground/api';
 
-@NgModule({
-  imports: [
-    NgxChessgroundModule
-  ]
+@Component({
+  selector: 'app-board',
+  standalone: true,
+  imports: [NgxChessgroundComponent],
+  template: `<ngx-chessground [runFunction]="myFn()" />`
 })
-export class AppModule { }
+export class BoardComponent {
+  groundApi = signal<Api | null>(null);
+
+  myFn = signal<(el: HTMLElement) => Api>((el) => {
+    const api = Chessground(el, {
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      orientation: 'white',
+      movable: { free: true, color: 'both' }
+    });
+    this.groundApi.set(api);
+    return api;
+  });
+}
 ```
 
-Then use the component in your template:
+The `runFunction` input receives the mounted DOM element and returns a chessground `Api` instance — giving you full control over board configuration.
+
+For PGN viewing, use the pre-built viewer component:
+
 ```html
-<ngx-chessground
-  [width]="400"
-  [height]="400"
-  [config]="config">
-</ngx-chessground>
+<ngx-pgn-viewer
+  [pgn]="pgnString"
+  [highlightLastMove]="true"
+/>
 ```
+
+> See the [**library README**](./projects/ngx-chessground/README.md) for comprehensive API documentation covering all components, services, unit presets, and utility functions.
 
 ---
 
 ## 📖 Documentation
-To generate and view the detailed documentation locally:
+
+Comprehensive API documentation is available in the [library README](./projects/ngx-chessground/README.md).
+
+To generate and view detailed Compodoc documentation locally:
 ```bash
 npm run compodoc
 ```
