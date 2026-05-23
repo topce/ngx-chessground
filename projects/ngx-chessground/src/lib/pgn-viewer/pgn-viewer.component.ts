@@ -441,6 +441,48 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return ECO_MOVES[code] || '';
 	}
 
+	/**
+	 * Toggles the FEN / position-based filtering checkbox.
+	 *
+	 * @param event — Change event from the FEN filter checkbox.
+	 */
+	toggleFilterByFen(event: Event) {
+		this.filterByFenEnabled.set((event.target as HTMLInputElement).checked);
+		if (this.filterByFenEnabled() && !this.filterFen()) {
+			// Auto-populate with current board position when enabling
+			this.filterFen.set(this.currentFen());
+		}
+	}
+
+	/**
+	 * Captures the current board position as the FEN filter target
+	 * and enables position-based filtering.
+	 */
+	snapshotCurrentPosition() {
+		this.filterFen.set(this.currentFen());
+		this.filterByFenEnabled.set(true);
+	}
+
+	/**
+	 * Validates and updates the FEN filter text from user input.
+	 * Only accepts valid FEN strings via chess.js.
+	 *
+	 * @param event — Input event from the FEN text field.
+	 */
+	updateFilterFen(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		if (!value) {
+			this.filterFen.set('');
+			return;
+		}
+		try {
+			const chess = new Chess(value);
+			this.filterFen.set(value);
+		} catch {
+			// Invalid FEN — keep the old value
+		}
+	}
+
 	// ---- State Signals ----
 
 	/** Parsed game metadata for all games in the loaded PGN. */
@@ -492,6 +534,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	filterTimeControl = signal<string>('');
 	/** Event/tournament name filter value. */
 	filterEvent = signal<string>('');
+	/** Target FEN string for position-based filtering. */
+	filterFen = signal<string>('');
+	/** Whether position/FEN filtering is enabled. */
+	filterByFenEnabled = signal<boolean>(false);
 
 	// ---- Autocomplete Signals ----
 
@@ -670,6 +716,38 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const metadata = this.gamesMetadata();
 		const indices = this.filteredGamesIndices();
 		return indices.map((i) => metadata[i]);
+	});
+
+	/**
+	 * Indices to navigate through when using the previous/next game buttons.
+	 *
+	 * Priority:
+	 * 1. If games are selected (via checkboxes), navigates through the intersection
+	 *    of selected games and filtered results, preserving the filtered sort order.
+	 * 2. Otherwise, navigates through all filtered games (respecting active filters).
+	 * 3. If no filter is active, `filteredGamesIndices` contains all games by default.
+	 */
+	navigationIndices = computed<number[]>(() => {
+		const indices = this.filteredGamesIndices();
+		const selected = this.selectedGames();
+		if (selected.size > 0) {
+			return indices.filter((idx) => selected.has(idx));
+		}
+		return indices;
+	});
+
+	/** Whether the previous-game button should be enabled. */
+	canGoPrev = computed(() => {
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		return pos > 0;
+	});
+
+	/** Whether the next-game button should be enabled. */
+	canGoNext = computed(() => {
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		return pos >= 0 && pos < nav.length - 1;
 	});
 
 	// ---- Replay State ----
@@ -931,6 +1009,59 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const clampedEval = Math.max(-maxEval, Math.min(maxEval, evalNum));
 		const percentage = 50 + (clampedEval / maxEval) * 50;
 		return percentage;
+	});
+
+	/**
+	 * Formatted evaluation string for display.
+	 *
+	 * - Positive centipawn values get a `+` prefix.
+	 * - Mate scores are displayed as `M3` or `-M2`.
+	 * - Returns `null` when no evaluation is available.
+	 */
+	formattedEvaluation = computed<string | null>(() => {
+		const raw = this.currentEvaluation();
+		if (!raw) return null;
+
+		if (raw.startsWith('#')) {
+			const val = parseInt(raw.substring(1), 10);
+			if (val > 0) return `M${val}`;
+			if (val < 0) return `-M${Math.abs(val)}`;
+			return null;
+		}
+
+		const num = parseFloat(raw);
+		if (Number.isNaN(num)) return null;
+
+		// Round to 2 decimal places for display
+		const rounded = Math.round(num * 100) / 100;
+		if (rounded > 0) return `+${rounded.toFixed(2)}`;
+		return rounded.toFixed(2);
+	});
+
+	/**
+	 * CSS class for the evaluation bar fill, based on who has the advantage.
+	 *
+	 * - `eval-white` — white is better (positive eval)
+	 * - `eval-black` — black is better (negative eval)
+	 * - `eval-equal` — roughly equal or no evaluation
+	 */
+	evalBarClass = computed<string>(() => {
+		const evalStr = this.currentEvaluation();
+		if (!evalStr) return 'eval-equal';
+
+		if (evalStr.startsWith('#')) {
+			const val = parseInt(evalStr.substring(1), 10);
+			if (val > 0) return 'eval-white';
+			if (val < 0) return 'eval-black';
+			return 'eval-equal';
+		}
+
+		const num = parseFloat(evalStr);
+		if (Number.isNaN(num)) return 'eval-equal';
+
+		if (num > 0.1) return 'eval-white';
+		if (num < -0.1) return 'eval-black';
+		return 'eval-equal';
 	});
 
 	/** Active side to move: `'w'` or `'b'` parsed from the current FEN. */
@@ -1267,6 +1398,9 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 			// Clear filters
 			this.clearFilters();
+		} else if (type === 'progress') {
+			this.loadingProgress.set(payload.percent);
+			this.loadingStatus.set(payload.status);
 		} else if (type === 'filter') {
 			if (id === this.currentFilterId) {
 				this.filteredGamesIndices.set(payload);
@@ -1299,7 +1433,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				this.evaluations.set([]);
 			} else {
 				this.moves.set(moves);
-				this.evaluations.set(evaluations || []);
+
+				// Use worker's evaluations, or fall back to direct PGN extraction
+				let evals = evaluations || [];
+				const hasEval = evals.some((e) => e !== null);
+				if (!hasEval && moves.length > 0 && pgn) {
+					evals = this.extractEvalsFromPgn(pgn, moves);
+				}
+				this.evaluations.set(evals);
 				this.chess.reset();
 				this.currentMoveIndex.set(-1);
 				this.currentFen.set(this.chess.fen());
@@ -1402,6 +1543,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const fEco = this.filterEco();
 		const fTimeControl = this.filterTimeControl();
 		const fEvent = this.filterEvent();
+		const fFilterByFen = this.filterByFenEnabled();
+		const fFen = this.filterFen();
 
 		// Use interactive moves if filtering by moves, otherwise use current game moves
 		const currentMoves = fMoves
@@ -1424,6 +1567,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			fTimeControl,
 			fEvent,
 			currentMoves,
+			fFilterByFen,
+			fFen,
 		);
 
 		// Set flag to uncheck "Filter by Starting Moves" after filtering completes
@@ -1459,6 +1604,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterEco.set('');
 		this.filterTimeControl.set('');
 		this.filterEvent.set('');
+		this.filterFen.set('');
+		this.filterByFenEnabled.set(false);
 		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
 		this.interactiveMoves.set([]);
 		this.activeFilterMoves = [];
@@ -1490,6 +1637,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 * @param fTimeControl — Time control filter.
 	 * @param fEvent — Event name filter.
 	 * @param targetMoves — SAN move sequence to match.
+	 * @param fFilterByFen — Whether position/FEN filtering is enabled.
+	 * @param fFen — Target FEN string for position-based filtering.
 	 */
 	private runFilterLogic(
 		fWhite: string,
@@ -1505,6 +1654,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		fTimeControl: string,
 		fEvent: string,
 		targetMoves: string[],
+		fFilterByFen: boolean,
+		fFen: string,
 	) {
 		this.currentFilterId++;
 		const myFilterId = this.currentFilterId;
@@ -1524,6 +1675,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			timeControl: fTimeControl,
 			event: fEvent,
 			targetMoves: targetMoves,
+			filterByFen: fFilterByFen,
+			targetFen: fFen,
 		};
 
 		this.pgnViewerEngine.filterGames(filterCriteria, myFilterId);
@@ -1549,6 +1702,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.currentFen.set(
 			'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 		);
+
+		// Show loading indicator immediately — worker progress updates will fill the bar
+		this.isLoading.set(true);
+		this.loadingProgress.set(0);
+		this.loadingStatus.set('Starting PGN parser...');
 
 		this.pgnViewerEngine.loadPgn(pgn, Date.now());
 	}
@@ -1825,9 +1983,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.setDeferredTimeout(() => {
 				this.loadPgnString(content);
 				this.loadGame(0);
-				this.isLoading.set(false);
-				this.loadingProgress.set(0);
-				this.loadingStatus.set('');
 			});
 		} catch (e) {
 			console.error('Error loading from URL:', e);
@@ -1864,7 +2019,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				this.setDeferredTimeout(() => {
 					this.loadPgnString(content);
 					this.loadGame(0);
-					this.isLoading.set(false);
 				});
 			} else {
 				this.showMessage('No PGN file found in the zip archive.');
@@ -1898,7 +2052,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				this.setDeferredTimeout(() => {
 					this.loadPgnString(content);
 					this.loadGame(0);
-					this.isLoading.set(false);
 				});
 			} else {
 				this.isLoading.set(false);
@@ -1926,6 +2079,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		if (index >= 0 && index < count) {
 			this.currentGameIndex.set(index);
 			this.moves.set([]);
+			this.evaluations.set([]);
 			this.pgnInput.set('Loading...');
 			this.isLoading.set(true);
 			this.pgnViewerEngine.loadGame(index, Date.now());
@@ -1962,17 +2116,21 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.selectedGames.set(new Set());
 	}
 
-	/** Advances to the next game in the list, if available. */
+	/** Advances to the next game in the navigation list (selected or filtered), if available. */
 	nextGame() {
-		if (this.currentGameIndex() < this.gamesMetadata().length - 1) {
-			this.loadGame(this.currentGameIndex() + 1);
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		if (pos >= 0 && pos < nav.length - 1) {
+			this.loadGame(nav[pos + 1]);
 		}
 	}
 
-	/** Moves to the previous game in the list, if available. */
+	/** Moves to the previous game in the navigation list (selected or filtered), if available. */
 	prevGame() {
-		if (this.currentGameIndex() > 0) {
-			this.loadGame(this.currentGameIndex() - 1);
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		if (pos > 0) {
+			this.loadGame(nav[pos - 1]);
 		}
 	}
 
@@ -2093,6 +2251,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterBlackRating.set(min);
 		this.filterWhiteRatingMax.set(max);
 		this.filterBlackRatingMax.set(max);
+
+		this.applyFilter();
 	}
 
 	/**
@@ -2648,6 +2808,46 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			return val > 0 ? 20 + 10 / Math.abs(val) : -(20 + 10 / Math.abs(val));
 		}
 		return parseFloat(evalStr);
+	}
+
+	/**
+	 * Extracts per-move [%eval] values from a PGN string by scanning
+	 * inline comment annotations in move order.
+	 *
+	 * Used as a fallback when the worker's evaluation extraction fails.
+	 *
+	 * @param pgnText — Raw PGN text for a single game.
+	 * @param parsedMoves — Number of half-moves already parsed.
+	 * @returns Array aligned with moves; null where no eval found.
+	 */
+	private extractEvalsFromPgn(
+		pgnText: string,
+		parsedMoves: string[],
+	): (string | null)[] {
+		const evals: (string | null)[] = new Array(parsedMoves.length).fill(null);
+
+		// Collect all [%eval …] values in order
+		const values: string[] = [];
+		const evalRegex = /\[%eval\s+([^\]]+)\]/g;
+		let match;
+		while ((match = evalRegex.exec(pgnText)) !== null) {
+			values.push(match[1]);
+		}
+		if (values.length === 0) return evals;
+
+		// Determine offset: first eval before first move number → initial-position eval
+		const firstEvalIdx = pgnText.search(/\[%eval\s+([^\]]+)\]/);
+		const firstMoveIdx = pgnText.search(/\b\d+\.\s+/);
+		const offset =
+			firstMoveIdx >= 0 && firstEvalIdx < firstMoveIdx ? 1 : 0;
+
+		for (let i = 0; i < parsedMoves.length; i++) {
+			const valIdx = i + offset;
+			if (valIdx < values.length) {
+				evals[i] = values[valIdx];
+			}
+		}
+		return evals;
 	}
 
 	/**

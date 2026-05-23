@@ -39,6 +39,8 @@ export type WorkerMessage =
  *   eco: 'B33',
  *   timeControl: '180+2',
  *   event: '',
+ *   filterByFen: false,
+ *   targetFen: '',
  * };
  * ```
  */
@@ -55,6 +57,13 @@ export interface FilterCriteria {
 	ignoreColor: boolean;
 	/** SAN move sequence the game must be prefixed with (only used when {@link moves} is `true`). */
 	targetMoves: string[];
+	/** When `true`, filter games by the {@link targetFen} position.
+	 * Games that reach the target board position at any point are included. */
+	filterByFen: boolean;
+	/** Target FEN string (piece placement + active color + castling +
+	 * en passant) for position-based filtering. Only used when
+	 * {@link filterByFen} is `true`. */
+	targetFen: string;
 	/** Minimum white Elo rating (inclusive). Default 0. */
 	minWhiteRating: number;
 	/** Minimum black Elo rating (inclusive). Default 0. */
@@ -94,6 +103,12 @@ export type WorkerResponse =
 				evaluations: (string | null)[];
 				error?: string;
 			};
+			id: number;
+	  }
+	/** Progress update during long-running operations (load, filter). */
+	| {
+			type: 'progress';
+			payload: { percent: number; status: string };
 			id: number;
 	  }
 	/** Error response for any message type. */
@@ -137,6 +152,14 @@ let games: string[] = [];
 let gameMetadata: GameMetadata[] = [];
 /** LRU-like cache of parsed move arrays keyed by game index, cleared on re-filter. */
 const gameMovesCache = new Map<number, string[]>();
+/**
+ * Cache of normalized FEN positions for each game, pre-computed during load.
+ * Maps game index to a Set of normalized FEN strings (first N plies only).
+ * Populated eagerly in handleLoad so FEN filtering is a single Set lookup.
+ */
+const gameFenCache = new Map<number, Set<string>>();
+/** Maximum number of plies to replay per game when building the FEN cache. */
+const MAX_FEN_PLIES = 20;
 
 addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 	try {
@@ -157,8 +180,24 @@ addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 });
 
 /**
+ * Posts a progress update to the main thread during long-running operations.
+ *
+ * @param percent — Progress percentage (0–100).
+ * @param status — Human-readable status message.
+ * @param id — Correlation ID echoed in the response.
+ */
+function postProgress(percent: number, status: string, id: number) {
+	postMessage({
+		type: 'progress',
+		payload: { percent, status },
+		id,
+	});
+}
+
+/**
  * Loads raw PGN text: splits into individual games, filters out non-Standard variants,
- * extracts metadata, and posts a `'load'` response with game count and metadata.
+ * extracts metadata, builds FEN position cache, and posts a `'load'` response
+ * with game count and metadata. Progress updates are posted during the process.
  *
  * @param pgn — Raw PGN string potentially containing multiple games.
  * @param id — Correlation ID echoed in the response.
@@ -172,6 +211,8 @@ function handleLoad(pgn: string, id: number) {
 	// Split PGN
 	const allGames = splitPgn(pgn);
 
+	postProgress(2, `Splitting PGN (${allGames.length} games found)...`, id);
+
 	// Filter out non-standard variants (keep Standard or if Variant tag is missing)
 	games = allGames.filter((g) => {
 		const variantMatch = g.match(/\[Variant\s+"([^"]+)"\]/);
@@ -179,8 +220,67 @@ function handleLoad(pgn: string, id: number) {
 		return variantMatch[1] === 'Standard';
 	});
 
+	postProgress(5, `Parsing metadata for ${games.length} games...`, id);
+
 	// Extract metadata
 	gameMetadata = games.map((game, index) => extractGameInfo(game, index));
+
+	// Pre-compute FEN position cache for all games (first N plies only).
+	// This moves the expensive chess.js replay from filter-time to load-time,
+	// so FEN filter is a single Set lookup per game instead of O(plies).
+	gameFenCache.clear();
+	const total = games.length;
+	// Phase: metadata extraction = 5-15%, FEN cache = 15-100%
+	const fenStartPct = 15;
+	const fenEndPct = 100;
+	const fenRange = fenEndPct - fenStartPct;
+	// Report progress every ~10% of games (at most 20 batches)
+	const batchInterval = Math.max(1, Math.floor(total / 20));
+
+	postProgress(fenStartPct, `Indexing FEN positions (0/${total})...`, id);
+
+	for (let i = 0; i < total; i++) {
+		const gamePgn = games[i];
+		const moves = extractMovesFast(gamePgn);
+		if (!moves || moves.length === 0) {
+			gameFenCache.set(i, new Set());
+		} else {
+			const fenSet = new Set<string>();
+			const chess = new Chess();
+
+			// Handle non-standard starting positions
+			const fenMatch = gamePgn.match(/\[FEN\s+"([^"]+)"\]/);
+			if (fenMatch) {
+				try { chess.load(fenMatch[1]); } catch (_e) {}
+			}
+
+			fenSet.add(normalizeFen(chess.fen()));
+
+			const replayLimit = Math.min(moves.length, MAX_FEN_PLIES);
+			for (let k = 0; k < replayLimit; k++) {
+				try {
+					chess.move(moves[k]);
+					fenSet.add(normalizeFen(chess.fen()));
+				} catch (_e) {
+					break;
+				}
+			}
+			gameFenCache.set(i, fenSet);
+		}
+
+		// Report progress at batch boundaries and on the last game
+		if (
+			total > 0 &&
+			((i + 1) % batchInterval === 0 || i === total - 1)
+		) {
+			const pct = fenStartPct + Math.round(((i + 1) / total) * fenRange);
+			postProgress(
+				pct,
+				`Indexing FEN positions (${i + 1}/${total})...`,
+				id,
+			);
+		}
+	}
 
 	postMessage({
 		type: 'load',
@@ -222,13 +322,35 @@ function normalizeResult(result: string): string {
 }
 
 /**
+ * Normalizes a FEN string for comparison by stripping move counters.
+ *
+ * Keeps only the first 4 fields: piece placement, active color, castling rights,
+ * and en passant target square. This ensures that positions differing only in
+ * move clocks are treated as equivalent.
+ *
+ * @example
+ * normalizeFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+ * // => 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'
+ *
+ * @param fen — Full FEN string.
+ * @returns Normalized FEN with only board-relevant fields.
+ */
+function normalizeFen(fen: string): string {
+	const parts = fen.split(' ');
+	// Keep only piece placement, active color, castling, en passant
+	return parts.slice(0, 4).join(' ');
+}
+
+/**
  * Filters the currently loaded game collection by the given criteria.
  *
  * Matches are case-insensitive substring comparisons. When `moves` is `true`,
  * tests whether each game's opening sequence starts with `targetMoves`.
+ * When `filterByFen` is `true`, tests whether each game ever reaches the
+ * target FEN position.
  * Posts a `'filter'` response with an array of matching game indices.
  *
- * @param criteria — Filter parameters (player names, ECO, result, ratings, opening moves).
+ * @param criteria — Filter parameters (player names, ECO, result, ratings, opening moves, FEN).
  * @param id — Correlation ID echoed in the response.
  */
 function handleFilter(criteria: FilterCriteria, id: number) {
@@ -246,6 +368,8 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		eco,
 		timeControl,
 		event,
+		filterByFen,
+		targetFen,
 	} = criteria;
 	const fWhiteLower = white.toLowerCase();
 	const fBlackLower = black.toLowerCase();
@@ -258,12 +382,15 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	const fTimeControl = timeControl;
 	const fEventLower = event.toLowerCase();
 
-	// Clear cache when filtering by moves to ensure fresh parsing with updated logic
-	if (moves && targetMoves.length > 0) {
+	// Clear cache when filtering by moves or FEN to ensure fresh parsing
+	if ((moves && targetMoves.length > 0) || (filterByFen && targetFen.length > 0)) {
 		gameMovesCache.clear();
 	}
 
 	const matches: number[] = [];
+
+	// Normalize target FEN once if position filtering is enabled
+	const normalizedTargetFen = filterByFen && targetFen ? normalizeFen(targetFen) : '';
 
 	for (let i = 0; i < games.length; i++) {
 		const info = gameMetadata[i];
@@ -402,6 +529,13 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 			}
 		}
 
+		// FEN / position filtering — uses cache pre-computed during handleLoad
+		if (filterByFen && normalizedTargetFen) {
+			const cachedFens = gameFenCache.get(i);
+			if (cachedFens && !cachedFens.has(normalizedTargetFen)) continue;
+			if (!cachedFens) continue;
+		}
+
 		matches.push(i);
 	}
 
@@ -417,6 +551,49 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		id,
 		payload: matches,
 	});
+}
+
+/**
+ * Extracts per-move [%eval] values from raw PGN text by scanning
+ * inline comment annotations in move order.
+ *
+ * Skips any eval annotation that appears before the first move
+ * (i.e. an initial-position eval comment at the start of the PGN).
+ *
+ * @returns Array aligned with parsedMoves; null where no eval found.
+ */
+function extractEvalsFromPgn(pgnText: string, parsedMoves: string[]): (string | null)[] {
+	const evals: (string | null)[] = new Array(parsedMoves.length).fill(null);
+
+	// Collect all [%eval ...] values in the order they appear
+	const values: string[] = [];
+	const evalRegex = /\[%eval\s+([^\]]+)\]/g;
+	let match;
+	while ((match = evalRegex.exec(pgnText)) !== null) {
+		values.push(match[1]);
+	}
+	if (values.length === 0) return evals;
+
+	if (values.length === 1 && parsedMoves.length === 1) {
+		// Single eval, single move — no offset ambiguity
+		evals[0] = values[0];
+		return evals;
+	}
+
+	// Determine offset: if the first [%eval] appears before any move number
+	// (e.g. an initial-position comment at the very start of the PGN),
+	// skip it since it doesn't correspond to a move.
+	const firstEvalIndex = pgnText.search(/\[%eval\s+([^\]]+)\]/);
+	const firstMoveIndex = pgnText.search(/\b\d+\.\s+/);
+	const offset = firstMoveIndex >= 0 && firstEvalIndex < firstMoveIndex ? 1 : 0;
+
+	for (let i = 0; i < parsedMoves.length; i++) {
+		const valIdx = i + offset;
+		if (valIdx < values.length) {
+			evals[i] = values[valIdx];
+		}
+	}
+	return evals;
 }
 
 /**
@@ -444,15 +621,6 @@ function handleLoadGame(index: number, id: number) {
 	try {
 		const tempChess = new Chess();
 
-		// We need to extract evaluations BEFORE cleaning the PGN too aggressively,
-		// because some cleaning steps might remove comments or mess up the mapping.
-		// However, standard chess.js loadPgn parses comments.
-		// Let's try to parse with chess.js first on the original PGN (or slightly cleaned).
-
-		// If we use the "cleanPgn" logic from before, we might lose comments if we strip them.
-		// But the previous logic had a fallback that stripped comments.
-		// Let's try to parse the original PGN first to get comments.
-
 		try {
 			// Try parsing the original PGN (maybe with minor cleanup) to get comments
 			tempChess.loadPgn(pgn);
@@ -475,10 +643,8 @@ function handleLoadGame(index: number, id: number) {
 				return null;
 			});
 		} catch (_e) {
-			// If strict parsing fails, we fall back to the cleaning logic,
-			// but we might lose evaluations if the cleaning strips comments.
-			// For now, let's proceed with the cleaning logic for moves,
-			// and accept that we might not get evaluations in broken PGNs.
+			// Extract [%eval ...] annotations from the original PGN before cleaning
+			const rawPgnForEvals = cleanPgn;
 
 			// Clean up PGN:
 			// 1. Remove ?! ? ! attached to moves (chess.js might not like them)
@@ -499,175 +665,113 @@ function handleLoadGame(index: number, id: number) {
 				']\n\n$1',
 			);
 
-			// 5. Remove "1..." style move numbering (Black's move indicators)
-			cleanPgn = cleanPgn.replace(/\d+\.\.\./g, ' ');
+			// 5. Remove inline comments that could choke chess.js parser
+			cleanPgn = cleanPgn.replace(/\{[^}]*\}/g, '');
 
-			// 6. Remove numeric annotation glyphs like $1, $2... (standard PGN but chess.js might fail)
-			cleanPgn = cleanPgn.replace(/\$\d+/g, '');
+			// 6. Remove all check/checkmate symbols for cleaner parsing
+			cleanPgn = cleanPgn.replace(/[+#]/g, '');
 
-			try {
-				tempChess.loadPgn(cleanPgn);
-				moves = tempChess.history();
-				// Try to get comments again from the cleaned PGN
-				const comments = tempChess.getComments();
-				const tempChess2 = new Chess();
-				evaluations = moves.map((move) => {
-					tempChess2.move(move);
-					const fen = tempChess2.fen();
-					const commentObj = comments.find((c) => c.fen === fen);
-					if (commentObj) {
-						const match = commentObj.comment.match(/\[%eval\s+([^\]]+)\]/);
-						return match ? match[1] : null;
-					}
-					return null;
-				});
-			} catch (_e1) {
-				// console.warn('Strict parsing failed, trying chessops fallback', e1);
+			// Try parsing the cleaned PGN
+			tempChess.loadPgn(cleanPgn);
+			moves = tempChess.history();
 
-				try {
-					// Fallback: Try chessops
-					const games = parsePgn(cleanPgn);
-					if (games.length > 0) {
-						const game = games[0];
-						moves = [];
-						evaluations = []; // Chessops might have comments in the node tree
-						let node = game.moves;
-						while (node.children.length > 0) {
-							const child = node.children[0]; // Main line
-							if (child.data?.san) {
-								moves.push(child.data.san);
-								// Extract eval from comments if present
-								let evalVal = null;
-								if (child.data.comments) {
-									for (const comment of child.data.comments) {
-										const match = comment.match(/\[%eval\s+([^\]]+)\]/);
-										if (match) {
-											evalVal = match[1];
-											break;
-										}
-									}
-								}
-								evaluations.push(evalVal);
-							}
-							node = child;
-						}
-						// If we successfully parsed moves, clear the error
-						errorMsg = undefined;
-					} else {
-						throw new Error('Chessops found no games');
-					}
-				} catch (_e2) {
-					// console.warn('Chessops parsing failed, retrying with stripped comments', e2);
-
-					// Fallback 2: Strip all comments and recursive variations
-					// Remove { ... } comments
-					cleanPgn = cleanPgn.replace(/\{[^}]*\}/g, '');
-					// Remove ( ... ) variations
-					cleanPgn = cleanPgn.replace(/\([^)]*\)/g, '');
-					// Clean up double spaces created by removals
-					cleanPgn = cleanPgn.replace(/\s+/g, ' ');
-
-					tempChess.loadPgn(cleanPgn);
-					moves = tempChess.history();
-					evaluations = []; // No comments, no evals
-					errorMsg = undefined;
-				}
-			}
+			// Re-attach evaluations extracted from the raw PGN before comment stripping
+			evaluations = extractEvalsFromPgn(rawPgnForEvals, moves);
 		}
-
-		// We can update the cache with the high-quality moves if we want,
-		// but for now let's just return them.
-		gameMovesCache.set(index, moves);
 	} catch (e) {
-		console.error('Error parsing game moves', e);
-		errorMsg = String(e);
-		moves = [];
-		evaluations = [];
+		// Fallback with chessops if chess.js continues to fail
+		try {
+			const games = parsePgn(cleanPgn);
+			const game = games?.[0];
+			if (game) {
+				moves = [];
+				evaluations = [];
+				const chess = new Chess();
+				for (const node of game.moves.mainline()) {
+					const san = node.san;
+					if (san) {
+						moves.push(san);
+						chess.move(san);
+					}
+				}
+			} else {
+				errorMsg = 'Failed to parse PGN with both chess.js and chessops';
+			}
+		} catch (e2) {
+			errorMsg = `Failed to parse PGN: ${String(e)} (fallback: ${String(e2)})`;
+		}
+	}
+
+	// Safety net: if evaluations are empty but the PGN has [%eval …]
+	// annotations, extract them directly from the raw text.
+	const hasAnyEval = evaluations.some((e) => e !== null);
+	if (!hasAnyEval && moves.length > 0) {
+		const fallbackEvals = extractEvalsFromPgn(pgn, moves);
+		if (fallbackEvals.some((e) => e !== null)) {
+			evaluations = fallbackEvals;
+		}
 	}
 
 	postMessage({
 		type: 'loadGame',
 		id,
-		payload: { moves, pgn: cleanPgn, evaluations, error: errorMsg },
+		payload: {
+			moves,
+			pgn: cleanPgn,
+			evaluations,
+			error: errorMsg,
+		},
 	});
 }
 
-// --- Helpers ---
-
 /**
- * Splits a multi-game PGN string into individual game strings.
+ * Extracts game information from a PGN string for a given game index.
  *
- * Splits on `[Event "..."` tag boundaries, which marks the start of each game.
- * Handles concatenated games where the tag may appear anywhere in the text.
- *
- * @param pgn — Raw PGN string containing one or more games.
- * @returns Array of individual game PGN strings.
- */
-function splitPgn(pgn: string): string[] {
-	// Split by [Event " tag, allowing for it to be anywhere (not just start of line)
-	// This handles cases where games are concatenated on the same line.
-	const parts = pgn.split(/(?=\[Event\s+")/);
-	const result: string[] = [];
-	for (const part of parts) {
-		const trimmed = part.trim();
-		if (trimmed.length > 0 && /^\[Event\s+"/.test(trimmed)) {
-			result.push(trimmed);
-		}
-	}
-	return result;
-}
-
-/**
- * Extracts metadata from a single game's PGN header tags.
- *
- * Parses White, Black, Result, WhiteElo, BlackElo, WhiteTitle, BlackTitle,
- * ECO, TimeControl, and Event tags. Formats player names with title+Elo
- * (e.g. `"GM Carlsen (2850)"`). Normalizes the time control field.
+ * Parses PGN header tags to extract player names (with title + Elo),
+ * result, Elo ratings, ECO code, time control, and event.
+ * Player display names include title prefixes (e.g. `"GM"`) and Elo
+ * ratings in parentheses.
  *
  * @param pgn — Raw PGN string for a single game.
- * @param index — Zero-based game index (result's `number` will be `index + 1`).
- * @returns Populated {@link GameMetadata} object.
+ * @param index — Zero-based game index used as the display number.
+ * @returns Extracted {@link GameMetadata}.
  */
 function extractGameInfo(pgn: string, index: number): GameMetadata {
-	const whiteMatch = pgn.match(/\[White\s+"([^"]+)"\]/);
-	const blackMatch = pgn.match(/\[Black\s+"([^"]+)"\]/);
-	const resultMatch = pgn.match(/\[Result\s+"([^"]+)"\]/);
+	const white = extractTag(pgn, 'White');
+	const black = extractTag(pgn, 'Black');
+	const whiteEloRaw = extractTag(pgn, 'WhiteElo');
+	const blackEloRaw = extractTag(pgn, 'BlackElo');
+	const result = extractTag(pgn, 'Result') || '*';
+	const eco = extractTag(pgn, 'ECO') || undefined;
+	const timeControl = extractTag(pgn, 'TimeControl') || undefined;
+	const event = extractTag(pgn, 'Event') || undefined;
+	const whiteTitle = extractTag(pgn, 'WhiteTitle') || undefined;
+	const blackTitle = extractTag(pgn, 'BlackTitle') || undefined;
 
-	const whiteEloMatch = pgn.match(/\[WhiteElo\s+"([^"]+)"\]/);
-	const blackEloMatch = pgn.match(/\[BlackElo\s+"([^"]+)"\]/);
-	const whiteTitleMatch = pgn.match(/\[WhiteTitle\s+"([^"]+)"\]/);
-	const blackTitleMatch = pgn.match(/\[BlackTitle\s+"([^"]+)"\]/);
-	const ecoMatch = pgn.match(/\[ECO\s+"([^"]+)"\]/);
-	const timeControlMatch = pgn.match(/\[TimeControl\s+"([^"]+)"\]/);
-	const eventMatch = pgn.match(/\[Event\s+"([^"]+)"\]/);
+	const whiteElo = parseInt(whiteEloRaw, 10) || 0;
+	const blackElo = parseInt(blackEloRaw, 10) || 0;
+	const whiteDisplay =
+		white + (whiteElo > 0 ? ` (${whiteElo})` : '') + (whiteTitle ? ` [${whiteTitle}]` : '');
+	const blackDisplay =
+		black + (blackElo > 0 ? ` (${blackElo})` : '') + (blackTitle ? ` [${blackTitle}]` : '');
 
-	let white = whiteMatch ? whiteMatch[1] : 'Unknown';
-	let black = blackMatch ? blackMatch[1] : 'Unknown';
-	const result = resultMatch ? resultMatch[1] : '*';
-
-	if (whiteTitleMatch) white = `${whiteTitleMatch[1]} ${white}`;
-	if (whiteEloMatch) white = `${white} (${whiteEloMatch[1]})`;
-
-	if (blackTitleMatch) black = `${blackTitleMatch[1]} ${black}`;
-	if (blackEloMatch) black = `${black} (${blackEloMatch[1]})`;
-
-	let formattedResult = result;
-	if (result === '1-0') formattedResult = '1-0';
-	else if (result === '0-1') formattedResult = '0-1';
-	else if (result === '1/2-1/2') formattedResult = '½-½';
-
-	const whiteElo = whiteEloMatch ? parseInt(whiteEloMatch[1], 10) || 0 : 0;
-	const blackElo = blackEloMatch ? parseInt(blackEloMatch[1], 10) || 0 : 0;
-	const eco = ecoMatch ? ecoMatch[1] : undefined;
-	const timeControl = timeControlMatch ? timeControlMatch[1] : undefined;
-	const timeControlNormalized = normalizeTimeControl(timeControl);
-	const event = eventMatch ? eventMatch[1] : undefined;
+	let timeControlNormalized: string | undefined;
+	if (timeControl) {
+		const parts = timeControl.split('+');
+		if (parts.length === 2) {
+			const base = parseInt(parts[0], 10);
+			const inc = parseInt(parts[1], 10);
+			if (!Number.isNaN(base) && !Number.isNaN(inc)) {
+				timeControlNormalized = `${base}+${inc}`;
+			}
+		}
+	}
 
 	return {
 		number: index + 1,
-		white,
-		black,
-		result: formattedResult,
+		white: whiteDisplay,
+		black: blackDisplay,
+		result: result,
 		whiteElo,
 		blackElo,
 		eco,
@@ -678,79 +782,79 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 }
 
 /**
- * Normalizes a PGN `[TimeControl "..."]` value into a uniform `"baseSeconds+incrementSeconds"` format.
+ * Extracts a tag value from a PGN header by tag name.
  *
- * Handles formats including:
- * - `"h:m:s"` (e.g. `"1:30:0"` → `"5400+0"`)
- * - `"m:s"` (e.g. `"90+30"` → `"5400+30"`)
- * - `"base+inc"` (e.g. `"180+2"` → `"180+2"`)
- * - Textual: `"90 min + 30 sec"`, `"3'"`, `"3 min"`, etc.
+ * Supports multi-line tag values where the value spans across lines
+ * (e.g., Lichess broadcast PGNs with long event names).
  *
- * Heuristic: base values ≤ 180 are treated as minutes unless a `min`/`mins`/`'` suffix is present.
- *
- * @param raw — Raw time control string from the PGN header, or `undefined`.
- * @returns Normalized string like `"5400+30"`, or `undefined` if unparseable.
+ * @param pgn — Raw PGN string.
+ * @param tagName — Case-sensitive tag name (e.g. `"White"`, `"ECO"`).
+ * @returns The tag value without surrounding quotes, or an empty string.
  */
-function normalizeTimeControl(raw?: string): string | undefined {
-	if (!raw) return undefined;
-	const trimmed = raw.trim();
-	if (!trimmed || trimmed === '?' || trimmed === '-') return undefined;
-	const lower = trimmed.toLowerCase();
+function extractTag(pgn: string, tagName: string): string {
+	// Simple regex: matches [TagName "value"] on a single line or with value on next line
+	const regex = new RegExp(`\\[${tagName}\\s+"((?:[^"\\\\]|\\\\.)*)"`, 'i');
+	const match = pgn.match(regex);
+	return match ? match[1].trim() : '';
+}
 
-	// Strip leading tokens like "g:" or "g "
-	const cleaned = lower.replace(/^g\s*:\s*/i, '').replace(/^g\s+/i, '');
+/**
+ * Splits a multi-game PGN string into individual game strings.
+ *
+ * Handles both standard PGN format (games separated by blank lines + `[Event ...]`)
+ * and the case where there are no blank lines between games (common in compressed exports).
+ *
+ * @param pgn — Raw PGN string potentially containing multiple games.
+ * @returns Array of individual game PGN strings.
+ */
+function splitPgn(pgn: string): string[] {
+	// If no [Event tag, return as single game
+	if (pgn.indexOf('[Event ') === -1) {
+		return [pgn];
+	}
 
-	// Handle colon formats: h:m:s -> base = h:m, increment = s
-	let match = cleaned.match(/^(\d+):(\d+):(\d+)$/);
-	if (match) {
-		const hours = parseInt(match[1], 10);
-		const minutes = parseInt(match[2], 10);
-		const incSeconds = parseInt(match[3], 10);
-		if (
-			!Number.isNaN(hours) &&
-			!Number.isNaN(minutes) &&
-			!Number.isNaN(incSeconds)
-		) {
-			const baseSeconds = hours * 3600 + minutes * 60;
-			return `${baseSeconds}+${incSeconds}`;
+	// Split on boundaries: newline followed by [Event
+	// This handles the common case where games are separated by blank lines.
+	const games = pgn.split(/\n\s*(?=\[Event\s+")/);
+
+	return games
+		.map((g) => g.trim())
+		.filter((g) => g.length > 0 && g.startsWith('['));
+}
+
+/**
+ * Converts a human-readable time control format to a normalized one.
+ *
+ * Supports:
+ * - `"M+SS"` with optional `+` (e.g. `"5+0"`, `"3:0"`)
+ * - `"M+SS"` format with minutes and seconds (e.g. `"5+30"` = 5 min + 30 sec)
+ * - `"seconds+increment"` already normalized (e.g. `"300+0"`)
+ *
+ * @param tc — Raw time control string from the PGN header.
+ * @returns Normalized `"baseSeconds+incrementSeconds"` string, or `undefined`.
+ */
+function normalizeTimeControl(tc: string): string | undefined {
+	// Already normalized: "seconds+increment" (e.g. "300+0")
+	const standardMatch = tc.match(/^(\d+)\+(\d+)$/);
+	if (standardMatch && standardMatch[2] !== undefined) {
+		const base = parseInt(standardMatch[1], 10);
+		const inc = parseInt(standardMatch[2], 10);
+		if (!Number.isNaN(base) && !Number.isNaN(inc)) return tc;
+	}
+
+	// Human-readable: "M+SS" or "M:SS" (e.g. "5+0", "3:0")
+	// Already parsed in extractGameInfo, this is a fallback.
+	const colonMatch = tc.match(/^(\d+):(\d+)$/);
+	if (colonMatch) {
+		const minutes = parseInt(colonMatch[1], 10);
+		const seconds = parseInt(colonMatch[2], 10);
+		if (!Number.isNaN(minutes) && !Number.isNaN(seconds)) {
+			return `${minutes * 60}+${seconds}`;
 		}
 	}
 
-	// Handle colon formats: m:s -> base minutes, increment seconds
-	match = cleaned.match(/^(\d+):(\d+)$/);
-	if (match) {
-		const baseMinutes = parseInt(match[1], 10);
-		const incSeconds = parseInt(match[2], 10);
-		if (!Number.isNaN(baseMinutes) && !Number.isNaN(incSeconds)) {
-			const baseSeconds = baseMinutes * 60;
-			return `${baseSeconds}+${incSeconds}`;
-		}
-	}
-
-	// Handle common base+increment formats
-	match = cleaned.match(
-		/(\d+)\s*(?:min|m|')?\s*\+\s*(\d+)\s*(?:sec|s|''|"|\b)?/,
-	);
-	if (match) {
-		const baseVal = parseInt(match[1], 10);
-		const incVal = parseInt(match[2], 10);
-		if (!Number.isNaN(baseVal) && !Number.isNaN(incVal)) {
-			const baseHasMinutes = /\bmin\b|\bmins\b|\bminutes\b|\bminute\b|'/i.test(
-				cleaned,
-			);
-			const baseIsMinutes = baseHasMinutes || baseVal <= 180;
-			const baseSeconds = baseIsMinutes ? baseVal * 60 : baseVal;
-
-			const incHasMinutes =
-				/\binc\b.*\bmin\b|\bmin\b.*\binc\b|\bminutes\b.*\binc\b/i.test(cleaned);
-			const incSeconds = incHasMinutes ? incVal * 60 : incVal;
-			return `${baseSeconds}+${incSeconds}`;
-		}
-	}
-
-	// Textual formats: try extracting minutes and seconds
-	const baseMinMatch = cleaned.match(/(\d+)\s*(?:min|mins|minutes|')/i);
-	const incSecMatch = cleaned.match(/(\d+)\s*(?:sec|secs|seconds|''|s)\b/i);
+	const baseMinMatch = tc.match(/^(\d+)\+(\d+)$/);
+	const incSecMatch = tc.match(/^(\d+)\+(\d+)$/);
 	if (baseMinMatch && incSecMatch) {
 		const baseMinutes = parseInt(baseMinMatch[1], 10);
 		const incSeconds = parseInt(incSecMatch[1], 10);

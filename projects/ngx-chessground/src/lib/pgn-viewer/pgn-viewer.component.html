@@ -245,6 +245,36 @@
             Enter Starting Moves
           </label>
         </div>
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="filterByFenEnabled()"
+              (change)="toggleFilterByFen($event)"
+            />
+            Search by Position
+          </label>
+        </div>
+        @if (filterByFenEnabled()) {
+          <div class="filter-row fen-row">
+            <input
+              type="text"
+              class="fen-input"
+              placeholder="Paste FEN or use board position"
+              aria-label="Search by FEN position"
+              [value]="filterFen()"
+              (input)="updateFilterFen($event)"
+              spellcheck="false"
+            />
+            <button
+              (click)="snapshotCurrentPosition()"
+              class="secondary-button small"
+              title="Use current board position as filter"
+            >
+              📷 Board
+            </button>
+          </div>
+        }
         <div class="filter-actions">
           <button (click)="clearFilters()" class="secondary-button small">
             Clear
@@ -262,7 +292,7 @@
           <div class="game-nav-buttons">
             <button
               (click)="prevGame()"
-              [disabled]="currentGameIndex() === 0"
+              [disabled]="!canGoPrev()"
               class="icon-btn"
               aria-label="Previous Game"
             >
@@ -270,7 +300,7 @@
             </button>
             <button
               (click)="nextGame()"
-              [disabled]="currentGameIndex() === gamesMetadata().length - 1"
+              [disabled]="!canGoNext()"
               class="icon-btn"
               aria-label="Next Game"
             >
@@ -367,20 +397,18 @@
         <div class="board-container">
           <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
 
-          @if (currentEvaluation()) {
-            <div class="evaluation-bar-container">
-              <div
-                class="evaluation-fill"
-                [style.height.%]="evaluationBarHeight()"
-              ></div>
-              <div
-                class="evaluation-text"
-                [style.top.%]="100 - evaluationBarHeight()"
-              >
-                {{ currentEvaluation() }}
-              </div>
+          <div class="evaluation-bar-container">
+            <div
+              [class]="'evaluation-fill ' + evalBarClass()"
+              [style.height.%]="evaluationBarHeight()"
+            ></div>
+            <div
+              [class]="'evaluation-text ' + evalBarClass()"
+              [style.top.%]="100 - evaluationBarHeight()"
+            >
+              {{ formattedEvaluation() || '—' }}
             </div>
-          }
+          </div>
         </div>
 
         <div class="player-info bottom">
@@ -768,15 +796,13 @@
         </div>
         @if (isLoading()) {
           <div class="loading-indicator" role="status" aria-live="polite">
-            @if (loadingProgress() > 0) {
-              <div class="progress-bar-container">
-                <div
-                  class="progress-bar"
-                  [style.width.%]="loadingProgress()"
-                ></div>
-                <span class="progress-text">{{ loadingProgress() }}%</span>
-              </div>
-            }
+            <div class="progress-bar-container">
+              <div
+                class="progress-bar"
+                [style.width.%]="loadingProgress()"
+              ></div>
+              <span class="progress-text">{{ loadingProgress() }}%</span>
+            </div>
             <div class="loading-status">
               {{ loadingStatus() || "Loading..." }}
             </div>
