@@ -539,11 +539,13 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		matches.push(i);
 	}
 
-	// Sort matches by sum of Elo ratings (descending)
+	// Sort matches by sum of Elo ratings (descending), with game index as tiebreaker
+	// to ensure deterministic ordering when Elo sums are equal.
 	matches.sort((a, b) => {
 		const sumA = gameMetadata[a].whiteElo + gameMetadata[a].blackElo;
 		const sumB = gameMetadata[b].whiteElo + gameMetadata[b].blackElo;
-		return sumB - sumA;
+		if (sumB !== sumA) return sumB - sumA;
+		return a - b;
 	});
 
 	postMessage({

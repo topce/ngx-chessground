@@ -627,6 +627,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	isFiltering = signal<boolean>(false);
 	/** Monotonic counter used as correlation ID for filter requests to the worker. */
 	private currentFilterId = 0;
+	/** Monotonic counter used as correlation ID for game-load requests to the worker. */
+	private currentLoadGameId = 0;
 	/** When `true`, auto-select the first matching game after filtering completes. */
 	private autoSelectOnFinish = false;
 	/** View query for the move list scroll container. */
@@ -1308,6 +1310,21 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 *
 	 * @param data — Response from the PGN processor worker.
 	 */
+	/**
+	 * Routes PGN processor worker responses to the appropriate handler logic.
+	 *
+	 * **Stale-response guards per message type:**
+	 * - `'filter'` — guarded: only processes the response when
+	 *   `id === this.currentFilterId` (the latest filter request).
+	 * - `'loadGame'` — guarded: only processes the response when
+	 *   `id === this.currentLoadGameId` (the latest game-load request).
+	 * - `'load'` — not guarded. Load is an event-driven global operation;
+	 *   sequential loads are rare and the final one always wins.
+	 * - `'progress'` — not guarded; progress updates are transient.
+	 * - `'error'` — not guarded; errors are always relevant.
+	 *
+	 * @param data — Response from the PGN processor worker.
+	 */
 	private handleWorkerMessage(data: WorkerResponse) {
 		const { type, payload, id } = data;
 		if (type === 'load') {
@@ -1422,6 +1439,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				}
 			}
 		} else if (type === 'loadGame') {
+			// Reject stale responses — only process the latest requested game
+			if (id !== this.currentLoadGameId) {
+				return;
+			}
 			const { moves, pgn, evaluations, error } = payload;
 
 			if (error) {
@@ -1512,9 +1533,21 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Applies the current filter criteria and re-runs game filtering.
 	 *
-	 * Stops any in-progress replay and delegates to {@link runFilterLogic}
-	 * with the values from the filter signal state. Auto-selects the first
-	 * matching game when filtering completes.
+	 * **Filtering contract**:
+	 * 1. All filter signal values are read synchronously at call time, forming an
+	 *    atomic snapshot. Any signal changes made after this call won't affect
+	 *    the current filter operation.
+	 * 2. A monotonic {@link currentFilterId} is incremented and sent to the worker.
+	 * 3. When the worker responds (via {@link handleWorkerMessage `'filter'`}), only
+	 *    the response whose `id` matches the latest {@link currentFilterId} is
+	 *    accepted; stale responses from prior filter requests are silently discarded.
+	 * 4. On completion, all games matching the criteria are selected
+	 *    (see {@link autoSelectOnFinish}).
+	 *
+	 * Stops any in-progress replay before sending the filter request.
+	 *
+	 * @see runFilterLogic
+	 * @see handleWorkerMessage
 	 */
 	applyFilter() {
 		// Stop any ongoing replay when filter is applied
@@ -1580,7 +1613,16 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Resets all filter fields to their default values and stops any in-progress replay.
 	 *
+	 * **Implicit apply**: After resetting the signals, this method calls
+	 * {@link applyFilter}, which sends an empty-filter (match-all) request to the
+	 * worker. The same stale-response guard described in {@link applyFilter}'s
+	 * contract applies here — only the most recent `clearFilters` + `applyFilter`
+	 * sequence will take effect.
+	 *
 	 * If the filter-moves mode was active, it's exited and the saved position is restored.
+	 *
+	 * @see applyFilter
+	 * @see runFilterLogic
 	 */
 	clearFilters() {
 		// Stop any ongoing replay
@@ -1606,7 +1648,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterEvent.set('');
 		this.filterFen.set('');
 		this.filterByFenEnabled.set(false);
-		this.autoSelectOnFinish = true; // Explicitly ensure auto-select
 		this.interactiveMoves.set([]);
 		this.activeFilterMoves = [];
 		if (hadFilterMoves && this.savedGameMoveIndex !== null) {
@@ -1639,6 +1680,22 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 * @param targetMoves — SAN move sequence to match.
 	 * @param fFilterByFen — Whether position/FEN filtering is enabled.
 	 * @param fFen — Target FEN string for position-based filtering.
+	 */
+	/**
+	 * Builds and sends a filter criteria object to the worker, guarded by a
+	 * monotonic correlation ID for stale-response rejection.
+	 *
+	 * **Contract**:
+	 * - Before sending, {@link currentFilterId} is incremented and captured
+	 *   locally as `myFilterId`. The worker echoes this ID back in its response.
+	 * - The response handler ({@link handleWorkerMessage} `'filter'`) compares
+	 *   the echoed ID against {@link currentFilterId}. If they differ, the
+	 *   response is stale and discarded.
+	 * - All filter signal values should be read synchronously *before* calling
+	 *   this method (done by {@link applyFilter}) so the snapshot is atomic.
+	 *
+	 * @see applyFilter
+	 * @see handleWorkerMessage
 	 */
 	private runFilterLogic(
 		fWhite: string,
@@ -2069,6 +2126,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Loads a specific game by its index in the parsed game list.
 	 *
+	 * **Stale-response guard**: Increments {@link currentLoadGameId} and passes
+	 * the value as the correlation ID. The worker echoes it back in its response.
+	 * The response handler ({@link handleWorkerMessage} `'loadGame'`) discards
+	 * any response whose ID doesn't match the latest {@link currentLoadGameId}.
+	 * This prevents out-of-order responses from showing the wrong game when the
+	 * user rapidly clicks through games.
+	 *
 	 * Delegates parsing to the PGN processor worker. The response
 	 * (via {@link handleWorkerMessage}) updates moves, evaluations, and clocks.
 	 *
@@ -2082,7 +2146,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.evaluations.set([]);
 			this.pgnInput.set('Loading...');
 			this.isLoading.set(true);
-			this.pgnViewerEngine.loadGame(index, Date.now());
+			this.currentLoadGameId++;
+			this.pgnViewerEngine.loadGame(index, this.currentLoadGameId);
 		}
 	}
 
@@ -2251,8 +2316,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterBlackRating.set(min);
 		this.filterWhiteRatingMax.set(max);
 		this.filterBlackRatingMax.set(max);
-
-		this.applyFilter();
 	}
 
 	/**

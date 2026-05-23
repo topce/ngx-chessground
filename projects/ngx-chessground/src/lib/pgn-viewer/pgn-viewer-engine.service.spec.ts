@@ -70,6 +70,8 @@ describe('PgnViewerEngineService', () => {
 			eco: '',
 			timeControl: '',
 			event: '',
+			filterByFen: false,
+			targetFen: '',
 		};
 
 		service.loadPgn('test-pgn', 1);
@@ -107,6 +109,41 @@ describe('PgnViewerEngineService', () => {
 			stockfishWorker.messages[stockfishWorker.messages.length - 1],
 		).toBe('quit');
 		expect(stockfishWorker.terminated).toBe(true);
+	});
+
+	it('delivers loadGame responses with the correct correlation ID', () => {
+		const service = TestBed.inject(PgnViewerEngineService);
+		const onPgnMessage = vi.fn<(data: WorkerResponse) => void>();
+		const onStockfishMessage = vi.fn();
+
+		service.initialize({ onPgnMessage, onStockfishMessage });
+
+		const [pgnWorker] = MockWorker.instances;
+
+		// Send loadGame with id=5
+		service.loadGame(2, 5);
+		expect(pgnWorker.messages).toContainEqual({
+			type: 'loadGame',
+			payload: 2,
+			id: 5,
+		});
+
+		// Emit response with matching ID
+		const response: WorkerResponse = {
+			type: 'loadGame',
+			id: 5,
+			payload: {
+				moves: ['e4', 'd5'],
+				pgn: '[White "Player"]\n\n1. e4 d5  *',
+				evaluations: [null, null],
+			},
+		};
+		pgnWorker.emit(response);
+		expect(onPgnMessage).toHaveBeenCalledWith(response);
+
+		// The stale-response guard (in the component) relies on this ID matching
+		// the latest currentLoadGameId. If a stale response with an older ID
+		// arrives out of order, it is ignored by the component.
 	});
 
 	it('reports unsupported environments without workers', () => {
