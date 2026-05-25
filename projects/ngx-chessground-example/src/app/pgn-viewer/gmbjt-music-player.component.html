@@ -1,0 +1,121 @@
+<div class="gmbjt-music-player">
+  <!-- Collapsed bar: visible even when closed -->
+  <div class="player-bar" (click)="toggleExpanded()">
+    <span class="bar-icon">&#9835;</span>
+    <span class="bar-label">GMBJT Music</span>
+    <span class="bar-now-playing">
+      @if (currentSong) {
+        {{ currentSong.title }}
+        @if (isPlaying()) { &#9654; } @else { &#10074;&#10074; }
+      } @else {
+        Tap to play
+      }
+    </span>
+    <span class="bar-expand-icon">{{ expanded() ? '&#9660;' : '&#9650;' }}</span>
+  </div>
+
+  <!-- Expanded player panel -->
+  @if (expanded()) {
+    <div class="player-panel">
+      <!-- Now playing info -->
+      <div class="now-playing">
+        <div class="np-title">
+          @if (currentSong) {
+            {{ currentSong.title }}
+          } @else {
+            GMBJT — Gambit Bonnevoie Chess Club Songs
+          }
+        </div>
+        <div class="np-subtitle">
+          @if (currentSong) {
+            {{ currentSong.author }}
+          } @else {
+            50 chess songs created with AI
+          }
+        </div>
+      </div>
+
+      <!-- Seek bar -->
+      <div class="seek-bar">
+        <span class="time">{{ formattedTime }}</span>
+        <input
+          type="range"
+          class="seek-slider"
+          min="0"
+          max="100"
+          step="0.1"
+          [value]="progressPercent"
+          (input)="seek($event)"
+          aria-label="Seek position"
+        />
+        <span class="time">{{ formattedDuration }}</span>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="ctrl-btn" (click)="prevSong()" title="Previous" aria-label="Previous song">
+          &#9664;&#9664;
+        </button>
+        <button class="ctrl-btn play-btn" (click)="togglePlayPause()" title="Play/Pause" aria-label="Play or pause">
+          @if (isPlaying()) { &#10074;&#10074; } @else { &#9654; }
+        </button>
+        <button class="ctrl-btn" (click)="nextSong()" title="Next" aria-label="Next song">
+          &#9654;&#9654;
+        </button>
+      </div>
+
+      <!-- Volume -->
+      <div class="volume-row">
+        <span class="vol-icon">&#128266;</span>
+        <input
+          type="range"
+          class="vol-slider"
+          min="0"
+          max="1"
+          step="0.01"
+          [value]="volume()"
+          (input)="setVolume($event)"
+          aria-label="Volume"
+        />
+      </div>
+
+      <!-- Song list -->
+      <div class="song-list">
+        @for (song of songs; track song.id; let i = $index) {
+          <button
+            class="song-item"
+            [class.active]="i === currentIndex()"
+            (click)="playSong(i)"
+            [attr.aria-label]="'Play ' + song.title"
+          >
+            <span class="song-idx">{{ i + 1 }}.</span>
+            <span class="song-title">{{ song.title }}</span>
+            @if (i === currentIndex() && isPlaying()) {
+              <span class="song-playing">&#9835;</span>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Footer links -->
+      <div class="player-footer">
+        <a
+          [href]="playlistUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer-link"
+        >
+          Full Playlist on Suno &#8599;
+        </a>
+        <a
+          [href]="musicPageUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer-link"
+        >
+          About GMBJT Music &#8599;
+        </a>
+      </div>
+    </div>
+  }
+</div>
