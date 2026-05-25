@@ -63,7 +63,7 @@ export class PgnViewerEngineService {
 			this.stockfishWorker.onmessage = callbacks.onStockfishMessage;
 			this.stockfishWorker.postMessage('uci');
 		} catch (error) {
-			callbacks.onError?.('Failed to load Stockfish worker.', error);
+			callbacks.onError?.('Failed to load Stockfish 18 worker.', error);
 		}
 
 		return true;

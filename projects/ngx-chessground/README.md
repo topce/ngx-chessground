@@ -209,7 +209,9 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 
 When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During auto-replay, it compares successive position evaluations. If the evaluation drops more than `stopOnErrorThreshold` pawns (default: 1.0), the replay halts and the UI displays Stockfish's suggested best move and principal variation.
 
-**Requirements**: The Stockfish engine must be served as a static asset at `assets/stockfish/stockfish.js`.
+**Requirements**: Stockfish 18 single-threaded from [nmrugg/stockfish.js](https://github.com/nmrugg/stockfish.js) (`stockfish-18-single.js` + `stockfish-18-single.wasm`) must be served at `assets/stockfish/stockfish.js` and `assets/stockfish/stockfish.wasm`. The library ships these files (renamed) in its assets directory.
+
+**Credits**: Stockfish © T. Romstad, M. Costalba, J. Kiiski, G. Linscott & contributors. JS/WASM build by [nmrugg](https://github.com/nmrugg/stockfish.js) (© Chess.com, LLC). Licensed under GPLv3.
 
 #### Multi-Game PGN Support
 

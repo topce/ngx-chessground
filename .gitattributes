@@ -1,0 +1,2 @@
+# Stockfish WebAssembly binary — tracked via Git LFS
+projects/ngx-chessground/assets/stockfish/stockfish.wasm filter=lfs diff=lfs merge=lfs -text

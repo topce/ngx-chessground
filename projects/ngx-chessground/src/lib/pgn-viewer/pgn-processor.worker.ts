@@ -159,7 +159,7 @@ const gameMovesCache = new Map<number, string[]>();
  */
 const gameFenCache = new Map<number, Set<string>>();
 /** Maximum number of plies to replay per game when building the FEN cache. */
-const MAX_FEN_PLIES = 20;
+const MAX_FEN_PLIES = 30;
 
 addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 	try {

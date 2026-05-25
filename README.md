@@ -213,4 +213,16 @@ Feel free to check out the [issues page](https://github.com/topce/ngx-chessgroun
 ---
 
 ## 📄 License
+
 Released under the **GPL-3.0** License (or later).
+
+## 🙏 Acknowledgments
+
+- **[Stockfish](https://github.com/official-stockfish/Stockfish)** — The bundled engine is copyright © T. Romstad, M. Costalba, J. Kiiski, G. Linscott and contributors. GPLv3.
+- **[stockfish.js](https://github.com/nmrugg/stockfish.js)** — JS/WebAssembly build by [nmrugg](https://github.com/nmrugg) (© Chess.com, LLC). GPLv3.
+- **[chessground](https://github.com/lichess-org/chessground)** — Chess board UI by [Thibault Duplessis (ornicar)](https://github.com/ornicar). GPL-3.0-or-later.
+- **[chess.js](https://github.com/jhlywa/chess.js)** — Chess rules and move validation by [Jeff Hlywa](https://github.com/jhlywa). BSD-2-Clause.
+- **[chessops](https://github.com/niklasf/chessops)** — Chess operations library by [Niklas Fiekas](https://github.com/niklasf). GPL-3.0-or-later.
+- **[snabbdom](https://github.com/snabbdom/snabbdom)** — Virtual DOM used by chessground, by [Simon Friis Vindum](https://github.com/paldepind). MIT.
+- **[fzstd](https://github.com/101arrowz/fzstd)** — Zstandard decompression for compressed PGN, by [Arjun Barrett](https://github.com/101arrowz). MIT.
+- **[jszip](https://github.com/Stuk/jszip)** — ZIP archive support for PGN files, by [Stuart Knightley](https://github.com/Stuk). MIT / GPL-3.0-or-later.
