@@ -444,12 +444,24 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Toggles the FEN / position-based filtering checkbox.
 	 *
+	 * When enabling, auto-populates the FEN input with the current board
+	 * position **only** if the user has navigated away from the start position
+	 * (i.e. a specific game position is showing). If the board is at the
+	 * generic start position, the user must type or paste a FEN explicitly,
+	 * or use the 📷 Board button. This prevents silently searching by the
+	 * start position (which would match every game).
+	 *
 	 * @param event — Change event from the FEN filter checkbox.
 	 */
 	toggleFilterByFen(event: Event) {
 		this.filterByFenEnabled.set((event.target as HTMLInputElement).checked);
-		if (this.filterByFenEnabled() && !this.filterFen()) {
-			// Auto-populate with current board position when enabling
+		if (
+			this.filterByFenEnabled() &&
+			!this.filterFen() &&
+			this.currentMoveIndex() >= 0
+		) {
+			// Auto-populate with current board position when enabling only if
+			// the user has navigated to a non-start position
 			this.filterFen.set(this.currentFen());
 		}
 	}
@@ -1167,10 +1179,18 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 			if (move) {
 				// Update the current FEN to reflect the new position
-				this.currentFen.set(this.chess.fen());
+				const newFen = this.chess.fen();
+				this.currentFen.set(newFen);
 
 				// Track the move in SAN notation for filtering
 				this.interactiveMoves.update((moves) => [...moves, move.san]);
+
+				// If FEN / position filtering is enabled, auto-update the FEN
+				// filter with the new board position so the user doesn't
+				// have to click the 📷 Board button after each move.
+				if (this.filterByFenEnabled()) {
+					this.filterFen.set(newFen);
+				}
 			}
 		} catch (e) {
 			console.error('Invalid move:', e);
@@ -1472,6 +1492,23 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				if (this.filterMoves() && this.activeFilterMoves.length > 0) {
 					if (moves.length >= this.activeFilterMoves.length) {
 						this.jumpToMove(this.activeFilterMoves.length - 1);
+					}
+				}
+
+				// If FEN / position filtering is active, jump to the move that
+				// reaches the target FEN position, so the board shows the
+				// filtered position instead of the start position.
+				if (
+					this.filterByFenEnabled() &&
+					this.filterFen() &&
+					moves.length > 0
+				) {
+					const fenIndex = this.findMoveIndexForFen(
+						moves,
+						this.filterFen(),
+					);
+					if (fenIndex >= 0) {
+						this.jumpToMove(fenIndex);
 					}
 				}
 			}
@@ -3007,14 +3044,61 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	/**
-	 * Returns the FEN string representing the position before a given move.
+	 * Normalizes a FEN string to the first 4 fields for position comparison.
+	 * Strips move counters so positions differing only in plies or move number
+	 * are treated as equivalent.
 	 *
-	 * Used by the "stop on error" feature to determine the position where
-	 * a large evaluation swing occurred.
-	 *
-	 * @param moveIndex — The 0-based move index. Returns the FEN before this move.
-	 * @returns FEN string, or `null` on error.
+	 * @param fen — Full FEN string.
+	 * @returns Normalized FEN with only board-relevant fields.
 	 */
+	private normalizeFen(fen: string): string {
+		const parts = fen.split(' ');
+		return parts.slice(0, 4).join(' ');
+	}
+
+	/**
+	 * Finds the zero-based move index where the given moves reach a target FEN
+	 * position. Also checks the starting position (index -1) before any moves
+	 * are applied.
+	 *
+	 * The comparison uses normalized FEN (first 4 fields only) so that
+	 * positions differing only in move counters are treated as equivalent.
+	 *
+	 * @param moves — Array of SAN move strings to replay.
+	 * @param targetFen — The target FEN position to find.
+	 * @returns The move index (0-based) where the target FEN is reached, or
+	 *          -1 if the starting position matches the target (no moves needed),
+	 *          or -1 if not found at all.
+	 */
+	private findMoveIndexForFen(
+		moves: string[],
+		targetFen: string,
+	): number {
+		try {
+			const normalizedTarget = this.normalizeFen(targetFen);
+			const tempChess = new Chess();
+
+			// Check starting position (index -1) first
+			if (this.normalizeFen(tempChess.fen()) === normalizedTarget) {
+				return -1;
+			}
+
+			for (let i = 0; i < moves.length; i++) {
+				tempChess.move(moves[i]);
+				if (
+					this.normalizeFen(tempChess.fen()) === normalizedTarget
+				) {
+					return i;
+				}
+			}
+
+			return -1;
+		} catch (e) {
+			console.error('Error finding FEN position in moves', e);
+			return -1;
+		}
+	}
+
 	private getFenBeforeMove(moveIndex: number): string | null {
 		try {
 			const tempChess = new Chess();
