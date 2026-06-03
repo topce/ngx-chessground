@@ -1,6 +1,6 @@
 {
 	"name": "ngx-chessground",
-	"version": "21.2.12",
+	"version": "22.0.0",
 	"peerDependencies": {
 		"@angular/common": "^21.0.0",
 		"@angular/core": "^21.0.0",

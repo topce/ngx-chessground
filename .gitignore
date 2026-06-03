@@ -47,3 +47,6 @@ testem.log
 Thumbs.db
 .opencode
 graphify-out
+.claude
+.agents
+messages

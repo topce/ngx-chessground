@@ -12,5 +12,13 @@
 	],
 	"exclude": [
 		"src/**/*.worker.ts"
-	]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "error",
+        "optionalChainNotNullable": "error"
+      }
+    }
+  }
 }

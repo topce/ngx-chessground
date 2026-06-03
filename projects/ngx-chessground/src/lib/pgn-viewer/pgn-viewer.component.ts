@@ -1225,20 +1225,17 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.lichessMonth.update(() => month);
 
 		// Effect to update URL when date selection changes
-		effect(
-			() => {
-				const year = this.lichessYear();
-				const month = this.lichessMonth();
-				if (year && month) {
-					const monthStr = month.toString().padStart(2, '0');
-					// Use relative path so it respects the base href
-					this.urlInput.set(
-						`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`,
-					);
-				}
-			},
-			{ allowSignalWrites: true },
-		);
+		effect(() => {
+			const year = this.lichessYear();
+			const month = this.lichessMonth();
+			if (year && month) {
+				const monthStr = month.toString().padStart(2, '0');
+				// Use relative path so it respects the base href
+				this.urlInput.set(
+					`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`,
+				);
+			}
+		});
 
 		// Effect to load initial PGN if provided
 		effect(() => {
