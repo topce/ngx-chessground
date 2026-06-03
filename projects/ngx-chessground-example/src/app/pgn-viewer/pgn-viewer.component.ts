@@ -15,6 +15,7 @@ import { GMBJTMusicPlayerComponent } from './gmbjt-music-player.component';
 export class PgnViewerComponent implements AfterViewInit {
 	@ViewChild(NgxPgnViewerComponent) pgnViewer!: NgxPgnViewerComponent;
 	private dialog = inject(MatDialog);
+	flipped = false;
 	// Fischer's Evergreen Game: Donald Byrne vs. Robert James Fischer
 	readonly fischerEvergreen = `[Event "Third Rosenwald Trophy"]
 [Site "New York, NY USA"]

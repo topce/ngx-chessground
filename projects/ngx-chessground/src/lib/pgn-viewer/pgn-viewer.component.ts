@@ -73,6 +73,21 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	highlightLastMove = input<boolean>(true);
 
 	/**
+	 * Flips the board orientation so that black pieces are at the bottom
+	 * and white pieces at the top. Also swaps the player name positions.
+	 * @default false
+	 */
+	flipped = model<boolean>(false);
+
+	/**
+	 * Toggles the board orientation between white-at-bottom (default)
+	 * and black-at-bottom (flipped).
+	 */
+	flipBoard() {
+		this.flipped.update(v => !v);
+	}
+
+	/**
 	 * Updates the white player name filter from an input event.
 	 * @param event — Input event from the white filter text field.
 	 */
@@ -711,6 +726,49 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return metadata[currentIndex].result;
 	});
 
+	// ---- Flipped board display helpers ----
+
+	/** Player name shown above the board (swaps based on `flipped`). */
+	topPlayerName = computed(() =>
+		this.flipped() ? this.currentWhitePlayer() : this.currentBlackPlayer(),
+	);
+	/** Player name shown below the board (swaps based on `flipped`). */
+	bottomPlayerName = computed(() =>
+		this.flipped() ? this.currentBlackPlayer() : this.currentWhitePlayer(),
+	);
+	/** CSS turn-indicator class for the top player. */
+	topPlayerTurnClass = computed(() =>
+		this.flipped() ? 'white-turn' : 'black-turn',
+	);
+	/** CSS turn-indicator class for the bottom player. */
+	bottomPlayerTurnClass = computed(() =>
+		this.flipped() ? 'black-turn' : 'white-turn',
+	);
+	/** Active color ('w' or 'b') to match when showing the top turn indicator. */
+	topPlayerActiveColor = computed(() =>
+		this.flipped() ? 'w' : 'b',
+	);
+	/** Active color ('w' or 'b') to match when showing the bottom turn indicator. */
+	bottomPlayerActiveColor = computed(() =>
+		this.flipped() ? 'b' : 'w',
+	);
+	/** Tooltip title for the top turn indicator. */
+	topPlayerTitle = computed(() =>
+		this.flipped() ? 'White to move' : 'Black to move',
+	);
+	/** Tooltip title for the bottom turn indicator. */
+	bottomPlayerTitle = computed(() =>
+		this.flipped() ? 'Black to move' : 'White to move',
+	);
+	/** Clock display for the top player (swaps based on `flipped`). */
+	topTimeRemaining = computed(() =>
+		this.flipped() ? this.whiteTimeRemaining() : this.blackTimeRemaining(),
+	);
+	/** Clock display for the bottom player (swaps based on `flipped`). */
+	bottomTimeRemaining = computed(() =>
+		this.flipped() ? this.blackTimeRemaining() : this.whiteTimeRemaining(),
+	);
+
 	/**
 	 * Computed from-to squares of the last move for board highlighting.
 	 * Returns `undefined` when highlighting is disabled or no move has been played.
@@ -1115,9 +1173,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const fen = this.currentFen();
 		const isEditable = this.filterMoves();
 		const lastMove = this.lastMoveSquares();
+		const orientation = this.flipped() ? 'black' : 'white';
 		return (el: HTMLElement) => {
 			return Chessground(el, {
 				fen: fen,
+				orientation: orientation,
 				viewOnly: !isEditable,
 				lastMove: lastMove,
 				movable: {

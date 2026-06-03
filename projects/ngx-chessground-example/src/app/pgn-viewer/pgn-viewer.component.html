@@ -4,9 +4,10 @@
         <button (click)="loadFischer()">Fischer</button>
         <button (click)="loadTopce()">Topce</button>
         <button (click)="openSponsor()" class="sponsor-btn">Sponsor</button>
+        <button (click)="flipped = !flipped" class="flip-btn">Flip Board</button>
     </div>
 
-    <ngx-pgn-viewer [pgn]="currentPgn"></ngx-pgn-viewer>
+    <ngx-pgn-viewer [pgn]="currentPgn" [flipped]="flipped"></ngx-pgn-viewer>
 
     <app-gmbjt-music-player></app-gmbjt-music-player>
 </div>

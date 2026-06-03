@@ -382,15 +382,16 @@
       <div class="board-wrapper">
         <div class="player-info top">
           <div class="player-name-group">
-            <span class="name">{{ currentBlackPlayer() }}</span>
+            <span class="name">{{ topPlayerName() }}</span>
             <span
-              class="turn-indicator black-turn"
-              [class.active]="activeColor() === 'b'"
-              title="Black to move"
+              class="turn-indicator"
+              [class]="topPlayerTurnClass()"
+              [class.active]="activeColor() === topPlayerActiveColor()"
+              [title]="topPlayerTitle()"
             ></span>
           </div>
           @if (showClocks()) {
-            <span class="clock">{{ blackTimeRemaining() }}</span>
+            <span class="clock">{{ topTimeRemaining() }}</span>
           }
         </div>
 
@@ -414,16 +415,17 @@
         <div class="player-info bottom">
           <div class="player-details">
             <div class="player-name-group">
-              <span class="name">{{ currentWhitePlayer() }}</span>
+              <span class="name">{{ bottomPlayerName() }}</span>
               <span
-                class="turn-indicator white-turn"
-                [class.active]="activeColor() === 'w'"
-                title="White to move"
+                class="turn-indicator"
+                [class]="bottomPlayerTurnClass()"
+                [class.active]="activeColor() === bottomPlayerActiveColor()"
+                [title]="bottomPlayerTitle()"
               ></span>
             </div>
           </div>
           @if (showClocks()) {
-            <span class="clock">{{ whiteTimeRemaining() }}</span>
+            <span class="clock">{{ bottomTimeRemaining() }}</span>
           }
         </div>
       </div>
@@ -810,5 +812,4 @@
         }
       </div>
     </div>
-  </div>
 </div>
