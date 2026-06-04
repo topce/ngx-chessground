@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import type {
 	FilterCriteria,
+	WorkerMessage,
 	WorkerResponse,
 } from './pgn-processor.worker';
 
@@ -72,11 +73,23 @@ export class PgnViewerEngineService {
 	/**
 	 * Sends raw PGN text to the parser worker for processing.
 	 *
+	 * Supports IndexedDB caching via `pgnHash`. When provided, the worker
+	 * checks its cache first and skips re-parsing if a valid entry exists.
+	 *
 	 * @param pgn — Raw PGN string (supports multi-game, compressed formats).
 	 * @param id — Correlation ID echoed back in the worker response for matching requests.
+	 * @param pgnHash — Optional SHA-256 hash for IndexedDB cache restore.
 	 */
-	loadPgn(pgn: string, id: number): void {
-		this.pgnWorker?.postMessage({ type: 'load', payload: pgn, id });
+	loadPgn(pgn: string, id: number, pgnHash?: string): void {
+		const msg: WorkerMessage & { pgnHash?: string } = {
+			type: 'load',
+			payload: pgn,
+			id,
+		};
+		if (pgnHash) {
+			msg.pgnHash = pgnHash;
+		}
+		this.pgnWorker?.postMessage(msg);
 	}
 
 	/**
@@ -117,6 +130,13 @@ export class PgnViewerEngineService {
 		this.stockfishWorker.postMessage(`position fen ${fen}`);
 		this.stockfishWorker.postMessage(`go depth ${depth}`);
 		return true;
+	}
+
+	/**
+	 * Sends a message to the PGN worker to clear all cached data from IndexedDB.
+	 */
+	clearCache(id: number): void {
+		this.pgnWorker?.postMessage({ type: 'clearCache', id });
 	}
 
 	/**

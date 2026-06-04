@@ -26,6 +26,7 @@ import type {
 	WorkerResponse,
 } from './pgn-processor.worker';
 import { ECO_MOVES } from './eco-moves';
+import { PgnCacheService } from './pgn-cache.service';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 
 /**
@@ -57,6 +58,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	private readonly pgnViewerEngine = inject(PgnViewerEngineService);
 	/** Material snackbar service for user notifications. */
 	private readonly snackBar = inject(MatSnackBar);
+	/** IndexedDB cache service for avoiding re-parsing previously loaded PGNs. */
+	private readonly pgnCacheService = inject(PgnCacheService);
 
 	// ---- Inputs ----
 
@@ -535,6 +538,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	loadingProgress = signal<number>(0);
 	/** Human-readable loading status message. */
 	loadingStatus = signal<string>('');
+	/** SHA-256 hash of the most recently loaded PGN, used for IndexedDB cache lookups. */
+	lastPgnHash: string | null = null;
 	/** Set of selected game indices for batch operations like replay-all. */
 	selectedGames = signal<Set<number>>(new Set());
 
@@ -1791,6 +1796,33 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.applyFilter();
 	}
 
+	// ---- Cache Management -------
+
+	/** Current cache info (entry count, estimated size). Visible when expanded. */
+	cacheInfo = signal<{ count: number; estimatedBytes: number } | null>(null);
+
+	/**
+	 * Clears all cached PGN data from IndexedDB. The worker is notified so its
+	 * in-memory cached state is also discarded on the next load.
+	 */
+	clearPgnCache() {
+		// Notify the worker to clear its IndexedDB cache
+		this.pgnViewerEngine.clearCache(Date.now());
+		// Clear any local hash reference so the next load does a full re-parse
+		this.lastPgnHash = null;
+		// Reset cache info display
+		this.cacheInfo.set(null);
+		this.showMessage('PGN cache cleared.');
+	}
+
+	/**
+	 * Refreshes the displayed cache info (entry count and estimated size).
+	 */
+	async refreshCacheInfo() {
+		const info = await this.pgnCacheService.getCacheInfo();
+		this.cacheInfo.set(info);
+	}
+
 	/**
 	 * Sends filter criteria to the PGN processor worker and tracks the request.
 	 *
@@ -1878,13 +1910,17 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Loads a raw PGN string into the viewer, resetting current game state.
 	 *
+	 * Computes a SHA-256 hash of the PGN content and passes it to the worker
+	 * for IndexedDB cache lookups. If the same PGN was loaded before, the
+	 * worker skips re-parsing and restores its state from the cache.
+	 *
 	 * Delegates to {@link PgnViewerEngineService.loadPgn} for background parsing.
 	 * The worker response (via {@link handleWorkerMessage}) populates metadata
 	 * and triggers the first game load.
 	 *
 	 * @param pgn — Raw PGN text (supports multi-game, compressed formats).
 	 */
-	loadPgnString(pgn: string) {
+	async loadPgnString(pgn: string) {
 		// Reset state to ensure UI updates
 		this.moves.set([]);
 		this.interactiveMoves.set([]);
@@ -1899,7 +1935,17 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.loadingProgress.set(0);
 		this.loadingStatus.set('Starting PGN parser...');
 
-		this.pgnViewerEngine.loadPgn(pgn, Date.now());
+		// Compute a hash of the PGN so the worker can attempt an IndexedDB cache restore
+		// and persist the parsed data for future loads.
+		this.lastPgnHash = null;
+		try {
+			this.lastPgnHash = await this.pgnCacheService.hashPgn(pgn);
+		} catch {
+			// Hash computation failed (e.g. SubtleCrypto unavailable) — load without cache
+			this.lastPgnHash = null;
+		}
+
+		this.pgnViewerEngine.loadPgn(pgn, Date.now(), this.lastPgnHash ?? undefined);
 	}
 
 	/**

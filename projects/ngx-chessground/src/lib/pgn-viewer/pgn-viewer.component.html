@@ -738,6 +738,29 @@
         </div>
       </div>
 
+      <!-- Cache Management -->
+      <div class="cache-section">
+        <h3>Cache</h3>
+        <div class="cache-actions">
+          <button (click)="clearPgnCache()" class="small-btn" title="Clear all cached PGN data from IndexedDB">
+            Clear Cache
+          </button>
+          <button (click)="refreshCacheInfo()" class="small-btn" title="Show cache statistics">
+            Cache Info
+          </button>
+        </div>
+        @if (cacheInfo(); as info) {
+          <div class="cache-info">
+            <small>
+              Entries: {{ info.count }}
+              @if (info.estimatedBytes > 0) {
+                | Size: {{ (info.estimatedBytes / 1024) | number:'1.0-0' }} KB
+              }
+            </small>
+          </div>
+        }
+      </div>
+
       <!-- Load Section -->
       <div class="load-section">
         <h3>Load Games</h3>

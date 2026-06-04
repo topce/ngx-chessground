@@ -10,12 +10,14 @@ import { parsePgn } from 'chessops/pgn';
  * so callers can match requests with responses.
  */
 export type WorkerMessage =
-	/** Load raw PGN text for parsing. */
-	| { type: 'load'; payload: string; id: number }
+	/** Load raw PGN text for parsing. `pgnHash` enables IndexedDB cache restore. */
+	| { type: 'load'; payload: string; id: number; pgnHash?: string }
 	/** Filter the currently loaded games by {@link FilterCriteria}. */
 	| { type: 'filter'; payload: FilterCriteria; id: number }
 	/** Load the full move data for a game at the given index. */
-	| { type: 'loadGame'; payload: number; id: number };
+	| { type: 'loadGame'; payload: number; id: number }
+	/** Clear all cached PGN data from IndexedDB. */
+	| { type: 'clearCache'; id: number };
 
 /**
  * Criteria for filtering a parsed game collection in the PGN processor worker.
@@ -168,17 +170,196 @@ const gameFenCache = new Map<number, Set<string>>();
 /** Maximum number of plies to replay per game when building the FEN cache. */
 const MAX_FEN_PLIES = 30;
 
+// ---- IndexedDB Cache -------
+
+const CACHE_DB_NAME = 'NgxChessgroundPgnCache';
+const CACHE_DB_VERSION = 1;
+const CACHE_STORE_NAME = 'pgn_cache';
+
+/**
+ * Serializes the FEN cache (Map<number, Set<string>>) into a JSON-safe
+ * array of [index, fen[]] tuples.
+ */
+function serializeFenCache(
+	cache: Map<number, Set<string>>,
+): [number, string[]][] {
+	const result: [number, string[]][] = [];
+	for (const [key, set] of cache) {
+		result.push([key, Array.from(set)]);
+	}
+	return result;
+}
+
+/**
+ * Deserializes a [index, fen[]][] array back into a Map<number, Set<string>>.
+ */
+function deserializeFenCache(
+	data: [number, string[]][],
+): Map<number, Set<string>> {
+	const map = new Map<number, Set<string>>();
+	for (const [key, fens] of data) {
+		map.set(key, new Set(fens));
+	}
+	return map;
+}
+
+/**
+ * Opens the IndexedDB cache database, creating it if needed.
+ */
+function openCacheDb(): Promise<IDBDatabase> {
+	return new Promise((resolve, reject) => {
+		const request = indexedDB.open(CACHE_DB_NAME, CACHE_DB_VERSION);
+		request.onupgradeneeded = () => {
+			const db = request.result;
+			if (!db.objectStoreNames.contains(CACHE_STORE_NAME)) {
+				const store = db.createObjectStore(CACHE_STORE_NAME, {
+					keyPath: 'pgnHash',
+				});
+				store.createIndex('createdAt', 'data.createdAt', { unique: false });
+			}
+		};
+		request.onsuccess = () => resolve(request.result);
+		request.onerror = () =>
+			reject(new Error(`IndexedDB open error: ${request.error}`));
+	});
+}
+
+/**
+ * Attempts to restore worker state from an IndexedDB cache entry.
+ * Returns `true` if a valid cache entry was found and restored.
+ */
+async function tryRestoreFromCache(
+	pgnHash: string,
+	id: number,
+): Promise<boolean> {
+	try {
+		const db = await openCacheDb();
+		const tx = db.transaction(CACHE_STORE_NAME, 'readonly');
+		const store = tx.objectStore(CACHE_STORE_NAME);
+		const request = store.get(pgnHash);
+
+		const result = await new Promise<unknown>((resolve, reject) => {
+			request.onsuccess = () => resolve(request.result ?? null);
+			request.onerror = () => reject(request.error);
+		});
+
+		if (!result) return false;
+
+		const entry = result as {
+			pgnHash: string;
+			data: {
+				games: string[];
+				gameMetadata: GameMetadata[];
+				fenCache: [number, string[]][];
+				createdAt: number;
+			};
+		};
+
+		// Check TTL (7 days)
+		const age = Date.now() - entry.data.createdAt;
+		if (age > 7 * 24 * 60 * 60 * 1000) {
+			db.close();
+			// Delete expired entry
+			const delTx = db.transaction(CACHE_STORE_NAME, 'readwrite');
+			delTx.objectStore(CACHE_STORE_NAME).delete(pgnHash);
+			return false;
+		}
+
+		// Restore worker state
+		games = entry.data.games;
+		gameMetadata = entry.data.gameMetadata;
+		gameMovesCache.clear();
+		// Restore FEN cache from serialized form
+		const restoredFenCache = deserializeFenCache(entry.data.fenCache);
+		gameFenCache.clear();
+		for (const [k, v] of restoredFenCache) {
+			gameFenCache.set(k, v);
+		}
+
+		db.close();
+
+		// Post the standard 'load' response so the main thread sees the data
+		postMessage({
+			type: 'load',
+			id,
+			payload: {
+				count: games.length,
+				metadata: gameMetadata,
+			},
+		});
+
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Persists the current worker state (games, metadata, FEN cache) to IndexedDB.
+ */
+async function saveToCache(pgnHash: string): Promise<void> {
+	try {
+		const db = await openCacheDb();
+		const tx = db.transaction(CACHE_STORE_NAME, 'readwrite');
+		const store = tx.objectStore(CACHE_STORE_NAME);
+
+		store.put({
+			pgnHash,
+			data: {
+				games,
+				gameMetadata,
+				fenCache: serializeFenCache(gameFenCache),
+				createdAt: Date.now(),
+			},
+		});
+
+		await new Promise<void>((resolve, reject) => {
+			tx.oncomplete = () => resolve();
+			tx.onerror = () => reject(tx.error);
+		});
+
+		db.close();
+	} catch {
+		// Silently ignore storage errors (quota, private browsing, etc.)
+	}
+}
+
+/**
+ * Clears all cached PGN data from IndexedDB.
+ */
+async function clearPgnCache(): Promise<void> {
+	try {
+		const db = await openCacheDb();
+		const tx = db.transaction(CACHE_STORE_NAME, 'readwrite');
+		tx.objectStore(CACHE_STORE_NAME).clear();
+		await new Promise<void>((resolve, reject) => {
+			tx.oncomplete = () => resolve();
+			tx.onerror = () => reject(tx.error);
+		});
+		db.close();
+	} catch {
+		// Silently ignore
+	}
+}
+
 addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 	try {
 		switch (data.type) {
 			case 'load':
-				handleLoad(data.payload, data.id);
+				handleLoad(data.payload, data.id, data.pgnHash).catch((e) =>
+					postMessage({ type: 'error', payload: String(e), id: data.id }),
+				);
 				break;
 			case 'filter':
 				handleFilter(data.payload, data.id);
 				break;
 			case 'loadGame':
 				handleLoadGame(data.payload, data.id);
+				break;
+			case 'clearCache':
+				clearPgnCache().then(() =>
+					postMessage({ type: 'load', payload: { count: 0, metadata: [] }, id: data.id }),
+				);
 				break;
 		}
 	} catch (e) {
@@ -206,10 +387,24 @@ function postProgress(percent: number, status: string, id: number) {
  * extracts metadata, builds FEN position cache, and posts a `'load'` response
  * with game count and metadata. Progress updates are posted during the process.
  *
+ * When `pgnHash` is provided and a cache entry exists in IndexedDB, the entire
+ * parsing and FEN-indexing step is skipped — the worker state is restored directly
+ * from the cached data.
+ *
  * @param pgn — Raw PGN string potentially containing multiple games.
  * @param id — Correlation ID echoed in the response.
+ * @param pgnHash — Optional SHA-256 hash for IndexedDB cache lookups.
  */
-function handleLoad(pgn: string, id: number) {
+async function handleLoad(pgn: string, id: number, pgnHash?: string) {
+	// If a pgnHash is provided, try to restore from IndexedDB cache first.
+	// This avoids re-parsing and FEN-indexing the entire collection.
+	if (pgnHash) {
+		const restored = await tryRestoreFromCache(pgnHash, id);
+		if (restored) {
+			return; // Worker state restored; 'load' response already posted by tryRestoreFromCache
+		}
+	}
+
 	// Reset state
 	games = [];
 	gameMetadata = [];
@@ -287,6 +482,12 @@ function handleLoad(pgn: string, id: number) {
 				id,
 			);
 		}
+	}
+
+	// Persist to IndexedDB cache so future loads skip re-parsing.
+	// Fire-and-forget: the 'load' response is sent immediately without waiting.
+	if (pgnHash) {
+		saveToCache(pgnHash);
 	}
 
 	postMessage({
