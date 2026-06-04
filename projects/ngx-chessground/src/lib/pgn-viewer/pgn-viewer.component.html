@@ -400,25 +400,38 @@
       <div class="game-list-wrapper">
       @if (gamesMetadata().length > 0) {
         <div class="game-list-header">
-          <span>Games: {{ filteredGameInfos().length }}</span>
-          <div class="game-nav-buttons">
-            <button
-              (click)="prevGame()"
-              [disabled]="!canGoPrev()"
-              class="icon-btn"
-              aria-label="Previous Game"
-            >
-              ◀
-            </button>
-            <button
-              (click)="nextGame()"
-              [disabled]="!canGoNext()"
-              class="icon-btn"
-              aria-label="Next Game"
-            >
-              ▶
-            </button>
+          <span class="game-list-count">Games: {{ totalFilteredCount() }}</span>
+        </div>
+
+        <!-- Game Navigator (above list) -->
+        <div class="game-nav-bar">
+          <button
+            (click)="prevGame()"
+            [disabled]="!canGoPrev()"
+            class="nav-arrow-btn"
+            aria-label="Previous Game"
+            title="Previous game"
+          >
+            ◀
+          </button>
+          <div class="nav-game-info">
+            <span class="nav-game-number">
+              @if (selectedGamesCount() > 0) {
+                <span class="nav-selected-badge">{{ selectedGamesCount() }} selected</span>
+              }
+            </span>
+            <span class="nav-game-players">{{ currentWhitePlayer() }} vs {{ currentBlackPlayer() }}</span>
+            <span class="nav-game-result">{{ currentGameResult() }}</span>
           </div>
+          <button
+            (click)="nextGame()"
+            [disabled]="!canGoNext()"
+            class="nav-arrow-btn"
+            aria-label="Next Game"
+            title="Next game"
+          >
+            ▶
+          </button>
         </div>
 
         @if (isFiltering()) {
@@ -502,9 +515,7 @@
               [class.active]="activeColor() === topPlayerActiveColor()"
               [title]="topPlayerTitle()"
             ></span>
-            @if (showClocks()) {
-              <span class="clock inset">{{ topTimeRemaining() }}</span>
-            }
+            <span class="clock inset">{{ topTimeRemaining() || '--:--' }}</span>
           </div>
         </div>
 
@@ -535,9 +546,7 @@
                 [class.active]="activeColor() === bottomPlayerActiveColor()"
                 [title]="bottomPlayerTitle()"
               ></span>
-              @if (showClocks()) {
-                <span class="clock inset">{{ bottomTimeRemaining() }}</span>
-              }
+              <span class="clock inset">{{ bottomTimeRemaining() || '--:--' }}</span>
             </div>
           </div>
         </div>
@@ -651,8 +660,8 @@
 
     <!-- Right Panel: Moves & Tools -->
     <div class="panel right-panel">
-      <!-- Collapsible: Moves (always expanded) -->
-      <div class="collapsible-section">
+      <!-- Collapsible: Moves (fills remaining space when expanded) -->
+      <div class="collapsible-section" [class.moves-section]="rightPanelSections()['moves']">
         <div
           class="section-header"
           tabindex="0"

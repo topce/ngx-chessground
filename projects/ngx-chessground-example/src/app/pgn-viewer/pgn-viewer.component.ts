@@ -58,7 +58,6 @@ export class PgnViewerComponent implements AfterViewInit {
 	currentPgn = this.fischerEvergreen;
 
 	ngAfterViewInit() {
-		// Load single game by default
 		setTimeout(() => {
 			this.loadFischer();
 		}, 0);
@@ -75,6 +74,7 @@ export class PgnViewerComponent implements AfterViewInit {
 	openSponsor() {
 		this.dialog.open(SponsorDialogComponent, {
 			width: '600px',
+			panelClass: 'sponsor-dialog-panel',
 		});
 	}
 }

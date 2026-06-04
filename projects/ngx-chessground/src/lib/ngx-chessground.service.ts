@@ -54,7 +54,6 @@ export class NgxChessgroundService {
 	 * @param runFn - The function to run on the HTMLElement.
 	 */
 	public redraw(element: HTMLElement, runFn: (el: HTMLElement) => Api) {
-		this.cg = Chessground(element);
 		this.runFn = runFn;
 		this.vnode = this.patch(this.vnode || element, this.render());
 	}

@@ -1,16 +1,39 @@
-<mat-toolbar color="primary">
-  <span>{{ title }}</span>
-  <div class="spacer"></div>
-  <button mat-button routerLink="/">Home</button>
-  <button mat-button routerLink="/play-like-goat">Play like Goat</button>
-  <button mat-button routerLink="/goat">GOAT</button>
-  <button mat-button routerLink="/me">Me</button>
-  <button mat-button routerLink="/pgn-viewer">PGN Viewer</button>
-  <button mat-icon-button (click)="toggleTheme()" aria-label="Toggle theme" class="theme-toggle">
-    {{ themeService.theme() === 'light' ? '🌙' : '☀️' }}
-  </button>
-</mat-toolbar>
+<nav class="app-navbar">
+  <div class="navbar-inner">
+    <a routerLink="/" class="brand">
+      <span class="brand-icon">♟</span>
+      <span class="brand-text">ngx-chessground</span>
+    </a>
 
-<div class="content">
+    <div class="nav-links">
+      <a routerLink="/pgn-viewer" routerLinkActive="active" class="nav-link">PGN Viewer</a>
+      <a routerLink="/home" routerLinkActive="active" class="nav-link">Examples</a>
+      <a routerLink="/play-like-goat" routerLinkActive="active" class="nav-link">Play</a>
+      <a routerLink="/goat" routerLinkActive="active" class="nav-link">Fischer</a>
+      <a routerLink="/me" routerLinkActive="active" class="nav-link">About</a>
+    </div>
+
+    <div class="navbar-actions">
+      <button
+        class="theme-toggle-btn"
+        (click)="toggleTheme()"
+        [attr.aria-label]="themeService.theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
+        title="Toggle theme"
+      >
+        @if (themeService.theme() === 'light') {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="app-content">
   <router-outlet></router-outlet>
-</div>
+</main>

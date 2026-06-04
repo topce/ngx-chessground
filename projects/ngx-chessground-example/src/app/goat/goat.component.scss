@@ -1,95 +1,295 @@
-.container {
-  padding: 20px;
-  max-width: 1200px;
+/* ==========================================================================
+   GOAT (Fischer) Page — Editorial Chess Club Design
+   Honoring the 11th World Champion with dramatic typography and depth
+   ========================================================================== */
+
+.goat-page {
+  max-width: 1000px;
   margin: 0 auto;
+  padding: var(--space-3xl) var(--space-2xl);
   min-height: calc(100vh - 56px);
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* ---- Hero ---- */
+.goat-hero {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-2xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.goat-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, var(--color-accent-subtle) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, var(--color-accent-subtle) 0%, transparent 60%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hero-ornament {
+  font-size: 3.5rem;
+  line-height: 1;
+  margin-bottom: var(--space-lg);
+  animation: fadeIn 0.6s ease-out;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.hero-text {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-lg);
+  letter-spacing: 0.05em;
+}
+
+.hero-quote {
+  font-size: var(--font-size-lg);
+  font-style: italic;
+  color: var(--text-secondary);
+  margin: 0;
+  padding: var(--space-md) var(--space-xl);
+  border-left: 3px solid var(--color-accent);
+  display: inline-block;
+  max-width: 450px;
+  line-height: 1.6;
+}
+
+/* ---- Stats ---- */
+.hero-stats {
   display: flex;
   justify-content: center;
+  gap: var(--space-2xl);
+  margin-top: var(--space-2xl);
+  position: relative;
+  z-index: 1;
 }
 
-.content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 900px;
-}
-
-h1 {
-  font-family: var(--font-heading);
-  text-align: center;
-  margin-bottom: 30px;
-  color: var(--text-primary);
-  font-size: 2.2rem;
-}
-
-.links-section {
-  max-width: 800px;
-  width: 100%;
-  margin: 25px auto;
-  padding: 20px;
-  background-color: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color-light);
-}
-
-.resource-links {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.resource-links li {
-  margin-bottom: 8px;
-  width: 100%;
-  max-width: 400px;
+.stat {
   text-align: center;
 }
 
-.resource-links a {
+.stat-value {
   display: block;
-  padding: 12px 15px;
-  background-color: var(--color-accent);
-  color: var(--text-inverse);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1.2;
+}
+
+.stat-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: var(--space-xs);
+}
+
+/* ---- Divider ---- */
+.section-divider {
+  text-align: center;
+  padding: var(--space-2xl) 0;
+}
+
+.divider-piece {
+  font-size: 1.5rem;
+  opacity: 0.3;
+  animation: fadeIn 0.6s ease-out 0.2s both;
+}
+
+/* ---- Resources Section ---- */
+.resources-section {
+  text-align: center;
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm);
+}
+
+.section-desc {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-2xl);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  text-align: left;
+}
+
+.resource-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
   text-decoration: none;
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.resource-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+
+.resource-card:active {
+  transform: translateY(-1px);
+}
+
+.card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-accent);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.resource-card:hover .card-accent {
+  opacity: 1;
+}
+
+/* Video card special accent */
+.resource-card.video .card-accent {
+  background: var(--color-danger);
+}
+
+.card-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.card-number {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  font-family: var(--font-body);
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
 }
 
-.resource-links a:hover {
-  background-color: var(--color-accent-hover);
-  box-shadow: var(--shadow-md);
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: var(--space-sm) 0 var(--space-xs);
+  transition: color var(--transition-fast);
 }
 
-.resource-links a:focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 2px;
+.resource-card:hover .card-title {
+  color: var(--color-accent);
 }
 
-/* Responsive adjustments */
+.resource-card.video:hover .card-title {
+  color: var(--color-danger);
+}
+
+.card-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.card-link-hint {
+  display: inline-block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-top: var(--space-lg);
+  transition: transform var(--transition-fast);
+  position: relative;
+  z-index: 1;
+}
+
+.resource-card:hover .card-link-hint {
+  transform: translateX(4px);
+}
+
+.resource-card.video .card-link-hint {
+  color: var(--color-danger);
+}
+
+/* ---- Responsive ---- */
 @media (max-width: 768px) {
-  .links-section {
-    padding: 15px;
-    margin-top: 20px;
+  .goat-page {
+    padding: var(--space-xl) var(--space-lg);
   }
 
-  .resource-links li {
-    max-width: 90%;
+  .goat-hero {
+    padding: var(--space-2xl) var(--space-lg);
   }
 
-  h1 {
-    font-size: 1.8rem;
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .hero-stats {
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 1.5rem;
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-quote {
+    font-size: var(--font-size-base);
+    padding: var(--space-sm) var(--space-lg);
   }
 }

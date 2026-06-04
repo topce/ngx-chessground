@@ -4,84 +4,95 @@
 
 /* ==========================================================================
    Design Tokens — NGX Chessground
-   Style: Data-Dense Dashboard / B2B Professional
+   Style: Editorial Chess Club — Refined, dramatic, atmospheric
    Typography: Fira Sans + Fira Code
    ========================================================================== */
 :root {
-  /* Primary palette */
-  --color-primary: #0F172A;
-  --color-primary-hover: #1E293B;
-  --color-primary-light: #E2E8F0;
-  --color-secondary: #334155;
-  --color-secondary-hover: #475569;
-  --color-accent: #0369A1;
-  --color-accent-hover: #0284C7;
-  --color-cta: #0369A1;
-  --color-cta-hover: #0284C7;
-  --color-danger: #DC2626;
-  --color-danger-hover: #B91C1C;
+  /* Primary palette — inspired by chessboard contrast */
+  --color-primary: #0D0D1A;
+  --color-primary-hover: #1A1A33;
+  --color-primary-light: #E0E0E8;
+  --color-secondary: #38384A;
+  --color-secondary-hover: #4A4A5E;
+  --color-accent: #A67C00;
+  --color-accent-hover: #C49A1A;
+  --color-accent-subtle: #F5EDD6;
+  --color-cta: #A67C00;
+  --color-cta-hover: #C49A1A;
+  --color-danger: #B8312A;
+  --color-danger-hover: #D4443C;
 
   /* Backgrounds */
-  --bg-page: #F8FAFC;
-  --bg-surface: #ffffff;
-  --bg-surface-alt: #F1F5F9;
-  --bg-hover: #E2E8F0;
+  --bg-page: #F5F2EC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: #E6E0D6;
+  --bg-hover: #DAD3C8;
 
   /* Text */
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #94A3B8;
-  --text-inverse: #ffffff;
+  --text-primary: #0D0D1A;
+  --text-secondary: #3D3D52;
+  --text-muted: #78788E;
+  --text-inverse: #F5F2EC;
 
   /* Borders */
-  --border-color: #CBD5E1;
-  --border-color-light: #E2E8F0;
+  --border-color: #C8C2B6;
+  --border-color-light: #E0DCD2;
 
   /* Spacing */
-  --space-xs: 0.25rem;   /* 4px */
-  --space-sm: 0.5rem;    /* 8px */
-  --space-md: 0.75rem;   /* 12px */
-  --space-lg: 1rem;      /* 16px */
-  --space-xl: 1.5rem;    /* 24px */
-  --space-2xl: 2rem;     /* 32px */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+  --space-3xl: 3rem;
 
   /* Border radius */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 1px 3px rgba(13, 13, 26, 0.08);
+  --shadow-md: 0 4px 12px rgba(13, 13, 26, 0.10);
+  --shadow-lg: 0 10px 30px rgba(13, 13, 26, 0.12);
+  --shadow-xl: 0 20px 50px rgba(13, 13, 26, 0.14);
+  --shadow-glow: 0 0 20px rgba(166, 124, 0, 0.18);
 
   /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-normal: 200ms ease;
-  --transition-slow: 300ms ease;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Typography */
   --font-heading: "Fira Sans", system-ui, sans-serif;
   --font-body: "Fira Sans", system-ui, sans-serif;
   --font-mono: "Fira Code", "JetBrains Mono", "Courier New", monospace;
   --font-size-xs: 0.75rem;
-  --font-size-sm: 0.8rem;
+  --font-size-sm: 0.8125rem;
   --font-size-base: 0.875rem;
   --font-size-lg: 1rem;
-  --font-size-xl: 1.1rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.5rem;
 
   /* Panel widths */
   --panel-width: 320px;
   --panel-min-width: 280px;
 
   /* Board */
-  --board-shadow: 0 4px 20px rgba(15, 23, 42, 0.10);
+  --board-shadow: 0 8px 32px rgba(13, 13, 26, 0.14);
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(200, 194, 182, 0.5);
+  --glass-blur: 12px;
 }
 
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700;800&display=swap');
 
 /* ---- Light Theme (default) ---- */
 html {
@@ -103,55 +114,92 @@ html[data-theme="dark"] {
     )
   );
 
-  --color-primary: #E2E8F0;
-  --color-primary-hover: #CBD5E1;
-  --color-primary-light: #1E293B;
-  --color-secondary: #94A3B8;
-  --color-secondary-hover: #CBD5E1;
-  --color-accent: #38BDF8;
-  --color-accent-hover: #7DD3FC;
-  --color-cta: #38BDF8;
-  --color-cta-hover: #7DD3FC;
-  --color-danger: #F87171;
-  --color-danger-hover: #FCA5A5;
+  --color-primary: #E8E8EE;
+  --color-primary-hover: #D0D0DA;
+  --color-primary-light: #2A2A3E;
+  --color-secondary: #8A8A9A;
+  --color-secondary-hover: #AAAAAA;
+  --color-accent: #D4A017;
+  --color-accent-hover: #E8B830;
+  --color-accent-subtle: #3A3520;
+  --color-cta: #D4A017;
+  --color-cta-hover: #E8B830;
+  --color-danger: #E74C3C;
+  --color-danger-hover: #F1948A;
 
-  --bg-page: #0F172A;
-  --bg-surface: #1E293B;
-  --bg-surface-alt: #334155;
-  --bg-hover: #334155;
+  --bg-page: #141420;
+  --bg-surface: #1E1E30;
+  --bg-surface-alt: #2A2A3E;
+  --bg-hover: #343450;
 
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --text-inverse: #0F172A;
+  --text-primary: #E8E8EE;
+  --text-secondary: #9A9AAA;
+  --text-muted: #6A6A7A;
+  --text-inverse: #141420;
 
-  --border-color: #334155;
-  --border-color-light: #1E293B;
+  --border-color: #3A3A4E;
+  --border-color-light: #2A2A3E;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(212, 160, 23, 0.20);
 
-  --board-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --board-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  --glass-bg: rgba(30, 30, 48, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
+/* ---- Base Styles ---- */
 body {
   height: 100%;
   margin: 0;
   font-family: var(--font-body);
   font-size: var(--font-size-base);
-  line-height: 1.5;
+  line-height: 1.6;
   background: var(--bg-page);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+/* Subtle background texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(184, 134, 11, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 85% 90%, rgba(184, 134, 11, 0.03) 0%, transparent 50%);
+}
+
+html[data-theme="dark"] body::before {
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(212, 160, 23, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 90%, rgba(212, 160, 23, 0.04) 0%, transparent 50%);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.25;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  letter-spacing: -0.005em;
 }
 
 a {
@@ -199,6 +247,69 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* ==========================================================================
+   Sponsor Dialog Overrides
+   ========================================================================== */
+.sponsor-dialog-panel .mat-mdc-dialog-surface {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border-color);
+}
+
+.sponsor-dialog-panel .mat-mdc-dialog-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sponsor-dialog-panel .mat-mdc-dialog-content {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.sponsor-dialog-panel .mat-mdc-dialog-content strong {
+  color: var(--text-primary);
+}
+
+.sponsor-dialog-panel .mat-mdc-dialog-content a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 /* Reduced motion */

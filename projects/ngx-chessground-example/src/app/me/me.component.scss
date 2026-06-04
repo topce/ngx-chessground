@@ -1,95 +1,228 @@
-.container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  min-height: calc(100vh - 56px);
-  display: flex;
-  justify-content: center;
-}
+/* ==========================================================================
+   About Page — Editorial Chess Club Design
+   ========================================================================== */
 
-.content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 900px;
-}
-
-h1 {
-  font-family: var(--font-heading);
-  text-align: center;
-  margin-bottom: 30px;
-  color: var(--text-primary);
-  font-size: 2.2rem;
-}
-
-.links-section {
+.about-page {
   max-width: 800px;
-  width: 100%;
-  margin: 25px auto;
-  padding: 20px;
-  background-color: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color-light);
+  margin: 0 auto;
+  padding: var(--space-3xl) var(--space-2xl);
+  min-height: calc(100vh - 56px);
+  animation: fadeInUp 0.4s ease-out;
 }
 
-.resource-links {
-  list-style: none;
-  padding: 0;
+/* ---- Profile Hero ---- */
+.profile-hero {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+  padding-bottom: var(--space-2xl);
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-lg);
+  background: var(--color-accent-subtle);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05) rotate(-5deg);
+  box-shadow: 0 0 30px rgba(184, 134, 11, 0.25);
+}
+
+.avatar-piece {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.profile-name {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-md);
+  letter-spacing: -0.015em;
+}
+
+.profile-bio {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0 auto var(--space-lg);
+  max-width: 500px;
+}
+
+.profile-bio strong {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.profile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  letter-spacing: 0.01em;
+}
+
+/* ---- Links Grid ---- */
+.links-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.link-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.link-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--color-accent);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.link-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.link-card:hover::before {
+  opacity: 1;
+}
+
+.link-card:hover .card-arrow {
+  transform: translateX(4px);
+  color: var(--color-accent);
+}
+
+.card-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-alt);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.link-card:hover .card-icon {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  gap: 2px;
 }
 
-.resource-links li {
-  margin-bottom: 8px;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-}
-
-.resource-links a {
-  display: block;
-  padding: 12px 15px;
-  background-color: var(--color-accent);
-  color: var(--text-inverse);
-  text-decoration: none;
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+.card-title {
+  font-size: var(--font-size-base);
   font-weight: 600;
-  font-family: var(--font-body);
+  color: var(--text-primary);
+  transition: color var(--transition-fast);
 }
 
-.resource-links a:hover {
-  background-color: var(--color-accent-hover);
-  box-shadow: var(--shadow-md);
+.link-card:hover .card-title {
+  color: var(--color-accent);
 }
 
-.resource-links a:focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 2px;
+.card-desc {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .links-section {
-    padding: 15px;
-    margin-top: 20px;
+.card-arrow {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+/* ---- Card color accents ---- */
+.link-card.lichess:hover { border-color: #7B61FF; }
+.link-card.lichess:hover .card-icon { background: rgba(123, 97, 255, 0.1); color: #7B61FF; }
+.link-card.lichess:hover .card-title { color: #7B61FF; }
+.link-card.lichess::before { background: #7B61FF; }
+
+.link-card.game:hover .card-icon { background: var(--color-accent-subtle); color: var(--color-accent); }
+
+.link-card.revenge { border-color: var(--border-color); }
+.link-card.revenge:hover { border-color: var(--color-danger); }
+.link-card.revenge:hover .card-icon { background: rgba(192, 57, 43, 0.08); color: var(--color-danger); }
+.link-card.revenge:hover .card-title { color: var(--color-danger); }
+.link-card.revenge::before { background: var(--color-danger); }
+
+.link-card.all-games:hover .card-icon { background: var(--color-accent-subtle); color: var(--color-accent); }
+
+.link-card.bookmarks:hover { border-color: #0EA5E9; }
+.link-card.bookmarks:hover .card-icon { background: rgba(14, 165, 233, 0.1); color: #0EA5E9; }
+.link-card.bookmarks:hover .card-title { color: #0EA5E9; }
+.link-card.bookmarks::before { background: #0EA5E9; }
+
+.link-card.club:hover { border-color: #10B981; }
+.link-card.club:hover .card-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+.link-card.club:hover .card-title { color: #10B981; }
+.link-card.club::before { background: #10B981; }
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .about-page {
+    padding: var(--space-xl) var(--space-lg);
   }
 
-  .resource-links li {
-    max-width: 90%;
+  .links-grid {
+    grid-template-columns: 1fr;
   }
 
-  h1 {
-    font-size: 1.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.5rem;
+  .profile-name {
+    font-size: var(--font-size-2xl);
   }
 }

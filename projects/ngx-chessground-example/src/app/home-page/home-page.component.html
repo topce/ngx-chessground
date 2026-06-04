@@ -1,35 +1,69 @@
-<!-- Original app content goes here -->
-<div class="grid-container">
-  <div class="leftmenu">
-    <mat-button-toggle-group #leftMenu vertical [(value)]="leftValue">
-      @for (item of leftList; track item.name) {
-      <mat-button-toggle
-        [value]="item.name"
-        (click)="onClick(item.name, item.run)"
-        (keydown.enter)="onClick(item.name, item.run)"
-      >
-        {{ item.name }}
-      </mat-button-toggle>
-      }
-    </mat-button-toggle-group>
-  </div>
-  <div class="main">
-    <main>
-      <ngx-chessground #chess></ngx-chessground>
-    </main>
-  </div>
-  <div class="rightmenu">
-    <mat-button-toggle-group #rightMenu vertical="true" [(value)]="rightValue">
-      @for (item of rightList; track item.name) {
-      <mat-button-toggle
-        font-size="small"
-        [value]="item.name"
-        (click)="onClick(item.name, item.run)"
-        (keydown.enter)="onClick(item.name, item.run)"
-      >
-        {{ item.name }}
-      </mat-button-toggle>
-      }
-    </mat-button-toggle-group>
+<div class="examples-page">
+  <!-- Page header -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Chessground Examples</h1>
+      <p class="page-subtitle">Interactive playground showcasing the full API surface of <strong>ngx-chessground</strong></p>
+    </div>
+    <div class="header-decoration">
+      <span class="deco-dot"></span>
+      <span class="deco-line"></span>
+      <span class="deco-dot"></span>
+    </div>
+  </header>
+
+  <!-- Main grid -->
+  <div class="examples-grid">
+    <!-- Left panel -->
+    <aside class="panel panel-left">
+      <div class="panel-header">
+        <span class="panel-label">Configuration</span>
+        <span class="panel-count">{{ leftList.length }} units</span>
+      </div>
+      <div class="panel-scroll">
+        <mat-button-toggle-group #leftMenu vertical [(value)]="leftValue" class="unit-toggle-group">
+          @for (item of leftList; track item.name) {
+            <mat-button-toggle
+              [value]="item.name"
+              (click)="onClick(item.name, item.run)"
+              (keydown.enter)="onClick(item.name, item.run)"
+              class="unit-toggle"
+            >
+              <span class="unit-name">{{ item.name }}</span>
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+    </aside>
+
+    <!-- Center: Board -->
+    <div class="board-area">
+      <div class="board-frame">
+        <ngx-chessground #chess></ngx-chessground>
+      </div>
+      <div class="board-hint">Select a unit from either panel to execute</div>
+    </div>
+
+    <!-- Right panel -->
+    <aside class="panel panel-right">
+      <div class="panel-header">
+        <span class="panel-label">Scenarios</span>
+        <span class="panel-count">{{ rightList.length }} units</span>
+      </div>
+      <div class="panel-scroll">
+        <mat-button-toggle-group #rightMenu vertical [(value)]="rightValue" class="unit-toggle-group">
+          @for (item of rightList; track item.name) {
+            <mat-button-toggle
+              [value]="item.name"
+              (click)="onClick(item.name, item.run)"
+              (keydown.enter)="onClick(item.name, item.run)"
+              class="unit-toggle"
+            >
+              <span class="unit-name">{{ item.name }}</span>
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+    </aside>
   </div>
 </div>

@@ -1,12 +1,46 @@
-<div class="container">
-    <div class="content-wrapper">
-        <h1>{{ title }}</h1>
-        <p class="subtitle">
-            GOAT chess player Robert James Fischer learned to play chess by playing against himself.
-            You can do same here.
-        </p>
-        <div class="chess-board">
-            <ngx-chessground-table></ngx-chessground-table>
-        </div>
+<div class="play-page">
+  <!-- Header -->
+  <header class="play-header">
+    <div class="header-badge">♔ Play</div>
+    <h1 class="play-title">{{ title }}</h1>
+    <p class="play-subtitle">
+      Fischer learned by playing against himself. Open the board and do the same.
+    </p>
+  </header>
+
+  <!-- Board area -->
+  <div class="play-board-area">
+    <div class="play-board-container">
+      <!-- Decorative corner pieces -->
+      <div class="corner corner-tl">♜</div>
+      <div class="corner corner-tr">♝</div>
+      <div class="corner corner-bl">♞</div>
+      <div class="corner corner-br">♛</div>
+
+      <div class="board-wrapper">
+        <ngx-chessground-table></ngx-chessground-table>
+      </div>
+
+      <div class="board-footer">
+        <span class="board-notation">a b c d e f g h</span>
+        <span class="board-separator">·</span>
+        <span class="board-notation">1 2 3 4 5 6 7 8</span>
+      </div>
     </div>
+
+    <div class="play-sidebar">
+      <div class="sidebar-card tips">
+        <h3 class="sidebar-card-title">♚ Tips</h3>
+        <ul class="tips-list">
+          <li>Play both sides to develop intuition</li>
+          <li>Analyze each position from both perspectives</li>
+          <li>Take your time — quality over speed</li>
+        </ul>
+      </div>
+      <div class="sidebar-card quote">
+        <p class="quote-text">"Chess is life."</p>
+        <span class="quote-author">— Bobby Fischer</span>
+      </div>
+    </div>
+  </div>
 </div>

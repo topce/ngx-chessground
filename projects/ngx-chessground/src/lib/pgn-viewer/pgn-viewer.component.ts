@@ -806,12 +806,45 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return [lastMove.from as Key, lastMove.to as Key];
 	});
 
+	/**
+	 * Maximum number of games to display in the game list at once.
+	 */
+	readonly DISPLAY_LIMIT = 1;
+
+	/** Whether to bypass the display limit. */
+	showAllGames = signal<boolean>(false);
+
+	/** Total count of games matching the current filter criteria. */
+	totalFilteredCount = computed(() => this.filteredGamesIndices().length);
+
 	/** Filtered game metadata for the current filter results. */
 	filteredGameInfos = computed(() => {
 		const metadata = this.gamesMetadata();
-		const indices = this.filteredGamesIndices();
-		return indices.map((i) => metadata[i]);
+		const allIndices = this.filteredGamesIndices();
+
+		// When games are selected, show only the current game (single-item view)
+		if (this.selectedGamesCount() > 0) {
+			const currentIdx = this.currentGameIndex();
+			if (currentIdx >= 0 && currentIdx < metadata.length) {
+				return [metadata[currentIdx]];
+			}
+			return [];
+		}
+
+		const limit = this.showAllGames() ? allIndices.length : this.DISPLAY_LIMIT;
+		const limited = allIndices.slice(0, limit);
+		return limited.map((i) => metadata[i]);
 	});
+
+	/** Expands the game list to show all filtered games. */
+	showAllFilteredGames() {
+		this.showAllGames.set(true);
+	}
+
+	/** Resets the game list to the display limit. */
+	showLimitedGames() {
+		this.showAllGames.set(false);
+	}
 
 	/**
 	 * Indices to navigate through when using the previous/next game buttons.
@@ -1727,6 +1760,21 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		// Stop any ongoing replay when filter is applied
 		this.stopReplay();
 		this.isReplayingSequence = false;
+		this.showAllGames.set(false);
+
+		// Collapse all panels except Replay
+		this.leftPanelSections.set({
+			players: false,
+			gameDetails: false,
+			rating: false,
+			position: false,
+		});
+
+		this.rightPanelSections.set({
+			moves: false,
+			replay: true,
+			loadCache: false,
+		});
 
 		// const games = this.games(); // REMOVED
 		const fWhite = this.filterWhite();
@@ -1806,6 +1854,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.isReplayingSequence = false;
 		this.showBetterMoveBtn.set(false);
 		this.analysisVisible.set(false);
+		this.showAllGames.set(false);
 		const hadFilterMoves = this.filterMoves();
 
 		// Clear all filter fields
@@ -1965,6 +2014,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.interactiveMoves.set([]);
 		this.currentMoveIndex.set(-1);
 		this.currentGameIndex.set(-1); // Force change detection when setting to 0 later
+		this.showAllGames.set(false);
 		this.currentFen.set(
 			'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 		);
