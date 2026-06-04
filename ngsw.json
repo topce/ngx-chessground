@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1780600215294,
+  "timestamp": 1780604414569,
   "index": "/ngx-chessground/index.html",
   "assetGroups": [
     {
@@ -11,14 +11,14 @@
         "ignoreVary": true
       },
       "urls": [
-        "/ngx-chessground/chunk-QHWGSPT6.js",
-        "/ngx-chessground/chunk-U53JURXL.js",
+        "/ngx-chessground/chunk-C7G6K2RV.js",
+        "/ngx-chessground/chunk-YPGUYO3H.js",
         "/ngx-chessground/favicon.ico",
         "/ngx-chessground/index.html",
-        "/ngx-chessground/main-6B7V4ACY.js",
+        "/ngx-chessground/main-4FID3GYX.js",
         "/ngx-chessground/manifest.webmanifest",
         "/ngx-chessground/styles-FZKTVMI6.css",
-        "/ngx-chessground/worker-K4I47UQY.js"
+        "/ngx-chessground/worker-JWVMRJHQ.js"
       ],
       "patterns": []
     },
@@ -104,8 +104,8 @@
     "/ngx-chessground/assets/images/pieces/staunton/basic/White-Pawn.png": "48c91c83fa1ef7eb03cde8ff7dfaf47b2ee600c7",
     "/ngx-chessground/assets/images/pieces/staunton/basic/White-Queen.png": "e11d5e78b6e12ffe0aa858c8eb923acc6d95e0d9",
     "/ngx-chessground/assets/images/pieces/staunton/basic/White-Rook.png": "4187315e71726c55db4372e57182dee11aad5171",
-    "/ngx-chessground/chunk-QHWGSPT6.js": "7ae171cb115376d86b15a992db6c4befd9aff83d",
-    "/ngx-chessground/chunk-U53JURXL.js": "df7385471d265e09e6439852345ee3dd89ac06cc",
+    "/ngx-chessground/chunk-C7G6K2RV.js": "7d0950a32eba86e1450d4c8388aa2adab6ce5aae",
+    "/ngx-chessground/chunk-YPGUYO3H.js": "7638c5b6d80d1d767161a32fca0c862e6ed89e90",
     "/ngx-chessground/favicon.ico": "f22758a30ab6cb76af2536b3ba04d37961b9cc45",
     "/ngx-chessground/icons/icon-128x128.png": "a698cf897b379d85f56a1a2d58712198e074dc89",
     "/ngx-chessground/icons/icon-144x144.png": "2fe86deae2d73c911e8dbed321d388c291f81e5a",
@@ -115,11 +115,11 @@
     "/ngx-chessground/icons/icon-512x512.png": "02a093a299b353b3976fcf3396b0573de38f9e3e",
     "/ngx-chessground/icons/icon-72x72.png": "8bc9678d77e08b43c9961505b336e447fdb38a0b",
     "/ngx-chessground/icons/icon-96x96.png": "206bbd70bbcf80f233a31025295a5a3b7f0f81e5",
-    "/ngx-chessground/index.html": "92e3e11a3aa964b8b1654dcda1a5cf41a768e232",
-    "/ngx-chessground/main-6B7V4ACY.js": "5c43991ca3d2bedaa6cb810a083045e33ade8cc6",
+    "/ngx-chessground/index.html": "eae00a10eb62e526d7576ecc4769b9f6befb0c6e",
+    "/ngx-chessground/main-4FID3GYX.js": "3dc2286344026bfd569bbc3dffd1a89298ff6c69",
     "/ngx-chessground/manifest.webmanifest": "afcc29920ea5841fd173b03de64abee86f3d5014",
     "/ngx-chessground/styles-FZKTVMI6.css": "e04d3677e4274501b8f14c74d7f98ff8bbfc98a6",
-    "/ngx-chessground/worker-K4I47UQY.js": "08c3e22f21ef97981bda2529e06ddfb4d0a824b5"
+    "/ngx-chessground/worker-JWVMRJHQ.js": "569086b4c64709f87e96b25c11cdcf13a59fa208"
   },
   "navigationUrls": [
     {
