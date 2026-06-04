@@ -1059,6 +1059,45 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	// ---- Collapsible Section State ----
+
+	/** Left panel collapsible sections and their expanded/collapsed state. */
+	leftPanelSections = signal<Record<string, boolean>>({
+		players: true,
+		gameDetails: true,
+		rating: false,
+		position: false,
+	});
+
+	/** Right panel collapsible sections and their expanded/collapsed state. */
+	rightPanelSections = signal<Record<string, boolean>>({
+		moves: true,
+		replay: false,
+		loadCache: false,
+	});
+
+	/**
+	 * Toggles a collapsible section in the left panel.
+	 * @param section — The section key to toggle.
+	 */
+	toggleLeftSection(section: string) {
+		this.leftPanelSections.update((s) => ({
+			...s,
+			[section]: !s[section],
+		}));
+	}
+
+	/**
+	 * Toggles a collapsible section in the right panel.
+	 * @param section — The section key to toggle.
+	 */
+	toggleRightSection(section: string) {
+		this.rightPanelSections.update((s) => ({
+			...s,
+			[section]: !s[section],
+		}));
+	}
+
 	// ---- UI State ----
 
 	/** Raw PGN text bound to the PGN textarea. */

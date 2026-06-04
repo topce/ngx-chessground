@@ -4,321 +4,400 @@
     <div class="panel left-panel">
       <h3>Game Browser</h3>
 
-      <!-- Filters -->
-      <div class="filter-section">
-        <div class="filter-row">
-          <div class="typeahead-wrapper">
-            <input
-              type="text"
-              placeholder="White"
-              aria-label="Filter by White player"
-              [value]="filterWhite()"
-              (input)="onWhiteTypeaheadInput($event)"
-              (focus)="openWhiteTypeahead()"
-              (blur)="closeWhiteTypeahead()"
-              (keydown)="onWhiteTypeaheadKeydown($event)"
-              autocomplete="off"
-            />
-            @if (whiteTypeaheadOpen() && filteredWhiteSuggestions().length > 0) {
-              <div class="typeahead-dropdown" role="listbox">
-                @for (player of filteredWhiteSuggestions(); track player; let i = $index) {
-                  <div
-                    class="typeahead-item"
-                    [class.active]="i === whiteTypeaheadIndex()"
-                    role="option"
-                    [attr.aria-selected]="i === whiteTypeaheadIndex()"
-                    (mousedown)="selectWhiteTypeahead(player)"
-                  >
-                    @for (segment of highlightText(player, filterWhite()); track $index) {
-                      @if (segment.match) {
-                        <span class="match-highlight">{{ segment.text }}</span>
-                      } @else {
-                        <span>{{ segment.text }}</span>
-                      }
+      <!-- Collapsible: Players -->
+      <div class="collapsible-section">
+        <div
+          class="section-header"
+          tabindex="0"
+          role="button"
+          [attr.aria-expanded]="leftPanelSections()['players']"
+          (click)="toggleLeftSection('players')"
+          (keydown.enter)="toggleLeftSection('players'); $event.preventDefault()"
+          (keydown.space)="toggleLeftSection('players'); $event.preventDefault()"
+        >
+          <span class="chevron" [class.expanded]="leftPanelSections()['players']">▶</span>
+          Players
+        </div>
+        <div class="section-content" [class.expanded]="leftPanelSections()['players']">
+          <div class="filter-section">
+            <div class="filter-row">
+              <div class="typeahead-wrapper">
+                <input
+                  type="text"
+                  placeholder="White"
+                  aria-label="Filter by White player"
+                  [value]="filterWhite()"
+                  (input)="onWhiteTypeaheadInput($event)"
+                  (focus)="openWhiteTypeahead()"
+                  (blur)="closeWhiteTypeahead()"
+                  (keydown)="onWhiteTypeaheadKeydown($event)"
+                  autocomplete="off"
+                />
+                @if (whiteTypeaheadOpen() && filteredWhiteSuggestions().length > 0) {
+                  <div class="typeahead-dropdown" role="listbox">
+                    @for (player of filteredWhiteSuggestions(); track player; let i = $index) {
+                      <div
+                        class="typeahead-item"
+                        [class.active]="i === whiteTypeaheadIndex()"
+                        role="option"
+                        [attr.aria-selected]="i === whiteTypeaheadIndex()"
+                        (mousedown)="selectWhiteTypeahead(player)"
+                      >
+                        @for (segment of highlightText(player, filterWhite()); track $index) {
+                          @if (segment.match) {
+                            <span class="match-highlight">{{ segment.text }}</span>
+                          } @else {
+                            <span>{{ segment.text }}</span>
+                          }
+                        }
+                      </div>
                     }
                   </div>
                 }
-              </div>
-            }
-            @if (whiteTypeaheadOpen() && filterWhite() && filteredWhiteSuggestions().length === 0) {
-              <div class="typeahead-dropdown">
-                <div class="typeahead-no-results">No matching players</div>
-              </div>
-            }
-          </div>
-        </div>
-        <div class="filter-row">
-          <div class="typeahead-wrapper">
-            <input
-              type="text"
-              placeholder="Black"
-              aria-label="Filter by Black player"
-              [value]="filterBlack()"
-              (input)="onBlackTypeaheadInput($event)"
-              (focus)="openBlackTypeahead()"
-              (blur)="closeBlackTypeahead()"
-              (keydown)="onBlackTypeaheadKeydown($event)"
-              autocomplete="off"
-            />
-            @if (blackTypeaheadOpen() && filteredBlackSuggestions().length > 0) {
-              <div class="typeahead-dropdown" role="listbox">
-                @for (player of filteredBlackSuggestions(); track player; let i = $index) {
-                  <div
-                    class="typeahead-item"
-                    [class.active]="i === blackTypeaheadIndex()"
-                    role="option"
-                    [attr.aria-selected]="i === blackTypeaheadIndex()"
-                    (mousedown)="selectBlackTypeahead(player)"
-                  >
-                    @for (segment of highlightText(player, filterBlack()); track $index) {
-                      @if (segment.match) {
-                        <span class="match-highlight">{{ segment.text }}</span>
-                      } @else {
-                        <span>{{ segment.text }}</span>
-                      }
-                    }
+                @if (whiteTypeaheadOpen() && filterWhite() && filteredWhiteSuggestions().length === 0) {
+                  <div class="typeahead-dropdown">
+                    <div class="typeahead-no-results">No matching players</div>
                   </div>
                 }
               </div>
-            }
-            @if (blackTypeaheadOpen() && filterBlack() && filteredBlackSuggestions().length === 0) {
-              <div class="typeahead-dropdown">
-                <div class="typeahead-no-results">No matching players</div>
-              </div>
-            }
-          </div>
-        </div>
-        <div class="filter-row">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [checked]="ignoreColor()"
-              (change)="toggleIgnoreColor($event)"
-            />
-            Ignore Color
-          </label>
-        </div>
-        <div class="filter-row filter-result-row">
-          <span class="filter-label">Result:</span>
-          <label class="checkbox-label result-option">
-            <input
-              type="checkbox"
-              [checked]="filterResult().includes('1-0')"
-              (change)="toggleFilterResult('1-0', $event)"
-            />
-            White wins (1-0)
-          </label>
-          <label class="checkbox-label result-option">
-            <input
-              type="checkbox"
-              [checked]="filterResult().includes('1/2-1/2')"
-              (change)="toggleFilterResult('1/2-1/2', $event)"
-            />
-            Draw (½-½)
-          </label>
-          <label class="checkbox-label result-option">
-            <input
-              type="checkbox"
-              [checked]="filterResult().includes('0-1')"
-              (change)="toggleFilterResult('0-1', $event)"
-            />
-            Black wins (0-1)
-          </label>
-          <label class="checkbox-label result-option">
-            <input
-              type="checkbox"
-              [checked]="filterResult().includes('*')"
-              (change)="toggleFilterResult('*', $event)"
-            />
-            Unfinished (*)
-          </label>
-        </div>
-        <div class="filter-row">
-          <select
-            [value]="filterEco()"
-            (change)="updateFilterEco($event)"
-            aria-label="Filter by ECO Opening"
-          >
-            <option value="">All Openings</option>
-            @for (ecoData of sortedEcoCodes(); track ecoData.code) {
-              <option [value]="ecoData.code">
-                {{ ecoData.code }}
-                @if (getOpeningMoves(ecoData.code)) {
-                  - {{ getOpeningMoves(ecoData.code) }}
+            </div>
+            <div class="filter-row">
+              <div class="typeahead-wrapper">
+                <input
+                  type="text"
+                  placeholder="Black"
+                  aria-label="Filter by Black player"
+                  [value]="filterBlack()"
+                  (input)="onBlackTypeaheadInput($event)"
+                  (focus)="openBlackTypeahead()"
+                  (blur)="closeBlackTypeahead()"
+                  (keydown)="onBlackTypeaheadKeydown($event)"
+                  autocomplete="off"
+                />
+                @if (blackTypeaheadOpen() && filteredBlackSuggestions().length > 0) {
+                  <div class="typeahead-dropdown" role="listbox">
+                    @for (player of filteredBlackSuggestions(); track player; let i = $index) {
+                      <div
+                        class="typeahead-item"
+                        [class.active]="i === blackTypeaheadIndex()"
+                        role="option"
+                        [attr.aria-selected]="i === blackTypeaheadIndex()"
+                        (mousedown)="selectBlackTypeahead(player)"
+                      >
+                        @for (segment of highlightText(player, filterBlack()); track $index) {
+                          @if (segment.match) {
+                            <span class="match-highlight">{{ segment.text }}</span>
+                          } @else {
+                            <span>{{ segment.text }}</span>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
                 }
-                ({{ ecoData.count }} games)
-              </option>
-            }
-          </select>
-        </div>
-        <div class="filter-row">
-          <select
-            [value]="filterTimeControl()"
-            (change)="updateFilterTimeControl($event)"
-            aria-label="Filter by Time Control"
-          >
-            <option value="">All Time Controls</option>
-            @for (tcData of sortedTimeControls(); track tcData.key) {
-              <option
-                [value]="tcData.key"
-                [attr.title]="tcData.originalsSummary"
-              >
-                {{ tcData.label }} ({{ tcData.count }} games)
-              </option>
-            }
-          </select>
-        </div>
-        <div class="filter-row">
-          <select
-            [value]="filterEvent()"
-            (change)="updateFilterEvent($event)"
-            aria-label="Filter by Event"
-          >
-            <option value="">All Events</option>
-            @for (evtData of sortedEvents(); track evtData.event) {
-              <option [value]="evtData.event">
-                {{ evtData.event }} ({{ evtData.count }} games)
-              </option>
-            }
-          </select>
-        </div>
-        <div class="filter-row">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [checked]="filterRatingEnabled()"
-              (change)="toggleFilterRatingEnabled($event)"
-            />
-            Rating
-          </label>
-          <select
-            (change)="applyRatingPreset($event)"
-            class="preset-select"
-            aria-label="Rating Presets"
-          >
-            <option value="">Select Level...</option>
-            <option value="0-1999">Below 2000</option>
-            <option value="2000">Candidate Master (2000+)</option>
-            <option value="2000-2199">2000 – 2200</option>
-            <option value="2200">National Master (2200+)</option>
-            <option value="2200-2299">2200 – 2300</option>
-            <option value="2300">FIDE Master (2300+)</option>
-            <option value="2300-2399">2300 – 2400</option>
-            <option value="2400">Intl. Master (2400+)</option>
-            <option value="2400-2499">2400 – 2500</option>
-            <option value="2500">Grandmaster (2500+)</option>
-            <option value="2500-2699">2500 – 2700</option>
-            <option value="2700">Super GM (2700+)</option>
-            <option value="3000">Chess engines (3000 - 4000)</option>
-            <option value="2700-3000">2700+</option>
-          </select>
-        </div>
-        <div class="filter-row">
-          <input
-            type="number"
-            placeholder="White Rating >"
-            aria-label="Filter by White Rating Min"
-            [value]="filterWhiteRating()"
-            (input)="updateFilterWhiteRating($event)"
-            class="rating-input"
-            step="50"
-            [disabled]="!filterRatingEnabled()"
-          />
-          <input
-            type="number"
-            placeholder="White Rating <"
-            aria-label="Filter by White Rating Max"
-            [value]="filterWhiteRatingMax()"
-            (input)="updateFilterWhiteRatingMax($event)"
-            class="rating-input"
-            step="50"
-            [disabled]="!filterRatingEnabled()"
-          />
-        </div>
-        <div class="filter-row">
-          <input
-            type="number"
-            placeholder="Black Rating >"
-            aria-label="Filter by Black Rating Min"
-            [value]="filterBlackRating()"
-            (input)="updateFilterBlackRating($event)"
-            class="rating-input"
-            step="50"
-            [disabled]="!filterRatingEnabled()"
-          />
-          <input
-            type="number"
-            placeholder="Black Rating <"
-            aria-label="Filter by Black Rating Max"
-            [value]="filterBlackRatingMax()"
-            (input)="updateFilterBlackRatingMax($event)"
-            class="rating-input"
-            step="50"
-            [disabled]="!filterRatingEnabled()"
-          />
-        </div>
-        <div class="filter-row">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [checked]="filterMoves()"
-              (change)="toggleFilterMoves($event)"
-            />
-            Enter Starting Moves
-          </label>
-        </div>
-        <div class="filter-row">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [checked]="filterByFenEnabled()"
-              (change)="toggleFilterByFen($event)"
-            />
-            Search by Position
-          </label>
-        </div>
-        @if (filterByFenEnabled()) {
-          <div class="filter-row fen-row">
-            <input
-              type="text"
-              class="fen-input"
-              placeholder="Paste FEN or use board position"
-              aria-label="Search by FEN position"
-              [value]="filterFen()"
-              (input)="updateFilterFen($event)"
-              spellcheck="false"
-            />
-            <button
-              (click)="snapshotCurrentPosition()"
-              class="secondary-button small"
-              title="Use current board position as filter"
-            >
-              📷 Board
-            </button>
+                @if (blackTypeaheadOpen() && filterBlack() && filteredBlackSuggestions().length === 0) {
+                  <div class="typeahead-dropdown">
+                    <div class="typeahead-no-results">No matching players</div>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="filter-row">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [checked]="ignoreColor()"
+                  (change)="toggleIgnoreColor($event)"
+                />
+                Ignore Color
+              </label>
+            </div>
           </div>
-        }
-        <div class="filter-actions">
-          <button (click)="clearFilters()" class="secondary-button small">
-            Clear
-          </button>
-          <button (click)="applyFilter()" class="primary-button small">
-            Filter
-          </button>
-          <button
-            (click)="toggleSortDirection(); applyFilter()"
-            class="sort-button small"
-            [title]="sortAscending() ? 'Sorted: Lowest Elo first' : 'Sorted: Highest Elo first'"
-          >
-            @if (sortAscending()) {
-              ↑ Low
-            } @else {
-              ↓ High
-            }
-          </button>
         </div>
       </div>
 
-      <!-- Game List -->
+      <!-- Collapsible: Game Details -->
+      <div class="collapsible-section">
+        <div
+          class="section-header"
+          tabindex="0"
+          role="button"
+          [attr.aria-expanded]="leftPanelSections()['gameDetails']"
+          (click)="toggleLeftSection('gameDetails')"
+          (keydown.enter)="toggleLeftSection('gameDetails'); $event.preventDefault()"
+          (keydown.space)="toggleLeftSection('gameDetails'); $event.preventDefault()"
+        >
+          <span class="chevron" [class.expanded]="leftPanelSections()['gameDetails']">▶</span>
+          Game Details
+        </div>
+        <div class="section-content" [class.expanded]="leftPanelSections()['gameDetails']">
+          <div class="filter-section">
+            <div class="filter-row filter-result-row">
+              <span class="filter-label">Result:</span>
+              <label class="checkbox-label result-option">
+                <input
+                  type="checkbox"
+                  [checked]="filterResult().includes('1-0')"
+                  (change)="toggleFilterResult('1-0', $event)"
+                />
+                White wins (1-0)
+              </label>
+              <label class="checkbox-label result-option">
+                <input
+                  type="checkbox"
+                  [checked]="filterResult().includes('1/2-1/2')"
+                  (change)="toggleFilterResult('1/2-1/2', $event)"
+                />
+                Draw (½-½)
+              </label>
+              <label class="checkbox-label result-option">
+                <input
+                  type="checkbox"
+                  [checked]="filterResult().includes('0-1')"
+                  (change)="toggleFilterResult('0-1', $event)"
+                />
+                Black wins (0-1)
+              </label>
+              <label class="checkbox-label result-option">
+                <input
+                  type="checkbox"
+                  [checked]="filterResult().includes('*')"
+                  (change)="toggleFilterResult('*', $event)"
+                />
+                Unfinished (*)
+              </label>
+            </div>
+            <div class="filter-row">
+              <select
+                [value]="filterEco()"
+                (change)="updateFilterEco($event)"
+                aria-label="Filter by ECO Opening"
+              >
+                <option value="">All Openings</option>
+                @for (ecoData of sortedEcoCodes(); track ecoData.code) {
+                  <option [value]="ecoData.code">
+                    {{ ecoData.code }}
+                    @if (getOpeningMoves(ecoData.code)) {
+                      - {{ getOpeningMoves(ecoData.code) }}
+                    }
+                    ({{ ecoData.count }} games)
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="filter-row">
+              <select
+                [value]="filterTimeControl()"
+                (change)="updateFilterTimeControl($event)"
+                aria-label="Filter by Time Control"
+              >
+                <option value="">All Time Controls</option>
+                @for (tcData of sortedTimeControls(); track tcData.key) {
+                  <option
+                    [value]="tcData.key"
+                    [attr.title]="tcData.originalsSummary"
+                  >
+                    {{ tcData.label }} ({{ tcData.count }} games)
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="filter-row">
+              <select
+                [value]="filterEvent()"
+                (change)="updateFilterEvent($event)"
+                aria-label="Filter by Event"
+              >
+                <option value="">All Events</option>
+                @for (evtData of sortedEvents(); track evtData.event) {
+                  <option [value]="evtData.event">
+                    {{ evtData.event }} ({{ evtData.count }} games)
+                  </option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsible: Rating -->
+      <div class="collapsible-section">
+        <div
+          class="section-header"
+          tabindex="0"
+          role="button"
+          [attr.aria-expanded]="leftPanelSections()['rating']"
+          (click)="toggleLeftSection('rating')"
+          (keydown.enter)="toggleLeftSection('rating'); $event.preventDefault()"
+          (keydown.space)="toggleLeftSection('rating'); $event.preventDefault()"
+        >
+          <span class="chevron" [class.expanded]="leftPanelSections()['rating']">▶</span>
+          Rating
+        </div>
+        <div class="section-content" [class.expanded]="leftPanelSections()['rating']">
+          <div class="filter-section">
+            <div class="filter-row">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [checked]="filterRatingEnabled()"
+                  (change)="toggleFilterRatingEnabled($event)"
+                />
+                Rating
+              </label>
+              <select
+                (change)="applyRatingPreset($event)"
+                class="preset-select"
+                aria-label="Rating Presets"
+              >
+                <option value="">Select Level...</option>
+                <option value="0-1999">Below 2000</option>
+                <option value="2000">Candidate Master (2000+)</option>
+                <option value="2000-2199">2000 – 2200</option>
+                <option value="2200">National Master (2200+)</option>
+                <option value="2200-2299">2200 – 2300</option>
+                <option value="2300">FIDE Master (2300+)</option>
+                <option value="2300-2399">2300 – 2400</option>
+                <option value="2400">Intl. Master (2400+)</option>
+                <option value="2400-2499">2400 – 2500</option>
+                <option value="2500">Grandmaster (2500+)</option>
+                <option value="2500-2699">2500 – 2700</option>
+                <option value="2700">Super GM (2700+)</option>
+                <option value="3000">Chess engines (3000 - 4000)</option>
+                <option value="2700-3000">2700+</option>
+              </select>
+            </div>
+            <div class="filter-row">
+              <input
+                type="number"
+                placeholder="White Rating >"
+                aria-label="Filter by White Rating Min"
+                [value]="filterWhiteRating()"
+                (input)="updateFilterWhiteRating($event)"
+                class="rating-input"
+                step="50"
+                [disabled]="!filterRatingEnabled()"
+              />
+              <input
+                type="number"
+                placeholder="White Rating <"
+                aria-label="Filter by White Rating Max"
+                [value]="filterWhiteRatingMax()"
+                (input)="updateFilterWhiteRatingMax($event)"
+                class="rating-input"
+                step="50"
+                [disabled]="!filterRatingEnabled()"
+              />
+            </div>
+            <div class="filter-row">
+              <input
+                type="number"
+                placeholder="Black Rating >"
+                aria-label="Filter by Black Rating Min"
+                [value]="filterBlackRating()"
+                (input)="updateFilterBlackRating($event)"
+                class="rating-input"
+                step="50"
+                [disabled]="!filterRatingEnabled()"
+              />
+              <input
+                type="number"
+                placeholder="Black Rating <"
+                aria-label="Filter by Black Rating Max"
+                [value]="filterBlackRatingMax()"
+                (input)="updateFilterBlackRatingMax($event)"
+                class="rating-input"
+                step="50"
+                [disabled]="!filterRatingEnabled()"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsible: Position -->
+      <div class="collapsible-section">
+        <div
+          class="section-header"
+          tabindex="0"
+          role="button"
+          [attr.aria-expanded]="leftPanelSections()['position']"
+          (click)="toggleLeftSection('position')"
+          (keydown.enter)="toggleLeftSection('position'); $event.preventDefault()"
+          (keydown.space)="toggleLeftSection('position'); $event.preventDefault()"
+        >
+          <span class="chevron" [class.expanded]="leftPanelSections()['position']">▶</span>
+          Position
+        </div>
+        <div class="section-content" [class.expanded]="leftPanelSections()['position']">
+          <div class="filter-section">
+            <div class="filter-row">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [checked]="filterMoves()"
+                  (change)="toggleFilterMoves($event)"
+                />
+                Enter Starting Moves
+              </label>
+            </div>
+            <div class="filter-row">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [checked]="filterByFenEnabled()"
+                  (change)="toggleFilterByFen($event)"
+                />
+                Search by Position
+              </label>
+            </div>
+            @if (filterByFenEnabled()) {
+              <div class="filter-row fen-row">
+                <input
+                  type="text"
+                  class="fen-input"
+                  placeholder="Paste FEN or use board position"
+                  aria-label="Search by FEN position"
+                  [value]="filterFen()"
+                  (input)="updateFilterFen($event)"
+                  spellcheck="false"
+                />
+                <button
+                  (click)="snapshotCurrentPosition()"
+                  class="secondary-button small"
+                  title="Use current board position as filter"
+                >
+                  📷 Board
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Action Buttons (always visible) -->
+      <div class="filter-actions">
+        <button (click)="clearFilters()" class="secondary-button small">
+          Clear
+        </button>
+        <button (click)="applyFilter()" class="primary-button small">
+          Filter
+        </button>
+        <button
+          (click)="toggleSortDirection(); applyFilter()"
+          class="sort-button small"
+          [title]="sortAscending() ? 'Sorted: Lowest Elo first' : 'Sorted: Highest Elo first'"
+        >
+          @if (sortAscending()) {
+            ↑ Low
+          } @else {
+            ↓ High
+          }
+        </button>
+      </div>
+
+      <!-- Game List (fills remaining space) -->
+      <div class="game-list-wrapper">
       @if (gamesMetadata().length > 0) {
         <div class="game-list-header">
           <span>Games: {{ filteredGameInfos().length }}</span>
@@ -408,6 +487,7 @@
       } @else {
         <div class="empty-state">No games loaded</div>
       }
+      </div>
     </div>
 
     <!-- Center Panel: Board -->
@@ -571,301 +651,340 @@
 
     <!-- Right Panel: Moves & Tools -->
     <div class="panel right-panel">
-      <!-- Move List -->
-      <div class="move-list-section">
-        <h3>Moves</h3>
-        <div class="move-list" role="list" #moveList>
-          @for (move of moves(); track $index) {
-            @if ($index % 2 === 0) {
-              <span class="move-number">{{ $index / 2 + 1 }}.</span>
-            }
-            <button
-              class="move-btn"
-              [class.active]="$index === currentMoveIndex()"
-              [class.last-move]="
-                highlightLastMove() && $index === moves().length - 1
-              "
-              (click)="jumpToMove($index)"
-              [attr.aria-label]="
-                'Jump to move ' +
-                ($index / 2 + 1) +
-                ($index % 2 === 0 ? ' White ' : ' Black ') +
-                move
-              "
-            >
-              {{ move }}
-            </button>
-          }
-        </div>
-      </div>
-
-      <!-- Replay Controls -->
-      <div class="replay-section">
-        <h3>Replay</h3>
-        <div class="replay-options">
-          <label
-            ><input
-              type="radio"
-              name="mode"
-              [value]="'realtime'"
-              [checked]="replayMode() === 'realtime'"
-              (change)="replayMode.set('realtime')"
-            />
-            Real Time</label
-          >
-          <label
-            ><input
-              type="radio"
-              name="mode"
-              [value]="'proportional'"
-              [checked]="replayMode() === 'proportional'"
-              (change)="replayMode.set('proportional')"
-            />
-            Proportional</label
-          >
-          <label
-            ><input
-              type="radio"
-              name="mode"
-              [value]="'fixed'"
-              [checked]="replayMode() === 'fixed'"
-              (change)="replayMode.set('fixed')"
-            />
-            Fixed</label
-          >
-        </div>
-
-        @if (replayMode() === "proportional") {
-          <div class="option-input">
-            <input
-              type="number"
-              [value]="proportionalDuration()"
-              (input)="onProportionalDurationChange($event)"
-              step="0.1"
-              class="small-input"
-              aria-label="Proportional Duration in Minutes"
-            />
-            min/game
-          </div>
-          <div class="option-input">
-            <input
-              type="number"
-              [value]="minSecondsBetweenMoves()"
-              (input)="onMinSecondsBetweenMovesChange($event)"
-              step="0.1"
-              class="small-input"
-              aria-label="Min Seconds Between Moves"
-            />
-            min sec/move
-          </div>
-        }
-
-        @if (replayMode() === "fixed") {
-          <div class="option-input">
-            <input
-              type="number"
-              [value]="fixedTime()"
-              (input)="onFixedTimeChange($event)"
-              step="0.1"
-              class="small-input"
-              aria-label="Fixed Time per Move in Seconds"
-            />
-            sec/move
-          </div>
-        }
-
+      <!-- Collapsible: Moves (always expanded) -->
+      <div class="collapsible-section">
         <div
-          class="option-row"
-          style="margin-top: 8px; display: flex; align-items: center; gap: 4px"
+          class="section-header"
+          tabindex="0"
+          role="button"
+          [attr.aria-expanded]="rightPanelSections()['moves']"
+          (click)="toggleRightSection('moves')"
+          (keydown.enter)="toggleRightSection('moves'); $event.preventDefault()"
+          (keydown.space)="toggleRightSection('moves'); $event.preventDefault()"
         >
-          <label class="checkbox-label"
-            style="display: flex; align-items: center; gap: 4px; white-space: nowrap"
-          >
-            <input
-              type="checkbox"
-              [checked]="stopOnError()"
-              (change)="toggleStopOnError($event)"
-            />
-            Stop on Error (&gt;
-            <input
-              type="number"
-              [value]="stopOnErrorThreshold()"
-              (input)="updateStopOnErrorThreshold($event)"
-              step="0.1"
-              class="small-input"
-              [disabled]="!stopOnError()"
-              aria-label="Stop on error threshold in centipawns"
-            />
-            )
-          </label>
+          <span class="chevron" [class.expanded]="rightPanelSections()['moves']">▶</span>
+          Moves
         </div>
-
-        <div class="replay-actions">
-          <button (click)="replayGame()" class="action-btn">Replay</button>
-          @if (canContinueReplay()) {
-            <button (click)="continueReplay()" class="action-btn">
-              Continue
-            </button>
-          }
-          <button (click)="stopSequence()" class="action-btn stop">Stop</button>
-        </div>
-        @if (canShowReplayAll()) {
-          <button
-            (click)="replayAllSelectedGames()"
-            class="action-btn full-width"
-          >
-            Replay Selected ({{ selectedGamesCount() }})
-          </button>
-        }
-      </div>
-
-      <!-- PGN Input (Collapsible-ish) -->
-      <div class="pgn-input-section">
-        <textarea
-          [value]="pgnInput()"
-          (input)="onPgnInputChange($event)"
-          rows="3"
-          placeholder="Paste PGN..."
-          aria-label="PGN Input"
-        ></textarea>
-        <div class="clipboard-buttons">
-          <button (click)="loadFromClipboard()" class="small-btn">
-            Load from Clipboard
-          </button>
-          <button (click)="copyToClipboard()" class="small-btn">
-            Copy to Clipboard
-          </button>
-        </div>
-      </div>
-
-      <!-- Cache Management -->
-      <div class="cache-section">
-        <h3>Cache</h3>
-        <div class="cache-actions">
-          <button (click)="clearPgnCache()" class="small-btn" title="Clear all cached PGN data from IndexedDB">
-            Clear Cache
-          </button>
-          <button (click)="refreshCacheInfo()" class="small-btn" title="Show cache statistics">
-            Cache Info
-          </button>
-        </div>
-        @if (cacheInfo(); as info) {
-          <div class="cache-info">
-            <small>
-              Entries: {{ info.count }}
-              @if (info.estimatedBytes > 0) {
-                | Size: {{ (info.estimatedBytes / 1024) | number:'1.0-0' }} KB
+        <div class="section-content" [class.expanded]="rightPanelSections()['moves']">
+          <div class="move-list-section">
+            <div class="move-list" role="list" #moveList>
+              @for (move of moves(); track $index) {
+                @if ($index % 2 === 0) {
+                  <span class="move-number">{{ $index / 2 + 1 }}.</span>
+                }
+                <button
+                  class="move-btn"
+                  [class.active]="$index === currentMoveIndex()"
+                  [class.last-move]="
+                    highlightLastMove() && $index === moves().length - 1
+                  "
+                  (click)="jumpToMove($index)"
+                  [attr.aria-label]="
+                    'Jump to move ' +
+                    ($index / 2 + 1) +
+                    ($index % 2 === 0 ? ' White ' : ' Black ') +
+                    move
+                  "
+                >
+                  {{ move }}
+                </button>
               }
-            </small>
+            </div>
           </div>
-        }
+        </div>
       </div>
 
-      <!-- Load Section -->
-      <div class="load-section">
-        <h3>Load Games</h3>
-        <!-- Sample buttons removed, controlled by parent -->
-        <div class="file-inputs">
-          <label class="file-input-label">
-            Zip
-            <input
-              type="file"
-              accept=".zip"
-              (change)="onPgnZipSelected($event)"
-              [disabled]="isLoading()"
-            />
-          </label>
-          <label class="file-input-label">
-            PGN
-            <input
-              type="file"
-              accept=".pgn"
-              (change)="onPgnFileSelected($event)"
-              [disabled]="isLoading()"
-            />
-          </label>
+      <!-- Collapsible: Replay -->
+      <div class="collapsible-section">
+        <div
+          class="section-header"
+          tabindex="0"
+          role="button"
+          [attr.aria-expanded]="rightPanelSections()['replay']"
+          (click)="toggleRightSection('replay')"
+          (keydown.enter)="toggleRightSection('replay'); $event.preventDefault()"
+          (keydown.space)="toggleRightSection('replay'); $event.preventDefault()"
+        >
+          <span class="chevron" [class.expanded]="rightPanelSections()['replay']">▶</span>
+          Replay
         </div>
-        <div class="lichess-date-picker">
-          <label>Lichess Database:</label>
-          <div class="date-selectors">
-            <select
-              (change)="onLichessYearChange($event)"
-              aria-label="Select Year"
-            >
-              @for (year of getLichessYears(); track year) {
-                <option [value]="year" [selected]="year === lichessYear()">
-                  {{ year }}
-                </option>
-              }
-            </select>
-            <select
-              (change)="onLichessMonthChange($event)"
-              aria-label="Select Month"
-            >
-              @for (month of getLichessMonths(); track month) {
-                <option [value]="month" [selected]="month === lichessMonth()">
-                  {{ month.toString().padStart(2, "0") }}
-                </option>
-              }
-            </select>
-            <button
-              (click)="loadFromLichess()"
-              [disabled]="isLoading()"
-              class="action-btn"
-            >
-              Load
-            </button>
-          </div>
-          <div class="license-info">
-            <small
-              >Licensed under
-              <a
-                href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal"
-                target="_blank"
-                rel="noopener noreferrer"
-                >CC0</a
+        <div class="section-content" [class.expanded]="rightPanelSections()['replay']">
+          <div class="replay-section">
+            <div class="replay-options">
+              <label
+                ><input
+                  type="radio"
+                  name="mode"
+                  [value]="'realtime'"
+                  [checked]="replayMode() === 'realtime'"
+                  (change)="replayMode.set('realtime')"
+                />
+                Real Time</label
               >
-              by
-              <a
-                href="https://database.lichess.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Lichess</a
-              ></small
-            >
+              <label
+                ><input
+                  type="radio"
+                  name="mode"
+                  [value]="'proportional'"
+                  [checked]="replayMode() === 'proportional'"
+                  (change)="replayMode.set('proportional')"
+                />
+                Proportional</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="mode"
+                  [value]="'fixed'"
+                  [checked]="replayMode() === 'fixed'"
+                  (change)="replayMode.set('fixed')"
+                />
+                Fixed</label
+              >
+            </div>
+
+            @if (replayMode() === "proportional") {
+              <div class="option-input">
+                <input
+                  type="number"
+                  [value]="proportionalDuration()"
+                  (input)="onProportionalDurationChange($event)"
+                  step="0.1"
+                  class="small-input"
+                  aria-label="Proportional Duration in Minutes"
+                />
+                min/game
+              </div>
+              <div class="option-input">
+                <input
+                  type="number"
+                  [value]="minSecondsBetweenMoves()"
+                  (input)="onMinSecondsBetweenMovesChange($event)"
+                  step="0.1"
+                  class="small-input"
+                  aria-label="Min Seconds Between Moves"
+                />
+                min sec/move
+              </div>
+            }
+
+            @if (replayMode() === "fixed") {
+              <div class="option-input">
+                <input
+                  type="number"
+                  [value]="fixedTime()"
+                  (input)="onFixedTimeChange($event)"
+                  step="0.1"
+                  class="small-input"
+                  aria-label="Fixed Time per Move in Seconds"
+                />
+                sec/move
+              </div>
+            }
+
+            <div class="option-row" style="margin-top: 6px; display: flex; align-items: center; gap: 4px">
+              <label class="checkbox-label" style="display: flex; align-items: center; gap: 4px; white-space: nowrap">
+                <input
+                  type="checkbox"
+                  [checked]="stopOnError()"
+                  (change)="toggleStopOnError($event)"
+                />
+                Stop on Error (&gt;
+                <input
+                  type="number"
+                  [value]="stopOnErrorThreshold()"
+                  (input)="updateStopOnErrorThreshold($event)"
+                  step="0.1"
+                  class="small-input"
+                  [disabled]="!stopOnError()"
+                  aria-label="Stop on error threshold in centipawns"
+                />
+                )
+              </label>
+            </div>
+
+            <div class="replay-actions">
+              <button (click)="replayGame()" class="action-btn">Replay</button>
+              @if (canContinueReplay()) {
+                <button (click)="continueReplay()" class="action-btn">
+                  Continue
+                </button>
+              }
+              <button (click)="stopSequence()" class="action-btn stop">Stop</button>
+            </div>
+            @if (canShowReplayAll()) {
+              <button
+                (click)="replayAllSelectedGames()"
+                class="action-btn full-width"
+              >
+                Replay Selected ({{ selectedGamesCount() }})
+              </button>
+            }
           </div>
         </div>
-        <div class="url-input-section">
-          <input
-            type="text"
-            [value]="urlInput()"
-            (input)="onUrlInputChange($event)"
-            placeholder="Enter PGN URL (supports .zst)"
-            class="url-input"
-            aria-label="PGN URL"
-          />
-          <button
-            (click)="loadFromUrl()"
-            [disabled]="isLoading() || !urlInput()"
-            class="action-btn"
-          >
-            Load URL
-          </button>
+      </div>
+
+      <!-- Collapsible: Load & Cache -->
+      <div class="collapsible-section">
+        <div
+          class="section-header"
+          tabindex="0"
+          role="button"
+          [attr.aria-expanded]="rightPanelSections()['loadCache']"
+          (click)="toggleRightSection('loadCache')"
+          (keydown.enter)="toggleRightSection('loadCache'); $event.preventDefault()"
+          (keydown.space)="toggleRightSection('loadCache'); $event.preventDefault()"
+        >
+          <span class="chevron" [class.expanded]="rightPanelSections()['loadCache']">▶</span>
+          Load &amp; Cache
         </div>
-        @if (isLoading()) {
-          <div class="loading-indicator" role="status" aria-live="polite">
-            <div class="progress-bar-container">
-              <div
-                class="progress-bar"
-                [style.width.%]="loadingProgress()"
-              ></div>
-              <span class="progress-text">{{ loadingProgress() }}%</span>
-            </div>
-            <div class="loading-status">
-              {{ loadingStatus() || "Loading..." }}
+        <div class="section-content" [class.expanded]="rightPanelSections()['loadCache']">
+          <!-- PGN Input -->
+          <div class="pgn-input-section">
+            <textarea
+              [value]="pgnInput()"
+              (input)="onPgnInputChange($event)"
+              rows="3"
+              placeholder="Paste PGN..."
+              aria-label="PGN Input"
+            ></textarea>
+            <div class="clipboard-buttons">
+              <button (click)="loadFromClipboard()" class="small-btn">
+                Load from Clipboard
+              </button>
+              <button (click)="copyToClipboard()" class="small-btn">
+                Copy to Clipboard
+              </button>
             </div>
           </div>
-        }
+
+          <!-- Cache Management -->
+          <div class="cache-section">
+            <div class="cache-actions">
+              <button (click)="clearPgnCache()" class="small-btn" title="Clear all cached PGN data from IndexedDB">
+                Clear Cache
+              </button>
+              <button (click)="refreshCacheInfo()" class="small-btn" title="Show cache statistics">
+                Cache Info
+              </button>
+            </div>
+            @if (cacheInfo(); as info) {
+              <div class="cache-info">
+                <small>
+                  Entries: {{ info.count }}
+                  @if (info.estimatedBytes > 0) {
+                    | Size: {{ (info.estimatedBytes / 1024) | number:'1.0-0' }} KB
+                  }
+                </small>
+              </div>
+            }
+          </div>
+
+          <!-- Load Section -->
+          <div class="load-section">
+            <div class="file-inputs">
+              <label class="file-input-label">
+                Zip
+                <input
+                  type="file"
+                  accept=".zip"
+                  (change)="onPgnZipSelected($event)"
+                  [disabled]="isLoading()"
+                />
+              </label>
+              <label class="file-input-label">
+                PGN
+                <input
+                  type="file"
+                  accept=".pgn"
+                  (change)="onPgnFileSelected($event)"
+                  [disabled]="isLoading()"
+                />
+              </label>
+            </div>
+            <div class="lichess-date-picker">
+              <label>Lichess Database:</label>
+              <div class="date-selectors">
+                <select
+                  (change)="onLichessYearChange($event)"
+                  aria-label="Select Year"
+                >
+                  @for (year of getLichessYears(); track year) {
+                    <option [value]="year" [selected]="year === lichessYear()">
+                      {{ year }}
+                    </option>
+                  }
+                </select>
+                <select
+                  (change)="onLichessMonthChange($event)"
+                  aria-label="Select Month"
+                >
+                  @for (month of getLichessMonths(); track month) {
+                    <option [value]="month" [selected]="month === lichessMonth()">
+                      {{ month.toString().padStart(2, "0") }}
+                    </option>
+                  }
+                </select>
+                <button
+                  (click)="loadFromLichess()"
+                  [disabled]="isLoading()"
+                  class="action-btn"
+                >
+                  Load
+                </button>
+              </div>
+              <div class="license-info">
+                <small
+                  >Licensed under
+                  <a
+                    href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >CC0</a
+                  >
+                  by
+                  <a
+                    href="https://database.lichess.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Lichess</a
+                  ></small
+                >
+              </div>
+            </div>
+            <div class="url-input-section">
+              <input
+                type="text"
+                [value]="urlInput()"
+                (input)="onUrlInputChange($event)"
+                placeholder="Enter PGN URL (supports .zst)"
+                class="url-input"
+                aria-label="PGN URL"
+              />
+              <button
+                (click)="loadFromUrl()"
+                [disabled]="isLoading() || !urlInput()"
+                class="action-btn"
+              >
+                Load URL
+              </button>
+            </div>
+            @if (isLoading()) {
+              <div class="loading-indicator" role="status" aria-live="polite">
+                <div class="progress-bar-container">
+                  <div
+                    class="progress-bar"
+                    [style.width.%]="loadingProgress()"
+                  ></div>
+                  <span class="progress-text">{{ loadingProgress() }}%</span>
+                </div>
+                <div class="loading-status">
+                  {{ loadingStatus() || "Loading..." }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
       </div>
     </div>
 </div>
