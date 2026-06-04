@@ -657,6 +657,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	filteredGamesIndices = signal<number[]>([]);
 	/** Whether a filter operation is in progress. */
 	isFiltering = signal<boolean>(false);
+	/**
+	 * Sort direction for filtered game results.
+	 * `false` = descending by Elo sum (highest first, default).
+	 * `true` = ascending by Elo sum (lowest first).
+	 */
+	sortAscending = signal<boolean>(false);
 	/** Monotonic counter used as correlation ID for filter requests to the worker. */
 	private currentFilterId = 0;
 	/** Monotonic counter used as correlation ID for game-load requests to the worker. */
@@ -677,6 +683,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	/** Flag to uncheck the filter-moves toggle after a filter operation completes. */
 	private shouldUncheckFilterMoves = false;
+
+	/**
+	 * Toggles the sort direction between highest-Elo-first and lowest-Elo-first.
+	 */
+	toggleSortDirection() {
+		this.sortAscending.update((v) => !v);
+	}
 
 	// ---- Computed Values ----
 
@@ -1695,6 +1708,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const fEvent = this.filterEvent();
 		const fFilterByFen = this.filterByFenEnabled();
 		const fFen = this.filterFen();
+		const fSortAscending = this.sortAscending();
 
 		// Use interactive moves if filtering by moves, otherwise use current game moves
 		const currentMoves = fMoves
@@ -1719,6 +1733,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			currentMoves,
 			fFilterByFen,
 			fFen,
+			fSortAscending,
 		);
 
 		// Set flag to uncheck "Filter by Starting Moves" after filtering completes
@@ -1830,6 +1845,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		targetMoves: string[],
 		fFilterByFen: boolean,
 		fFen: string,
+		fSortAscending: boolean,
 	) {
 		this.currentFilterId++;
 		const myFilterId = this.currentFilterId;
@@ -1851,6 +1867,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			targetMoves: targetMoves,
 			filterByFen: fFilterByFen,
 			targetFen: fFen,
+			sortAscending: fSortAscending,
 		};
 
 		this.pgnViewerEngine.filterGames(filterCriteria, myFilterId);
@@ -2434,14 +2451,26 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const value = (event.target as HTMLSelectElement).value;
 		if (!value) return;
 
-		const min = value;
-		const max = value === '3000' ? '4000' : '3000';
-
 		this.filterRatingEnabled.set(true);
-		this.filterWhiteRating.set(min);
-		this.filterBlackRating.set(min);
-		this.filterWhiteRatingMax.set(max);
-		this.filterBlackRatingMax.set(max);
+
+		// Support both single-value (e.g. "2000" → 2000–3000)
+		// and range (e.g. "2000-2199" → 2000–2199) formats
+		const rangeMatch = value.match(/^(\d+)-(\d+)$/);
+		if (rangeMatch) {
+			const min = rangeMatch[1];
+			const max = rangeMatch[2];
+			this.filterWhiteRating.set(min);
+			this.filterBlackRating.set(min);
+			this.filterWhiteRatingMax.set(max);
+			this.filterBlackRatingMax.set(max);
+		} else {
+			const min = value;
+			const max = value === '3000' ? '4000' : '3000';
+			this.filterWhiteRating.set(min);
+			this.filterBlackRating.set(min);
+			this.filterWhiteRatingMax.set(max);
+			this.filterBlackRatingMax.set(max);
+		}
 	}
 
 	/**

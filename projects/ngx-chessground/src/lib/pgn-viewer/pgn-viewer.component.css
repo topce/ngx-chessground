@@ -253,6 +253,24 @@
   margin-top: 0.25rem;
 }
 
+.sort-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: var(--cg-radius-full);
+  background: var(--cg-bg-alt);
+  color: var(--cg-text-secondary);
+  border: 1px solid var(--cg-border);
+  transition: background-color var(--cg-transition), color var(--cg-transition), border-color var(--cg-transition);
+  white-space: nowrap;
+}
+
+.sort-button:hover {
+  background: var(--cg-accent);
+  color: var(--cg-text-inverse);
+  border-color: var(--cg-accent);
+}
+
 /* ---- FEN / Position Filter ---- */
 .fen-row {
   display: flex;

@@ -41,6 +41,7 @@ export type WorkerMessage =
  *   event: '',
  *   filterByFen: false,
  *   targetFen: '',
+ *   sortAscending: false,
  * };
  * ```
  */
@@ -78,6 +79,12 @@ export interface FilterCriteria {
 	timeControl: string;
 	/** Event/tournament name filter (case-insensitive substring). */
 	event: string;
+	/**
+	 * Sort direction for filtered results.
+	 * `false` = descending (highest Elo first, default).
+	 * `true` = ascending (lowest Elo first).
+	 */
+	sortAscending: boolean;
 }
 
 /**
@@ -539,12 +546,14 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		matches.push(i);
 	}
 
-	// Sort matches by sum of Elo ratings (descending), with game index as tiebreaker
+	// Sort matches by sum of Elo ratings, with game index as tiebreaker
 	// to ensure deterministic ordering when Elo sums are equal.
 	matches.sort((a, b) => {
 		const sumA = gameMetadata[a].whiteElo + gameMetadata[a].blackElo;
 		const sumB = gameMetadata[b].whiteElo + gameMetadata[b].blackElo;
-		if (sumB !== sumA) return sumB - sumA;
+		if (sumB !== sumA) {
+			return criteria.sortAscending ? sumA - sumB : sumB - sumA;
+		}
 		return a - b;
 	});
 

@@ -197,13 +197,20 @@
             aria-label="Rating Presets"
           >
             <option value="">Select Level...</option>
+            <option value="0-1999">Below 2000</option>
             <option value="2000">Candidate Master (2000+)</option>
+            <option value="2000-2199">2000 – 2200</option>
             <option value="2200">National Master (2200+)</option>
+            <option value="2200-2299">2200 – 2300</option>
             <option value="2300">FIDE Master (2300+)</option>
+            <option value="2300-2399">2300 – 2400</option>
             <option value="2400">Intl. Master (2400+)</option>
+            <option value="2400-2499">2400 – 2500</option>
             <option value="2500">Grandmaster (2500+)</option>
+            <option value="2500-2699">2500 – 2700</option>
             <option value="2700">Super GM (2700+)</option>
             <option value="3000">Chess engines (3000 - 4000)</option>
+            <option value="2700-3000">2700+</option>
           </select>
         </div>
         <div class="filter-row">
@@ -296,6 +303,17 @@
           </button>
           <button (click)="applyFilter()" class="primary-button small">
             Filter
+          </button>
+          <button
+            (click)="toggleSortDirection(); applyFilter()"
+            class="sort-button small"
+            [title]="sortAscending() ? 'Sorted: Lowest Elo first' : 'Sorted: Highest Elo first'"
+          >
+            @if (sortAscending()) {
+              ↑ Low
+            } @else {
+              ↓ High
+            }
           </button>
         </div>
       </div>

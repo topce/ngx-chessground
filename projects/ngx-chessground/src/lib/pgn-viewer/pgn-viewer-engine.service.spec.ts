@@ -72,6 +72,7 @@ describe('PgnViewerEngineService', () => {
 			event: '',
 			filterByFen: false,
 			targetFen: '',
+			sortAscending: false,
 		};
 
 		service.loadPgn('test-pgn', 1);
