@@ -98,25 +98,40 @@
             Ignore Color
           </label>
         </div>
-        <div class="filter-row">
-          <select
-            multiple
-            aria-label="Filter by Result"
-            (change)="updateFilterResult($event)"
-          >
-            <option value="1-0" [selected]="filterResult().includes('1-0')">
-              White wins (1-0)
-            </option>
-            <option
-              value="1/2-1/2"
-              [selected]="filterResult().includes('1/2-1/2')"
-            >
-              Draw (1/2-1/2)
-            </option>
-            <option value="0-1" [selected]="filterResult().includes('0-1')">
-              Black wins (0-1)
-            </option>
-          </select>
+        <div class="filter-row filter-result-row">
+          <span class="filter-label">Result:</span>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('1-0')"
+              (change)="toggleFilterResult('1-0', $event)"
+            />
+            White wins (1-0)
+          </label>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('1/2-1/2')"
+              (change)="toggleFilterResult('1/2-1/2', $event)"
+            />
+            Draw (½-½)
+          </label>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('0-1')"
+              (change)="toggleFilterResult('0-1', $event)"
+            />
+            Black wins (0-1)
+          </label>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('*')"
+              (change)="toggleFilterResult('*', $event)"
+            />
+            Unfinished (*)
+          </label>
         </div>
         <div class="filter-row">
           <select
@@ -389,10 +404,10 @@
               [class.active]="activeColor() === topPlayerActiveColor()"
               [title]="topPlayerTitle()"
             ></span>
+            @if (showClocks()) {
+              <span class="clock inset">{{ topTimeRemaining() }}</span>
+            }
           </div>
-          @if (showClocks()) {
-            <span class="clock">{{ topTimeRemaining() }}</span>
-          }
         </div>
 
         <div class="board-container">
@@ -422,11 +437,11 @@
                 [class.active]="activeColor() === bottomPlayerActiveColor()"
                 [title]="bottomPlayerTitle()"
               ></span>
+              @if (showClocks()) {
+                <span class="clock inset">{{ bottomTimeRemaining() }}</span>
+              }
             </div>
           </div>
-          @if (showClocks()) {
-            <span class="clock">{{ bottomTimeRemaining() }}</span>
-          }
         </div>
       </div>
 

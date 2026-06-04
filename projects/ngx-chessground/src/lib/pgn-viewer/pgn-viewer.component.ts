@@ -343,16 +343,22 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	/**
-	 * Updates the result filter from a multi-select dropdown change event.
+	 * Toggles a result value in the multi-select result filter.
 	 *
-	 * @param event — Change event from the result `<select>` element.
+	 * Called by result checkboxes. Adds or removes the given value
+	 * from the {@link filterResult} array.
+	 *
+	 * @param value — The result value to toggle (e.g. `"1-0"`, `"0-1"`, `"1/2-1/2"`, `"*"`).
+	 * @param event — Change event from the result checkbox.
 	 */
-	updateFilterResult(event: Event) {
-		const select = event.target as HTMLSelectElement;
-		const selectedOptions = Array.from(select.selectedOptions).map(
-			(option) => option.value,
-		);
-		this.filterResult.set(selectedOptions);
+	toggleFilterResult(value: string, event: Event) {
+		const checked = (event.target as HTMLInputElement).checked;
+		this.filterResult.update((current) => {
+			if (checked) {
+				return current.includes(value) ? current : [...current, value];
+			}
+			return current.filter((v) => v !== value);
+		});
 	}
 
 	/**
@@ -1544,6 +1550,24 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				this.stopReplay();
 				this.pgnInput.set(pgn);
 
+				// Extract clock data from PGN [%clk ...] comments for display
+				this.extractClockHistory(pgn);
+				// Reset clock display to initial position
+				if (this.clockHistory.length > 0) {
+					const startClocks = this.clockHistory[0];
+					if (startClocks) {
+						this.whiteTimeRemaining.set(
+							this.formatTime(startClocks.white),
+						);
+						this.blackTimeRemaining.set(
+							this.formatTime(startClocks.black),
+						);
+					}
+				} else {
+					this.whiteTimeRemaining.set('');
+					this.blackTimeRemaining.set('');
+				}
+
 				// If filtering by moves is active, jump to the filtered position
 				if (this.filterMoves() && this.activeFilterMoves.length > 0) {
 					if (moves.length >= this.activeFilterMoves.length) {
@@ -2298,6 +2322,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 * Jumps the board to a specific move index, replaying all moves up to that point.
 	 *
 	 * `-1` resets to the starting position before any moves.
+	 * Also updates the clock display from {@link clockHistory} if available.
 	 *
 	 * @param index — The target move index (-1 for start position).
 	 */
@@ -2310,6 +2335,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			}
 			this.currentMoveIndex.set(index);
 			this.currentFen.set(this.chess.fen());
+
+			// Update clock display from clockHistory if available
+			const clockIndex = index + 1;
+			if (clockIndex >= 0 && clockIndex < this.clockHistory.length) {
+				const clocks = this.clockHistory[clockIndex];
+				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
+				this.blackTimeRemaining.set(this.formatTime(clocks.black));
+			}
 		}
 	}
 
@@ -2463,6 +2496,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 		this.currentMoveIndex.set(moves.length - 1);
 		this.currentFen.set(this.chess.fen());
+
+		// Update clock display from clockHistory if available
+		if (this.clockHistory.length > 0) {
+			const lastClocks = this.clockHistory[this.clockHistory.length - 1];
+			if (lastClocks) {
+				this.whiteTimeRemaining.set(this.formatTime(lastClocks.white));
+				this.blackTimeRemaining.set(this.formatTime(lastClocks.black));
+			}
+		}
 	}
 
 	// --- Replay Logic ---
@@ -2929,6 +2971,82 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 
 		return timeOuts;
+	}
+
+	/**
+	 * Extracts clock history from a loaded PGN's `[%clk ...]` comments.
+	 *
+	 * Parses the PGN with chess.js to get per-move `[%clk]` comments,
+	 * then computes remaining time for both players after each half-move.
+	 * Populates {@link clockHistory} (index 0 = initial clock state).
+	 *
+	 * If no clock comments are found, `clockHistory` is cleared.
+	 *
+	 * @param pgn — Raw PGN string for a single game.
+	 */
+	private extractClockHistory(pgn: string): void {
+		this.clockHistory = [];
+
+		try {
+			const tempChess = new Chess();
+			tempChess.loadPgn(pgn);
+			const moves = tempChess.history({ verbose: true });
+			const comments = tempChess.getComments();
+
+			// Map FEN → comment for quick lookup
+			const fenToComment = new Map<string, string>();
+			for (const c of comments) {
+				fenToComment.set(c.fen, c.comment);
+			}
+
+			// Parse initial time control from header
+			const header = tempChess.header();
+			let timeControlSeconds = 0;
+			if (header.TimeControl) {
+				const tc = header.TimeControl.split('+');
+				timeControlSeconds = parseInt(tc[0], 10);
+			}
+
+			let whiteTime = timeControlSeconds;
+			let blackTime = timeControlSeconds;
+
+			// Initial clock state
+			this.clockHistory.push({ white: whiteTime, black: blackTime });
+
+			let hasClocks = false;
+
+			for (const move of moves) {
+				const isWhite = move.color === 'w';
+				const comment = fenToComment.get(move.after);
+
+				if (comment) {
+					const clkMatch = comment.match(
+						/%clk\s+(?:(\d+):)?(\d+):(\d+)/,
+					);
+					if (clkMatch) {
+						hasClocks = true;
+						const h = clkMatch[1] ? parseInt(clkMatch[1], 10) : 0;
+						const m = parseInt(clkMatch[2], 10);
+						const s = parseInt(clkMatch[3], 10);
+						const timeInSeconds = h * 3600 + m * 60 + s;
+
+						if (isWhite) {
+							whiteTime = timeInSeconds;
+						} else {
+							blackTime = timeInSeconds;
+						}
+					}
+				}
+
+				this.clockHistory.push({ white: whiteTime, black: blackTime });
+			}
+
+			if (!hasClocks) {
+				this.clockHistory = [];
+			}
+		} catch {
+			this.clockHistory = [];
+		}
 	}
 
 	/**

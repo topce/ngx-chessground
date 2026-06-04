@@ -211,9 +211,25 @@
   box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.12), 0 0 0px 1000px var(--cg-bg-surface) inset !important;
 }
 
-.filter-row select[multiple] {
-  height: auto;
-  min-height: 70px;
+.filter-result-row {
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cg-text-secondary);
+  width: 100%;
+  margin-bottom: 0.1rem;
+}
+
+.result-option {
+  font-size: 0.78rem;
+}
+
+.result-option input[type="checkbox"] {
+  accent-color: var(--cg-accent);
 }
 
 .rating-input {
@@ -471,15 +487,20 @@
   font-size: 1.05rem;
   color: var(--cg-text);
   width: 100%;
+}
+
+.player-name-group {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .player-details {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  width: 100%;
 }
 
 .clock {
@@ -1113,10 +1134,20 @@ ngx-chessground {
 }
 
 /* ---- Turn Indicator ---- */
-.player-name-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.player-name-group .clock.inset {
+  margin-left: auto;
+  font-family: var(--cg-font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--cg-radius-sm);
+  background: var(--cg-bg-alt);
+  color: var(--cg-text);
+  min-width: 72px;
+  text-align: center;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--cg-border-light);
+  box-shadow: var(--cg-shadow-sm);
 }
 
 .turn-indicator {
