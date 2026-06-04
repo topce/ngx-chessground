@@ -172,19 +172,22 @@ async function downloadRange(year, startMonth, endMonth) {
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
-    console.log('Usage:');
-    console.log('  npm run download-lichess -- <year> <month>');
-    console.log('  npm run download-lichess -- <year> <startMonth> <endMonth>');
-    console.log('  npm run download-lichess -- all');
-    console.log('');
-    console.log('Examples:');
-    console.log('  npm run download-lichess -- 2022 1        # Download January 2022');
-    console.log('  npm run download-lichess -- 2022 1 3      # Download Jan-Mar 2022');
-    console.log('  npm run download-lichess -- all           # Download all available');
-    process.exit(1);
-}
+    // No arguments: download previous month from current date
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth(); // 0-indexed
 
-if (args[0] === 'all') {
+    if (month === 0) {
+        // January -> previous month is December of previous year
+        year -= 1;
+        month = 12;
+    }
+
+    downloadMonth(year, month);
+} else if (args[0] === '--help' || args[0] === '-h') {
+    showHelp();
+    process.exit(0);
+} else if (args[0] === 'all') {
     downloadAll();
 } else if (args.length === 2) {
     const year = parseInt(args[0], 10);
@@ -210,6 +213,22 @@ if (args[0] === 'all') {
 
     downloadRange(year, startMonth, endMonth);
 } else {
-    console.error('Invalid arguments');
+    showHelp();
     process.exit(1);
+}
+
+function showHelp() {
+    console.log('Download Lichess broadcast .zst files locally');
+    console.log('');
+    console.log('Usage:');
+    console.log('  npm run download-lichess                     # Download previous month');
+    console.log('  npm run download-lichess -- <year> <month>    # Download single month');
+    console.log('  npm run download-lichess -- <year> <startMonth> <endMonth>  # Download range');
+    console.log('  npm run download-lichess -- all               # Download all available (2020-01 to current-1)');
+    console.log('  npm run download-lichess -- --help            # Show this help');
+    console.log('');
+    console.log('Examples:');
+    console.log('  npm run download-lichess -- 2022 1        # Download January 2022');
+    console.log('  npm run download-lichess -- 2022 1 3      # Download Jan-Mar 2022');
+    console.log('  npm run download-lichess -- all           # Download all available months');
 }
