@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
-	ChangeDetectionStrategy,
 	Component,
 	computed,
 	effect,
@@ -50,8 +49,8 @@ import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 	selector: 'ngx-pgn-viewer',
 	imports: [CommonModule, MatSnackBarModule, NgxChessgroundComponent],
 	templateUrl: './pgn-viewer.component.html',
-	styleUrls: ['./pgn-viewer.component.css'],
-	changeDetection: ChangeDetectionStrategy.OnPush,
+	styleUrl: './pgn-viewer.component.css',
+
 })
 export class NgxPgnViewerComponent implements OnDestroy {
 	/** Service managing the PGN processor and Stockfish Web Workers. */

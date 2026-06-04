@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
 	MAT_DIALOG_DATA,
@@ -38,9 +38,7 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 @Component({
 	selector: 'ngx-promotion-dialog',
 	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  // TODO: This component has been partially migrated to be zoneless-compatible.
-  // After testing, this should be updated to ChangeDetectionStrategy.OnPush.
-  changeDetection: ChangeDetectionStrategy.Default,
+
 	template: `
     <div class="promotion-dialog">
       <h2 mat-dialog-title>Choose Promotion Piece</h2>

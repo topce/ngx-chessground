@@ -6,7 +6,6 @@ import { NgxChessgroundTableComponent } from 'ngx-chessground';
 	imports: [NgxChessgroundTableComponent],
 	templateUrl: './play-like-goat.component.html',
 	styleUrl: './play-like-goat.component.scss',
-	standalone: true,
 })
 export class PlayLikeGoatComponent {
 	title = 'Play like GOAT Robert James Fischer';

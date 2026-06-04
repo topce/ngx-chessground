@@ -1,6 +1,5 @@
 import type { AfterViewInit } from '@angular/core';
 import {
-	ChangeDetectionStrategy,
 	Component,
 	inject,
 	model,
@@ -49,8 +48,7 @@ import { in3dDefaults } from '../../../../ngx-chessground/src/units/in3d';
 	imports: [MatButtonToggleGroup, MatButtonToggle, NgxChessgroundComponent],
 	templateUrl: './home-page.component.html',
 	styleUrl: './home-page.component.scss',
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true,
+
 })
 export class HomePageComponent implements AfterViewInit {
 	readonly ngxChessgroundComponent =

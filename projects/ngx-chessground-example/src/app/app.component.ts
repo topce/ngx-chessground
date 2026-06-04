@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,9 +8,8 @@ import { ThemeService } from './theme.service';
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
-	styleUrls: ['./app.component.scss'],
+	styleUrl: './app.component.scss',
 	imports: [RouterModule, MatToolbarModule, MatButtonModule, MatIconModule],
-	standalone: true,
 })
 export class AppComponent {
 	title = 'ngx-chessground-example';

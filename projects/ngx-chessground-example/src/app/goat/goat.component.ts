@@ -5,7 +5,6 @@ import { Component } from '@angular/core';
 	imports: [],
 	templateUrl: './goat.component.html',
 	styleUrl: './goat.component.scss',
-	standalone: true,
 })
 export class GoatComponent {
 	title = 'Learn More About Robert James Fischer';

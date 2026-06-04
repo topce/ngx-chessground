@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxPgnViewerComponent } from 'ngx-chessground';
 import { SponsorDialogComponent } from './sponsor-dialog.component';
@@ -7,13 +7,12 @@ import { GMBJTMusicPlayerComponent } from './gmbjt-music-player.component';
 
 @Component({
 	selector: 'app-pgn-viewer',
-	standalone: true,
 	imports: [CommonModule, NgxPgnViewerComponent, MatDialogModule, GMBJTMusicPlayerComponent],
 	templateUrl: './pgn-viewer.component.html',
-	styleUrls: ['./pgn-viewer.component.css'],
+	styleUrl: './pgn-viewer.component.css',
 })
 export class PgnViewerComponent implements AfterViewInit {
-	@ViewChild(NgxPgnViewerComponent) pgnViewer!: NgxPgnViewerComponent;
+	pgnViewer = viewChild(NgxPgnViewerComponent);
 	private dialog = inject(MatDialog);
 	flipped = false;
 	// Fischer's Evergreen Game: Donald Byrne vs. Robert James Fischer

@@ -1,6 +1,5 @@
 import {
 	type AfterViewInit,
-	ChangeDetectionStrategy,
 	Component,
 	type ElementRef,
 	effect,
@@ -38,8 +37,8 @@ import { NgxChessgroundService } from '../ngx-chessground.service';
 @Component({
 	selector: 'ngx-chessground',
 	templateUrl: './ngx-chessground.component.html',
-	styleUrls: ['./ngx-chessground.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush,
+	styleUrl: './ngx-chessground.component.scss',
+
 	providers: [NgxChessgroundService],
 })
 export class NgxChessgroundComponent implements AfterViewInit {

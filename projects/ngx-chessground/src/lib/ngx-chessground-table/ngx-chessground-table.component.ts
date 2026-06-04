@@ -1,6 +1,5 @@
 import {
 	type AfterViewInit,
-	ChangeDetectionStrategy,
 	Component,
 	inject,
 	viewChild,
@@ -26,8 +25,8 @@ import { PromotionService } from '../promotion-dialog/promotion.service';
 @Component({
 	selector: 'ngx-chessground-table',
 	templateUrl: './ngx-chessground-table.component.html',
-	styleUrls: ['./ngx-chessground-table.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush,
+	styleUrl: './ngx-chessground-table.component.scss',
+
 	imports: [NgxChessgroundComponent],
 })
 export class NgxChessgroundTableComponent implements AfterViewInit {
