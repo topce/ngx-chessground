@@ -3,11 +3,10 @@ import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxPgnViewerComponent } from 'ngx-chessground';
 import { SponsorDialogComponent } from './sponsor-dialog.component';
-import { GMBJTMusicPlayerComponent } from './gmbjt-music-player.component';
 
 @Component({
 	selector: 'app-pgn-viewer',
-	imports: [CommonModule, NgxPgnViewerComponent, MatDialogModule, GMBJTMusicPlayerComponent],
+	imports: [CommonModule, NgxPgnViewerComponent, MatDialogModule],
 	templateUrl: './pgn-viewer.component.html',
 	styleUrl: './pgn-viewer.component.css',
 })
