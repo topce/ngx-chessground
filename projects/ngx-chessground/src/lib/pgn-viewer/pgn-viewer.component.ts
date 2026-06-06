@@ -576,6 +576,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/** Whether position/FEN filtering is enabled. */
 	filterByFenEnabled = signal<boolean>(false);
 
+	// ---- FEN Indexing Options ----
+
+	/** Whether to include the starting position FEN in the index when loading PGN. */
+	indexStartPositions = signal<boolean>(false);
+	/** Maximum number of half-moves (plies) to replay per game when building the FEN cache. */
+	maxFenPlies = signal<number>(30);
+
 	// ---- Autocomplete Signals ----
 
 	/** Unique white player names from the loaded PGN (for typeahead). */
@@ -2034,7 +2041,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.lastPgnHash = null;
 		}
 
-		this.pgnViewerEngine.loadPgn(pgn, Date.now(), this.lastPgnHash ?? undefined);
+		this.pgnViewerEngine.loadPgn(
+			pgn,
+			Date.now(),
+			this.lastPgnHash ?? undefined,
+			this.indexStartPositions(),
+			this.maxFenPlies(),
+		);
 	}
 
 	/**
@@ -2109,6 +2122,27 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	onPgnInputChange(event: Event) {
 		const value = (event.target as HTMLTextAreaElement).value;
 		this.pgnInput.set(value);
+	}
+
+	/**
+	 * Updates the index-start-positions setting from a checkbox event.
+	 *
+	 * @param event — Change event from the checkbox input.
+	 */
+	onIndexStartPositionsChange(event: Event) {
+		this.indexStartPositions.set((event.target as HTMLInputElement).checked);
+	}
+
+	/**
+	 * Updates the max FEN plies setting from a number input event.
+	 *
+	 * @param event — Change event from the number input.
+	 */
+	onMaxFenPliesChange(event: Event) {
+		const value = parseInt((event.target as HTMLInputElement).value, 10);
+		if (!isNaN(value) && value >= 1) {
+			this.maxFenPlies.set(value);
+		}
 	}
 
 	/**

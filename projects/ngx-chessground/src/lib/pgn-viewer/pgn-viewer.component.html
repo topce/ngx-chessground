@@ -867,6 +867,32 @@
             </div>
           </div>
 
+          <!-- FEN Indexing Options -->
+          <div class="index-options">
+            <label class="checkbox-label" style="display: flex; align-items: center; gap: 4px; white-space: nowrap">
+              <input
+                type="checkbox"
+                [checked]="indexStartPositions()"
+                (change)="onIndexStartPositionsChange($event)"
+              />
+              Index starting positions
+            </label>
+            <div class="option-input">
+              <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap">
+                Max plies:
+                <input
+                  type="number"
+                  [value]="maxFenPlies()"
+                  (input)="onMaxFenPliesChange($event)"
+                  min="1"
+                  max="500"
+                  class="small-input"
+                  aria-label="Max plies to index"
+                />
+              </label>
+            </div>
+          </div>
+
           <!-- Cache Management -->
           <div class="cache-section">
             <div class="cache-actions">

@@ -4,6 +4,18 @@ import { Chess } from 'chess.js';
 import { parsePgn } from 'chessops/pgn';
 
 /**
+ * Payload for the 'load' message, containing PGN text and indexing options.
+ */
+export interface LoadPayload {
+	/** Raw PGN text to parse. */
+	pgn: string;
+	/** Whether to include the starting position FEN in the index cache. */
+	indexStartPositions: boolean;
+	/** Maximum number of plies to replay per game when building the FEN cache. */
+	maxFenPlies: number;
+}
+
+/**
  * Discriminated union of messages sent from the main thread to the PGN processor worker.
  *
  * Each message includes an `id` correlation field echoed back in the response
@@ -11,7 +23,7 @@ import { parsePgn } from 'chessops/pgn';
  */
 export type WorkerMessage =
 	/** Load raw PGN text for parsing. `pgnHash` enables IndexedDB cache restore. */
-	| { type: 'load'; payload: string; id: number; pgnHash?: string }
+	| { type: 'load'; payload: string | LoadPayload; id: number; pgnHash?: string }
 	/** Filter the currently loaded games by {@link FilterCriteria}. */
 	| { type: 'filter'; payload: FilterCriteria; id: number }
 	/** Load the full move data for a game at the given index. */
@@ -168,7 +180,9 @@ const gameMovesCache = new Map<number, string[]>();
  */
 const gameFenCache = new Map<number, Set<string>>();
 /** Maximum number of plies to replay per game when building the FEN cache. */
-const MAX_FEN_PLIES = 30;
+let MAX_FEN_PLIES = 30;
+/** Whether to include the starting position FEN in the cache. */
+let INDEX_START_POSITIONS = false;
 
 // ---- IndexedDB Cache -------
 
@@ -346,7 +360,13 @@ addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 	try {
 		switch (data.type) {
 			case 'load':
-				handleLoad(data.payload, data.id, data.pgnHash).catch((e) =>
+				// Accept both legacy string payload and new LoadPayload object
+				const pgnStr = typeof data.payload === 'string' ? data.payload : data.payload.pgn;
+				const indexStart = typeof data.payload === 'object' ? data.payload.indexStartPositions : false;
+				const maxPlies = typeof data.payload === 'object' ? data.payload.maxFenPlies : 30;
+				INDEX_START_POSITIONS = indexStart;
+				MAX_FEN_PLIES = maxPlies;
+				handleLoad(pgnStr, data.id, data.pgnHash).catch((e) =>
 					postMessage({ type: 'error', payload: String(e), id: data.id }),
 				);
 				break;
@@ -415,11 +435,28 @@ async function handleLoad(pgn: string, id: number, pgnHash?: string) {
 
 	postProgress(2, `Splitting PGN (${allGames.length} games found)...`, id);
 
-	// Filter out non-standard variants (keep Standard or if Variant tag is missing)
+	/** Standard starting position piece placement (first field of the FEN). */
+	const STANDARD_START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+
+	// Filter out non-standard variants and non-classical starting positions.
+	// Keep only games that are Standard chess AND start from the initial position.
 	games = allGames.filter((g) => {
+		// 1. Check [Variant] tag — must be "Standard" or absent
 		const variantMatch = g.match(/\[Variant\s+"([^"]+)"\]/);
-		if (!variantMatch) return true; // Default is Standard
-		return variantMatch[1] === 'Standard';
+		if (variantMatch) {
+			const variant = variantMatch[1].toLowerCase();
+			if (variant !== 'standard' && variant !== 'normal') return false;
+		}
+
+		// 2. Check [SetUp "1"] + [FEN "..."] — reject non-standard starting positions
+		const fenMatch = g.match(/\[FEN\s+"([^"]+)"\]/);
+		const setUpMatch = g.match(/\[SetUp\s+"([^"]+)"\]/);
+		if (setUpMatch && setUpMatch[1] === '1' && fenMatch) {
+			const fenPieces = fenMatch[1].split(' ')[0];
+			if (fenPieces !== STANDARD_START_FEN) return false;
+		}
+
+		return true;
 	});
 
 	postProgress(5, `Parsing metadata for ${games.length} games...`, id);
@@ -456,7 +493,9 @@ async function handleLoad(pgn: string, id: number, pgnHash?: string) {
 				try { chess.load(fenMatch[1]); } catch (_e) {}
 			}
 
-			fenSet.add(normalizeFen(chess.fen()));
+			if (INDEX_START_POSITIONS) {
+				fenSet.add(normalizeFen(chess.fen()));
+			}
 
 			const replayLimit = Math.min(moves.length, MAX_FEN_PLIES);
 			for (let k = 0; k < replayLimit; k++) {

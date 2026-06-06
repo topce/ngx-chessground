@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import type {
 	FilterCriteria,
+	LoadPayload,
 	WorkerMessage,
 	WorkerResponse,
 } from './pgn-processor.worker';
@@ -71,7 +72,7 @@ export class PgnViewerEngineService {
 	}
 
 	/**
-	 * Sends raw PGN text to the parser worker for processing.
+	 * Sends raw PGN text and indexing options to the parser worker for processing.
 	 *
 	 * Supports IndexedDB caching via `pgnHash`. When provided, the worker
 	 * checks its cache first and skips re-parsing if a valid entry exists.
@@ -79,11 +80,24 @@ export class PgnViewerEngineService {
 	 * @param pgn — Raw PGN string (supports multi-game, compressed formats).
 	 * @param id — Correlation ID echoed back in the worker response for matching requests.
 	 * @param pgnHash — Optional SHA-256 hash for IndexedDB cache restore.
+	 * @param indexStartPositions — Whether to include the starting position FEN in the index.
+	 * @param maxFenPlies — Max half-moves to replay when building the FEN cache.
 	 */
-	loadPgn(pgn: string, id: number, pgnHash?: string): void {
+	loadPgn(
+		pgn: string,
+		id: number,
+		pgnHash?: string,
+		indexStartPositions: boolean = false,
+		maxFenPlies: number = 30,
+	): void {
+		const payload: LoadPayload = {
+			pgn,
+			indexStartPositions,
+			maxFenPlies,
+		};
 		const msg: WorkerMessage & { pgnHash?: string } = {
 			type: 'load',
-			payload: pgn,
+			payload,
 			id,
 		};
 		if (pgnHash) {
