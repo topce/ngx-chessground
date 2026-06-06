@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -32,12 +31,13 @@ export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
  * chess piece characters. On selection, the dialog closes with the chosen
  * {@link PromotionPiece} string. If dismissed without selection, defaults to `'q'`.
  *
- * @remarks The component uses `ChangeDetectionStrategy.Default` for zoneless compatibility
- *          but has been partially migrated and may be switched to `OnPush` after testing.
+ * The application is running in zoneless mode via {@link provideZonelessChangeDetection}.
+ * The component is fully signal-driven — all template bindings are signal reads,
+ * making `ChangeDetectionStrategy` a no-op in this configuration.
  */
 @Component({
 	selector: 'ngx-promotion-dialog',
-	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+	imports: [MatDialogModule, MatButtonModule, MatIconModule],
 
 	template: `
     <div class="promotion-dialog">

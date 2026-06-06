@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
 	Component,
@@ -28,6 +28,7 @@ import type {
 import { ECO_MOVES } from './eco-moves';
 import { PgnCacheService } from './pgn-cache.service';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
+import { highlightMatch, type TextSegment } from './text-highlight';
 
 /**
  * A full-featured PGN viewer component for Angular applications.
@@ -48,7 +49,7 @@ import { PgnViewerEngineService } from './pgn-viewer-engine.service';
  */
 @Component({
 	selector: 'ngx-pgn-viewer',
-	imports: [CommonModule, MatSnackBarModule, NgxChessgroundComponent],
+	imports: [DecimalPipe, MatSnackBarModule, NgxChessgroundComponent],
 	templateUrl: './pgn-viewer.component.html',
 	styleUrl: './pgn-viewer.component.css',
 
@@ -313,36 +314,16 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Splits text into match/non-match segments for typeahead highlighting.
 	 *
-	 * Used to render bold matching portions of player names in the typeahead dropdown.
+	 * Delegates to the standalone {@link highlightMatch} utility so the logic
+	 * is independently testable and reusable. Called from the template:
+	 * `@for (segment of highlightText(player, filterWhite()); track $index)`.
 	 *
-	 * @param text — Full text to segment (e.g. a player name).
+	 * @param text  — Full text to segment (e.g. a player name).
 	 * @param query — Search query string to match against.
-	 * @returns Array of `{ text, match }` objects for template rendering.
+	 * @returns Array of {@link TextSegment} objects for template rendering.
 	 */
-	highlightText(
-		text: string,
-		query: string,
-	): { text: string; match: boolean }[] {
-		const q = query.toLowerCase().trim();
-		if (!q) {
-			return [{ text, match: false }];
-		}
-		const idx = text.toLowerCase().indexOf(q);
-		if (idx === -1) {
-			return [{ text, match: false }];
-		}
-		const segments: { text: string; match: boolean }[] = [];
-		if (idx > 0) {
-			segments.push({ text: text.substring(0, idx), match: false });
-		}
-		segments.push({
-			text: text.substring(idx, idx + q.length),
-			match: true,
-		});
-		if (idx + q.length < text.length) {
-			segments.push({ text: text.substring(idx + q.length), match: false });
-		}
-		return segments;
+	highlightText(text: string, query: string): TextSegment[] {
+		return highlightMatch(text, query);
 	}
 
 	/**

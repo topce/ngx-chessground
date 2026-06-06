@@ -1,5 +1,4 @@
 import {
-	type AfterViewInit,
 	Component,
 	type ElementRef,
 	effect,
@@ -15,8 +14,8 @@ import { NgxChessgroundService } from '../ngx-chessground.service';
  *
  * Accepts a `runFunction` signal-model input that receives the mounted DOM element
  * and must return a chessground `Api` instance. The component manages lifecycle:
- * - Uses an Angular `effect()` to watch `runFunction` changes and redraw the board.
- * - Calls `redraw()` on `ngAfterViewInit` so the board appears as soon as the view is ready.
+ * - Uses an Angular `effect()` (in zoneless mode) to watch both `runFunction` changes
+ *   and `viewChild` population, redrawing the board whenever either is ready.
  * - Provides a `toggleOrientation()` method to flip the board.
  *
  * Uses {@link NgxChessgroundService} (provided at component level) for snabbdom patching
@@ -41,7 +40,7 @@ import { NgxChessgroundService } from '../ngx-chessground.service';
 
 	providers: [NgxChessgroundService],
 })
-export class NgxChessgroundComponent implements AfterViewInit {
+export class NgxChessgroundComponent {
 	/**
 	 * Signal-based view query for the board container element.
 	 *
@@ -65,25 +64,21 @@ export class NgxChessgroundComponent implements AfterViewInit {
 	private readonly ngxChessgroundService = inject(NgxChessgroundService);
 
 	/**
-	 * Sets up a reactive effect that redraws the board whenever {@link runFunction} changes.
+	 * Sets up a reactive effect that redraws the board whenever {@link runFunction}
+	 * or the underlying DOM element changes.
 	 *
-	 * This is the wiring that makes dynamic board configuration (switching FEN, orientation, etc.)
-	 * work seamlessly — just update the signal and the board reacts.
+	 * The effect handles both initial render (once the view is created and the
+	 * signal-based {@link elementView} is populated) and subsequent updates when
+	 * a parent writes a new function to the {@link runFunction} model signal.
+	 *
+	 * In zoneless mode, `viewChild` signals populate when the view template is
+	 * rendered; the effect is scheduled after change detection, so both the
+	 * element reference and the run function are guaranteed to be available.
 	 */
 	constructor() {
 		effect(() => {
 			this.redraw();
 		});
-	}
-
-	/**
-	 * Redraws the board once the view is initialized.
-	 *
-	 * Ensures the board is rendered on first load. Subsequent redraws
-	 * are handled by the `effect()` watching `runFunction`.
-	 */
-	ngAfterViewInit() {
-		this.redraw();
 	}
 
 	/**

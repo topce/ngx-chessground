@@ -7,6 +7,7 @@ export * from './lib/ngx-chessground-table/ngx-chessground-table.component';
 export * from './lib/pgn-viewer/pgn-viewer.component';
 export * from './lib/pgn-viewer/pgn-viewer-engine.service';
 export * from './lib/pgn-viewer/pgn-cache.service';
+export * from './lib/pgn-viewer/text-highlight';
 export * from './lib/promotion-dialog/promotion.service';
 export * from './lib/promotion-dialog/promotion-dialog.component';
 
