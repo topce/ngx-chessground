@@ -80,7 +80,7 @@ export class MiniPlayerComponent implements OnDestroy {
     }
   }
 
-  private play(): void {
+  play(): void {
     if (!this.audio) {
       this.playIndex(this.currentIndex());
       return;
@@ -88,7 +88,7 @@ export class MiniPlayerComponent implements OnDestroy {
     this.audio.play().then(() => this.isPlaying.set(true)).catch(() => {});
   }
 
-  private pause(): void {
+  pause(): void {
     this.audio?.pause();
     this.isPlaying.set(false);
   }

@@ -84,27 +84,40 @@
   text-overflow: ellipsis;
 }
 
-.mini-play {
-  width: 40px;
-  height: 40px;
+.mini-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.mini-ctrl {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: var(--color-accent);
+  color: var(--text-secondary);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.12s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
   flex-shrink: 0;
 }
 
-.mini-play:hover {
+.mini-ctrl:hover {
   background: var(--color-accent-subtle);
+  color: var(--color-accent);
 }
 
-.mini-play:active {
-  transform: scale(0.9);
+.mini-ctrl:active {
+  transform: scale(0.88);
+}
+
+.mini-play,
+.mini-stop {
+  color: var(--color-accent);
 }
 
 /* ── Overlay Backdrop ── */
