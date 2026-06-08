@@ -1145,6 +1145,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 *
 	 * Maps centipawn scores linearly from -5.0 (0%) to +5.0 (100%).
 	 * Mate scores force 0% or 100%.
+	 * The bar itself is CSS-flipped via `.evaluation-bar-container.flipped`
+	 * when the board orientation changes, so this formula stays constant.
 	 */
 	evaluationBarHeight = computed(() => {
 		const evalStr = this.currentEvaluation();
@@ -1173,19 +1175,19 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 * - Mate scores are displayed as `M3` or `-M2`.
 	 * - Returns `null` when no evaluation is available.
 	 */
-	formattedEvaluation = computed<string | null>(() => {
+	formattedEvaluation = computed<string>(() => {
 		const raw = this.currentEvaluation();
-		if (!raw) return null;
+		if (!raw) return '—';
 
 		if (raw.startsWith('#')) {
 			const val = parseInt(raw.substring(1), 10);
 			if (val > 0) return `M${val}`;
 			if (val < 0) return `-M${Math.abs(val)}`;
-			return null;
+			return '—';
 		}
 
 		const num = parseFloat(raw);
-		if (Number.isNaN(num)) return null;
+		if (Number.isNaN(num)) return '—';
 
 		// Round to 2 decimal places for display
 		const rounded = Math.round(num * 100) / 100;

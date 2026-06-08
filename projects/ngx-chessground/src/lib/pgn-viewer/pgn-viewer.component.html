@@ -522,16 +522,16 @@
         <div class="board-container">
           <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
 
-          <div class="evaluation-bar-container">
+          <div class="evaluation-bar-container" [class.flipped]="flipped()">
             <div
               [class]="'evaluation-fill ' + evalBarClass()"
-              [style.height.%]="evaluationBarHeight()"
+              [style.transform]="'scaleY(' + (evaluationBarHeight() / 100) + ')'"
             ></div>
             <div
               [class]="'evaluation-text ' + evalBarClass()"
               [style.top.%]="100 - evaluationBarHeight()"
             >
-              {{ formattedEvaluation() || '—' }}
+              {{ formattedEvaluation() }}
             </div>
           </div>
         </div>

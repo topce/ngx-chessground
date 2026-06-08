@@ -1176,15 +1176,29 @@ ngx-chessground {
 /* ---- Evaluation Bar ---- */
 .evaluation-bar-container {
   width: 28px;
-  background-color: #141420;
+  background-color: #000000;
   border-radius: 6px;
   position: relative;
   display: flex;
   flex-direction: column-reverse;
-  box-shadow: 0 0 0 2px rgba(120, 120, 142, 0.15), inset 0 0 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08), inset 0 0 8px rgba(0, 0, 0, 0.5);
   margin-right: 6px;
   overflow: hidden;
   flex-shrink: 0;
+  contain: layout style paint;
+  isolation: isolate;
+}
+
+/** Flip the evaluation bar when the board is flipped — instant, no transition. */
+.evaluation-bar-container.flipped {
+  transform: scaleY(-1);
+  transition: none;
+}
+
+/** Counter-flip the text badge so it stays readable. */
+.evaluation-bar-container.flipped .evaluation-text {
+  transform: scaleY(-1) translateY(-50%);
+  transition: none;
 }
 
 /** Center divider line that always shows the midpoint. */
@@ -1192,7 +1206,7 @@ ngx-chessground {
   content: '';
   position: absolute;
   inset: 0;
-  border-top: 1px dashed rgba(120, 120, 142, 0.25);
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
   top: 50%;
   z-index: 1;
   pointer-events: none;
@@ -1200,28 +1214,33 @@ ngx-chessground {
 
 .evaluation-fill {
   width: 100%;
-  background: linear-gradient(to bottom, #78788E, #5D5D6E);
-  transition: height 0.35s ease;
-  min-height: 0;
+  height: 100%;
+  transform-origin: bottom;
+  transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  will-change: transform;
+  contain: layout style paint;
+  /** Default fill: white, representing white's advantage growing from bottom. */
+  background: #ffffff;
 }
 
-/** White has the advantage — warm gold tones. */
+/** White has the advantage — pure white fill. */
 .evaluation-fill.eval-white {
-  background: linear-gradient(to bottom, #D4A017, #A67C00);
+  background: #ffffff;
 }
 
-/** Black has the advantage — deep warm tones. */
+/** Black has the advantage — white fill shrinks, revealing container's black. */
 .evaluation-fill.eval-black {
-  background: linear-gradient(to bottom, #dc2626, #991b1b);
+  background: #ffffff;
 }
 
-/** Nearly equal — neutral fill. */
+/** Nearly equal — scaleY(0.5) splits white/black evenly via container bg. */
 .evaluation-fill.eval-equal {
-  background: linear-gradient(to bottom, #78788E, #5D5D6E);
+  background: #ffffff;
 }
 
 .evaluation-text {
   position: absolute;
+  top: 50%;
   right: calc(100% + 10px);
   padding: 2px 8px;
   min-width: 48px;
@@ -1234,24 +1253,27 @@ ngx-chessground {
   z-index: 2;
   border-radius: 4px;
   line-height: 1.4;
+  transition: top 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  contain: layout style paint;
+  will-change: top;
 }
 
-/** Evaluation text with colored background matching advantage. */
+/** Evaluation text with white background when white has the advantage. */
 .evaluation-text.eval-white {
-  color: #fff;
-  background: rgba(166, 124, 0, 0.85);
-  box-shadow: 0 1px 4px rgba(166, 124, 0, 0.3);
+  color: #000;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 .evaluation-text.eval-black {
   color: #fff;
-  background: rgba(220, 38, 38, 0.85);
-  box-shadow: 0 1px 4px rgba(220, 38, 38, 0.3);
+  background: #000000;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .evaluation-text.eval-equal {
   color: #fff;
-  background: rgba(90, 90, 110, 0.7);
+  background: #000000;
 }
 
 /* ---- Turn Indicator ---- */
