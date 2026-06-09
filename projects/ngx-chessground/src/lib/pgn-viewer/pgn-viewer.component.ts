@@ -3007,9 +3007,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const timeOuts: number[] = [];
 		this.clockHistory = [];
 
-		// Get comments and header to parse clocks
-		const comments = this.chess.getComments();
-		const header = this.chess.header();
+		// Re-simulate game to extract clocks correctly — use a fresh Chess
+		// instance because this.chess may have been reset by start() / stopReplay().
+		const tempChess = new Chess();
+		tempChess.loadPgn(this.pgnInput());
+		const header = tempChess.header();
+		const moves = tempChess.history({ verbose: true });
+		const moveComments = tempChess.getComments();
 
 		// Try to parse time control
 		let timeControlSeconds = 0;
@@ -3022,25 +3026,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		let whiteTime = timeControlSeconds;
 		let blackTime = timeControlSeconds;
 
-		// If we have clock comments, use them as source of truth
-		// Check first few moves for clock comments
-		let hasClockComments = false;
-		for (let i = 0; i < Math.min(history.length, 10); i++) {
-			const _comment = comments.find(
-				(c) => c.fen === history[i].after || c.fen === history[i].before,
-			); // Approximate check
-			// Actually chess.js getComments returns array of objects with fen and comment.
-			// We need to match moves to comments.
-			// A simpler way is to iterate moves and get comments for the position.
-		}
-
-		// Re-simulate game to extract clocks correctly
-		const tempChess = new Chess();
-		// Use the raw PGN input to ensure we have comments
-		tempChess.loadPgn(this.pgnInput());
-		const moves = tempChess.history({ verbose: true });
-		const moveComments = tempChess.getComments();
-
 		// Map FEN to comment for easier lookup
 		const fenToComment = new Map<string, string>();
 		moveComments.forEach((c) => {
@@ -3052,6 +3037,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 		// Calculate think times
 		const thinkTimes: number[] = [];
+		let hasClockComments = false;
 
 		for (let i = 0; i < moves.length; i++) {
 			const move = moves[i];
