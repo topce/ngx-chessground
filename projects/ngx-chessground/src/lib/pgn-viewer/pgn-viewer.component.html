@@ -697,6 +697,9 @@
                 >
                   {{ move }}
                 </button>
+                @if ($index < moveClocks().length && moveClocks()[$index]) {
+                  <span class="move-clock">{{ moveClocks()[$index] }}</span>
+                }
               }
             </div>
           </div>

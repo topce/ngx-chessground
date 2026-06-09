@@ -1614,6 +1614,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				);
 				this.moves.set([]);
 				this.evaluations.set([]);
+				this.moveClocks.set([]);
 			} else {
 				this.moves.set(moves);
 
@@ -2430,6 +2431,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.currentGameIndex.set(index);
 			this.moves.set([]);
 			this.evaluations.set([]);
+			this.moveClocks.set([]);
 			this.pgnInput.set('Loading...');
 			this.isLoading.set(true);
 			this.currentLoadGameId++;
@@ -2986,6 +2988,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	private clockHistory: { white: number; black: number }[] = [];
 
 	/**
+	 * Per-move formatted clock strings for display in the move list.
+	 * After white's move, shows white's remaining time; after black's — black's.
+	 */
+	moveClocks = signal<string[]>([]);
+
+	/**
 	 * Calculates per-move replay delays from game history and clock comments.
 	 *
 	 * Parses `[%clk h:m:s]` comments to compute think times. Supports three modes:
@@ -3224,10 +3232,37 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 			if (!hasClocks) {
 				this.clockHistory = [];
+				this.moveClocks.set([]);
+			} else {
+				this.buildMoveClocks(moves);
 			}
 		} catch {
 			this.clockHistory = [];
+			this.moveClocks.set([]);
 		}
+	}
+
+	/**
+	 * Builds the {@link moveClocks} signal from {@link clockHistory} and verbose moves.
+	 *
+	 * Each entry shows the remaining time for the player who just moved.
+	 * Called after {@link extractClockHistory} completes.
+	 */
+	private buildMoveClocks(moves: Move[]): void {
+		const clocks: string[] = [];
+		for (let i = 0; i < moves.length; i++) {
+			const hIdx = i + 1;
+			if (hIdx < this.clockHistory.length) {
+				const isWhite = moves[i].color === 'w';
+				const time = isWhite
+					? this.clockHistory[hIdx].white
+					: this.clockHistory[hIdx].black;
+				clocks.push(this.formatTime(time));
+			} else {
+				clocks.push('');
+			}
+		}
+		this.moveClocks.set(clocks);
 	}
 
 	/**

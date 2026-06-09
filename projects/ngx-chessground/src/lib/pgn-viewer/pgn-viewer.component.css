@@ -744,6 +744,18 @@
   outline-offset: 2px;
 }
 
+.move-clock {
+  font-family: var(--cg-font-mono);
+  font-size: 0.65rem;
+  color: var(--cg-text-muted);
+  background: var(--cg-bg-surface);
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 2px;
+  white-space: nowrap;
+  align-self: center;
+}
+
 /* ---- Replay Controls ---- */
 .replay-section {
   display: flex;
