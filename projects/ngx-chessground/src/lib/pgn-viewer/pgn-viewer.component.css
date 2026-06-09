@@ -1651,3 +1651,185 @@ ngx-chessground {
 .nav-arrow-btn:active:not(:disabled) {
   transform: scale(0.93);
 }
+
+/* ==========================================================================
+   Board Controls: Flip & 3D Toggle
+   ========================================================================== */
+
+.board-controls {
+  display: flex;
+  gap: 0;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  background: var(--cg-bg-alt);
+  border-radius: var(--cg-radius-full);
+  padding: 3px;
+  border: 1px solid var(--cg-border-light);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+.board-ctrl-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--cg-font-body);
+  color: var(--cg-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--cg-radius-full);
+  cursor: pointer;
+  transition: all 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  position: relative;
+  letter-spacing: 0.01em;
+}
+
+.board-ctrl-btn svg {
+  flex-shrink: 0;
+  opacity: 0.65;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.board-ctrl-btn:hover {
+  color: var(--cg-text);
+}
+
+.board-ctrl-btn:hover svg {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.board-ctrl-btn:active {
+  transform: scale(0.96);
+}
+
+.board-ctrl-btn.active {
+  background: var(--cg-accent);
+  color: var(--cg-text-inverse);
+  box-shadow: 0 2px 8px rgba(166, 124, 0, 0.25);
+}
+
+.board-ctrl-btn.active svg {
+  opacity: 1;
+}
+
+.board-ctrl-btn:focus-visible {
+  outline: 2px solid var(--cg-accent);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   3D Board Theme (in3d staunton)
+   Piece sizing, board dimensions, and 3D perspective styling.
+   ========================================================================== */
+
+/* Lift the square aspect-ratio constraint — 3D board is wider than tall. */
+:host .board-wrapper.in3d ngx-chessground {
+	aspect-ratio: auto;
+	overflow: visible;
+}
+
+/* 3D board dimensions — !important to beat ::ng-deep 100% sizing */
+:host .board-wrapper.in3d::ng-deep .cg-wrap {
+	width: 320px !important;
+	height: 290.3125px !important;
+	background-image: none;
+}
+
+/* 3D board texture overlay */
+:host .board-wrapper.in3d cg-board::before {
+	position: absolute;
+	top: -0.730688%;
+	left: 0;
+	width: 100%;
+	height: 103.2%;
+	content: "";
+	background-size: cover;
+	background-image: url("../../../assets/images/board/3d/woodi.1024.png");
+}
+
+/* 3D piece sizing & perspective positioning */
+:host .board-wrapper.in3d piece {
+	width: 16.741%;
+	height: 23.563%;
+	left: -1.85%;
+	top: -9.1%;
+}
+
+:host .board-wrapper.in3d .ghost,
+:host .board-wrapper.in3d .over {
+	display: none;
+}
+
+:host .board-wrapper.in3d cg-board piece.dragging {
+	cursor: move;
+	z-index: 70 !important;
+}
+
+/* ---- 3D Staunton piece images ---- */
+:host .board-wrapper.in3d .cg-wrap piece.pawn.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-Pawn.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.bishop.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-Bishop.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap.orientation-black div.bishop.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-Bishop-Flipped.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.knight.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-Knight.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap.orientation-black div.knight.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-Knight-Flipped.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.rook.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-Rook.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.queen.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-Queen.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.king.white {
+	background-image: url("../../../assets/images/pieces/staunton/basic/White-King.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.pawn.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-Pawn.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.bishop.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-Bishop.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap.orientation-white div.bishop.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-Bishop-Flipped.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.knight.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-Knight.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap.orientation-white div.knight.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-Knight-Flipped.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.rook.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-Rook.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.queen.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-Queen.png");
+}
+
+:host .board-wrapper.in3d .cg-wrap piece.king.black {
+	background-image: url("../../../assets/images/pieces/staunton/basic/Black-King.png");
+}

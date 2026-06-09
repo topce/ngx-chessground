@@ -83,11 +83,24 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	flipped = model<boolean>(false);
 
 	/**
+	 * Whether to render the board with 3D piece appearance (Staunton theme).
+	 * Default is `false` (2D).
+	 */
+	in3d = model<boolean>(false);
+
+	/**
 	 * Toggles the board orientation between white-at-bottom (default)
 	 * and black-at-bottom (flipped).
 	 */
 	flipBoard() {
 		this.flipped.update(v => !v);
+	}
+
+	/**
+	 * Toggles the 3D board mode on/off.
+	 */
+toggle3d() {
+		this.in3d.update(v => !v);
 	}
 
 	/**
@@ -1259,8 +1272,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const isEditable = this.filterMoves();
 		const lastMove = this.lastMoveSquares();
 		const orientation = this.flipped() ? 'black' : 'white';
+		const is3d = this.in3d();
 		return (el: HTMLElement) => {
 			return Chessground(el, {
+				addPieceZIndex: is3d,
 				fen: fen,
 				orientation: orientation,
 				viewOnly: !isEditable,
