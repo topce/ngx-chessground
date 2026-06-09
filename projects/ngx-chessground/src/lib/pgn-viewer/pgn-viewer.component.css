@@ -82,6 +82,8 @@
   background-color: var(--cg-bg-page);
   font-family: var(--cg-font-body);
   overflow: hidden;
+  /* Ensures container queries work for nested elements */
+  container-type: inline-size;
 }
 
 .main-content {
@@ -89,6 +91,39 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+/* ---- Resize Handles ---- */
+.resize-handle {
+  width: 6px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 200ms ease;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: 25% 0;
+  left: 2px;
+  right: 2px;
+  border-radius: 3px;
+  background: var(--cg-border-light);
+  transition: background 200ms ease, inset 200ms ease;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background: rgba(166, 124, 0, 0.06);
+}
+
+.resize-handle:hover::after,
+.resize-handle:active::after {
+  background: var(--cg-accent);
+  inset: 15% 0;
 }
 
 /* ---- Panels ---- */
@@ -114,8 +149,10 @@
 }
 
 .left-panel {
-  width: var(--cg-panel-w, 300px);
-  min-width: var(--cg-panel-min, 260px);
+  width: var(--left-panel-w, 340px);
+  min-width: 200px;
+  flex-shrink: 0;
+  overflow: hidden;
   border-right: 1px solid var(--cg-border);
   gap: 0;
 }
@@ -130,25 +167,43 @@
   overflow: hidden;
 }
 
-.center-panel {
-  flex: 1;
-  background-color: var(--cg-bg-page);
-  align-items: center;
-  justify-content: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
 .right-panel {
-  width: var(--cg-panel-w, 300px);
-  min-width: var(--cg-panel-min, 260px);
+  width: var(--right-panel-w, 340px);
+  min-width: 200px;
+  flex-shrink: 0;
   border-left: 1px solid var(--cg-border);
   gap: 0;
+  overflow: hidden;
 }
 
 /* ---- Responsive ---- */
+
+/* Hide resize handles on narrow screens */
 @media (max-width: 850px) {
+  .resize-handle {
+    display: none;
+  }
+}
+
+/* Medium screens: collapse side panels */
+@media (max-width: 900px) {
+  .left-panel {
+    width: Min(var(--left-panel-w, 260px), 28vw);
+    min-width: auto;
+  }
+
+  .right-panel {
+    width: Min(var(--right-panel-w, 260px), 28vw);
+    min-width: auto;
+  }
+
+  .panel {
+    padding: 0.5rem;
+  }
+}
+
+/* Narrow screens: stack vertically */
+@media (max-width: 700px) {
   .main-content {
     flex-direction: column;
     overflow-y: auto;
@@ -156,33 +211,90 @@
 
   .left-panel,
   .right-panel {
-    width: 100%;
     min-width: 100%;
+    width: 100%;
+    max-height: 35vh;
     border: none;
   }
 
   .left-panel {
     border-bottom: 1px solid var(--cg-border);
+    order: 1;
+  }
+
+  .center-panel {
+    order: 2;
+    padding: 0.5rem;
   }
 
   .right-panel {
     border-top: 1px solid var(--cg-border);
+    order: 3;
   }
 
-  .center-panel {
-    gap: 0.75rem;
-    padding: 0.75rem;
+  .left-panel h3,
+  .right-panel h3 {
+    font-size: 0.7rem;
   }
 
-  /* On mobile, collapse Game Details and keep only Players expanded */
+  .board-wrapper {
+    max-width: Min(100cqw, 480px);
+  }
+
   .game-list-wrapper {
-    max-height: 300px;
+    max-height: 200px;
   }
 
-  /* Smaller result pills on mobile */
   .result-option {
+    font-size: 0.66rem;
+    padding: 0.05rem 0.15rem;
+  }
+
+  .move-navigation {
+    padding: 0.35rem 0.75rem;
+  }
+
+  .board-controls {
+    margin-bottom: 0.4rem;
+  }
+
+  .board-ctrl-btn {
+    padding: 5px 12px;
+    font-size: 0.72rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .left-panel,
+  .right-panel {
+    max-height: 28vh;
+  }
+
+  .board-wrapper {
+    max-width: 100cqw;
+  }
+
+  .board-ctrl-btn {
+    padding: 4px 10px;
     font-size: 0.68rem;
-    padding: 0.05rem 0.2rem;
+    gap: 4px;
+  }
+
+  .board-ctrl-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .nav-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  .move-status {
+    font-size: 0.72rem;
+    min-width: 55px;
   }
 }
 
@@ -605,7 +717,34 @@
   align-items: stretch;
   gap: 0.5rem;
   width: 100%;
-  max-width: calc(100vh - 350px);
+  max-width: Min(100%, 520px);
+  container-type: inline-size;
+  contain: layout;
+}
+
+ngx-chessground {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  align-self: center;
+  aspect-ratio: 1 / 1;
+  display: block;
+  max-width: 100%;
+  max-height: 520px;
+  background: var(--cg-bg-surface);
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-lg);
+  overflow: hidden;
+}
+
+.center-panel {
+  flex: 1;
+  background-color: var(--cg-bg-page);
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  overflow-y: auto;
 }
 
 .player-info {
@@ -1144,23 +1283,8 @@ button:active:not(:disabled) {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: 8px;
+  gap: 18px;
   width: 100%;
-}
-
-ngx-chessground {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  align-self: flex-start;
-  aspect-ratio: 1 / 1;
-  display: block;
-  margin-right: 32px;
-  margin-bottom: 20px;
-  background: var(--cg-bg-surface);
-  border-radius: var(--cg-radius-md);
-  box-shadow: var(--cg-shadow-lg);
-  overflow: hidden;
 }
 
 /* ng-deep overrides for chessground internals */
@@ -1253,7 +1377,7 @@ ngx-chessground {
 .evaluation-text {
   position: absolute;
   top: 50%;
-  right: calc(100% + 10px);
+  right: calc(100% + 8px);
   padding: 2px 8px;
   min-width: 48px;
   text-align: center;
@@ -1726,17 +1850,30 @@ ngx-chessground {
    Piece sizing, board dimensions, and 3D perspective styling.
    ========================================================================== */
 
-/* Lift the square aspect-ratio constraint — 3D board is wider than tall. */
+/* Lift the square aspect-ratio constraint — 3D board is wider than tall.
+   overflow: visible so pieces extending above/below the board in perspective
+   are not clipped. max-height: none so the 3D board can use its natural height. */
 :host .board-wrapper.in3d ngx-chessground {
 	aspect-ratio: auto;
 	overflow: visible;
+	max-height: none;
+	background: transparent;
+	box-shadow: none;
+	border-radius: 0;
 }
 
-/* 3D board dimensions — !important to beat ::ng-deep 100% sizing */
+/* 3D board dimensions — responsive via container query units.
+   Scales up to match the 2D board occupied space. */
 :host .board-wrapper.in3d::ng-deep .cg-wrap {
-	width: 320px !important;
-	height: 290.3125px !important;
+	width: Min(520px, 100cqw) !important;
+	height: Min(472px, calc(100cqw * 0.90723)) !important;
 	background-image: none;
+}
+
+/* Hide the eval bar in 3D mode — the 3D perspective board uses full width
+   and the eval bar would overlap; the eval bar remains visible in 2D mode. */
+:host .board-wrapper.in3d .evaluation-bar-container {
+	display: none;
 }
 
 /* 3D board texture overlay */

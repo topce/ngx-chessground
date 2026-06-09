@@ -88,6 +88,53 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 */
 	in3d = model<boolean>(false);
 
+	/** Width of the left panel in pixels. Two-way bindable. @default 340 */
+	leftPanelWidth = model<number>(340);
+	/** Width of the right panel in pixels. Two-way bindable. @default 340 */
+	rightPanelWidth = model<number>(340);
+
+	/** Which resize handle is being dragged, or null. */
+	private resizing: 'left' | 'right' | null = null;
+
+	/**
+	 * Starts resizing a panel via drag handle.
+	 * @param side — Which panel handle is being dragged.
+	 * @param event — MouseEvent from the handle.
+	 */
+	startResize(side: 'left' | 'right', event: MouseEvent) {
+		event.preventDefault();
+		this.resizing = side;
+		document.body.style.cursor = 'col-resize';
+		document.body.style.userSelect = 'none';
+	}
+
+	/** Handles mousemove during panel resize. Called from template. */
+	onResizeMove(event: MouseEvent) {
+		if (!this.resizing) return;
+		const container = this.mainContentRef()?.nativeElement;
+		if (!container) return;
+		const rect = container.getBoundingClientRect();
+		const minW = 200;
+		const maxW = Math.floor(rect.width * 0.45);
+		if (this.resizing === 'left') {
+			const w = Math.min(maxW, Math.max(minW, Math.round(event.clientX - rect.left)));
+			this.leftPanelWidth.set(w);
+		} else {
+			const w = Math.min(maxW, Math.max(minW, Math.round(rect.right - event.clientX)));
+			this.rightPanelWidth.set(w);
+		}
+	}
+
+	/** Ends panel resize. Called from template on mouseup. */
+	stopResize() {
+		this.resizing = null;
+		document.body.style.cursor = '';
+		document.body.style.userSelect = '';
+	}
+
+	/** Element ref for the main-content container (used for resize bounds). */
+	private readonly mainContentRef = viewChild<ElementRef<HTMLElement>>('mainContent');
+
 	/**
 	 * Toggles the board orientation between white-at-bottom (default)
 	 * and black-at-bottom (flipped).

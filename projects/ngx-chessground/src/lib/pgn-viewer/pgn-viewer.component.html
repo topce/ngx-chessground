@@ -1,5 +1,12 @@
 <div class="pgn-viewer-container">
-  <div class="main-content">
+  <div
+    class="main-content"
+    #mainContent
+    [style.--left-panel-w.px]="leftPanelWidth()"
+    [style.--right-panel-w.px]="rightPanelWidth()"
+    (document:mousemove)="onResizeMove($event)"
+    (document:mouseup)="stopResize()"
+  >
     <!-- Left Panel: Game Browser -->
     <div class="panel left-panel">
       <h3>Game Browser</h3>
@@ -503,6 +510,13 @@
       </div>
     </div>
 
+    <!-- Resize handle: left / center -->
+    <div
+      class="resize-handle"
+      (mousedown)="startResize('left', $event)"
+      aria-hidden="true"
+    ></div>
+
     <!-- Center Panel: Board -->
     <div class="panel center-panel">
       <div class="board-wrapper" [class.in3d]="in3d()" [class.staunton]="in3d()">
@@ -694,6 +708,13 @@
         </button>
       </div>
     </div>
+
+    <!-- Resize handle: center / right -->
+    <div
+      class="resize-handle"
+      (mousedown)="startResize('right', $event)"
+      aria-hidden="true"
+    ></div>
 
     <!-- Right Panel: Moves & Tools -->
     <div class="panel right-panel">
