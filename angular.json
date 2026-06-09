@@ -124,8 +124,8 @@
 								},
 								{
 									"type": "anyComponentStyle",
-									"maximumWarning": "20kb",
-									"maximumError": "30kb"
+									"maximumWarning": "50kb",
+									"maximumError": "80kb"
 								}
 							],
 							"serviceWorker": "projects/ngx-chessground-example/ngsw-config.json"
