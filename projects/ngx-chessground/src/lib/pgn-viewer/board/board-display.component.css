@@ -16,6 +16,7 @@
 	max-width: Min(100%, 520px);
 	container-type: inline-size;
 	contain: layout;
+	position: relative;
 	transition: box-shadow 0.3s ease;
 	border-radius: var(--cg-radius-md, 8px);
 }
@@ -48,10 +49,6 @@
 		opacity: 1;
 		background-position: 100% 50%;
 	}
-}
-
-.board-wrapper {
-	position: relative;
 }
 
 ngx-chessground {

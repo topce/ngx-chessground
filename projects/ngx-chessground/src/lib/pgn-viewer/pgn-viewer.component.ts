@@ -1415,7 +1415,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		for (let i = startIdx; i < totalMoves; i++) {
 			const delay = Math.max(0, (timeOuts[i] - startTime) * 1000);
 			const isLast = i === totalMoves - 1;
-			const tid = setTimeout(() => {
+			const tid = this.setDeferredTimeout(() => {
 				this.next();
 				if (this.stopOnError()) {
 					const idx = this.currentMoveIndex();
@@ -1436,11 +1436,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 					}
 				}
 				if (isLast) {
-					const ctid = this.setDeferredTimeout(() => {
+					this.setDeferredTimeout(() => {
 						this.isReplaying.set(false);
 						onComplete?.();
 					}, 500);
-					this.replayTimeouts.push(ctid);
 				}
 			}, delay);
 			this.replayTimeouts.push(tid);
