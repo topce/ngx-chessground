@@ -255,10 +255,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	});
 
 	// ---- Replay signals ----
-	replayMode = signal<'realtime' | 'proportional' | 'fixed'>('fixed');
+	replayMode = signal<'realtime' | 'proportional' | 'fixed' | 'fast'>('fixed');
 	proportionalDuration = signal<number>(1);
 	minSecondsBetweenMoves = signal<number>(1);
 	fixedTime = signal<number>(1);
+	fastTime = signal<number>(0.3);
 	stopOnError = signal<boolean>(false);
 	stopOnErrorThreshold = signal<number>(1.0);
 	isReplaying = signal<boolean>(false);
@@ -1299,6 +1300,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 		if (this.replayMode() === 'fixed')
 			return history.map((_, i) => (i + 1) * this.fixedTime());
+		if (this.replayMode() === 'fast')
+			return history.map((_, i) => (i + 1) * this.fastTime());
 		if (this.replayMode() === 'realtime') {
 			let t = 0;
 			return thinkTimes.map((v) => (t += v));
@@ -1366,6 +1369,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 		if (this.replayMode() === 'fixed')
 			return thinkTimes.map((_, i) => (i + 1) * this.fixedTime());
+		if (this.replayMode() === 'fast')
+			return thinkTimes.map((_, i) => (i + 1) * this.fastTime());
 		if (this.replayMode() === 'realtime') {
 			let t = 0;
 			return thinkTimes.map((v) => (t += v));

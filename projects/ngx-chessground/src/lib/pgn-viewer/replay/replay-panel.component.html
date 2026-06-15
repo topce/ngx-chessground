@@ -45,6 +45,16 @@
         />
         Fixed
       </label>
+      <label>
+        <input
+          type="radio"
+          name="mode"
+          [value]="'fast'"
+          [checked]="replayMode() === 'fast'"
+          (change)="replayMode.set('fast')"
+        />
+        Fast
+      </label>
     </div>
 
     @if (replayMode() === 'proportional') {
@@ -81,6 +91,20 @@
           step="0.1"
           class="small-input"
           aria-label="Fixed Time per Move in Seconds"
+        />
+        sec/move
+      </div>
+    }
+
+    @if (replayMode() === 'fast') {
+      <div class="option-input">
+        <input
+          type="number"
+          [value]="fastTime()"
+          (input)="onFastTimeChange($event)"
+          step="0.1"
+          class="small-input"
+          aria-label="Fast Time per Move in Seconds"
         />
         sec/move
       </div>

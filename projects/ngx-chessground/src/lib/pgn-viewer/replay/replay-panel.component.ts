@@ -33,6 +33,7 @@ export class ReplayPanelComponent {
 	readonly proportionalDuration = model<number>(1);
 	readonly minSecondsBetweenMoves = model<number>(1);
 	readonly fixedTime = model<number>(1);
+	readonly fastTime = model<number>(0.3);
 	readonly stopOnError = model<boolean>(false);
 	readonly stopOnErrorThreshold = model<number>(1.0);
 
@@ -65,6 +66,11 @@ export class ReplayPanelComponent {
 	onFixedTimeChange(event: Event): void {
 		const value = (event.target as HTMLInputElement).value;
 		this.fixedTime.set(parseFloat(value) || 1);
+	}
+
+	onFastTimeChange(event: Event): void {
+		const value = (event.target as HTMLInputElement).value;
+		this.fastTime.set(parseFloat(value) || 0.3);
 	}
 
 	onStopOnErrorChange(event: Event): void {

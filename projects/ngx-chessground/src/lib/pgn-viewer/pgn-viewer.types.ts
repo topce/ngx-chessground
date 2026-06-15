@@ -16,7 +16,7 @@ export type LeftPanelSection =
 export type RightPanelSection = 'moves' | 'replay' | 'loadCache';
 
 /** Replay timing mode. */
-export type ReplayMode = 'realtime' | 'proportional' | 'fixed';
+export type ReplayMode = 'realtime' | 'proportional' | 'fixed' | 'fast';
 
 /** Player name with optional selection state for typeahead. */
 export interface PlayerSuggestion {
