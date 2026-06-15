@@ -185,10 +185,14 @@
 }
 
 .collapsible-section.moves-section {
-	flex: 1;
+	flex: 1 0 auto;
 	min-height: 0;
 	display: flex;
 	flex-direction: column;
+}
+
+.collapsible-section.moves-section.collapsed {
+	flex: 0 0 auto;
 }
 
 /* ---- Scrollbars ---- */

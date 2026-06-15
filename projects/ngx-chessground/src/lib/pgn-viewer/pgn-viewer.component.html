@@ -19,9 +19,11 @@
         [(filterEco)]="filterEco"
         [(filterTimeControl)]="filterTimeControl"
         [(filterEvent)]="filterEvent"
+        [(filterBroadcastName)]="filterBroadcastName"
         [sortedEcoCodes]="sortedEcoCodes()"
         [sortedTimeControls]="sortedTimeControls()"
         [sortedEvents]="sortedEvents()"
+        [sortedBroadcastNames]="sortedBroadcastNames()"
         [(filterRatingEnabled)]="filterRatingEnabled"
         [(filterWhiteRating)]="filterWhiteRating"
         [(filterBlackRating)]="filterBlackRating"
@@ -110,12 +112,13 @@
     <!-- Right Panel: Moves, Replay, Load & Cache -->
     <div class="panel right-panel">
       <!-- Move List -->
-      <div class="collapsible-section moves-section">
+      <div class="collapsible-section moves-section" [class.collapsed]="!movesExpanded()">
         <move-list
           [moves]="moves()"
           [moveClocks]="moveClocks()"
           [currentMoveIndex]="currentMoveIndex()"
           [highlightLastMove]="highlightLastMove()"
+          [(expanded)]="movesExpanded"
           (jumpToMove)="jumpToMove($event)"
         />
       </div>

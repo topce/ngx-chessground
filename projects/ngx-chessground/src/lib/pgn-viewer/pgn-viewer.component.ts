@@ -79,6 +79,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	in3d = model<boolean>(false);
 	leftPanelWidth = model<number>(340);
 	rightPanelWidth = model<number>(340);
+	movesExpanded = model<boolean>(true);
 
 	// ======================================================================
 	// State Signals
@@ -111,6 +112,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	filterEco = signal<string>('');
 	filterTimeControl = signal<string>('');
 	filterEvent = signal<string>('');
+	filterBroadcastName = signal<string>('');
 	filterFen = signal<string>('');
 	filterByFenEnabled = signal<boolean>(false);
 	indexStartPositions = signal<boolean>(false);
@@ -124,6 +126,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		Map<string, { count: number; originals: Map<string, number> }>
 	>(new Map());
 	uniqueEvents = signal<Map<string, number>>(new Map());
+	uniqueBroadcastNames = signal<Map<string, number>>(new Map());
 
 	filteredGamesIndices = signal<number[]>([]);
 	isFiltering = signal<boolean>(false);
@@ -151,6 +154,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			.sort((a, b) => b[1] - a[1])
 			.map(([event, count]) => ({ event, count })),
 	);
+
+	sortedBroadcastNames = computed(() =>
+		Array.from(this.uniqueBroadcastNames().entries())
+			.sort((a, b) => b[1] - a[1])
+			.map(([broadcastName, count]) => ({ broadcastName, count })),
+	);
+
 
 	filteredGameInfos = computed(() => {
 		const metadata = this.gamesMetadata();
@@ -576,6 +586,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			eco: this.filterEco(),
 			timeControl: this.filterTimeControl(),
 			event: this.filterEvent(),
+			broadcastName: this.filterBroadcastName(),
 			targetMoves: currentMoves,
 			filterByFen: this.filterByFenEnabled(),
 			targetFen: this.filterFen(),
@@ -607,6 +618,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterEco.set('');
 		this.filterTimeControl.set('');
 		this.filterEvent.set('');
+		this.filterBroadcastName.set('');
 		this.filterFen.set('');
 		this.filterByFenEnabled.set(false);
 		this.interactiveMoves.set([]);
@@ -921,6 +933,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				{ count: number; originals: Map<string, number> }
 			>();
 			const events = new Map<string, number>();
+			const broadcastNames = new Map<string, number>();
 
 			for (const meta of payload.metadata) {
 				if (
@@ -964,6 +977,9 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				if (meta.event && !meta.event.includes('?')) {
 					events.set(meta.event, (events.get(meta.event) || 0) + 1);
 				}
+				if (meta.broadcastName && !meta.broadcastName.includes('?')) {
+					broadcastNames.set(meta.broadcastName, (broadcastNames.get(meta.broadcastName) || 0) + 1);
+				}
 			}
 			this.uniqueWhitePlayers.set(
 				Array.from(whitePlayerElos.entries())
@@ -978,6 +994,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.uniqueEcoCodes.set(ecoCodes);
 			this.uniqueTimeControls.set(timeControls);
 			this.uniqueEvents.set(events);
+			this.uniqueBroadcastNames.set(broadcastNames);
 			if (payload.count > 0) this.loadGame(0);
 			this.clearFilters();
 		} else if (type === 'progress') {

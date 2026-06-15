@@ -35,11 +35,13 @@ export class GameFilterPanelComponent {
 	readonly filterEco = model<string>('');
 	readonly filterTimeControl = model<string>('');
 	readonly filterEvent = model<string>('');
+	readonly filterBroadcastName = model<string>('');
 	readonly sortedEcoCodes = input<{ code: string; count: number }[]>([]);
 	readonly sortedTimeControls = input<
 		{ key: string; count: number; label: string; originalsSummary: string }[]
 	>([]);
 	readonly sortedEvents = input<{ event: string; count: number }[]>([]);
+	readonly sortedBroadcastNames = input<{ broadcastName: string; count: number }[]>([]);
 
 	// ---- Rating Filters ----
 	readonly filterRatingEnabled = model<boolean>(false);
@@ -127,6 +129,11 @@ export class GameFilterPanelComponent {
 	updateFilterEvent(event: Event): void {
 		const value = (event.target as HTMLSelectElement).value;
 		this.filterEvent.set(value);
+	}
+
+	updateFilterBroadcastName(event: Event): void {
+		const value = (event.target as HTMLSelectElement).value;
+		this.filterBroadcastName.set(value);
 	}
 
 	applyRatingPreset(event: Event): void {

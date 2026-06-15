@@ -98,6 +98,8 @@ export interface FilterCriteria {
 	timeControl: string;
 	/** Event/tournament name filter (case-insensitive substring). */
 	event: string;
+	/** Broadcast name filter (case-insensitive substring). */
+	broadcastName: string;
 	/**
 	 * Sort direction for filtered results.
 	 * `false` = descending (highest Elo first, default).
@@ -168,6 +170,8 @@ export interface GameMetadata {
 	timeControlNormalized?: string;
 	/** Event/tournament name from the PGN header. */
 	event?: string;
+	/** Broadcast name from the PGN header (e.g. Lichess broadcast name). */
+	broadcastName?: string;
 }
 
 // --- Worker State ---
@@ -638,6 +642,7 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	const fEcoLower = eco.toLowerCase();
 	const fTimeControl = timeControl;
 	const fEventLower = event.toLowerCase();
+const fBroadcastNameLower = criteria.broadcastName.toLowerCase();
 
 	// Clear cache when filtering by moves or FEN to ensure fresh parsing
 	if (
@@ -699,6 +704,10 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 
 		// Event filtering
 		if (fEventLower && !info.event?.toLowerCase().includes(fEventLower))
+			continue;
+
+		// Broadcast name filtering
+		if (fBroadcastNameLower && !info.broadcastName?.toLowerCase().includes(fBroadcastNameLower))
 			continue;
 
 		// Rating filtering
@@ -1011,6 +1020,7 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 	const eco = extractTag(pgn, 'ECO') || undefined;
 	const timeControl = extractTag(pgn, 'TimeControl') || undefined;
 	const event = extractTag(pgn, 'Event') || undefined;
+	const broadcastName = extractTag(pgn, 'BroadcastName') || undefined;
 	const whiteTitle = extractTag(pgn, 'WhiteTitle') || undefined;
 	const blackTitle = extractTag(pgn, 'BlackTitle') || undefined;
 
@@ -1048,6 +1058,7 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 		timeControl,
 		timeControlNormalized,
 		event,
+		broadcastName,
 	};
 }
 

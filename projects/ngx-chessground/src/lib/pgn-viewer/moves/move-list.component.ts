@@ -3,6 +3,7 @@ import {
 	type ElementRef,
 	effect,
 	input,
+	model,
 	output,
 	viewChild,
 } from '@angular/core';
@@ -44,6 +45,9 @@ export class MoveListComponent {
 	/** Whether to highlight the last move in the game. */
 	readonly highlightLastMove = input<boolean>(true);
 
+	/** Whether the moves section is expanded/collapsed. */
+	readonly expanded = model<boolean>(true);
+
 	/** Emitted when the user clicks a move to jump to it. */
 	readonly jumpToMove = output<number>();
 
@@ -68,6 +72,10 @@ export class MoveListComponent {
 				});
 			}
 		});
+	}
+
+	toggleExpanded(): void {
+		this.expanded.update((v) => !v);
 	}
 
 	/** Returns the move number for a given half-move index (0-indexed). */

@@ -70,6 +70,7 @@ describe('PgnViewerEngineService', () => {
 			eco: '',
 			timeControl: '',
 			event: '',
+			broadcastName: '',
 			filterByFen: false,
 			targetFen: '',
 			sortAscending: false,

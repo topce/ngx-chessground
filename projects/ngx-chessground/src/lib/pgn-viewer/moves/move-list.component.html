@@ -1,7 +1,18 @@
-<div class="move-list-header">
-  <h3>Moves</h3>
-</div>
-<div class="move-list-section">
+<h4
+  class="section-header"
+  tabindex="0"
+  role="button"
+  [attr.aria-expanded]="expanded()"
+  [attr.aria-controls]="'moves-section-content'"
+  (click)="toggleExpanded()"
+  (keydown.enter)="toggleExpanded(); $event.preventDefault()"
+  (keydown.space)="toggleExpanded(); $event.preventDefault()"
+>
+  <span class="chevron" [class.expanded]="expanded()">▶</span>
+  Moves
+</h4>
+
+<div class="section-content" [class.expanded]="expanded()" id="moves-section-content">
   <div class="move-list" role="list" #moveList>
     @for (move of moves(); track $index) {
       @if (isWhiteMove($index)) {

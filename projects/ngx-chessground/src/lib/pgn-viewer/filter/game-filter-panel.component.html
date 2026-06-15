@@ -147,6 +147,22 @@
             }
           </select>
         </div>
+        @if (sortedBroadcastNames().length > 0) {
+          <div class="filter-row">
+            <select
+              [value]="filterBroadcastName()"
+              (change)="updateFilterBroadcastName($event)"
+              aria-label="Filter by Broadcast"
+            >
+              <option value="">All Broadcasts</option>
+              @for (bcastData of sortedBroadcastNames(); track bcastData.broadcastName) {
+                <option [value]="bcastData.broadcastName">
+                  {{ bcastData.broadcastName }} ({{ bcastData.count }})
+                </option>
+              }
+            </select>
+          </div>
+        }
       </div>
     </div>
   </div>
