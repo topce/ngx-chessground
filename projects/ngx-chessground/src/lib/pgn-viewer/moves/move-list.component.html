@@ -1,4 +1,4 @@
-<h4
+<h3
   class="section-header"
   tabindex="0"
   role="button"
@@ -10,10 +10,10 @@
 >
   <span class="chevron" [class.expanded]="expanded()">▶</span>
   Moves
-</h4>
+</h3>
 
 <div class="section-content" [class.expanded]="expanded()" id="moves-section-content">
-  <div class="move-list" role="list" #moveList>
+  <div class="move-list" #moveList>
     @for (move of moves(); track $index) {
       @if (isWhiteMove($index)) {
         <span class="move-number">{{ moveNumber($index) }}.</span>

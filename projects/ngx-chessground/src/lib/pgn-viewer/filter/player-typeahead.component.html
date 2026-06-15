@@ -13,7 +13,7 @@
     [attr.aria-expanded]="isOpen()"
     [attr.aria-autocomplete]="'list'"
     [attr.aria-controls]="'typeahead-listbox-' + label()"
-    [attr.aria-activedescendant]="activeIndex() >= 0 ? 'typeahead-option-' + label() + '-' + activeIndex() : null"
+    [attr.aria-activedescendant]="isOpen() && filteredSuggestions().length > 0 && activeIndex() >= 0 ? 'typeahead-option-' + label() + '-' + activeIndex() : null"
   />
   @if (isOpen() && filteredSuggestions().length > 0) {
     <div

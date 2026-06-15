@@ -1,5 +1,5 @@
 <!-- Mini Player Bar -->
-<div class="mini-bar" (click)="openOverlay()" (keydown.enter)="openOverlay()" (keydown.space)="openOverlay(); $event.preventDefault()" tabindex="0" role="button" aria-label="Open music player">
+<div class="mini-bar" (click)="openOverlay()" (keydown.enter)="openOverlay()" (keydown.space)="openOverlay(); $event.preventDefault()" tabindex="0" role="button" [attr.aria-label]="'Open music player \u2014 ' + currentTrack().title + ' \u2014 ' + currentTrack().artist">
   <div class="mini-art" aria-hidden="true">
     <span class="mini-note">♪</span>
   </div>
