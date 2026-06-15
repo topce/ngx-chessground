@@ -15,9 +15,9 @@
   <!-- Main grid -->
   <div class="examples-grid">
     <!-- Left panel -->
-    <aside class="panel panel-left">
+    <aside class="panel panel-left" aria-labelledby="config-heading">
       <div class="panel-header">
-        <span class="panel-label">Configuration</span>
+        <h2 id="config-heading" class="panel-label">Configuration</h2>
         <span class="panel-count">{{ leftList.length }} units</span>
       </div>
       <div class="panel-scroll">
@@ -45,9 +45,9 @@
     </div>
 
     <!-- Right panel -->
-    <aside class="panel panel-right">
+    <aside class="panel panel-right" aria-labelledby="scenarios-heading">
       <div class="panel-header">
-        <span class="panel-label">Scenarios</span>
+        <h2 id="scenarios-heading" class="panel-label">Scenarios</h2>
         <span class="panel-count">{{ rightList.length }} units</span>
       </div>
       <div class="panel-scroll">
