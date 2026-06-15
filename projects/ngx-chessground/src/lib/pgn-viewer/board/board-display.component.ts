@@ -48,6 +48,7 @@ export class BoardDisplayComponent {
 
 	// ---- Game Result ----
 	readonly gameResult = input<string>('*');
+	readonly isEndOfReplay = input<boolean>(false);
 
 	// ---- Evaluation ----
 	readonly evaluation = input<string | null>(null);

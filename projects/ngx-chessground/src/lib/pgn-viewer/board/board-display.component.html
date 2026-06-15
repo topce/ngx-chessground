@@ -1,4 +1,4 @@
-<div class="board-wrapper" [class.in3d]="in3d()" [class.staunton]="in3d()">
+<div class="board-wrapper" [class.in3d]="in3d()" [class.staunton]="in3d()" [class.end-of-replay]="isEndOfReplay()">
   <!-- Top Player Info -->
   <div class="player-info top">
     <div class="player-name-group">
@@ -35,7 +35,7 @@
 </div>
 
 <!-- Game Result -->
-<div class="game-result-display">{{ gameResult() }}</div>
+<div class="game-result-display" [class.end-of-replay]="isEndOfReplay()">{{ gameResult() }}</div>
 
 <!-- Board Controls -->
 <div class="board-controls">

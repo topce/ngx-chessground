@@ -16,6 +16,42 @@
 	max-width: Min(100%, 520px);
 	container-type: inline-size;
 	contain: layout;
+	transition: box-shadow 0.3s ease;
+	border-radius: var(--cg-radius-md, 8px);
+}
+
+.board-wrapper.end-of-replay::before {
+	content: '';
+	position: absolute;
+	inset: -3px;
+	border-radius: calc(var(--cg-radius-md, 8px) + 3px);
+	background: linear-gradient(135deg, #a67c00, #ffd700, #a67c00);
+	background-size: 200% 200%;
+	z-index: -1;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.board-wrapper.end-of-replay::before {
+		opacity: 1;
+		animation: replay-board-glow 0.6s ease-in-out 3;
+	}
+}
+
+@keyframes replay-board-glow {
+	0%, 100% {
+		opacity: 0.3;
+		background-position: 0% 50%;
+	}
+	50% {
+		opacity: 1;
+		background-position: 100% 50%;
+	}
+}
+
+.board-wrapper {
+	position: relative;
 }
 
 ngx-chessground {
@@ -104,6 +140,54 @@ ngx-chessground {
 	color: var(--cg-cta, #a67c00);
 	font-size: 1.15rem;
 	margin-bottom: 0.25rem;
+	text-shadow: 0 0 0 transparent;
+	transition:
+		color 0.3s ease,
+		background 0.6s ease,
+		box-shadow 0.6s ease,
+		padding 0.6s ease,
+		border-radius 0.6s ease,
+		text-shadow 0.6s ease-out;
+}
+
+/* ---- Game Result End-of-Replay ---- */
+.game-result-display.end-of-replay {
+	color: #fff;
+	background: linear-gradient(135deg, #a67c00, #e6a800);
+	padding: 0.3rem 1.2rem;
+	border-radius: 9999px;
+	display: inline-block;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	box-shadow:
+		0 0 0 3px rgba(166, 124, 0, 0.2),
+		0 0 20px rgba(166, 124, 0, 0.4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.game-result-display.end-of-replay {
+		animation: replay-end-pulse 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3;
+	}
+}
+
+@keyframes replay-end-pulse {
+	0% {
+		transform: scale(1);
+		box-shadow:
+			0 0 0 3px rgba(166, 124, 0, 0.2),
+			0 0 20px rgba(166, 124, 0, 0.4);
+	}
+	40% {
+		transform: scale(1.3);
+		box-shadow:
+			0 0 0 6px rgba(166, 124, 0, 0.35),
+			0 0 40px rgba(166, 124, 0, 0.6);
+	}
+	100% {
+		transform: scale(1);
+		box-shadow:
+			0 0 0 3px rgba(166, 124, 0, 0.2),
+			0 0 20px rgba(166, 124, 0, 0.4);
+	}
 }
 
 /* ---- Board Controls ---- */

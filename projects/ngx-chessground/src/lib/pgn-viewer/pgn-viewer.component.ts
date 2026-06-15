@@ -267,6 +267,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		() =>
 			!this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1,
 	);
+	isEndOfReplay = computed(
+		() =>
+			this.isReplaying() &&
+			this.currentMoveIndex() >= 0 &&
+			this.moves().length > 0 &&
+			this.currentMoveIndex() >= this.moves().length - 1,
+	);
 
 	// ---- Clock signals ----
 	whiteTimeRemaining = signal<string>('');
@@ -1428,9 +1435,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 						}
 					}
 				}
-				if (isLast && onComplete && this.isReplaying()) {
+				if (isLast) {
 					const ctid = this.setDeferredTimeout(() => {
-						if (onComplete) onComplete();
+						this.isReplaying.set(false);
+						onComplete?.();
 					}, 500);
 					this.replayTimeouts.push(ctid);
 				}
