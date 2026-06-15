@@ -373,8 +373,9 @@ addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 						: false;
 				const maxPlies =
 					typeof data.payload === 'object' ? data.payload.maxFenPlies : 30;
-				handleLoad(pgnStr, data.id, indexStart, maxPlies, data.pgnHash).catch((e) =>
-					postMessage({ type: 'error', payload: String(e), id: data.id }),
+				handleLoad(pgnStr, data.id, indexStart, maxPlies, data.pgnHash).catch(
+					(e) =>
+						postMessage({ type: 'error', payload: String(e), id: data.id }),
 				);
 				break;
 			}
@@ -429,7 +430,13 @@ function postProgress(percent: number, status: string, id: number) {
  * @param maxFenPlies — Max half-moves to replay per game when building the FEN cache.
  * @param pgnHash — Optional SHA-256 hash for IndexedDB cache lookups.
  */
-async function handleLoad(pgn: string, id: number, indexStartPositions: boolean, maxFenPlies: number, pgnHash?: string) {
+async function handleLoad(
+	pgn: string,
+	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+	pgnHash?: string,
+) {
 	// If a pgnHash is provided, try to restore from IndexedDB cache first.
 	// This avoids re-parsing and FEN-indexing the entire collection.
 	if (pgnHash) {
@@ -642,7 +649,7 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	const fEcoLower = eco.toLowerCase();
 	const fTimeControl = timeControl;
 	const fEventLower = event.toLowerCase();
-const fBroadcastNameLower = criteria.broadcastName.toLowerCase();
+	const fBroadcastNameLower = criteria.broadcastName.toLowerCase();
 
 	// Clear cache when filtering by moves or FEN to ensure fresh parsing
 	if (
@@ -707,7 +714,10 @@ const fBroadcastNameLower = criteria.broadcastName.toLowerCase();
 			continue;
 
 		// Broadcast name filtering
-		if (fBroadcastNameLower && !info.broadcastName?.toLowerCase().includes(fBroadcastNameLower))
+		if (
+			fBroadcastNameLower &&
+			!info.broadcastName?.toLowerCase().includes(fBroadcastNameLower)
+		)
 			continue;
 
 		// Rating filtering

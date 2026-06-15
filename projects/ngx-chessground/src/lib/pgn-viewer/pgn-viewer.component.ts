@@ -161,7 +161,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			.map(([broadcastName, count]) => ({ broadcastName, count })),
 	);
 
-
 	filteredGameInfos = computed(() => {
 		const metadata = this.gamesMetadata();
 		const allIndices = this.filteredGamesIndices();
@@ -652,7 +651,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 	toggleGameSelection(index: number): void {
 		const s = new Set(this.selectedGames());
-		s.has(index) ? s.delete(index) : s.add(index);
+		if (s.has(index)) {
+			s.delete(index);
+		} else {
+			s.add(index);
+		}
 		this.selectedGames.set(s);
 	}
 
@@ -968,7 +971,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				events.set(meta.event, (events.get(meta.event) || 0) + 1);
 			}
 			if (meta.broadcastName && !meta.broadcastName.includes('?')) {
-				broadcastNames.set(meta.broadcastName, (broadcastNames.get(meta.broadcastName) || 0) + 1);
+				broadcastNames.set(
+					meta.broadcastName,
+					(broadcastNames.get(meta.broadcastName) || 0) + 1,
+				);
 			}
 		}
 		this.uniqueWhitePlayers.set(
@@ -1019,7 +1025,9 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			// Defer expensive aggregation to idle time so the board renders immediately
 			const meta = payload.metadata;
 			if ('requestIdleCallback' in window) {
-				requestIdleCallback(() => this.buildFilterLists(meta), { timeout: 2000 });
+				requestIdleCallback(() => this.buildFilterLists(meta), {
+					timeout: 2000,
+				});
 			} else {
 				setTimeout(() => this.buildFilterLists(meta), 0);
 			}

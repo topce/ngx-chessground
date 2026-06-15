@@ -22,7 +22,7 @@ import {
  * entirely — only the chessground config is reapplied in-place, avoiding
  * unnecessary vnode creation, diffing, and DOM reconciliation overhead.
  */
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class NgxChessgroundService {
 	/**
 	 * Initializes the patch function with the necessary modules.
@@ -36,9 +36,10 @@ export class NgxChessgroundService {
 
 	/**
 	 * Virtual node representing the current state of the DOM.
-	 * Set after the first {@link redraw}.
+	 * Set after the first {@link redraw}. Read by the patch lifecycle.
 	 * @private
 	 */
+	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: stored by patch, used via snabbdom internals
 	private vnode!: VNode;
 
 	/**

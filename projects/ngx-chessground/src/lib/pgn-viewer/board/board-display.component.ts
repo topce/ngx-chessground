@@ -76,7 +76,7 @@ export class BoardDisplayComponent {
 	// ---- Events ----
 	readonly flipBoard = output<void>();
 	readonly toggle3d = output<void>();
-	readonly start = output<void>();
+	readonly goToStart = output<void>();
 	readonly prev = output<void>();
 	readonly next = output<void>();
 	readonly end = output<void>();

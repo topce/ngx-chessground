@@ -24,8 +24,8 @@
         aria-label="PGN Input"
       ></textarea>
       <div class="clipboard-buttons">
-        <button type="button" type="button" (click)="loadFromClipboardEvent.emit()" class="small-btn">Load from Clipboard</button>
-        <button type="button" type="button" (click)="copyToClipboardEvent.emit()" class="small-btn">Copy to Clipboard</button>
+        <button type="button" (click)="loadFromClipboardEvent.emit()" class="small-btn">Load from Clipboard</button>
+        <button type="button" (click)="copyToClipboardEvent.emit()" class="small-btn">Copy to Clipboard</button>
       </div>
     </div>
 
@@ -58,10 +58,10 @@
     <!-- Cache Management -->
     <div class="cache-section">
       <div class="cache-actions">
-        <button type="button" type="button" (click)="clearPgnCache.emit()" class="small-btn" title="Clear all cached PGN data from IndexedDB">
+        <button type="button" (click)="clearPgnCache.emit()" class="small-btn" title="Clear all cached PGN data from IndexedDB">
           Clear Cache
         </button>
-        <button type="button" type="button" (click)="refreshCacheInfo.emit()" class="small-btn" title="Show cache statistics">
+        <button type="button" (click)="refreshCacheInfo.emit()" class="small-btn" title="Show cache statistics">
           Cache Info
         </button>
       </div>

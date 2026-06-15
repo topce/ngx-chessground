@@ -10,7 +10,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
 	'/pgn-viewer': {
 		title: 'PGN Viewer — ngx-chessground',
 		description:
-			'Interactive PGN viewer for annotated chess games. Explore Fischer\'s Evergreen game and more with Stockfish analysis.',
+			"Interactive PGN viewer for annotated chess games. Explore Fischer's Evergreen game and more with Stockfish analysis.",
 	},
 	'/home': {
 		title: 'Examples — ngx-chessground',
@@ -61,23 +61,50 @@ export class AppComponent {
 
 	private updateMetaForRoute(url: string): void {
 		// Match the route path (strip query params, use base path)
-		const path = '/' + url.split('?')[0].split('/').filter(Boolean).shift() || '';
+		const path = `/${url.split('?')[0].split('/').filter(Boolean).shift() || ''}`;
 		const meta = ROUTE_META[path];
 
 		if (meta) {
 			this.titleService.setTitle(meta.title);
-			this.metaService.updateTag({ name: 'description', content: meta.description });
+			this.metaService.updateTag({
+				name: 'description',
+				content: meta.description,
+			});
 			this.metaService.updateTag({ property: 'og:title', content: meta.title });
-			this.metaService.updateTag({ property: 'og:description', content: meta.description });
-			this.metaService.updateTag({ name: 'twitter:title', content: meta.title });
-			this.metaService.updateTag({ name: 'twitter:description', content: meta.description });
+			this.metaService.updateTag({
+				property: 'og:description',
+				content: meta.description,
+			});
+			this.metaService.updateTag({
+				name: 'twitter:title',
+				content: meta.title,
+			});
+			this.metaService.updateTag({
+				name: 'twitter:description',
+				content: meta.description,
+			});
 		} else {
 			this.titleService.setTitle(DEFAULT_TITLE);
-			this.metaService.updateTag({ name: 'description', content: DEFAULT_DESCRIPTION });
-			this.metaService.updateTag({ property: 'og:title', content: DEFAULT_TITLE });
-			this.metaService.updateTag({ property: 'og:description', content: DEFAULT_DESCRIPTION });
-			this.metaService.updateTag({ name: 'twitter:title', content: DEFAULT_TITLE });
-			this.metaService.updateTag({ name: 'twitter:description', content: DEFAULT_DESCRIPTION });
+			this.metaService.updateTag({
+				name: 'description',
+				content: DEFAULT_DESCRIPTION,
+			});
+			this.metaService.updateTag({
+				property: 'og:title',
+				content: DEFAULT_TITLE,
+			});
+			this.metaService.updateTag({
+				property: 'og:description',
+				content: DEFAULT_DESCRIPTION,
+			});
+			this.metaService.updateTag({
+				name: 'twitter:title',
+				content: DEFAULT_TITLE,
+			});
+			this.metaService.updateTag({
+				name: 'twitter:description',
+				content: DEFAULT_DESCRIPTION,
+			});
 		}
 	}
 

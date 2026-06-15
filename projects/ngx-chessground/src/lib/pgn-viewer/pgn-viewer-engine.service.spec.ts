@@ -156,6 +156,22 @@ describe('PgnViewerEngineService', () => {
 		// arrives out of order, it is ignored by the component.
 	});
 
+	it('forwards clearCache messages to the PGN worker', () => {
+		const service = TestBed.inject(PgnViewerEngineService);
+		service.initialize({
+			onPgnMessage: vi.fn(),
+			onStockfishMessage: vi.fn(),
+		});
+
+		const [pgnWorker] = MockWorker.instances;
+		service.clearCache(42);
+
+		expect(pgnWorker.messages).toContainEqual({
+			type: 'clearCache',
+			id: 42,
+		});
+	});
+
 	it('reports unsupported environments without workers', () => {
 		vi.stubGlobal('Worker', undefined);
 		const service = TestBed.inject(PgnViewerEngineService);

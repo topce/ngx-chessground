@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, OnDestroy, signal } from '@angular/core';
+import {
+	afterNextRender,
+	Component,
+	computed,
+	ElementRef,
+	effect,
+	OnDestroy,
+	signal,
+	viewChild,
+} from '@angular/core';
 import {
 	GMBJT_MUSIC_PAGE_URL,
 	GMBJT_PLAYLIST_URL,
@@ -28,6 +37,12 @@ export class MiniPlayerComponent implements OnDestroy {
 		url: s.url,
 	}));
 
+	// ── Template refs ──
+	private readonly overlayRef =
+		viewChild.required<ElementRef<HTMLElement>>('overlay');
+	private readonly closeBtnRef =
+		viewChild.required<ElementRef<HTMLElement>>('closeBtn');
+
 	// ── State ──
 	readonly currentIndex = signal(0);
 	readonly isPlaying = signal(false);
@@ -37,6 +52,9 @@ export class MiniPlayerComponent implements OnDestroy {
 	readonly duration = signal(0);
 	readonly volume = signal(0.5);
 	readonly isOverlayOpen = signal(false);
+	private previousFocus: HTMLElement | null = null;
+	private readonly focusableSelector =
+		'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, textarea, select';
 
 	private audio: HTMLAudioElement | null = null;
 	private shuffleOrder: number[] = [];
@@ -74,10 +92,49 @@ export class MiniPlayerComponent implements OnDestroy {
 
 	// ── Overlay ──
 	openOverlay(): void {
+		this.previousFocus = document.activeElement as HTMLElement | null;
 		this.isOverlayOpen.set(true);
+		afterNextRender(() => {
+			// Focus the close button after the overlay animation completes
+			const btn = this.closeBtnRef()?.nativeElement;
+			requestAnimationFrame(() => btn?.focus());
+		});
 	}
+
 	closeOverlay(): void {
 		this.isOverlayOpen.set(false);
+		// Restore focus to the element that opened the overlay
+		requestAnimationFrame(() => this.previousFocus?.focus());
+	}
+
+	onOverlayKeydown(event: KeyboardEvent): void {
+		if (event.key === 'Escape') {
+			this.closeOverlay();
+			return;
+		}
+		if (event.key !== 'Tab') return;
+		const overlay = this.overlayRef()?.nativeElement;
+		if (!overlay) return;
+		const focusable = overlay.querySelectorAll<HTMLElement>(
+			this.focusableSelector,
+		);
+		if (focusable.length === 0) {
+			event.preventDefault();
+			return;
+		}
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		if (event.shiftKey) {
+			if (document.activeElement === first) {
+				event.preventDefault();
+				last.focus();
+			}
+		} else {
+			if (document.activeElement === last) {
+				event.preventDefault();
+				first.focus();
+			}
+		}
 	}
 
 	// ── Playback ──
@@ -188,9 +245,46 @@ export class MiniPlayerComponent implements OnDestroy {
 		const bar = event.currentTarget as HTMLElement;
 		const rect = bar.getBoundingClientRect();
 		const x = (event.clientX - rect.left) / rect.width;
+		this.seekToRatio(x);
+	}
+
+	onSeekKeydown(event: KeyboardEvent): void {
+		const dur = this.duration();
+		if (dur <= 0) return;
+		const step = dur * 0.05; // 5% per key press
+		let newTime = this.currentTime();
+		switch (event.key) {
+			case 'ArrowRight':
+			case 'ArrowUp':
+				event.preventDefault();
+				newTime = Math.min(dur, newTime + step);
+				break;
+			case 'ArrowLeft':
+			case 'ArrowDown':
+				event.preventDefault();
+				newTime = Math.max(0, newTime - step);
+				break;
+			case 'Home':
+				event.preventDefault();
+				newTime = 0;
+				break;
+			case 'End':
+				event.preventDefault();
+				newTime = dur;
+				break;
+			default:
+				return;
+		}
+		if (this.audio) {
+			this.audio.currentTime = newTime;
+			this.currentTime.set(this.audio.currentTime);
+		}
+	}
+
+	private seekToRatio(ratio: number): void {
 		const dur = this.duration();
 		if (this.audio && dur > 0) {
-			this.audio.currentTime = x * dur;
+			this.audio.currentTime = ratio * dur;
 			this.currentTime.set(this.audio.currentTime);
 		}
 	}

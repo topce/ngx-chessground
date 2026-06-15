@@ -38,13 +38,27 @@
 </div>
 
 <!-- Full Player Overlay -->
-<div class="overlay-backdrop" *ngIf="isOverlayOpen()" (click)="closeOverlay()">
-  <div class="overlay-card" (click)="$event.stopPropagation()">
+<div
+  class="overlay-backdrop"
+  *ngIf="isOverlayOpen()"
+  (click)="closeOverlay()"
+  (keydown)="onOverlayKeydown($event)"
+  #overlay
+  role="dialog"
+  aria-modal="true"
+  aria-label="Music player"
+>
+  <div class="overlay-card" (click)="$event.stopPropagation()" tabindex="-1">
 
     <!-- Drag handle & close -->
     <div class="overlay-top">
       <div class="drag-bar"></div>
-      <button type="button" class="close-btn" (click)="closeOverlay()" aria-label="Close">
+      <button
+        type="button"
+        class="close-btn"
+        #closeBtn
+        (click)="closeOverlay()"
+        aria-label="Close music player">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
@@ -71,7 +85,17 @@
 
     <!-- Progress -->
     <div class="progress-section">
-      <div class="progress-bar" (click)="seek($event)">
+      <div
+        class="progress-bar"
+        (click)="seek($event)"
+        (keydown)="onSeekKeydown($event)"
+        role="slider"
+        tabindex="0"
+        [attr.aria-valuemin]="0"
+        [attr.aria-valuemax]="duration()"
+        [attr.aria-valuenow]="currentTime()"
+        [attr.aria-label]="'Seek track position'"
+      >
         <div class="progress-fill" [style.width.%]="progress()"></div>
         <div class="progress-thumb" [style.left.%]="progress()"></div>
       </div>

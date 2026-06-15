@@ -41,7 +41,9 @@ export class GameFilterPanelComponent {
 		{ key: string; count: number; label: string; originalsSummary: string }[]
 	>([]);
 	readonly sortedEvents = input<{ event: string; count: number }[]>([]);
-	readonly sortedBroadcastNames = input<{ broadcastName: string; count: number }[]>([]);
+	readonly sortedBroadcastNames = input<
+		{ broadcastName: string; count: number }[]
+	>([]);
 
 	// ---- Rating Filters ----
 	readonly filterRatingEnabled = model<boolean>(false);

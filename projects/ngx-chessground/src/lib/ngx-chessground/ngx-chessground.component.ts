@@ -1,7 +1,7 @@
 import {
+	afterRenderEffect,
 	Component,
 	type ElementRef,
-	afterRenderEffect,
 	inject,
 	model,
 	viewChild,
@@ -88,12 +88,12 @@ export class NgxChessgroundComponent {
 				};
 			},
 			write: (data) => {
-			// DOM manipulation only — never read the DOM here
-			const { el, fn } = data();
-			if (el.nativeElement && fn) {
-				this.ngxChessgroundService.redraw(el.nativeElement, fn);
-			}
-		},
+				// DOM manipulation only — never read the DOM here
+				const { el, fn } = data();
+				if (el.nativeElement && fn) {
+					this.ngxChessgroundService.redraw(el.nativeElement, fn);
+				}
+			},
 		});
 	}
 

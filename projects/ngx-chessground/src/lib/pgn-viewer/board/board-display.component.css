@@ -22,7 +22,7 @@
 }
 
 .board-wrapper.end-of-replay::before {
-	content: '';
+	content: "";
 	position: absolute;
 	inset: -3px;
 	border-radius: calc(var(--cg-radius-md, 8px) + 3px);
@@ -41,7 +41,8 @@
 }
 
 @keyframes replay-board-glow {
-	0%, 100% {
+	0%,
+	100% {
 		opacity: 0.3;
 		background-position: 0% 50%;
 	}
