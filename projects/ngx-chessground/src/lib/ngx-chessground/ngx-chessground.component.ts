@@ -1,7 +1,7 @@
 import {
 	Component,
 	type ElementRef,
-	effect,
+	afterRenderEffect,
 	inject,
 	model,
 	viewChild,
@@ -14,8 +14,9 @@ import { NgxChessgroundService } from '../ngx-chessground.service';
  *
  * Accepts a `runFunction` signal-model input that receives the mounted DOM element
  * and must return a chessground `Api` instance. The component manages lifecycle:
- * - Uses an Angular `effect()` (in zoneless mode) to watch both `runFunction` changes
- *   and `viewChild` population, redrawing the board whenever either is ready.
+ * - Uses an Angular `afterRenderEffect()` to watch both `runFunction` changes
+ *   and `viewChild` population, redrawing the board after Angular finishes DOM
+ *   rendering. This is the recommended approach for third-party library integration.
  * - Provides a `toggleOrientation()` method to flip the board.
  *
  * Uses {@link NgxChessgroundService} (provided at component level) for snabbdom patching
@@ -45,7 +46,7 @@ export class NgxChessgroundComponent {
 	 * Signal-based view query for the board container element.
 	 *
 	 * References the DOM element with template variable `#chessboard`.
-	 * Used by {@link redraw} to pass the native element to chessground.
+	 * Tracked by `afterRenderEffect` to pass the native element to chessground.
 	 */
 	readonly elementView = viewChild.required<ElementRef>('chessboard');
 
@@ -53,7 +54,7 @@ export class NgxChessgroundComponent {
 	 * Signal-model function that constructs the chessground instance on a given element.
 	 *
 	 * This is the primary input mechanism of the component. Changes to this signal
-	 * trigger a board redraw via the internal `effect()`.
+	 * trigger a board redraw via `afterRenderEffect()`.
 	 *
 	 * @param el — The board container `HTMLElement` mounted in the DOM.
 	 * @returns A chessground `Api` instance configured as desired.
@@ -64,20 +65,35 @@ export class NgxChessgroundComponent {
 	private readonly ngxChessgroundService = inject(NgxChessgroundService);
 
 	/**
-	 * Sets up a reactive effect that redraws the board whenever {@link runFunction}
-	 * or the underlying DOM element changes.
+	 * Sets up an `afterRenderEffect` that redraws the chessboard after Angular
+	 * finishes rendering the DOM.
 	 *
-	 * The effect handles both initial render (once the view is created and the
-	 * signal-based {@link elementView} is populated) and subsequent updates when
-	 * a parent writes a new function to the {@link runFunction} model signal.
+	 * Uses the recommended phase separation:
+	 * - **earlyRead** — reads signals to establish reactive tracking
+	 * - **write** — performs DOM manipulation (snabbdom patching) with the
+	 *   guarantee that Angular's rendering is complete
 	 *
-	 * In zoneless mode, `viewChild` signals populate when the view template is
-	 * rendered; the effect is scheduled after change detection, so both the
-	 * element reference and the run function are guaranteed to be available.
+	 * `afterRenderEffect` is the correct API for third-party library
+	 * integration per Angular's guidance. Standard `effect` runs before
+	 * Angular updates the DOM, which can cause timing issues with
+	 * `viewChild` signals and DOM-dependent libraries.
 	 */
 	constructor() {
-		effect(() => {
-			this.redraw();
+		afterRenderEffect({
+			earlyRead: () => {
+				// Read signals to establish reactive tracking
+				return {
+					el: this.elementView(),
+					fn: this.runFunction(),
+				};
+			},
+			write: (data) => {
+			// DOM manipulation only — never read the DOM here
+			const { el, fn } = data();
+			if (el.nativeElement && fn) {
+				this.ngxChessgroundService.redraw(el.nativeElement, fn);
+			}
+		},
 		});
 	}
 
@@ -88,19 +104,5 @@ export class NgxChessgroundComponent {
 	 */
 	public toggleOrientation() {
 		this.ngxChessgroundService.toggleOrientation();
-	}
-
-	/**
-	 * Re-renders the chessboard via the snabbdom patching service.
-	 *
-	 * Retrieves the board element and current run function, then delegates
-	 * to {@link NgxChessgroundService.redraw}.
-	 */
-	private redraw() {
-		const elementView = this.elementView();
-		const fn = this.runFunction();
-		if (elementView.nativeElement && fn) {
-			this.ngxChessgroundService.redraw(elementView.nativeElement, fn);
-		}
 	}
 }
