@@ -302,6 +302,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// Panel resize state
 	private resizing: 'left' | 'right' | null = null;
+	private resizeRafId: number | null = null;
 	private readonly mainContentRef =
 		viewChild<ElementRef<HTMLElement>>('mainContent');
 	readonly moveList = viewChild<ElementRef<HTMLElement>>('moveList');
@@ -391,6 +392,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	ngOnDestroy(): void {
 		this.stopReplay();
+		this.stopResize();
 		this.pgnViewerEngine.dispose();
 		for (const t of this.pendingTimeouts) clearTimeout(t);
 		this.pendingTimeouts.clear();
@@ -413,28 +415,35 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		document.body.style.userSelect = 'none';
 	}
 	onResizeMove(event: MouseEvent): void {
-		if (!this.resizing) return;
+		if (!this.resizing || this.resizeRafId !== null) return;
 		const container = this.mainContentRef()?.nativeElement;
 		if (!container) return;
-		const rect = container.getBoundingClientRect();
-		const minW = 200;
-		const maxW = Math.floor(rect.width * 0.45);
-		if (this.resizing === 'left') {
-			const w = Math.min(
-				maxW,
-				Math.max(minW, Math.round(event.clientX - rect.left)),
-			);
-			this.leftPanelWidth.set(w);
-		} else {
-			const w = Math.min(
-				maxW,
-				Math.max(minW, Math.round(rect.right - event.clientX)),
-			);
-			this.rightPanelWidth.set(w);
-		}
+		this.resizeRafId = requestAnimationFrame(() => {
+			this.resizeRafId = null;
+			const rect = container.getBoundingClientRect();
+			const minW = 200;
+			const maxW = Math.floor(rect.width * 0.45);
+			if (this.resizing === 'left') {
+				const w = Math.min(
+					maxW,
+					Math.max(minW, Math.round(event.clientX - rect.left)),
+				);
+				this.leftPanelWidth.set(w);
+			} else {
+				const w = Math.min(
+					maxW,
+					Math.max(minW, Math.round(rect.right - event.clientX)),
+				);
+				this.rightPanelWidth.set(w);
+			}
+		});
 	}
 	stopResize(): void {
 		this.resizing = null;
+		if (this.resizeRafId !== null) {
+			cancelAnimationFrame(this.resizeRafId);
+			this.resizeRafId = null;
+		}
 		document.body.style.cursor = '';
 		document.body.style.userSelect = '';
 	}
@@ -897,6 +906,79 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// Private methods
 	// ======================================================================
 
+	private buildFilterLists(metadata: GameMetadata[]): void {
+		const whitePlayerElos = new Map<string, number>();
+		const blackPlayerElos = new Map<string, number>();
+		const ecoCodes = new Map<string, number>();
+		const timeControls = new Map<
+			string,
+			{ count: number; originals: Map<string, number> }
+		>();
+		const events = new Map<string, number>();
+		const broadcastNames = new Map<string, number>();
+
+		for (const meta of metadata) {
+			if (
+				meta.white &&
+				meta.white !== 'Unknown' &&
+				!meta.white.startsWith('BOT ')
+			) {
+				whitePlayerElos.set(
+					meta.white,
+					Math.max(whitePlayerElos.get(meta.white) || 0, meta.whiteElo || 0),
+				);
+			}
+			if (
+				meta.black &&
+				meta.black !== 'Unknown' &&
+				!meta.black.startsWith('BOT ')
+			) {
+				blackPlayerElos.set(
+					meta.black,
+					Math.max(blackPlayerElos.get(meta.black) || 0, meta.blackElo || 0),
+				);
+			}
+			if (meta.eco && !meta.eco.includes('?')) {
+				ecoCodes.set(meta.eco, (ecoCodes.get(meta.eco) || 0) + 1);
+			}
+			const normalized = meta.timeControlNormalized;
+			const original = meta.timeControl?.trim();
+			if (normalized) {
+				const existing = timeControls.get(normalized) || {
+					count: 0,
+					originals: new Map<string, number>(),
+				};
+				existing.count += 1;
+				if (original)
+					existing.originals.set(
+						original,
+						(existing.originals.get(original) || 0) + 1,
+					);
+				timeControls.set(normalized, existing);
+			}
+			if (meta.event && !meta.event.includes('?')) {
+				events.set(meta.event, (events.get(meta.event) || 0) + 1);
+			}
+			if (meta.broadcastName && !meta.broadcastName.includes('?')) {
+				broadcastNames.set(meta.broadcastName, (broadcastNames.get(meta.broadcastName) || 0) + 1);
+			}
+		}
+		this.uniqueWhitePlayers.set(
+			Array.from(whitePlayerElos.entries())
+				.sort((a, b) => b[1] - a[1])
+				.map(([n]) => n),
+		);
+		this.uniqueBlackPlayers.set(
+			Array.from(blackPlayerElos.entries())
+				.sort((a, b) => b[1] - a[1])
+				.map(([n]) => n),
+		);
+		this.uniqueEcoCodes.set(ecoCodes);
+		this.uniqueTimeControls.set(timeControls);
+		this.uniqueEvents.set(events);
+		this.uniqueBroadcastNames.set(broadcastNames);
+	}
+
 	private getMovableDests(): Map<Key, Key[]> {
 		const dests = new Map<Key, Key[]>();
 		for (const move of this.chess.moves({ verbose: true })) {
@@ -925,76 +1007,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		if (type === 'load') {
 			this.gamesMetadata.set(payload.metadata);
 			this.isLoading.set(false);
-			const whitePlayerElos = new Map<string, number>();
-			const blackPlayerElos = new Map<string, number>();
-			const ecoCodes = new Map<string, number>();
-			const timeControls = new Map<
-				string,
-				{ count: number; originals: Map<string, number> }
-			>();
-			const events = new Map<string, number>();
-			const broadcastNames = new Map<string, number>();
 
-			for (const meta of payload.metadata) {
-				if (
-					meta.white &&
-					meta.white !== 'Unknown' &&
-					!meta.white.startsWith('BOT ')
-				) {
-					whitePlayerElos.set(
-						meta.white,
-						Math.max(whitePlayerElos.get(meta.white) || 0, meta.whiteElo || 0),
-					);
-				}
-				if (
-					meta.black &&
-					meta.black !== 'Unknown' &&
-					!meta.black.startsWith('BOT ')
-				) {
-					blackPlayerElos.set(
-						meta.black,
-						Math.max(blackPlayerElos.get(meta.black) || 0, meta.blackElo || 0),
-					);
-				}
-				if (meta.eco && !meta.eco.includes('?')) {
-					ecoCodes.set(meta.eco, (ecoCodes.get(meta.eco) || 0) + 1);
-				}
-				const normalized = meta.timeControlNormalized;
-				const original = meta.timeControl?.trim();
-				if (normalized) {
-					const existing = timeControls.get(normalized) || {
-						count: 0,
-						originals: new Map<string, number>(),
-					};
-					existing.count += 1;
-					if (original)
-						existing.originals.set(
-							original,
-							(existing.originals.get(original) || 0) + 1,
-						);
-					timeControls.set(normalized, existing);
-				}
-				if (meta.event && !meta.event.includes('?')) {
-					events.set(meta.event, (events.get(meta.event) || 0) + 1);
-				}
-				if (meta.broadcastName && !meta.broadcastName.includes('?')) {
-					broadcastNames.set(meta.broadcastName, (broadcastNames.get(meta.broadcastName) || 0) + 1);
-				}
+			// Defer expensive aggregation to idle time so the board renders immediately
+			const meta = payload.metadata;
+			if ('requestIdleCallback' in window) {
+				requestIdleCallback(() => this.buildFilterLists(meta), { timeout: 2000 });
+			} else {
+				setTimeout(() => this.buildFilterLists(meta), 0);
 			}
-			this.uniqueWhitePlayers.set(
-				Array.from(whitePlayerElos.entries())
-					.sort((a, b) => b[1] - a[1])
-					.map(([n]) => n),
-			);
-			this.uniqueBlackPlayers.set(
-				Array.from(blackPlayerElos.entries())
-					.sort((a, b) => b[1] - a[1])
-					.map(([n]) => n),
-			);
-			this.uniqueEcoCodes.set(ecoCodes);
-			this.uniqueTimeControls.set(timeControls);
-			this.uniqueEvents.set(events);
-			this.uniqueBroadcastNames.set(broadcastNames);
 			if (payload.count > 0) this.loadGame(0);
 			this.clearFilters();
 		} else if (type === 'progress') {
