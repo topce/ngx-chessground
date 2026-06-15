@@ -1,10 +1,4 @@
-import type { AfterViewInit } from '@angular/core';
-import {
-	Component,
-	inject,
-	model,
-	viewChild,
-} from '@angular/core';
+import { Component, effect, inject, model, viewChild } from '@angular/core';
 import {
 	MatButtonToggle,
 	MatButtonToggleGroup,
@@ -48,9 +42,8 @@ import { in3dDefaults } from '../../../../ngx-chessground/src/units/in3d';
 	imports: [MatButtonToggleGroup, MatButtonToggle, NgxChessgroundComponent],
 	templateUrl: './home-page.component.html',
 	styleUrl: './home-page.component.scss',
-
 })
-export class HomePageComponent implements AfterViewInit {
+export class HomePageComponent {
 	readonly ngxChessgroundComponent =
 		viewChild.required<NgxChessgroundComponent>('chess');
 
@@ -58,6 +51,7 @@ export class HomePageComponent implements AfterViewInit {
 	rightMenu = viewChild.required<MatButtonToggleGroup>('rightMenu');
 
 	private readonly promotionService = inject(PromotionService);
+	private initialized = false;
 
 	// Create enhanced units with promotion dialog support
 	private readonly enhancedUnits = createPlayUnitsWithDialog(
@@ -106,9 +100,17 @@ export class HomePageComponent implements AfterViewInit {
 	);
 	title = 'Chessground Examples';
 
-	ngAfterViewInit(): void {
-		this.ngxChessgroundComponent().runFunction.set(loadPgnProportionalTime.run);
-		this.rightMenu().value = loadPgnProportionalTime.name;
+	constructor() {
+		// Reactively initialize the board when the view child is available
+		effect(() => {
+			const chessComponent = this.ngxChessgroundComponent();
+			const menu = this.rightMenu();
+			if (chessComponent && menu && !this.initialized) {
+				this.initialized = true;
+				chessComponent.runFunction.set(loadPgnProportionalTime.run);
+				menu.value = loadPgnProportionalTime.name;
+			}
+		});
 	}
 
 	public onClick(name: string, runFn: (el: HTMLElement) => Api) {

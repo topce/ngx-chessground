@@ -1,0 +1,127 @@
+<div class="replay-section">
+  <h4
+    class="section-header"
+    tabindex="0"
+    role="button"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="'replay-section-content'"
+    (click)="toggleExpanded()"
+    (keydown.enter)="toggleExpanded(); $event.preventDefault()"
+    (keydown.space)="toggleExpanded(); $event.preventDefault()"
+  >
+    <span class="chevron" [class.expanded]="expanded()">▶</span>
+    Replay
+  </h4>
+
+  <div class="section-content" [class.expanded]="expanded()" id="replay-section-content">
+    <div class="replay-options">
+      <label>
+        <input
+          type="radio"
+          name="mode"
+          [value]="'realtime'"
+          [checked]="replayMode() === 'realtime'"
+          (change)="replayMode.set('realtime')"
+        />
+        Real Time
+      </label>
+      <label>
+        <input
+          type="radio"
+          name="mode"
+          [value]="'proportional'"
+          [checked]="replayMode() === 'proportional'"
+          (change)="replayMode.set('proportional')"
+        />
+        Proportional
+      </label>
+      <label>
+        <input
+          type="radio"
+          name="mode"
+          [value]="'fixed'"
+          [checked]="replayMode() === 'fixed'"
+          (change)="replayMode.set('fixed')"
+        />
+        Fixed
+      </label>
+    </div>
+
+    @if (replayMode() === 'proportional') {
+      <div class="option-input">
+        <input
+          type="number"
+          [value]="proportionalDuration()"
+          (input)="onProportionalDurationChange($event)"
+          step="0.1"
+          class="small-input"
+          aria-label="Proportional Duration in Minutes"
+        />
+        min/game
+      </div>
+      <div class="option-input">
+        <input
+          type="number"
+          [value]="minSecondsBetweenMoves()"
+          (input)="onMinSecondsChange($event)"
+          step="0.1"
+          class="small-input"
+          aria-label="Min Seconds Between Moves"
+        />
+        min sec/move
+      </div>
+    }
+
+    @if (replayMode() === 'fixed') {
+      <div class="option-input">
+        <input
+          type="number"
+          [value]="fixedTime()"
+          (input)="onFixedTimeChange($event)"
+          step="0.1"
+          class="small-input"
+          aria-label="Fixed Time per Move in Seconds"
+        />
+        sec/move
+      </div>
+    }
+
+    <div class="option-row">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [checked]="stopOnError()"
+          (change)="onStopOnErrorChange($event)"
+        />
+        Stop on Error (&gt;
+        <input
+          type="number"
+          [value]="stopOnErrorThreshold()"
+          (input)="onStopOnErrorThresholdChange($event)"
+          step="0.1"
+          class="small-input"
+          [disabled]="!stopOnError()"
+          aria-label="Stop on error threshold in centipawns"
+        />
+        )
+      </label>
+    </div>
+
+    <div class="replay-actions">
+      <button type="button" (click)="replayGame.emit()" class="action-btn">Replay</button>
+      @if (canContinueReplay()) {
+        <button type="button" (click)="continueReplay.emit()" class="action-btn">Continue</button>
+      }
+      <button type="button" (click)="stopSequence.emit()" class="action-btn stop">Stop</button>
+    </div>
+
+    @if (canShowReplayAll()) {
+      <button type="button" 
+        (click)="replayAllSelectedGames.emit()"
+        class="action-btn full-width"
+      >
+        Replay Selected ({{ selectedGamesCount() }})
+      </button>
+    }
+  </div>
+</div>

@@ -134,6 +134,11 @@
   color: var(--color-accent);
 }
 
+.link-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .card-icon {
   flex-shrink: 0;
   width: 44px;

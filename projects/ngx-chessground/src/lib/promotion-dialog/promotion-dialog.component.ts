@@ -214,7 +214,7 @@ export class PromotionDialogComponent {
 	/** Reference to this dialog instance, used to close it with the selection result. */
 	readonly dialogRef = inject(MatDialogRef<PromotionDialogComponent>);
 	/** Dialog input data (reactive signal) containing the promoting pawn's color. */
-  readonly data = signal(inject<PromotionDialogData>(MAT_DIALOG_DATA));
+	readonly data = signal(inject<PromotionDialogData>(MAT_DIALOG_DATA));
 
 	/**
 	 * Closes the dialog with the user's chosen promotion piece.

@@ -1,0 +1,414 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+}
+
+/* ---- Board Wrapper ---- */
+.board-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 0.5rem;
+	width: 100%;
+	max-width: Min(100%, 520px);
+	container-type: inline-size;
+	contain: layout;
+}
+
+ngx-chessground {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	align-self: center;
+	aspect-ratio: 1 / 1;
+	display: block;
+	max-width: 100%;
+	max-height: 520px;
+	background: var(--cg-bg-surface, #ffffff);
+	border-radius: var(--cg-radius-md, 8px);
+	box-shadow: var(--cg-shadow-lg, 0 10px 25px rgba(13, 13, 26, 0.08));
+	overflow: hidden;
+}
+
+.board-container {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	gap: 18px;
+	width: 100%;
+}
+
+/* ---- Player Info ---- */
+.player-info {
+	font-weight: 600;
+	font-size: 1.05rem;
+	color: var(--cg-text, #0d0d1a);
+	width: 100%;
+}
+
+.player-name-group {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+}
+
+.clock.inset {
+	margin-left: auto;
+	font-family: var(--cg-font-mono);
+	font-size: 0.9rem;
+	font-weight: 600;
+	padding: 0.15rem 0.6rem;
+	border-radius: var(--cg-radius-sm, 4px);
+	background: var(--cg-bg-alt, #e6e0d6);
+	color: var(--cg-text, #0d0d1a);
+	min-width: 72px;
+	text-align: center;
+	letter-spacing: 0.04em;
+	border: 1px solid var(--cg-border-light, #e0dcd2);
+	box-shadow: var(--cg-shadow-sm, 0 1px 2px rgba(13, 13, 26, 0.04));
+}
+
+/* ---- Turn Indicator ---- */
+.turn-indicator {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	display: inline-block;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+	opacity: 0;
+	transition: opacity var(--cg-transition, 200ms ease);
+}
+
+.turn-indicator.active {
+	opacity: 1;
+}
+
+.turn-indicator.white-turn {
+	background-color: #f5f2ec;
+	border: 2px solid #78788e;
+}
+
+.turn-indicator.black-turn {
+	background-color: #0d0d1a;
+	border: 2px solid #5d5d6e;
+}
+
+/* ---- Game Result ---- */
+.game-result-display {
+	text-align: center;
+	font-weight: 700;
+	color: var(--cg-cta, #a67c00);
+	font-size: 1.15rem;
+	margin-bottom: 0.25rem;
+}
+
+/* ---- Board Controls ---- */
+.board-controls {
+	display: flex;
+	gap: 0;
+	justify-content: center;
+	margin-bottom: 0.75rem;
+	background: var(--cg-bg-alt, #e6e0d6);
+	border-radius: var(--cg-radius-full, 9999px);
+	padding: 3px;
+	border: 1px solid var(--cg-border-light, #e0dcd2);
+	box-shadow: var(--cg-shadow-sm, 0 1px 2px rgba(13, 13, 26, 0.04));
+}
+
+.board-ctrl-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 16px;
+	font-size: 0.78rem;
+	font-weight: 600;
+	font-family: var(--cg-font-body);
+	color: var(--cg-text-muted, #78788e);
+	background: transparent;
+	border: none;
+	border-radius: var(--cg-radius-full, 9999px);
+	cursor: pointer;
+	transition: all 220ms cubic-bezier(0.4, 0, 0.2, 1);
+	user-select: none;
+	letter-spacing: 0.01em;
+}
+
+.board-ctrl-btn svg {
+	flex-shrink: 0;
+	opacity: 0.65;
+	transition:
+		opacity 220ms ease,
+		transform 220ms ease;
+}
+
+.board-ctrl-btn:hover {
+	color: var(--cg-text, #0d0d1a);
+}
+
+.board-ctrl-btn:hover svg {
+	opacity: 1;
+	transform: scale(1.08);
+}
+
+.board-ctrl-btn:active {
+	transform: scale(0.96);
+}
+
+.board-ctrl-btn.active {
+	background: var(--cg-accent, #a67c00);
+	color: var(--cg-text-inverse, #f5f2ec);
+	box-shadow: 0 2px 8px rgba(166, 124, 0, 0.25);
+}
+
+.board-ctrl-btn.active svg {
+	opacity: 1;
+}
+
+.board-ctrl-btn:focus-visible {
+	outline: 2px solid var(--cg-accent, #a67c00);
+	outline-offset: 2px;
+}
+
+.board-ctrl-btn.active:focus-visible {
+	outline-color: var(--cg-text-inverse, #f5f2ec);
+}
+
+/* ---- Stockfish Analysis ---- */
+.analysis-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+	min-height: 40px;
+	width: 100%;
+	max-width: 520px;
+}
+
+.analysis-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.analysis-result {
+	background: var(--cg-primary-light, #e0e0e8);
+	border: 1px solid var(--cg-primary, #0d0d1a);
+	border-radius: var(--cg-radius-md, 8px);
+	padding: 0.5rem;
+	width: 100%;
+	text-align: center;
+	font-size: 0.85rem;
+	box-sizing: border-box;
+}
+
+.analyzing-text {
+	font-style: italic;
+	color: var(--cg-text-secondary, #3d3d52);
+}
+
+.best-move strong {
+	color: var(--cg-primary, #0d0d1a);
+	display: block;
+	margin-bottom: 0.15rem;
+}
+
+.best-move-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-bottom: 0.15rem;
+}
+
+.pv-line {
+	font-size: 0.75rem;
+	color: var(--cg-text-muted, #78788e);
+	word-break: break-all;
+	margin-top: 4px;
+}
+
+.pv-move-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--cg-text-secondary, #3d3d52);
+	padding: 0 3px;
+	font-size: inherit;
+	font-family: var(--cg-font-body);
+	border-radius: 2px;
+	transition:
+		background-color var(--cg-transition, 200ms ease),
+		color var(--cg-transition, 200ms ease);
+}
+
+.pv-move-btn:hover {
+	text-decoration: underline;
+	color: var(--cg-accent, #a67c00);
+	background-color: rgba(166, 124, 0, 0.08);
+}
+
+.depth-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8rem;
+	color: var(--cg-text-secondary, #3d3d52);
+}
+
+.depth-input {
+	width: 55px;
+	padding: 0.2rem 0.35rem;
+	border: 1px solid var(--cg-border, #c8c2b6);
+	border-radius: var(--cg-radius-sm, 4px);
+	font-size: 0.8rem;
+	transition: border-color var(--cg-transition, 200ms ease);
+}
+
+.depth-input:focus {
+	outline: none;
+	border-color: var(--cg-accent, #a67c00);
+	box-shadow: 0 0 0 3px rgba(166, 124, 0, 0.15);
+}
+
+.depth-input:focus-visible {
+	outline: 2px solid var(--cg-accent, #a67c00);
+	outline-offset: 2px;
+}
+
+.eval-score {
+	font-weight: 400;
+	color: var(--cg-text-secondary, #3d3d52);
+	font-size: 0.8rem;
+}
+
+/* ---- Move Navigation ---- */
+.move-navigation {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	background: var(--cg-bg-surface, #ffffff);
+	padding: 0.5rem 1rem;
+	border-radius: var(--cg-radius-full, 9999px);
+	box-shadow: var(--cg-shadow-md, 0 4px 6px rgba(13, 13, 26, 0.06));
+}
+
+.move-status {
+	font-family: var(--cg-font-mono);
+	font-weight: 600;
+	font-size: 0.85rem;
+	min-width: 70px;
+	text-align: center;
+	color: var(--cg-text, #0d0d1a);
+}
+
+.nav-btn {
+	background: var(--cg-bg-alt, #e6e0d6);
+	color: var(--cg-text, #0d0d1a);
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 0.85rem;
+	transition:
+		background-color var(--cg-transition, 200ms ease),
+		box-shadow var(--cg-transition, 200ms ease),
+		transform var(--cg-transition, 200ms ease);
+	border: none;
+	cursor: pointer;
+	font-family: var(--cg-font-body);
+}
+
+.nav-btn:hover:not(:disabled) {
+	background: var(--cg-primary-light, #e0e0e8);
+	color: var(--cg-accent, #a67c00);
+	box-shadow: var(--cg-shadow-sm, 0 1px 2px rgba(13, 13, 26, 0.04));
+}
+
+.nav-btn:disabled {
+	opacity: 0.35;
+	cursor: default;
+	transform: none;
+}
+
+.nav-btn:active:not(:disabled) {
+	transform: scale(0.97);
+}
+
+.nav-btn:focus-visible {
+	outline: 2px solid var(--cg-accent, #a67c00);
+	outline-offset: 2px;
+}
+
+/* ---- Primary Button (used in analysis) ---- */
+.primary-button {
+	background: var(--cg-cta, #a67c00);
+	color: var(--cg-text-inverse, #f5f2ec);
+	padding: 0.35rem 0.85rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+	border-radius: var(--cg-radius-md, 8px);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	border: none;
+	font-family: var(--cg-font-body);
+	transition:
+		background-color var(--cg-transition, 200ms ease),
+		color var(--cg-transition, 200ms ease);
+}
+
+.primary-button:hover:not(:disabled) {
+	background: var(--cg-cta-hover, #c49a1a);
+}
+
+.primary-button:focus-visible {
+	outline: 2px solid var(--cg-text-inverse, #f5f2ec);
+	outline-offset: 2px;
+}
+
+.primary-button.xsmall {
+	padding: 0.15rem 0.4rem;
+	font-size: 0.7rem;
+}
+
+.small {
+	padding: 0.25rem 0.65rem;
+	font-size: 0.75rem;
+}
+
+.small-input {
+	width: 50px;
+	padding: 0.15rem 0.35rem;
+	font-size: 0.75rem;
+	border: 1px solid var(--cg-border, #c8c2b6);
+	border-radius: var(--cg-radius-sm, 4px);
+	font-family: var(--cg-font-body);
+}
+
+.small-input:focus-visible {
+	outline: 2px solid var(--cg-accent, #a67c00);
+	outline-offset: 2px;
+}
+
+/* ---- 3D Board — Layout overrides only ---- */
+/* Piece images and board texture are handled by the global assets/3d.css */
+:host .board-wrapper.in3d ngx-chessground {
+	aspect-ratio: auto;
+	overflow: visible;
+	max-width: none;
+	max-height: none;
+	background: transparent;
+	box-shadow: none;
+	border-radius: 0;
+}
+
+:host .board-wrapper.in3d .evaluation-bar-container {
+	display: none;
+}

@@ -2,9 +2,9 @@ import {
 	Component,
 	type ElementRef,
 	effect,
+	inject,
 	model,
 	viewChild,
-	inject,
 } from '@angular/core';
 import type { Api } from 'chessground/api';
 import { NgxChessgroundService } from '../ngx-chessground.service';

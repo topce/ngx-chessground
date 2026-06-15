@@ -5,10 +5,10 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-sponsor-dialog',
-    standalone: true,
-    imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-    template: `
+	selector: 'app-sponsor-dialog',
+	standalone: true,
+	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+	template: `
 		<h2 mat-dialog-title>💖 Add Your Evergreen Game!</h2>
 		<mat-dialog-content class="mat-typography">
 			<p>
@@ -27,7 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
 						href="https://github.com/sponsors/topce"
 						target="_blank"
 						rel="noopener noreferrer"
-						>👉 Go to GitHub Sponsors</a
+						>👉 Go to GitHub Sponsors<span class="visually-hidden"> (opens in new tab)</span></a
 					>
 				</li>
 				<li>
@@ -51,7 +51,7 @@ import { MatIconModule } from '@angular/material/icon';
 				href="https://github.com/topce/ngx-chessground/issues/new"
 				target="_blank"
 				rel="noopener noreferrer"
-				>Create Issue</a
+				>Create Issue<span class="visually-hidden"> (opens in new tab)</span></a
 			>
 			<a
 				mat-raised-button
@@ -59,12 +59,12 @@ import { MatIconModule } from '@angular/material/icon';
 				href="https://github.com/topce/ngx-chessground/pulls"
 				target="_blank"
 				rel="noopener noreferrer"
-				>Submit PR</a
+				>Submit PR<span class="visually-hidden"> (opens in new tab)</span></a
 			>
 		</mat-dialog-actions>
 	`,
-    styles: [
-        `
+	styles: [
+		`
 			h3 {
 				margin-top: 1.5rem;
 				margin-bottom: 0.5rem;
@@ -79,8 +79,8 @@ import { MatIconModule } from '@angular/material/icon';
                 margin-left: 8px;
             }
 		`,
-    ],
+	],
 })
 export class SponsorDialogComponent {
-    constructor(public dialogRef: MatDialogRef<SponsorDialogComponent>) { }
+	constructor(public dialogRef: MatDialogRef<SponsorDialogComponent>) {}
 }

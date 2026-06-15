@@ -8,13 +8,13 @@
 		"lib": ["dom", "es2018"]
 	},
 	"angularCompilerOptions": {
-    "skipTemplateCodegen": true,
-    "extendedDiagnostics": {
-      "checks": {
-        "nullishCoalescingNotNullable": "error",
-        "optionalChainNotNullable": "error"
-      }
-    },
+		"skipTemplateCodegen": true,
+		"extendedDiagnostics": {
+			"checks": {
+				"nullishCoalescingNotNullable": "error",
+				"optionalChainNotNullable": "error"
+			}
+		},
 		"strictMetadataEmit": true,
 		"enableResourceInlining": true
 	},

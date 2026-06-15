@@ -23,7 +23,12 @@ export interface LoadPayload {
  */
 export type WorkerMessage =
 	/** Load raw PGN text for parsing. `pgnHash` enables IndexedDB cache restore. */
-	| { type: 'load'; payload: string | LoadPayload; id: number; pgnHash?: string }
+	| {
+			type: 'load';
+			payload: string | LoadPayload;
+			id: number;
+			pgnHash?: string;
+	  }
 	/** Filter the currently loaded games by {@link FilterCriteria}. */
 	| { type: 'filter'; payload: FilterCriteria; id: number }
 	/** Load the full move data for a game at the given index. */
@@ -179,11 +184,6 @@ const gameMovesCache = new Map<number, string[]>();
  * Populated eagerly in handleLoad so FEN filtering is a single Set lookup.
  */
 const gameFenCache = new Map<number, Set<string>>();
-/** Maximum number of plies to replay per game when building the FEN cache. */
-let MAX_FEN_PLIES = 30;
-/** Whether to include the starting position FEN in the cache. */
-let INDEX_START_POSITIONS = false;
-
 // ---- IndexedDB Cache -------
 
 const CACHE_DB_NAME = 'NgxChessgroundPgnCache';
@@ -359,17 +359,21 @@ async function clearPgnCache(): Promise<void> {
 addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 	try {
 		switch (data.type) {
-			case 'load':
+			case 'load': {
 				// Accept both legacy string payload and new LoadPayload object
-				const pgnStr = typeof data.payload === 'string' ? data.payload : data.payload.pgn;
-				const indexStart = typeof data.payload === 'object' ? data.payload.indexStartPositions : false;
-				const maxPlies = typeof data.payload === 'object' ? data.payload.maxFenPlies : 30;
-				INDEX_START_POSITIONS = indexStart;
-				MAX_FEN_PLIES = maxPlies;
-				handleLoad(pgnStr, data.id, data.pgnHash).catch((e) =>
+				const pgnStr =
+					typeof data.payload === 'string' ? data.payload : data.payload.pgn;
+				const indexStart =
+					typeof data.payload === 'object'
+						? data.payload.indexStartPositions
+						: false;
+				const maxPlies =
+					typeof data.payload === 'object' ? data.payload.maxFenPlies : 30;
+				handleLoad(pgnStr, data.id, indexStart, maxPlies, data.pgnHash).catch((e) =>
 					postMessage({ type: 'error', payload: String(e), id: data.id }),
 				);
 				break;
+			}
 			case 'filter':
 				handleFilter(data.payload, data.id);
 				break;
@@ -378,7 +382,11 @@ addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 				break;
 			case 'clearCache':
 				clearPgnCache().then(() =>
-					postMessage({ type: 'load', payload: { count: 0, metadata: [] }, id: data.id }),
+					postMessage({
+						type: 'load',
+						payload: { count: 0, metadata: [] },
+						id: data.id,
+					}),
 				);
 				break;
 		}
@@ -413,9 +421,11 @@ function postProgress(percent: number, status: string, id: number) {
  *
  * @param pgn — Raw PGN string potentially containing multiple games.
  * @param id — Correlation ID echoed in the response.
+ * @param indexStartPositions — Whether to build the FEN position cache.
+ * @param maxFenPlies — Max half-moves to replay per game when building the FEN cache.
  * @param pgnHash — Optional SHA-256 hash for IndexedDB cache lookups.
  */
-async function handleLoad(pgn: string, id: number, pgnHash?: string) {
+async function handleLoad(pgn: string, id: number, indexStartPositions: boolean, maxFenPlies: number, pgnHash?: string) {
 	// If a pgnHash is provided, try to restore from IndexedDB cache first.
 	// This avoids re-parsing and FEN-indexing the entire collection.
 	if (pgnHash) {
@@ -479,47 +489,47 @@ async function handleLoad(pgn: string, id: number, pgnHash?: string) {
 	postProgress(fenStartPct, `Indexing FEN positions (0/${total})...`, id);
 
 	for (let i = 0; i < total; i++) {
-		const gamePgn = games[i];
-		const moves = extractMovesFast(gamePgn);
-		if (!moves || moves.length === 0) {
-			gameFenCache.set(i, new Set());
-		} else {
-			const fenSet = new Set<string>();
-			const chess = new Chess();
+		if (indexStartPositions) {
+			// Only build FEN cache when indexStartPositions is enabled
+			const gamePgn = games[i];
+			const moves = extractMovesFast(gamePgn);
+			if (!moves || moves.length === 0) {
+				gameFenCache.set(i, new Set());
+			} else {
+				const fenSet = new Set<string>();
+				const chess = new Chess();
 
-			// Handle non-standard starting positions
-			const fenMatch = gamePgn.match(/\[FEN\s+"([^"]+)"\]/);
-			if (fenMatch) {
-				try { chess.load(fenMatch[1]); } catch (_e) {}
-			}
-
-			if (INDEX_START_POSITIONS) {
-				fenSet.add(normalizeFen(chess.fen()));
-			}
-
-			const replayLimit = Math.min(moves.length, MAX_FEN_PLIES);
-			for (let k = 0; k < replayLimit; k++) {
-				try {
-					chess.move(moves[k]);
-					fenSet.add(normalizeFen(chess.fen()));
-				} catch (_e) {
-					break;
+				// Handle non-standard starting positions
+				const fenMatch = gamePgn.match(/\[FEN\s+"([^"]+)"\]/);
+				if (fenMatch) {
+					try {
+						chess.load(fenMatch[1]);
+					} catch (_e) {}
 				}
-			}
-			gameFenCache.set(i, fenSet);
-		}
 
-		// Report progress at batch boundaries and on the last game
-		if (
-			total > 0 &&
-			((i + 1) % batchInterval === 0 || i === total - 1)
-		) {
-			const pct = fenStartPct + Math.round(((i + 1) / total) * fenRange);
-			postProgress(
-				pct,
-				`Indexing FEN positions (${i + 1}/${total})...`,
-				id,
-			);
+				// Always include starting position when indexing is enabled
+				fenSet.add(normalizeFen(chess.fen()));
+
+				const replayLimit = Math.min(moves.length, maxFenPlies);
+				for (let k = 0; k < replayLimit; k++) {
+					try {
+						chess.move(moves[k]);
+						fenSet.add(normalizeFen(chess.fen()));
+					} catch (_e) {
+						break;
+					}
+				}
+				gameFenCache.set(i, fenSet);
+			}
+
+			// Report progress at batch boundaries and on the last game
+			if (total > 0 && ((i + 1) % batchInterval === 0 || i === total - 1)) {
+				const pct = fenStartPct + Math.round(((i + 1) / total) * fenRange);
+				postProgress(pct, `Indexing FEN positions (${i + 1}/${total})...`, id);
+			}
+		} else {
+			// Indexing disabled — store empty set and skip expensive replay
+			gameFenCache.set(i, new Set());
 		}
 	}
 
@@ -630,14 +640,18 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	const fEventLower = event.toLowerCase();
 
 	// Clear cache when filtering by moves or FEN to ensure fresh parsing
-	if ((moves && targetMoves.length > 0) || (filterByFen && targetFen.length > 0)) {
+	if (
+		(moves && targetMoves.length > 0) ||
+		(filterByFen && targetFen.length > 0)
+	) {
 		gameMovesCache.clear();
 	}
 
 	const matches: number[] = [];
 
 	// Normalize target FEN once if position filtering is enabled
-	const normalizedTargetFen = filterByFen && targetFen ? normalizeFen(targetFen) : '';
+	const normalizedTargetFen =
+		filterByFen && targetFen ? normalizeFen(targetFen) : '';
 
 	for (let i = 0; i < games.length; i++) {
 		const info = gameMetadata[i];
@@ -678,17 +692,13 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		}
 
 		// ECO filtering
-		if (fEcoLower && (!info.eco || !info.eco.toLowerCase().includes(fEcoLower)))
-			continue;
+		if (fEcoLower && !info.eco?.toLowerCase().includes(fEcoLower)) continue;
 
 		// TimeControl filtering
 		if (fTimeControl && info.timeControlNormalized !== fTimeControl) continue;
 
 		// Event filtering
-		if (
-			fEventLower &&
-			(!info.event || !info.event.toLowerCase().includes(fEventLower))
-		)
+		if (fEventLower && !info.event?.toLowerCase().includes(fEventLower))
 			continue;
 
 		// Rating filtering
@@ -813,15 +823,20 @@ function handleFilter(criteria: FilterCriteria, id: number) {
  *
  * @returns Array aligned with parsedMoves; null where no eval found.
  */
-function extractEvalsFromPgn(pgnText: string, parsedMoves: string[]): (string | null)[] {
+function extractEvalsFromPgn(
+	pgnText: string,
+	parsedMoves: string[],
+): (string | null)[] {
 	const evals: (string | null)[] = new Array(parsedMoves.length).fill(null);
 
 	// Collect all [%eval ...] values in the order they appear
 	const values: string[] = [];
 	const evalRegex = /\[%eval\s+([^\]]+)\]/g;
-	let match;
-	while ((match = evalRegex.exec(pgnText)) !== null) {
+	let match: RegExpExecArray | null;
+	match = evalRegex.exec(pgnText);
+	while (match !== null) {
 		values.push(match[1]);
+		match = evalRegex.exec(pgnText);
 	}
 	if (values.length === 0) return evals;
 
@@ -1002,9 +1017,13 @@ function extractGameInfo(pgn: string, index: number): GameMetadata {
 	const whiteElo = parseInt(whiteEloRaw, 10) || 0;
 	const blackElo = parseInt(blackEloRaw, 10) || 0;
 	const whiteDisplay =
-		white + (whiteElo > 0 ? ` (${whiteElo})` : '') + (whiteTitle ? ` [${whiteTitle}]` : '');
+		white +
+		(whiteElo > 0 ? ` (${whiteElo})` : '') +
+		(whiteTitle ? ` [${whiteTitle}]` : '');
 	const blackDisplay =
-		black + (blackElo > 0 ? ` (${blackElo})` : '') + (blackTitle ? ` [${blackTitle}]` : '');
+		black +
+		(blackElo > 0 ? ` (${blackElo})` : '') +
+		(blackTitle ? ` [${blackTitle}]` : '');
 
 	let timeControlNormalized: string | undefined;
 	if (timeControl) {
@@ -1084,7 +1103,7 @@ function splitPgn(pgn: string): string[] {
  * @param tc — Raw time control string from the PGN header.
  * @returns Normalized `"baseSeconds+incrementSeconds"` string, or `undefined`.
  */
-function normalizeTimeControl(tc: string): string | undefined {
+function _normalizeTimeControl(tc: string): string | undefined {
 	// Already normalized: "seconds+increment" (e.g. "300+0")
 	const standardMatch = tc.match(/^(\d+)\+(\d+)$/);
 	if (standardMatch && standardMatch[2] !== undefined) {
@@ -1194,7 +1213,7 @@ function extractMovesFast(pgn: string): string[] {
 	const filtered = strippedMoves.filter((move) => {
 		if (!move) return false;
 		// Remove any remaining special characters that aren't part of SAN
-		if (/^[{}()\[\]]/.test(move)) return false;
+		if (/^[{}()[\]]/.test(move)) return false;
 		// Check if it looks like a valid chess move
 		// Valid patterns: e4, Nf3, exd5, O-O, O-O-O, e8=Q, Nxf7+, etc.
 		return /^([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](=[NBRQ])?|O-O(-O)?)[+#]?$/.test(

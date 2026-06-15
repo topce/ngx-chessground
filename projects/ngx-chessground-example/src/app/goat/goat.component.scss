@@ -183,6 +183,15 @@
   transform: translateY(-1px);
 }
 
+.resource-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.resource-card.video:focus-visible {
+  outline-color: var(--color-danger);
+}
+
 .card-accent {
   position: absolute;
   top: 0;

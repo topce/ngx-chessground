@@ -1,0 +1,170 @@
+<div class="load-cache-section">
+  <h4
+    class="section-header"
+    tabindex="0"
+    role="button"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="'load-cache-section-content'"
+    (click)="toggleExpanded()"
+    (keydown.enter)="toggleExpanded(); $event.preventDefault()"
+    (keydown.space)="toggleExpanded(); $event.preventDefault()"
+  >
+    <span class="chevron" [class.expanded]="expanded()">▶</span>
+    Load &amp; Cache
+  </h4>
+
+  <div class="section-content" [class.expanded]="expanded()" id="load-cache-section-content">
+    <!-- PGN Input -->
+    <div class="pgn-input-section">
+      <textarea
+        [value]="pgnInput()"
+        (input)="onPgnInputChange($event)"
+        rows="3"
+        placeholder="Paste PGN..."
+        aria-label="PGN Input"
+      ></textarea>
+      <div class="clipboard-buttons">
+        <button type="button" type="button" (click)="loadFromClipboardEvent.emit()" class="small-btn">Load from Clipboard</button>
+        <button type="button" type="button" (click)="copyToClipboardEvent.emit()" class="small-btn">Copy to Clipboard</button>
+      </div>
+    </div>
+
+    <!-- FEN Indexing Options -->
+    <div class="index-options">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [checked]="indexStartPositions()"
+          (change)="onIndexStartPositionsChange($event)"
+        />
+        Index starting positions
+      </label>
+      <div class="option-input">
+        <label>
+          Max plies:
+          <input
+            type="number"
+            [value]="maxFenPlies()"
+            (input)="onMaxFenPliesChange($event)"
+            min="1"
+            max="500"
+            class="small-input"
+            aria-label="Max plies to index"
+          />
+        </label>
+      </div>
+    </div>
+
+    <!-- Cache Management -->
+    <div class="cache-section">
+      <div class="cache-actions">
+        <button type="button" type="button" (click)="clearPgnCache.emit()" class="small-btn" title="Clear all cached PGN data from IndexedDB">
+          Clear Cache
+        </button>
+        <button type="button" type="button" (click)="refreshCacheInfo.emit()" class="small-btn" title="Show cache statistics">
+          Cache Info
+        </button>
+      </div>
+      @if (cacheInfo(); as info) {
+        <div class="cache-info">
+          <small>
+            Entries: {{ info.count }}
+            @if (info.estimatedBytes > 0) {
+              | Size: {{ (info.estimatedBytes / 1024) | number:'1.0-0' }} KB
+            }
+          </small>
+        </div>
+      }
+    </div>
+
+    <!-- Load Section -->
+    <div class="load-section">
+      <div class="file-inputs">
+        <label class="file-input-label">
+          Zip
+          <input
+            type="file"
+            accept=".zip"
+            (change)="onPgnZipSelected($event)"
+            [disabled]="isLoading()"
+          />
+        </label>
+        <label class="file-input-label">
+          PGN
+          <input
+            type="file"
+            accept=".pgn"
+            (change)="onPgnFileSelected($event)"
+            [disabled]="isLoading()"
+          />
+        </label>
+      </div>
+
+      <div class="lichess-date-picker">
+        <label>Lichess Database:</label>
+        <div class="date-selectors">
+          <select
+            (change)="onLichessYearChange($event)"
+            aria-label="Select Year"
+          >
+            @for (year of years; track year) {
+              <option [value]="year" [selected]="year === lichessYear()">{{ year }}</option>
+            }
+          </select>
+          <select
+            (change)="onLichessMonthChange($event)"
+            aria-label="Select Month"
+          >
+            @for (month of months; track month) {
+              <option [value]="month" [selected]="month === lichessMonth()">
+                {{ month.toString().padStart(2, '0') }}
+              </option>
+            }
+          </select>
+          <button type="button" 
+            (click)="loadFromLichess.emit()"
+            [disabled]="isLoading()"
+            class="action-btn">
+            Load
+          </button>
+        </div>
+        <div class="license-info">
+          <small>
+            Licensed under
+            <a href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal" target="_blank" rel="noopener noreferrer">CC0</a>
+            by
+            <a href="https://database.lichess.org" target="_blank" rel="noopener noreferrer">Lichess</a>
+          </small>
+        </div>
+      </div>
+
+      <div class="url-input-section">
+        <input
+          type="text"
+          [value]="urlInput()"
+          (input)="onUrlInputChange($event)"
+          placeholder="Enter PGN URL (supports .zst)"
+          class="url-input"
+          aria-label="PGN URL"
+        />
+        <button type="button" 
+          (click)="loadFromUrl.emit()"
+          [disabled]="isLoading() || !urlInput()"
+          class="action-btn"
+        >
+          Load URL
+        </button>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-indicator" role="status" aria-live="polite">
+          <div class="progress-bar-container">
+            <div class="progress-bar" [style.width.%]="loadingProgress()"></div>
+            <span class="progress-text">{{ loadingProgress() }}%</span>
+          </div>
+          <div class="loading-status">{{ loadingStatus() || 'Loading...' }}</div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

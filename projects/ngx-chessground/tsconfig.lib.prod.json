@@ -4,12 +4,12 @@
 		"declarationMap": false
 	},
 	"angularCompilerOptions": {
-    "compilationMode": "partial",
-    "extendedDiagnostics": {
-      "checks": {
-        "nullishCoalescingNotNullable": "error",
-        "optionalChainNotNullable": "error"
-      }
-    }
+		"compilationMode": "partial",
+		"extendedDiagnostics": {
+			"checks": {
+				"nullishCoalescingNotNullable": "error",
+				"optionalChainNotNullable": "error"
+			}
+		}
 	}
 }

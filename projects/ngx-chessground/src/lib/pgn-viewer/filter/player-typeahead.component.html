@@ -1,0 +1,49 @@
+<div class="typeahead-wrapper">
+  <input
+    type="text"
+    [placeholder]="label()"
+    [attr.aria-label]="'Filter by ' + label() + ' player'"
+    [value]="value()"
+    (input)="onInput($event)"
+    (focus)="open()"
+    (blur)="close()"
+    (keydown)="onKeydown($event)"
+    autocomplete="off"
+    role="combobox"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-autocomplete]="'list'"
+    [attr.aria-controls]="'typeahead-listbox-' + label()"
+    [attr.aria-activedescendant]="activeIndex() >= 0 ? 'typeahead-option-' + label() + '-' + activeIndex() : null"
+  />
+  @if (isOpen() && filteredSuggestions().length > 0) {
+    <div
+      class="typeahead-dropdown"
+      role="listbox"
+      [id]="'typeahead-listbox-' + label()"
+    >
+      @for (player of filteredSuggestions(); track player; let i = $index) {
+        <div
+          class="typeahead-item"
+          [class.active]="i === activeIndex()"
+          role="option"
+          [attr.aria-selected]="i === activeIndex()"
+          [id]="'typeahead-option-' + label() + '-' + i"
+          (mousedown)="select(player)"
+        >
+          @for (segment of highlightText(player, value()); track $index) {
+            @if (segment.match) {
+              <span class="match-highlight">{{ segment.text }}</span>
+            } @else {
+              <span>{{ segment.text }}</span>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+  @if (isOpen() && value() && filteredSuggestions().length === 0) {
+    <div class="typeahead-dropdown">
+      <div class="typeahead-no-results">No matching players</div>
+    </div>
+  }
+</div>

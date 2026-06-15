@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { describe, beforeEach, afterEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FilterCriteria, WorkerResponse } from './pgn-processor.worker';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 
@@ -81,7 +81,15 @@ describe('PgnViewerEngineService', () => {
 		expect(service.analyzePosition('fen-string', 18)).toBe(true);
 
 		expect(pgnWorker.messages).toEqual([
-			{ type: 'load', payload: 'test-pgn', id: 1 },
+			{
+				type: 'load',
+				payload: {
+					pgn: 'test-pgn',
+					indexStartPositions: false,
+					maxFenPlies: 30,
+				},
+				id: 1,
+			},
 			{ type: 'filter', payload: filterCriteria, id: 2 },
 			{ type: 'loadGame', payload: 4, id: 3 },
 		]);
@@ -106,9 +114,9 @@ describe('PgnViewerEngineService', () => {
 
 		service.dispose();
 		expect(pgnWorker.terminated).toBe(true);
-		expect(
-			stockfishWorker.messages[stockfishWorker.messages.length - 1],
-		).toBe('quit');
+		expect(stockfishWorker.messages[stockfishWorker.messages.length - 1]).toBe(
+			'quit',
+		);
 		expect(stockfishWorker.terminated).toBe(true);
 	});
 

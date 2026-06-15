@@ -1,6 +1,6 @@
 import {
-	provideZonelessChangeDetection,
 	type EnvironmentProviders,
+	provideZonelessChangeDetection,
 } from '@angular/core';
 
 /**

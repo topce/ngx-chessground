@@ -1,40 +1,112 @@
 <div class="pgn-viewer-page">
 
-  <!-- Header section -->
-  <header class="viewer-header">
-    <div class="header-content">
-      <div class="header-left">
-        <h1 class="viewer-title">PGN Viewer</h1>
-        <p class="viewer-subtitle">Explore annotated chess games with interactive analysis</p>
-      </div>
-      <div class="header-right">
-        <div class="game-selector">
-          <span class="selector-label">Load Game</span>
-          <div class="selector-buttons">
-            <button class="game-btn fischer" (click)="loadFischer()" [class.active]="currentPgn === fischerEvergreen">
-              <span class="btn-icon">♔</span>
-              <span class="btn-text">Fischer</span>
-              <span class="btn-sub">Evergreen</span>
-            </button>
-            <button class="game-btn topce" (click)="loadTopce()" [class.active]="currentPgn === topceEvergreen">
-              <span class="btn-icon">♚</span>
-              <span class="btn-text">Topce</span>
-              <span class="btn-sub">Blitz</span>
-            </button>
-            <button class="game-btn sponsor-btn" (click)="openSponsor()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  <!-- Header section — Chess Archive Codex -->
+  <header
+    class="viewer-header"
+    [class.collapsed]="headerCollapsed()"
+    [class.expanded]="!headerCollapsed()"
+    [id]="headerId"
+    role="region"
+    aria-label="PGN Viewer controls"
+  >
+
+    <!-- Collapse toggle — the "drawer pull" -->
+    <button type="button" 
+      class="header-toggle"
+      (click)="toggleHeader()"
+      [attr.aria-label]="headerCollapsed() ? 'Expand header' : 'Collapse header'"
+      [attr.aria-expanded]="!headerCollapsed()"
+      [attr.aria-controls]="headerId"
+      [class.is-collapsed]="headerCollapsed()">
+      <span class="toggle-track">
+        <span class="toggle-knob">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </span>
+      </span>
+      <span class="toggle-label" aria-hidden="true">{{ headerCollapsed() ? 'Open' : 'Close' }}</span>
+    </button>
+
+    <!-- Collapsible body -->
+    <div class="header-body">
+      <div class="header-collapsible">
+        <div class="header-content">
+          <div class="header-left">
+            <h1 class="viewer-title">
+              <svg class="title-ornament" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 2v3m-3 1a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/>
+                <path d="M9 7c-1.5.5-3 2-3 4 0 2 1 4 3 5l-1 4h8l-1-4c2-1 3-3 3-5 0-2-1.5-3.5-3-4"/>
+                <path d="M7 20h10"/>
               </svg>
-              Sponsor
-            </button>
+              PGN Viewer
+            </h1>
+            <p class="viewer-subtitle">Explore annotated chess games with interactive analysis</p>
+          </div>
+          <div class="header-right">
+            <div class="game-selector">
+              <span class="selector-label">Select Game</span>
+              <div class="selector-buttons">
+                <button type="button" class="game-btn fischer-btn" (click)="loadFischer()" [class.active]="currentPgn === fischerEvergreen">
+                  <span class="btn-rank">1956</span>
+                  <span class="btn-info">
+                    <span class="btn-name">Fischer</span>
+                    <span class="btn-eco">Evergreen</span>
+                  </span>
+                  <svg class="btn-preview" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3v2m-2 1a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/>
+                    <path d="M10 7c-1.2.4-2.5 1.6-2.5 3.5 0 1.7.8 3.5 2.5 4.5l-.8 3.5h5.6l-.8-3.5c1.7-1 2.5-2.8 2.5-4.5 0-1.9-1.3-3.1-2.5-3.5"/>
+                    <path d="M8.5 18.5h7"/>
+                  </svg>
+                </button>
+                <button type="button" class="game-btn topce-btn" (click)="loadTopce()" [class.active]="currentPgn === topceEvergreen">
+                  <span class="btn-rank">2018</span>
+                  <span class="btn-info">
+                    <span class="btn-name">Topce</span>
+                    <span class="btn-eco">Blitz</span>
+                  </span>
+                  <svg class="btn-preview" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3v2m-2 1a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/>
+                    <path d="M10 7c-1.2.4-2.5 1.6-2.5 3.5 0 1.7.8 3.5 2.5 4.5l-.8 3.5h5.6l-.8-3.5c1.7-1 2.5-2.8 2.5-4.5 0-1.9-1.3-3.1-2.5-3.5"/>
+                    <path d="M8.5 18.5h7"/>
+                  </svg>
+                </button>
+                <button type="button" class="game-btn sponsor-btn" (click)="openSponsor()">
+                  <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  <span>Sponsor</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Decorative rule -- always visible as a slim accent line -->
+    <div class="header-rule" aria-hidden="true">
+      <svg class="rule-piece" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2v2"/>
+        <path d="M10 5c-.8.3-2 1.2-2 2.5 0 1.2.6 2.5 2 3.2l-.6 2.8h5.2l-.6-2.8c1.3-.7 2-2 2-3.2 0-1.3-1.2-2.2-2-2.5"/>
+        <path d="M9 13.5h6"/>
+        <path d="M10 16l1 3 1-3"/>
+      </svg>
+    </div>
   </header>
 
   <!-- PGN Viewer -->
-  <div class="viewer-body">
+  <div class="viewer-body" [class.header-collapsed]="headerCollapsed()">
     <ngx-pgn-viewer [pgn]="currentPgn" [flipped]="flipped"></ngx-pgn-viewer>
+  </div>
+
+  <!-- Collapsed-state floating title (visible only when collapsed) -->
+  <div class="collapsed-brand" [class.visible]="headerCollapsed()" [attr.aria-hidden]="!headerCollapsed()">
+    <svg class="brand-ornament" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 2v3m-3 1a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/>
+      <path d="M9 7c-1.5.5-3 2-3 4 0 2 1 4 3 5l-1 4h8l-1-4c2-1 3-3 3-5 0-2-1.5-3.5-3-4"/>
+      <path d="M7 20h10"/>
+    </svg>
+    <span class="brand-name">PGN Viewer</span>
   </div>
 </div>

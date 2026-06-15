@@ -3,29 +3,7 @@ import * as ChessJS from 'chess.js';
 import type { Api } from 'chessground/api';
 import type { Key } from 'chessground/types';
 import type { PromotionService } from '../lib/promotion-dialog/promotion.service';
-
-/**
- * Converts chess.js promotion character to chessground piece role.
- *
- * @param promotion - The chess.js promotion character ('q', 'r', 'b', 'n')
- * @returns The corresponding chessground piece role ('queen', 'rook', 'bishop', 'knight')
- */
-function promotionToRole(
-	promotion: string,
-): 'queen' | 'rook' | 'bishop' | 'knight' {
-	switch (promotion) {
-		case 'q':
-			return 'queen';
-		case 'r':
-			return 'rook';
-		case 'b':
-			return 'bishop';
-		case 'n':
-			return 'knight';
-		default:
-			return 'queen'; // Default to queen
-	}
-}
+import { promotionToRole } from './util';
 
 /**
  * Creates a function that makes a move on the chessboard and updates the state of the chess game.

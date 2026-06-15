@@ -1,4 +1,30 @@
 /* ==========================================================================
+   Skip Link
+   ========================================================================== */
+
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: 0;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: var(--text-inverse);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius-md) 0;
+  transition: none;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
    App Navbar — Editorial Chess Club
    ========================================================================== */
 
@@ -125,6 +151,11 @@
 
 .theme-toggle-btn:active {
   transform: scale(0.95);
+}
+
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* Main content area */

@@ -55,7 +55,9 @@ export class PgnViewerEngineService {
 
 		this.dispose();
 
-		this.pgnWorker = new Worker(new URL('./pgn-processor.worker', import.meta.url));
+		this.pgnWorker = new Worker(
+			new URL('./pgn-processor.worker', import.meta.url),
+		);
 		this.pgnWorker.onmessage = ({ data }: MessageEvent<WorkerResponse>) => {
 			callbacks.onPgnMessage(data);
 		};

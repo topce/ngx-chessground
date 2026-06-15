@@ -30,10 +30,7 @@ export interface TextSegment {
  * // ]
  * ```
  */
-export function highlightMatch(
-	text: string,
-	query: string,
-): TextSegment[] {
+export function highlightMatch(text: string, query: string): TextSegment[] {
 	const q = query.toLowerCase().trim();
 	if (!q) {
 		return [{ text, match: false }];

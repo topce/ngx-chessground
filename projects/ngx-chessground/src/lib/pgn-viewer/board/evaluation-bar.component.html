@@ -1,0 +1,16 @@
+<div
+  class="evaluation-bar-container"
+  [class.flipped]="flipped()"
+>
+  <div
+    [class]="'evaluation-fill ' + evalClass()"
+    [style.transform]="'scaleY(' + (barHeight() / 100) + ')'"
+    [style.background]="evalFillColor()"
+  ></div>
+  <div
+    [class]="'evaluation-text ' + evalClass()"
+    [style.top.%]="100 - barHeight()"
+  >
+    {{ formattedEval() }}
+  </div>
+</div>

@@ -1,10 +1,8 @@
-import { DecimalPipe } from '@angular/common';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
 	Component,
 	computed,
-	effect,
 	type ElementRef,
+	effect,
 	inject,
 	input,
 	model,
@@ -12,838 +10,225 @@ import {
 	signal,
 	viewChild,
 } from '@angular/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Chess, Move } from 'chess.js';
 import { Chessground } from 'chessground';
 import { Api } from 'chessground/api';
 import { Key } from 'chessground/types';
 import { parsePgn } from 'chessops/pgn';
-import { loadAsync as loadZipAsync } from 'jszip';
 import { decompress as decompressZst } from 'fzstd';
-import { NgxChessgroundComponent } from '../ngx-chessground/ngx-chessground.component';
+import { loadAsync as loadZipAsync } from 'jszip';
+
+import { BoardDisplayComponent } from './board/board-display.component';
+import { ECO_MOVES } from './eco-moves';
+// Sub-components
+import { GameFilterPanelComponent } from './filter/game-filter-panel.component';
+import { LoadCachePanelComponent } from './load-cache/load-cache-panel.component';
+import { MoveListComponent } from './moves/move-list.component';
+import { PgnCacheService } from './pgn-cache.service';
 import type {
 	FilterCriteria,
 	GameMetadata,
 	WorkerResponse,
 } from './pgn-processor.worker';
-import { ECO_MOVES } from './eco-moves';
-import { PgnCacheService } from './pgn-cache.service';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
+import { ReplayPanelComponent } from './replay/replay-panel.component';
 import { highlightMatch, type TextSegment } from './text-highlight';
 
 /**
- * A full-featured PGN viewer component for Angular applications.
+ * Container for the full-featured PGN viewer application.
  *
- * Supports loading single or multi-game PGN files, navigating moves, auto-replay
- * with configurable timing modes, Stockfish-powered position analysis ("stop on error"),
- * filtering by player/ECO/opening moves, and batch replay across multiple games.
+ * Owns all state signals and business logic, delegating rendering to
+ * focused presentational sub-components:
+ * - {@link GameFilterPanelComponent} — left sidebar filters
+ * - {@link BoardDisplayComponent} — center board area
+ * - {@link MoveListComponent} — right panel move list
+ * - {@link ReplayPanelComponent} — right panel replay controls
+ * - {@link LoadCachePanelComponent} — right panel load & cache
  *
- * All components used are standalone. Import this component directly:
- * ```typescript
- * imports: [NgxPgnViewerComponent]
- * ```
- *
- * @example Basic usage
+ * @example
  * ```html
  * <ngx-pgn-viewer [pgn]="pgnString" [highlightLastMove]="true" />
  * ```
  */
 @Component({
 	selector: 'ngx-pgn-viewer',
-	imports: [DecimalPipe, MatSnackBarModule, NgxChessgroundComponent],
+	imports: [
+		MatSnackBarModule,
+		GameFilterPanelComponent,
+		BoardDisplayComponent,
+		MoveListComponent,
+		ReplayPanelComponent,
+		LoadCachePanelComponent,
+	],
 	templateUrl: './pgn-viewer.component.html',
 	styleUrl: './pgn-viewer.component.css',
-
 })
 export class NgxPgnViewerComponent implements OnDestroy {
-	/** Service managing the PGN processor and Stockfish Web Workers. */
 	private readonly pgnViewerEngine = inject(PgnViewerEngineService);
-	/** Material snackbar service for user notifications. */
 	private readonly snackBar = inject(MatSnackBar);
-	/** IndexedDB cache service for avoiding re-parsing previously loaded PGNs. */
 	private readonly pgnCacheService = inject(PgnCacheService);
 
-	// ---- Inputs ----
+	// ======================================================================
+	// Inputs
+	// ======================================================================
 
-	/**
-	 * PGN string to load and display.
-	 * Supports plain PGN, multi-game PGN, gzip-compressed (`.pgn.gz`), and ZIP archives.
-	 */
 	pgn = input<string>('');
-	/**
-	 * Whether to highlight the last played move on the board with colored squares.
-	 * @default true
-	 */
 	highlightLastMove = input<boolean>(true);
-
-	/**
-	 * Flips the board orientation so that black pieces are at the bottom
-	 * and white pieces at the top. Also swaps the player name positions.
-	 * @default false
-	 */
 	flipped = model<boolean>(false);
-
-	/**
-	 * Whether to render the board with 3D piece appearance (Staunton theme).
-	 * Default is `false` (2D).
-	 */
 	in3d = model<boolean>(false);
-
-	/** Width of the left panel in pixels. Two-way bindable. @default 340 */
 	leftPanelWidth = model<number>(340);
-	/** Width of the right panel in pixels. Two-way bindable. @default 340 */
 	rightPanelWidth = model<number>(340);
 
-	/** Which resize handle is being dragged, or null. */
-	private resizing: 'left' | 'right' | null = null;
+	// ======================================================================
+	// State Signals
+	// ======================================================================
 
-	/**
-	 * Starts resizing a panel via drag handle.
-	 * @param side — Which panel handle is being dragged.
-	 * @param event — MouseEvent from the handle.
-	 */
-	startResize(side: 'left' | 'right', event: MouseEvent) {
-		event.preventDefault();
-		this.resizing = side;
-		document.body.style.cursor = 'col-resize';
-		document.body.style.userSelect = 'none';
-	}
-
-	/** Handles mousemove during panel resize. Called from template. */
-	onResizeMove(event: MouseEvent) {
-		if (!this.resizing) return;
-		const container = this.mainContentRef()?.nativeElement;
-		if (!container) return;
-		const rect = container.getBoundingClientRect();
-		const minW = 200;
-		const maxW = Math.floor(rect.width * 0.45);
-		if (this.resizing === 'left') {
-			const w = Math.min(maxW, Math.max(minW, Math.round(event.clientX - rect.left)));
-			this.leftPanelWidth.set(w);
-		} else {
-			const w = Math.min(maxW, Math.max(minW, Math.round(rect.right - event.clientX)));
-			this.rightPanelWidth.set(w);
-		}
-	}
-
-	/** Ends panel resize. Called from template on mouseup. */
-	stopResize() {
-		this.resizing = null;
-		document.body.style.cursor = '';
-		document.body.style.userSelect = '';
-	}
-
-	/** Element ref for the main-content container (used for resize bounds). */
-	private readonly mainContentRef = viewChild<ElementRef<HTMLElement>>('mainContent');
-
-	/**
-	 * Toggles the board orientation between white-at-bottom (default)
-	 * and black-at-bottom (flipped).
-	 */
-	flipBoard() {
-		this.flipped.update(v => !v);
-	}
-
-	/**
-	 * Toggles the 3D board mode on/off.
-	 */
-toggle3d() {
-		this.in3d.update(v => !v);
-	}
-
-	/**
-	 * Updates the white player name filter from an input event.
-	 * @param event — Input event from the white filter text field.
-	 */
-	updateFilterWhite(event: Event) {
-		this.filterWhite.set((event.target as HTMLInputElement).value);
-	}
-
-	/**
-	 * Updates the black player name filter from an input event.
-	 * @param event — Input event from the black filter text field.
-	 */
-	updateFilterBlack(event: Event) {
-		this.filterBlack.set((event.target as HTMLInputElement).value);
-	}
-
-	// ---- Typeahead Methods ----
-
-	/**
-	 * Opens the white player typeahead dropdown and resets the selection index.
-	 */
-	openWhiteTypeahead() {
-		this.whiteTypeaheadOpen.set(true);
-		this.whiteTypeaheadIndex.set(0);
-	}
-
-	/**
-	 * Opens the black player typeahead dropdown and resets the selection index.
-	 */
-	openBlackTypeahead() {
-		this.blackTypeaheadOpen.set(true);
-		this.blackTypeaheadIndex.set(0);
-	}
-
-	/**
-	 * Closes the white player typeahead dropdown after a 200ms delay
-	 * (allows mousedown on dropdown items to fire before close).
-	 */
-	closeWhiteTypeahead() {
-		// Cancel any existing close timeout
-		if (this.whiteTypeaheadCloseTimeout) {
-			clearTimeout(this.whiteTypeaheadCloseTimeout);
-			this.pendingTimeouts.delete(this.whiteTypeaheadCloseTimeout);
-		}
-		// Delay to allow mousedown on dropdown item to fire first
-		this.whiteTypeaheadCloseTimeout = this.setDeferredTimeout(() => {
-			this.whiteTypeaheadOpen.set(false);
-			this.whiteTypeaheadCloseTimeout = null;
-		}, 200);
-	}
-
-	/**
-	 * Closes the black player typeahead dropdown after a 200ms delay
-	 * (allows mousedown on dropdown items to fire before close).
-	 */
-	closeBlackTypeahead() {
-		if (this.blackTypeaheadCloseTimeout) {
-			clearTimeout(this.blackTypeaheadCloseTimeout);
-			this.pendingTimeouts.delete(this.blackTypeaheadCloseTimeout);
-		}
-		this.blackTypeaheadCloseTimeout = this.setDeferredTimeout(() => {
-			this.blackTypeaheadOpen.set(false);
-			this.blackTypeaheadCloseTimeout = null;
-		}, 200);
-	}
-
-	/**
-	 * Handles input events on the white player typeahead, updating the filter
-	 * and keeping the dropdown open.
-	 * @param event — Input event from the white filter typeahead field.
-	 */
-	onWhiteTypeaheadInput(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterWhite.set(value);
-		// Cancel pending close when user types
-		if (this.whiteTypeaheadCloseTimeout) {
-			clearTimeout(this.whiteTypeaheadCloseTimeout);
-			this.pendingTimeouts.delete(this.whiteTypeaheadCloseTimeout);
-			this.whiteTypeaheadCloseTimeout = null;
-		}
-		this.whiteTypeaheadOpen.set(true);
-		this.whiteTypeaheadIndex.set(0);
-	}
-
-	/**
-	 * Handles input events on the black player typeahead.
-	 * @param event — Input event from the black filter typeahead field.
-	 */
-	onBlackTypeaheadInput(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.filterBlack.set(value);
-		if (this.blackTypeaheadCloseTimeout) {
-			clearTimeout(this.blackTypeaheadCloseTimeout);
-			this.pendingTimeouts.delete(this.blackTypeaheadCloseTimeout);
-			this.blackTypeaheadCloseTimeout = null;
-		}
-		this.blackTypeaheadOpen.set(true);
-		this.blackTypeaheadIndex.set(0);
-	}
-
-	/**
-	 * Selects a player from the white typeahead dropdown and closes it.
-	 * @param player — The selected player name.
-	 */
-	selectWhiteTypeahead(player: string) {
-		// Cancel pending close timeout first
-		if (this.whiteTypeaheadCloseTimeout) {
-			clearTimeout(this.whiteTypeaheadCloseTimeout);
-			this.pendingTimeouts.delete(this.whiteTypeaheadCloseTimeout);
-			this.whiteTypeaheadCloseTimeout = null;
-		}
-		this.filterWhite.set(player);
-		this.whiteTypeaheadOpen.set(false);
-		this.whiteTypeaheadIndex.set(0);
-	}
-
-	/**
-	 * Selects a player from the black typeahead dropdown and closes it.
-	 * @param player — The selected player name.
-	 */
-	selectBlackTypeahead(player: string) {
-		if (this.blackTypeaheadCloseTimeout) {
-			clearTimeout(this.blackTypeaheadCloseTimeout);
-			this.pendingTimeouts.delete(this.blackTypeaheadCloseTimeout);
-			this.blackTypeaheadCloseTimeout = null;
-		}
-		this.filterBlack.set(player);
-		this.blackTypeaheadOpen.set(false);
-		this.blackTypeaheadIndex.set(0);
-	}
-
-	/**
-	 * Handles keyboard navigation in the white player typeahead dropdown.
-	 *
-	 * Arrow keys navigate the list, Enter selects, Escape closes.
-	 * If the dropdown is closed, ArrowDown/ArrowUp reopen it.
-	 *
-	 * @param event — Keyboard event from the white typeahead input field.
-	 */
-	onWhiteTypeaheadKeydown(event: KeyboardEvent) {
-		const items = this.filteredWhiteSuggestions();
-		if (!this.whiteTypeaheadOpen() || items.length === 0) {
-			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-				this.whiteTypeaheadOpen.set(true);
-				event.preventDefault();
-				return;
-			}
-			return;
-		}
-
-		switch (event.key) {
-			case 'ArrowDown':
-				event.preventDefault();
-				this.whiteTypeaheadIndex.update((i) =>
-					i < items.length - 1 ? i + 1 : 0,
-				);
-				break;
-			case 'ArrowUp':
-				event.preventDefault();
-				this.whiteTypeaheadIndex.update((i) =>
-					i > 0 ? i - 1 : items.length - 1,
-				);
-				break;
-			case 'Enter':
-				event.preventDefault();
-				const selected = items[this.whiteTypeaheadIndex()];
-				if (selected) {
-					this.selectWhiteTypeahead(selected);
-				}
-				break;
-			case 'Escape':
-				this.whiteTypeaheadOpen.set(false);
-				break;
-		}
-	}
-
-	/**
-	 * Handles keyboard navigation in the black player typeahead dropdown.
-	 *
-	 * Arrow keys navigate the list, Enter selects, Escape closes.
-	 * If the dropdown is closed, ArrowDown/ArrowUp reopen it.
-	 *
-	 * @param event — Keyboard event from the black typeahead input field.
-	 */
-	onBlackTypeaheadKeydown(event: KeyboardEvent) {
-		const items = this.filteredBlackSuggestions();
-		if (!this.blackTypeaheadOpen() || items.length === 0) {
-			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-				this.blackTypeaheadOpen.set(true);
-				event.preventDefault();
-				return;
-			}
-			return;
-		}
-
-		switch (event.key) {
-			case 'ArrowDown':
-				event.preventDefault();
-				this.blackTypeaheadIndex.update((i) =>
-					i < items.length - 1 ? i + 1 : 0,
-				);
-				break;
-			case 'ArrowUp':
-				event.preventDefault();
-				this.blackTypeaheadIndex.update((i) =>
-					i > 0 ? i - 1 : items.length - 1,
-				);
-				break;
-			case 'Enter':
-				event.preventDefault();
-				const selected = items[this.blackTypeaheadIndex()];
-				if (selected) {
-					this.selectBlackTypeahead(selected);
-				}
-				break;
-			case 'Escape':
-				this.blackTypeaheadOpen.set(false);
-				break;
-		}
-	}
-
-	/**
-	 * Splits text into match/non-match segments for typeahead highlighting.
-	 *
-	 * Delegates to the standalone {@link highlightMatch} utility so the logic
-	 * is independently testable and reusable. Called from the template:
-	 * `@for (segment of highlightText(player, filterWhite()); track $index)`.
-	 *
-	 * @param text  — Full text to segment (e.g. a player name).
-	 * @param query — Search query string to match against.
-	 * @returns Array of {@link TextSegment} objects for template rendering.
-	 */
-	highlightText(text: string, query: string): TextSegment[] {
-		return highlightMatch(text, query);
-	}
-
-	/**
-	 * Toggles a result value in the multi-select result filter.
-	 *
-	 * Called by result checkboxes. Adds or removes the given value
-	 * from the {@link filterResult} array.
-	 *
-	 * @param value — The result value to toggle (e.g. `"1-0"`, `"0-1"`, `"1/2-1/2"`, `"*"`).
-	 * @param event — Change event from the result checkbox.
-	 */
-	toggleFilterResult(value: string, event: Event) {
-		const checked = (event.target as HTMLInputElement).checked;
-		this.filterResult.update((current) => {
-			if (checked) {
-				return current.includes(value) ? current : [...current, value];
-			}
-			return current.filter((v) => v !== value);
-		});
-	}
-
-	/**
-	 * Updates the ECO code filter from a dropdown change event.
-	 *
-	 * @param event — Change event from the ECO `<select>` element.
-	 */
-	updateFilterEco(event: Event) {
-		this.filterEco.set((event.target as HTMLSelectElement).value);
-	}
-
-	/**
-	 * Updates the time control filter from a dropdown change event.
-	 *
-	 * @param event — Change event from the time control `<select>` element.
-	 */
-	updateFilterTimeControl(event: Event) {
-		this.filterTimeControl.set((event.target as HTMLSelectElement).value);
-	}
-
-	/**
-	 * Updates the minimum white rating filter from an input event.
-	 *
-	 * @param event — Input event from the white rating `<input>` field.
-	 */
-	updateFilterWhiteRating(event: Event) {
-		this.filterWhiteRating.set((event.target as HTMLInputElement).value);
-	}
-
-	/**
-	 * Updates the maximum white rating filter from an input event.
-	 *
-	 * @param event — Input event from the white rating max `<input>` field.
-	 */
-	updateFilterWhiteRatingMax(event: Event) {
-		this.filterWhiteRatingMax.set((event.target as HTMLInputElement).value);
-	}
-
-	/**
-	 * Updates the minimum black rating filter from an input event.
-	 *
-	 * @param event — Input event from the black rating `<input>` field.
-	 */
-	updateFilterBlackRating(event: Event) {
-		this.filterBlackRating.set((event.target as HTMLInputElement).value);
-	}
-
-	/**
-	 * Updates the maximum black rating filter from an input event.
-	 *
-	 * @param event — Input event from the black rating max `<input>` field.
-	 */
-	updateFilterBlackRatingMax(event: Event) {
-		this.filterBlackRatingMax.set((event.target as HTMLInputElement).value);
-	}
-
-	/**
-	 * Toggles the "ignore color" checkbox — when enabled, player name filters
-	 * match either white or black fields interchangeably.
-	 *
-	 * @param event — Change event from the ignore-color checkbox.
-	 */
-	toggleIgnoreColor(event: Event) {
-		this.ignoreColor.set((event.target as HTMLInputElement).checked);
-	}
-
-	/**
-	 * Toggles interactive opening-move filtering mode.
-	 *
-	 * When enabled, the board becomes editable so the user can play moves
-	 * to define an opening sequence filter. The current game position is
-	 * saved and restored when the mode is exited.
-	 *
-	 * @param event — Change event from the filter-moves checkbox.
-	 */
-	toggleFilterMoves(event: Event) {
-		const checked = (event.target as HTMLInputElement).checked;
-		this.filterMoves.set(checked);
-		this.interactiveMoves.set([]);
-		this.activeFilterMoves = [];
-
-		if (checked) {
-			this.savedGameMoveIndex = this.currentMoveIndex();
-			this.chess.reset();
-			this.currentMoveIndex.set(-1);
-			this.currentFen.set(this.chess.fen());
-		} else if (this.savedGameMoveIndex !== null) {
-			this.jumpToMove(this.savedGameMoveIndex);
-			this.savedGameMoveIndex = null;
-		}
-	}
-
-	/**
-	 * Looks up the defining move sequence for an ECO opening code.
-	 *
-	 * @param code — ECO code (e.g. `"B33"`).
-	 * @returns Pipe-separated SAN move sequence, or empty string if not found.
-	 */
-	getOpeningMoves(code: string): string {
-		return ECO_MOVES[code] || '';
-	}
-
-	/**
-	 * Toggles the FEN / position-based filtering checkbox.
-	 *
-	 * When enabling, auto-populates the FEN input with the current board
-	 * position **only** if the user has navigated away from the start position
-	 * (i.e. a specific game position is showing). If the board is at the
-	 * generic start position, the user must type or paste a FEN explicitly,
-	 * or use the 📷 Board button. This prevents silently searching by the
-	 * start position (which would match every game).
-	 *
-	 * @param event — Change event from the FEN filter checkbox.
-	 */
-	toggleFilterByFen(event: Event) {
-		this.filterByFenEnabled.set((event.target as HTMLInputElement).checked);
-		if (
-			this.filterByFenEnabled() &&
-			!this.filterFen() &&
-			this.currentMoveIndex() >= 0
-		) {
-			// Auto-populate with current board position when enabling only if
-			// the user has navigated to a non-start position
-			this.filterFen.set(this.currentFen());
-		}
-	}
-
-	/**
-	 * Captures the current board position as the FEN filter target
-	 * and enables position-based filtering.
-	 */
-	snapshotCurrentPosition() {
-		this.filterFen.set(this.currentFen());
-		this.filterByFenEnabled.set(true);
-	}
-
-	/**
-	 * Validates and updates the FEN filter text from user input.
-	 * Only accepts valid FEN strings via chess.js.
-	 *
-	 * @param event — Input event from the FEN text field.
-	 */
-	updateFilterFen(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		if (!value) {
-			this.filterFen.set('');
-			return;
-		}
-		try {
-			const chess = new Chess(value);
-			this.filterFen.set(value);
-		} catch {
-			// Invalid FEN — keep the old value
-		}
-	}
-
-	// ---- State Signals ----
-
-	/** Parsed game metadata for all games in the loaded PGN. */
 	gamesMetadata = signal<GameMetadata[]>([]);
-	/** Zero-based index of the currently active game. */
 	currentGameIndex = signal<number>(0);
-	/** Array of SAN move strings for the loaded game. */
 	moves = signal<string[]>([]);
-	/** Zero-based index of the current move (-1 means start position, before any move). */
 	currentMoveIndex = signal<number>(-1);
-	/** Current board position in FEN notation. */
 	currentFen = signal<string>(
 		'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 	);
-	/** Whether PGN data is being loaded/parsed. */
 	isLoading = signal<boolean>(false);
-	/** Loading progress percentage (0–100). */
 	loadingProgress = signal<number>(0);
-	/** Human-readable loading status message. */
 	loadingStatus = signal<string>('');
-	/** SHA-256 hash of the most recently loaded PGN, used for IndexedDB cache lookups. */
 	lastPgnHash: string | null = null;
-	/** Set of selected game indices for batch operations like replay-all. */
 	selectedGames = signal<Set<number>>(new Set());
 
 	// ---- Filter Signals ----
-
-	/** Current white player filter text. */
 	filterWhite = signal<string>('');
-	/** Current black player filter text. */
 	filterBlack = signal<string>('');
-	/** Selected result filters (e.g. `["1-0", "draw"]`). */
 	filterResult = signal<string[]>([]);
-	/** Whether opening-move filtering is active. */
 	filterMoves = signal<boolean>(false);
-	/** Whether to swap white/black when filtering (match either color). */
 	ignoreColor = signal<boolean>(false);
-	/** Whether Elo rating filter fields are enabled. */
 	filterRatingEnabled = signal<boolean>(false);
-	/** Minimum white Elo rating filter value (as string for input binding). */
 	filterWhiteRating = signal<string>('2000');
-	/** Minimum black Elo rating filter value (as string for input binding). */
 	filterBlackRating = signal<string>('2000');
-	/** Maximum white Elo rating filter value (as string for input binding). */
 	filterWhiteRatingMax = signal<string>('2900');
-	/** Maximum black Elo rating filter value (as string for input binding). */
 	filterBlackRatingMax = signal<string>('2900');
-	/** ECO code filter value. */
 	filterEco = signal<string>('');
-	/** Time control filter value (e.g. `"180+2"`). */
 	filterTimeControl = signal<string>('');
-	/** Event/tournament name filter value. */
 	filterEvent = signal<string>('');
-	/** Target FEN string for position-based filtering. */
 	filterFen = signal<string>('');
-	/** Whether position/FEN filtering is enabled. */
 	filterByFenEnabled = signal<boolean>(false);
-
-	// ---- FEN Indexing Options ----
-
-	/** Whether to include the starting position FEN in the index when loading PGN. */
 	indexStartPositions = signal<boolean>(false);
-	/** Maximum number of half-moves (plies) to replay per game when building the FEN cache. */
 	maxFenPlies = signal<number>(30);
+	sortAscending = signal<boolean>(false);
 
-	// ---- Autocomplete Signals ----
-
-	/** Unique white player names from the loaded PGN (for typeahead). */
 	uniqueWhitePlayers = signal<string[]>([]);
-	/** Unique black player names from the loaded PGN (for typeahead). */
 	uniqueBlackPlayers = signal<string[]>([]);
-
-	// ---- Typeahead State ----
-
-	/** Whether the white player typeahead dropdown is open. */
-	whiteTypeaheadOpen = signal<boolean>(false);
-	/** Whether the black player typeahead dropdown is open. */
-	blackTypeaheadOpen = signal<boolean>(false);
-	/** Currently highlighted index in the white typeahead dropdown. */
-	whiteTypeaheadIndex = signal<number>(0);
-	/** Currently highlighted index in the black typeahead dropdown. */
-	blackTypeaheadIndex = signal<number>(0);
-	/** Timeout handle for delayed closing of the white typeahead dropdown. */
-	private whiteTypeaheadCloseTimeout: ReturnType<typeof setTimeout> | null = null;
-	/** Timeout handle for delayed closing of the black typeahead dropdown. */
-	private blackTypeaheadCloseTimeout: ReturnType<typeof setTimeout> | null = null;
-
-	// ---- Typeahead Filtered Suggestions ----
-
-	/** Filtered white player suggestions based on current filter text. */
-	filteredWhiteSuggestions = computed(() => {
-		const query = this.filterWhite().toLowerCase().trim();
-		if (!query) return this.uniqueWhitePlayers();
-		return this.uniqueWhitePlayers().filter((p) =>
-			p.toLowerCase().includes(query),
-		);
-	});
-
-	/** Filtered black player suggestions based on current filter text. */
-	filteredBlackSuggestions = computed(() => {
-		const query = this.filterBlack().toLowerCase().trim();
-		if (!query) return this.uniqueBlackPlayers();
-		return this.uniqueBlackPlayers().filter((p) =>
-			p.toLowerCase().includes(query),
-		);
-	});
-
-	/** Unique ECO codes mapped to occurrence counts in the loaded PGN. */
 	uniqueEcoCodes = signal<Map<string, number>>(new Map());
-	/** Unique time controls mapped to occurrence counts and original format strings. */
 	uniqueTimeControls = signal<
 		Map<string, { count: number; originals: Map<string, number> }>
 	>(new Map());
-	/** Unique event/tournament names mapped to occurrence counts. */
 	uniqueEvents = signal<Map<string, number>>(new Map());
 
-	/** ECO codes sorted by popularity (most frequent first). */
-	sortedEcoCodes = computed(() => {
-		const ecoMap = this.uniqueEcoCodes();
-		return Array.from(ecoMap.entries())
-			.sort((a, b) => b[1] - a[1])
-			.map(([code, count]) => ({ code, count }));
-	});
+	filteredGamesIndices = signal<number[]>([]);
+	isFiltering = signal<boolean>(false);
+	showAllGames = signal<boolean>(false);
 
-	/** Time controls sorted by popularity with human-readable labels and original summaries. */
-	sortedTimeControls = computed(() => {
-		const tcMap = this.uniqueTimeControls();
-		return Array.from(tcMap.entries())
+	sortedEcoCodes = computed(() =>
+		Array.from(this.uniqueEcoCodes().entries())
+			.sort((a, b) => b[1] - a[1])
+			.map(([code, count]) => ({ code, count })),
+	);
+
+	sortedTimeControls = computed(() =>
+		Array.from(this.uniqueTimeControls().entries())
 			.sort((a, b) => b[1].count - a[1].count)
 			.map(([key, data]) => ({
 				key,
 				count: data.count,
 				label: this.formatTimeControlKey(key),
 				originalsSummary: this.formatOriginalsSummary(data.originals),
-			}));
-	});
+			})),
+	);
 
-	/** Events sorted by popularity (most frequent first). */
-	sortedEvents = computed(() => {
-		const eventMap = this.uniqueEvents();
-		return Array.from(eventMap.entries())
+	sortedEvents = computed(() =>
+		Array.from(this.uniqueEvents().entries())
 			.sort((a, b) => b[1] - a[1])
-			.map(([event, count]) => ({ event, count }));
+			.map(([event, count]) => ({ event, count })),
+	);
+
+	filteredGameInfos = computed(() => {
+		const metadata = this.gamesMetadata();
+		const allIndices = this.filteredGamesIndices();
+		if (this.selectedGamesCount() > 0) {
+			const currentIdx = this.currentGameIndex();
+			if (currentIdx >= 0 && currentIdx < metadata.length) {
+				return [metadata[currentIdx]];
+			}
+			return [];
+		}
+		const limit = this.showAllGames() ? allIndices.length : 1;
+		return allIndices.slice(0, limit).map((i) => metadata[i]);
 	});
 
-	// ---- Filtering State ----
-
-	/** Indices of games matching the current filter criteria. */
-	filteredGamesIndices = signal<number[]>([]);
-	/** Whether a filter operation is in progress. */
-	isFiltering = signal<boolean>(false);
-	/**
-	 * Sort direction for filtered game results.
-	 * `false` = descending by Elo sum (highest first, default).
-	 * `true` = ascending by Elo sum (lowest first).
-	 */
-	sortAscending = signal<boolean>(false);
-	/** Monotonic counter used as correlation ID for filter requests to the worker. */
-	private currentFilterId = 0;
-	/** Monotonic counter used as correlation ID for game-load requests to the worker. */
-	private currentLoadGameId = 0;
-	/** When `true`, auto-select the first matching game after filtering completes. */
-	private autoSelectOnFinish = false;
-	/** View query for the move list scroll container. */
-	readonly moveList = viewChild<ElementRef<HTMLElement>>('moveList');
-	/** Currently active opening move sequence for interactive mode filtering. */
-	private activeFilterMoves: string[] = [];
-	/** Saved move index before entering filter-moves mode (restored when exiting). */
-	private savedGameMoveIndex: number | null = null;
-	/** Active deferred timeout handles that should be cancelled on destroy. */
-	private readonly pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
-
-	/** Moves made by the user during interactive opening-move filtering mode. */
-	private interactiveMoves = signal<string[]>([]);
-
-	/** Flag to uncheck the filter-moves toggle after a filter operation completes. */
-	private shouldUncheckFilterMoves = false;
-
-	/**
-	 * Toggles the sort direction between highest-Elo-first and lowest-Elo-first.
-	 */
-	toggleSortDirection() {
-		this.sortAscending.update((v) => !v);
-	}
-
-	// ---- Computed Values ----
-
-	/** Number of currently selected games for batch operations. */
+	totalFilteredCount = computed(() => this.filteredGamesIndices().length);
 	selectedGamesCount = computed(() => this.selectedGames().size);
-	/** Whether the replay-all button should be visible (multiple games + selection). */
 	canShowReplayAll = computed(
 		() => this.gamesMetadata().length > 1 && this.selectedGamesCount() > 0,
 	);
-	/** Display string: "Game X of Y". */
+
 	currentGameInfo = computed(
 		() =>
 			`Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length} `,
 	);
 
-	/** Display name of the white player for the current game. */
 	currentWhitePlayer = computed(() => {
 		const metadata = this.gamesMetadata();
-		const currentIndex = this.currentGameIndex();
-		if (
-			metadata.length === 0 ||
-			currentIndex < 0 ||
-			currentIndex >= metadata.length
-		)
-			return 'Unknown';
-		return metadata[currentIndex].white;
+		const i = this.currentGameIndex();
+		return metadata.length > 0 && i >= 0 && i < metadata.length
+			? metadata[i].white
+			: 'Unknown';
 	});
 
-	/** Display name of the black player for the current game. */
 	currentBlackPlayer = computed(() => {
 		const metadata = this.gamesMetadata();
-		const currentIndex = this.currentGameIndex();
-		if (
-			metadata.length === 0 ||
-			currentIndex < 0 ||
-			currentIndex >= metadata.length
-		)
-			return 'Unknown';
-		return metadata[currentIndex].black;
+		const i = this.currentGameIndex();
+		return metadata.length > 0 && i >= 0 && i < metadata.length
+			? metadata[i].black
+			: 'Unknown';
 	});
 
-	/** Formatted result string for the current game. */
 	currentGameResult = computed(() => {
 		const metadata = this.gamesMetadata();
-		const currentIndex = this.currentGameIndex();
-		if (
-			metadata.length === 0 ||
-			currentIndex < 0 ||
-			currentIndex >= metadata.length
-		)
-			return '*';
-		return metadata[currentIndex].result;
+		const i = this.currentGameIndex();
+		return metadata.length > 0 && i >= 0 && i < metadata.length
+			? metadata[i].result
+			: '*';
 	});
 
-	// ---- Flipped board display helpers ----
-
-	/** Player name shown above the board (swaps based on `flipped`). */
+	// ---- Flipped board helpers ----
 	topPlayerName = computed(() =>
 		this.flipped() ? this.currentWhitePlayer() : this.currentBlackPlayer(),
 	);
-	/** Player name shown below the board (swaps based on `flipped`). */
 	bottomPlayerName = computed(() =>
 		this.flipped() ? this.currentBlackPlayer() : this.currentWhitePlayer(),
 	);
-	/** CSS turn-indicator class for the top player. */
 	topPlayerTurnClass = computed(() =>
 		this.flipped() ? 'white-turn' : 'black-turn',
 	);
-	/** CSS turn-indicator class for the bottom player. */
 	bottomPlayerTurnClass = computed(() =>
 		this.flipped() ? 'black-turn' : 'white-turn',
 	);
-	/** Active color ('w' or 'b') to match when showing the top turn indicator. */
-	topPlayerActiveColor = computed(() =>
-		this.flipped() ? 'w' : 'b',
-	);
-	/** Active color ('w' or 'b') to match when showing the bottom turn indicator. */
-	bottomPlayerActiveColor = computed(() =>
-		this.flipped() ? 'b' : 'w',
-	);
-	/** Tooltip title for the top turn indicator. */
+	topPlayerActiveColor = computed(() => (this.flipped() ? 'w' : 'b'));
+	bottomPlayerActiveColor = computed(() => (this.flipped() ? 'b' : 'w'));
 	topPlayerTitle = computed(() =>
 		this.flipped() ? 'White to move' : 'Black to move',
 	);
-	/** Tooltip title for the bottom turn indicator. */
 	bottomPlayerTitle = computed(() =>
 		this.flipped() ? 'Black to move' : 'White to move',
 	);
-	/** Clock display for the top player (swaps based on `flipped`). */
 	topTimeRemaining = computed(() =>
 		this.flipped() ? this.whiteTimeRemaining() : this.blackTimeRemaining(),
 	);
-	/** Clock display for the bottom player (swaps based on `flipped`). */
 	bottomTimeRemaining = computed(() =>
 		this.flipped() ? this.blackTimeRemaining() : this.whiteTimeRemaining(),
 	);
 
-	/**
-	 * Computed from-to squares of the last move for board highlighting.
-	 * Returns `undefined` when highlighting is disabled or no move has been played.
-	 */
 	lastMoveSquares = computed<[Key, Key] | undefined>(() => {
 		if (!this.highlightLastMove()) return undefined;
 		this.currentMoveIndex();
@@ -854,566 +239,112 @@ toggle3d() {
 		return [lastMove.from as Key, lastMove.to as Key];
 	});
 
-	/**
-	 * Maximum number of games to display in the game list at once.
-	 */
-	readonly DISPLAY_LIMIT = 1;
-
-	/** Whether to bypass the display limit. */
-	showAllGames = signal<boolean>(false);
-
-	/** Total count of games matching the current filter criteria. */
-	totalFilteredCount = computed(() => this.filteredGamesIndices().length);
-
-	/** Filtered game metadata for the current filter results. */
-	filteredGameInfos = computed(() => {
-		const metadata = this.gamesMetadata();
-		const allIndices = this.filteredGamesIndices();
-
-		// When games are selected, show only the current game (single-item view)
-		if (this.selectedGamesCount() > 0) {
-			const currentIdx = this.currentGameIndex();
-			if (currentIdx >= 0 && currentIdx < metadata.length) {
-				return [metadata[currentIdx]];
-			}
-			return [];
-		}
-
-		const limit = this.showAllGames() ? allIndices.length : this.DISPLAY_LIMIT;
-		const limited = allIndices.slice(0, limit);
-		return limited.map((i) => metadata[i]);
+	activeColor = computed(() => {
+		const parts = this.currentFen().split(' ');
+		return parts.length > 1 ? parts[1] : 'w';
 	});
 
-	/** Expands the game list to show all filtered games. */
-	showAllFilteredGames() {
-		this.showAllGames.set(true);
-	}
-
-	/** Resets the game list to the display limit. */
-	showLimitedGames() {
-		this.showAllGames.set(false);
-	}
-
-	/**
-	 * Indices to navigate through when using the previous/next game buttons.
-	 *
-	 * Priority:
-	 * 1. If games are selected (via checkboxes), navigates through the intersection
-	 *    of selected games and filtered results, preserving the filtered sort order.
-	 * 2. Otherwise, navigates through all filtered games (respecting active filters).
-	 * 3. If no filter is active, `filteredGamesIndices` contains all games by default.
-	 */
-	navigationIndices = computed<number[]>(() => {
-		const indices = this.filteredGamesIndices();
-		const selected = this.selectedGames();
-		if (selected.size > 0) {
-			return indices.filter((idx) => selected.has(idx));
-		}
-		return indices;
-	});
-
-	/** Whether the previous-game button should be enabled. */
-	canGoPrev = computed(() => {
-		const nav = this.navigationIndices();
-		const pos = nav.indexOf(this.currentGameIndex());
-		return pos > 0;
-	});
-
-	/** Whether the next-game button should be enabled. */
-	canGoNext = computed(() => {
-		const nav = this.navigationIndices();
-		const pos = nav.indexOf(this.currentGameIndex());
-		return pos >= 0 && pos < nav.length - 1;
-	});
-
-	// ---- Replay State ----
-
-	/** Replay timing mode: fixed, realtime (clock-based), or proportional scaling. */
+	// ---- Replay signals ----
 	replayMode = signal<'realtime' | 'proportional' | 'fixed'>('fixed');
-	/** Total duration in minutes when `replayMode` is `'proportional'`. */
 	proportionalDuration = signal<number>(1);
-	/** Minimum seconds between moves in `'proportional'` and `'realtime'` modes. */
 	minSecondsBetweenMoves = signal<number>(1);
-	/** Fixed seconds between moves when `replayMode` is `'fixed'`. */
 	fixedTime = signal<number>(1);
-	/** Whether to pause replay when a large evaluation change is detected. */
 	stopOnError = signal<boolean>(false);
-	/** Evaluation change threshold (in pawns) that triggers a stop. */
 	stopOnErrorThreshold = signal<number>(1.0);
-
-	// ---- Clock State ----
-
-	/** Display string for white's remaining clock time. */
-	whiteTimeRemaining = signal<string>('');
-	/** Display string for black's remaining clock time. */
-	blackTimeRemaining = signal<string>('');
-	/** Whether either clock has been populated (controls clock display visibility). */
-	showClocks = computed(
-		() => this.whiteTimeRemaining() !== '' || this.blackTimeRemaining() !== '',
-	);
-
-	/** Whether a replay is currently in progress. */
 	isReplaying = signal<boolean>(false);
-	/** Whether the replay can be continued from the current move. */
 	canContinueReplay = computed(
 		() =>
 			!this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1,
 	);
 
-	// ---- Stockfish State ----
+	// ---- Clock signals ----
+	whiteTimeRemaining = signal<string>('');
+	blackTimeRemaining = signal<string>('');
+	moveClocks = signal<string[]>([]);
+	showClocks = computed(
+		() => this.whiteTimeRemaining() !== '' || this.blackTimeRemaining() !== '',
+	);
 
-	/** Whether Stockfish is currently analyzing a position. */
+	// ---- Stockfish signals ----
 	isAnalyzing = signal<boolean>(false);
-	/** Stockfish analysis result: best move, PV line, and optional score. */
 	bestMoveInfo = signal<{
 		move: string;
 		pv: { san: string; fen: string }[];
 		score?: string;
 	} | null>(null);
-	/** Whether to show the "Show Better Move" button after a stop-on-error event. */
 	showBetterMoveBtn = signal<boolean>(false);
-	/** Whether the Stockfish analysis panel is currently visible. */
 	analysisVisible = signal<boolean>(false);
-
-	/**
-	 * Converts UCI move strings to SAN notation with resulting FENs.
-	 *
-	 * Used by Stockfish message handling to convert the engine's UCI PV line
-	 * into human-readable SAN for display.
-	 *
-	 * @param fen — Starting FEN position.
-	 * @param uciMoves — Array of UCI move strings (e.g. `["e2e4", "e7e5"]`).
-	 * @returns Array of `{ san, fen }` objects, one per successful move.
-	 */
-	private uciToSan(
-		fen: string,
-		uciMoves: string[],
-	): { san: string; fen: string }[] {
-		try {
-			const tempChess = new Chess(fen);
-			const output: { san: string; fen: string }[] = [];
-
-			for (let i = 0; i < uciMoves.length; i++) {
-				const uci = uciMoves[i];
-				const from = uci.substring(0, 2);
-				const to = uci.substring(2, 4);
-				const promotion = uci.length > 4 ? uci.substring(4, 5) : undefined;
-
-				const move = tempChess.move({ from, to, promotion });
-				if (!move) break;
-
-				output.push({ san: move.san, fen: tempChess.fen() });
-			}
-			return output;
-		} catch (e) {
-			console.error('SAN conversion failed', e);
-			return [];
-		}
-	}
-
-	/**
-	 * Handles UCI protocol messages from the Stockfish Web Worker.
-	 *
-	 * Parses `info ... pv ...` lines to extract the best move, PV line,
-	 * and score (centipawns or mate). Updates {@link bestMoveInfo} and
-	 * sets {@link isAnalyzing} to `false` on `bestmove`.
-	 *
-	 * @param event — Message event from the Stockfish worker.
-	 */
-	private handleStockfishMessage(event: MessageEvent) {
-		const line = event.data;
-		if (typeof line !== 'string') return;
-
-		if (line.startsWith('bestmove')) {
-			this.isAnalyzing.set(false);
-		} else if (line.startsWith('info') && line.includes(' pv ')) {
-			const pvIndex = line.indexOf(' pv ');
-			const pvString = line.substring(pvIndex + 4);
-			const moves = pvString.split(' ');
-			if (moves.length > 0) {
-				const bestMove = moves[0];
-
-				// Optional: Extract score if needed for display
-				let scoreText = '';
-				const cpMatch = line.match(/score cp (-?\d+)/);
-				const mateMatch = line.match(/score mate (-?\d+)/);
-
-				// Determine active color for perspective adjustment
-				let isBlackToMove = false;
-				if (this.analyzedFen) {
-					const parts = this.analyzedFen.split(' ');
-					if (parts.length > 1 && parts[1] === 'b') {
-						isBlackToMove = true;
-					}
-				}
-
-				if (mateMatch) {
-					let mate = parseInt(mateMatch[1], 10);
-					if (isBlackToMove) mate = -mate;
-					scoreText = `#${mate}`;
-				} else if (cpMatch) {
-					let cp = parseInt(cpMatch[1], 10);
-					if (isBlackToMove) cp = -cp;
-					scoreText = (cp / 100).toFixed(2);
-					// Add + sign for positive scores for clarity
-					if (cp > 0) scoreText = `+${scoreText}`;
-				}
-
-				// Convert PV to SAN objects
-				const sanPv = this.analyzedFen
-					? this.uciToSan(this.analyzedFen, moves)
-					: [];
-
-				let bestMoveSan = bestMove;
-				if (this.analyzedFen) {
-					try {
-						const temp = new Chess(this.analyzedFen);
-						const u = bestMove;
-						const m = temp.move({
-							from: u.substring(0, 2),
-							to: u.substring(2, 4),
-							promotion: u.length > 4 ? u.substring(4, 5) : undefined,
-						});
-						if (m) bestMoveSan = m.san;
-					} catch (e) {
-						console.error(e);
-					}
-				}
-
-				this.bestMoveInfo.set({
-					move: bestMoveSan,
-					pv: sanPv,
-					score: scoreText,
-				});
-			}
-		}
-	}
-
-	/**
-	 * Jumps the board display to a given FEN (used for PV preview in analysis).
-	 *
-	 * @param fen — FEN string to display on the board.
-	 */
-	previewPvMove(fen: string) {
-		this.currentFen.set(fen);
-	}
-
-	/** FEN position currently being analyzed by Stockfish. */
-	private analyzedFen: string | null = null;
-
-	// ---- Stockfish Analysis Config ----
-
-	/** Stockfish search depth in plies. */
 	stockfishDepth = signal<number>(18);
+	analysisVisibleChanged = signal<boolean>(false);
 
-	/**
-	 * Sends a FEN position to Stockfish for analysis at the configured depth.
-	 *
-	 * Stops any in-progress analysis before starting. Sets {@link isAnalyzing}
-	 * and clears any previous {@link bestMoveInfo}.
-	 *
-	 * @param fen — FEN string of the position to analyze.
-	 */
-	analyzePosition(fen: string) {
-		if (!this.pgnViewerEngine.analyzePosition(fen, this.stockfishDepth())) {
-			return;
-		}
-
-		this.isAnalyzing.set(true);
-		this.bestMoveInfo.set(null);
-		this.analyzedFen = fen;
-	}
-
-	/**
-	 * Auto-plays the Stockfish best line on the board with 1-second delays.
-	 *
-	 * Iterates through the PV (principal variation) moves stored in
-	 * {@link bestMoveInfo} and displays each resulting FEN.
-	 */
-	async autoplayBestLine() {
-		const info = this.bestMoveInfo();
-		if (!info || !info.pv || info.pv.length === 0) return;
-
-		for (const move of info.pv) {
-			this.currentFen.set(move.fen);
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-		}
-	}
-
-	// ---- Collapsible Section State ----
-
-	/** Left panel collapsible sections and their expanded/collapsed state. */
-	leftPanelSections = signal<Record<string, boolean>>({
-		players: true,
-		gameDetails: true,
-		rating: false,
-		position: false,
-	});
-
-	/** Right panel collapsible sections and their expanded/collapsed state. */
-	rightPanelSections = signal<Record<string, boolean>>({
-		moves: true,
-		replay: false,
-		loadCache: false,
-	});
-
-	/**
-	 * Toggles a collapsible section in the left panel.
-	 * @param section — The section key to toggle.
-	 */
-	toggleLeftSection(section: string) {
-		this.leftPanelSections.update((s) => ({
-			...s,
-			[section]: !s[section],
-		}));
-	}
-
-	/**
-	 * Toggles a collapsible section in the right panel.
-	 * @param section — The section key to toggle.
-	 */
-	toggleRightSection(section: string) {
-		this.rightPanelSections.update((s) => ({
-			...s,
-			[section]: !s[section],
-		}));
-	}
-
-	// ---- UI State ----
-
-	/** Raw PGN text bound to the PGN textarea. */
-	pgnInput = signal<string>('');
-	/** URL input for fetching remote PGN files. */
-	urlInput = signal<string>('');
-
-	// ---- Evaluation State ----
-
-	/** Per-move evaluation strings from `[%eval ...]` PGN comments. */
 	evaluations = signal<(string | null)[]>([]);
-	/** Evaluation string at the current move index, or `null` at start position. */
 	currentEvaluation = computed(() => {
 		const evals = this.evaluations();
 		const index = this.currentMoveIndex();
-		if (index >= 0 && index < evals.length) {
-			return evals[index];
-		}
-		return null;
+		return index >= 0 && index < evals.length ? evals[index] : null;
 	});
 
-	/**
-	 * Computed height percentage (0–100) for the evaluation bar.
-	 *
-	 * Maps centipawn scores linearly from -5.0 (0%) to +5.0 (100%).
-	 * Mate scores force 0% or 100%.
-	 * The bar itself is CSS-flipped via `.evaluation-bar-container.flipped`
-	 * when the board orientation changes, so this formula stays constant.
-	 */
-	evaluationBarHeight = computed(() => {
-		const evalStr = this.currentEvaluation();
-		if (!evalStr) return 50;
-
-		if (evalStr.startsWith('#')) {
-			const mateIn = parseInt(evalStr.substring(1), 10);
-			if (mateIn > 0) return 100;
-			if (mateIn < 0) return 0;
-			return 50;
-		}
-
-		const evalNum = parseFloat(evalStr);
-		if (Number.isNaN(evalNum)) return 50;
-
-		const maxEval = 5.0;
-		const clampedEval = Math.max(-maxEval, Math.min(maxEval, evalNum));
-		const percentage = 50 + (clampedEval / maxEval) * 50;
-		return percentage;
-	});
-
-	/**
-	 * Formatted evaluation string for display.
-	 *
-	 * - Positive centipawn values get a `+` prefix.
-	 * - Mate scores are displayed as `M3` or `-M2`.
-	 * - Returns `null` when no evaluation is available.
-	 */
-	formattedEvaluation = computed<string>(() => {
-		const raw = this.currentEvaluation();
-		if (!raw) return '—';
-
-		if (raw.startsWith('#')) {
-			const val = parseInt(raw.substring(1), 10);
-			if (val > 0) return `M${val}`;
-			if (val < 0) return `-M${Math.abs(val)}`;
-			return '—';
-		}
-
-		const num = parseFloat(raw);
-		if (Number.isNaN(num)) return '—';
-
-		// Round to 2 decimal places for display
-		const rounded = Math.round(num * 100) / 100;
-		if (rounded > 0) return `+${rounded.toFixed(2)}`;
-		return rounded.toFixed(2);
-	});
-
-	/**
-	 * CSS class for the evaluation bar fill, based on who has the advantage.
-	 *
-	 * - `eval-white` — white is better (positive eval)
-	 * - `eval-black` — black is better (negative eval)
-	 * - `eval-equal` — roughly equal or no evaluation
-	 */
-	evalBarClass = computed<string>(() => {
-		const evalStr = this.currentEvaluation();
-		if (!evalStr) return 'eval-equal';
-
-		if (evalStr.startsWith('#')) {
-			const val = parseInt(evalStr.substring(1), 10);
-			if (val > 0) return 'eval-white';
-			if (val < 0) return 'eval-black';
-			return 'eval-equal';
-		}
-
-		const num = parseFloat(evalStr);
-		if (Number.isNaN(num)) return 'eval-equal';
-
-		if (num > 0.1) return 'eval-white';
-		if (num < -0.1) return 'eval-black';
-		return 'eval-equal';
-	});
-
-	/** Active side to move: `'w'` or `'b'` parsed from the current FEN. */
-	activeColor = computed(() => {
-		const fen = this.currentFen();
-		const parts = fen.split(' ');
-		return parts.length > 1 ? parts[1] : 'w';
-	});
-
-	// ---- Lichess Database Date Picker State ----
-
-	/** Selected year for Lichess database queries (two-way bound via `model`). */
+	cacheInfo = signal<{ count: number; estimatedBytes: number } | null>(null);
+	pgnInput = signal<string>('');
+	urlInput = signal<string>('');
 	lichessYear = model<number>(new Date().getFullYear());
-	/** Selected month (1–12) for Lichess database queries (two-way bound via `model`). */
 	lichessMonth = model<number>(1);
 
-	// ---- Internal Objects ----
+	// Panel resize state
+	private resizing: 'left' | 'right' | null = null;
+	private readonly mainContentRef =
+		viewChild<ElementRef<HTMLElement>>('mainContent');
+	readonly moveList = viewChild<ElementRef<HTMLElement>>('moveList');
 
-	/** chess.js instance used for move validation and board state management. */
+	// ---- Internal state ----
 	private chess = new Chess();
-	/** Active replay timeout handles (cleared when replay stops). */
 	private replayTimeouts: ReturnType<typeof setTimeout>[] = [];
-	/** Resolve function for the replay-async Promise (called when replay completes). */
 	private replayResolve: (() => void) | null = null;
-	/** Whether a batch replay sequence across multiple games is in progress. */
 	private isReplayingSequence = false;
+	private currentFilterId = 0;
+	private currentLoadGameId = 0;
+	private autoSelectOnFinish = false;
+	private activeFilterMoves: string[] = [];
+	private savedGameMoveIndex: number | null = null;
+	private interactiveMoves = signal<string[]>([]);
+	private shouldUncheckFilterMoves = false;
+	private clockHistory: { white: number; black: number }[] = [];
+	private readonly pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
-	/**
-	 * Computed run function for the child {@link NgxChessgroundComponent}.
-	 *
-	 * Reacts to changes in FEN, filter-moves mode, and last-move squares.
-	 * In filter-moves mode the board is editable with legal-move highlighting;
-	 * otherwise it is view-only. This is the primary binding between the
-	 * PGN viewer state and the chessboard display.
-	 */
+	// ======================================================================
+	// Computed — Run function for chessground
+	// ======================================================================
+
 	runFunction = computed<(el: HTMLElement) => Api>(() => {
 		const fen = this.currentFen();
 		const isEditable = this.filterMoves();
 		const lastMove = this.lastMoveSquares();
 		const orientation = this.flipped() ? 'black' : 'white';
 		const is3d = this.in3d();
-		return (el: HTMLElement) => {
-			return Chessground(el, {
+		return (el: HTMLElement) =>
+			Chessground(el, {
 				addPieceZIndex: is3d,
-				fen: fen,
-				orientation: orientation,
+				fen,
+				orientation,
 				viewOnly: !isEditable,
-				lastMove: lastMove,
+				lastMove,
 				movable: {
 					free: false,
 					color: isEditable ? 'both' : undefined,
 					dests: isEditable ? this.getMovableDests() : undefined,
 					events: {
 						after: (orig, dest) => {
-							if (isEditable) {
-								this.handleBoardMove(orig, dest);
-							}
+							if (isEditable) this.handleBoardMove(orig, dest);
 						},
 					},
 				},
 			});
-		};
 	});
 
-	/**
-	 * Computes legal move destinations for the current chess.js position.
-	 *
-	 * Returns a `Map<fromSquare, toSquare[]>` suitable for chessground's
-	 * `movable.dests` configuration in interactive filter-moves mode.
-	 *
-	 * @returns Map of legal destination squares keyed by origin square.
-	 */
-	private getMovableDests(): Map<Key, Key[]> {
-		const dests = new Map<Key, Key[]>();
-		const moves = this.chess.moves({ verbose: true });
+	// ======================================================================
+	// Construction
+	// ======================================================================
 
-		for (const move of moves) {
-			const from = move.from as Key;
-			if (!dests.has(from)) {
-				dests.set(from, []);
-			}
-			const destArray = dests.get(from);
-			if (destArray) {
-				destArray.push(move.to as Key);
-			}
-		}
-
-		return dests;
-	}
-
-	/**
-	 * Processes a move made by the user on the interactive board during filter-moves mode.
-	 *
-	 * If the move is legal, it's appended to {@link interactiveMoves} and the
-	 * board is updated via chess.js. The move is added to {@link activeFilterMoves}
-	 * if it belongs to the opening line being filtered.
-	 *
-	 * @param orig — Origin square (e.g. `"e2"`).
-	 * @param dest — Destination square (e.g. `"e4"`).
-	 */
-	private handleBoardMove(orig: string, dest: string) {
-		try {
-			// Try to make the move
-			const move = this.chess.move({ from: orig, to: dest });
-
-			if (move) {
-				// Update the current FEN to reflect the new position
-				const newFen = this.chess.fen();
-				this.currentFen.set(newFen);
-
-				// Track the move in SAN notation for filtering
-				this.interactiveMoves.update((moves) => [...moves, move.san]);
-
-				// If FEN / position filtering is enabled, auto-update the FEN
-				// filter with the new board position so the user doesn't
-				// have to click the 📷 Board button after each move.
-				if (this.filterByFenEnabled()) {
-					this.filterFen.set(newFen);
-				}
-			}
-		} catch (e) {
-			console.error('Invalid move:', e);
-			// Reset to current position if move was invalid
-			this.currentFen.set(this.chess.fen());
-		}
-	}
-
-	/**
-	 * Initializes the PGN viewer engine workers and sets up reactive effects.
-	 *
-	 * Three effects are registered:
-	 * 1. Auto-updates the Lichess URL when year/month selection changes.
-	 * 2. Loads the initial PGN from the bound input when provided.
-	 * 3. Auto-scrolls the move list when the current move index changes.
-	 */
 	constructor() {
 		this.pgnViewerEngine.initialize({
 			onPgnMessage: (data) => this.handleWorkerMessage(data),
@@ -1421,496 +352,248 @@ toggle3d() {
 			onError: (message, error) => console.error(message, error),
 		});
 
-		// Initialize Lichess database date picker with previous month
 		const now = new Date();
 		const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-		const year = prevMonth.getFullYear();
-		const month = prevMonth.getMonth() + 1; // getMonth() is 0-indexed, we want 1-indexed
+		this.lichessYear.set(prevMonth.getFullYear());
+		this.lichessMonth.set(prevMonth.getMonth() + 1);
 
-		// Set initial values using update
-		this.lichessYear.update(() => year);
-		this.lichessMonth.update(() => month);
-
-		// Effect to update URL when date selection changes
 		effect(() => {
 			const year = this.lichessYear();
 			const month = this.lichessMonth();
 			if (year && month) {
-				const monthStr = month.toString().padStart(2, '0');
-				// Use relative path so it respects the base href
+				const m = month.toString().padStart(2, '0');
 				this.urlInput.set(
-					`lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`,
+					`lichess/broadcast/lichess_db_broadcast_${year}-${m}.pgn.zst`,
 				);
 			}
 		});
 
-		// Effect to load initial PGN if provided
 		effect(() => {
 			const pgn = this.pgn();
-			if (pgn) {
-				this.loadPgnString(pgn);
-				// Loading is now async via worker, so we don't loadGame(0) here immediately
-				// It will be handled in handleWorkerMessage
-			}
+			if (pgn) this.loadPgnString(pgn);
 		});
 
-		// Effect to auto-scroll move list when currentMoveIndex changes
 		effect(() => {
-			this.currentMoveIndex(); // Depend on currentMoveIndex
-			this.setDeferredTimeout(() => {
-				this.scrollToActiveMove();
-			});
+			this.currentMoveIndex();
+			this.setDeferredTimeout(() => this.scrollToActiveMove());
 		});
 	}
 
-	/**
-	 * Cleans up replay timeouts, workers, and all pending deferred timeouts.
-	 *
-	 * Called automatically by Angular when the component is destroyed.
-	 */
 	ngOnDestroy(): void {
 		this.stopReplay();
 		this.pgnViewerEngine.dispose();
-
-		for (const timeoutId of this.pendingTimeouts) {
-			clearTimeout(timeoutId);
-		}
+		for (const t of this.pendingTimeouts) clearTimeout(t);
 		this.pendingTimeouts.clear();
 	}
 
-	/**
-	 * Updates the Stockfish search depth from an input event.
-	 *
-	 * @param event — Input event from the depth slider/number input.
-	 */
-	onStockfishDepthChange(event: Event) {
-		const value = Number((event.target as HTMLInputElement).value);
-		this.stockfishDepth.set(Number.isFinite(value) ? value : 1);
+	// ======================================================================
+	// Public methods used by template
+	// ======================================================================
+
+	flipBoard(): void {
+		this.flipped.update((v) => !v);
+	}
+	toggle3d(): void {
+		this.in3d.update((v) => !v);
+	}
+	startResize(side: 'left' | 'right', event: MouseEvent): void {
+		event.preventDefault();
+		this.resizing = side;
+		document.body.style.cursor = 'col-resize';
+		document.body.style.userSelect = 'none';
+	}
+	onResizeMove(event: MouseEvent): void {
+		if (!this.resizing) return;
+		const container = this.mainContentRef()?.nativeElement;
+		if (!container) return;
+		const rect = container.getBoundingClientRect();
+		const minW = 200;
+		const maxW = Math.floor(rect.width * 0.45);
+		if (this.resizing === 'left') {
+			const w = Math.min(
+				maxW,
+				Math.max(minW, Math.round(event.clientX - rect.left)),
+			);
+			this.leftPanelWidth.set(w);
+		} else {
+			const w = Math.min(
+				maxW,
+				Math.max(minW, Math.round(rect.right - event.clientX)),
+			);
+			this.rightPanelWidth.set(w);
+		}
+	}
+	stopResize(): void {
+		this.resizing = null;
+		document.body.style.cursor = '';
+		document.body.style.userSelect = '';
 	}
 
-	/**
-	 * Creates a tracked `setTimeout` that is automatically cancelled on destroy.
-	 *
-	 * All timeout handles are stored in {@link pendingTimeouts} and cleared
-	 * in {@link ngOnDestroy} to prevent memory leaks.
-	 *
-	 * @param callback — Function to execute after the delay.
-	 * @param delay — Delay in milliseconds (default 0).
-	 * @returns The timeout handle.
-	 */
-	private setDeferredTimeout(
-		callback: () => void,
-		delay = 0,
-	): ReturnType<typeof setTimeout> {
-		const timeoutId = setTimeout(() => {
-			this.pendingTimeouts.delete(timeoutId);
-			callback();
-		}, delay);
-
-		this.pendingTimeouts.add(timeoutId);
-		return timeoutId;
+	// ---- Game navigation ----
+	loadGame(index: number): void {
+		const count = this.gamesMetadata().length;
+		if (index >= 0 && index < count) {
+			this.currentGameIndex.set(index);
+			this.moves.set([]);
+			this.evaluations.set([]);
+			this.moveClocks.set([]);
+			this.pgnInput.set('Loading...');
+			this.isLoading.set(true);
+			this.currentLoadGameId++;
+			this.pgnViewerEngine.loadGame(index, this.currentLoadGameId);
+		}
 	}
-
-	/**
-	 * Shows a Material snackbar notification to the user.
-	 *
-	 * @param message — Text to display in the snackbar.
-	 * @param duration — Auto-dismiss duration in milliseconds (default 4000).
-	 */
-	private showMessage(message: string, duration = 4000): void {
-		this.snackBar.open(message, 'Dismiss', {
-			duration,
-			horizontalPosition: 'end',
-			verticalPosition: 'top',
-		});
+	nextGame(): void {
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		if (pos >= 0 && pos < nav.length - 1) this.loadGame(nav[pos + 1]);
 	}
+	prevGame(): void {
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		if (pos > 0) this.loadGame(nav[pos - 1]);
+	}
+	private navigationIndices = computed(() => {
+		const indices = this.filteredGamesIndices();
+		const selected = this.selectedGames();
+		return selected.size > 0 ? indices.filter((i) => selected.has(i)) : indices;
+	});
+	canGoPrev = computed(() => {
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		return pos > 0;
+	});
+	canGoNext = computed(() => {
+		const nav = this.navigationIndices();
+		const pos = nav.indexOf(this.currentGameIndex());
+		return pos >= 0 && pos < nav.length - 1;
+	});
 
-	/**
-	 * Routes PGN processor worker responses to the appropriate handler logic.
-	 *
-	 * Handles `'load'` (populate metadata, unique players, ECO codes),
-	 * `'filter'` (update filtered indices, auto-select game),
-	 * `'loadGame'` (display moves, evaluations, clocks), and `'error'` messages.
-	 *
-	 * @param data — Response from the PGN processor worker.
-	 */
-	/**
-	 * Routes PGN processor worker responses to the appropriate handler logic.
-	 *
-	 * **Stale-response guards per message type:**
-	 * - `'filter'` — guarded: only processes the response when
-	 *   `id === this.currentFilterId` (the latest filter request).
-	 * - `'loadGame'` — guarded: only processes the response when
-	 *   `id === this.currentLoadGameId` (the latest game-load request).
-	 * - `'load'` — not guarded. Load is an event-driven global operation;
-	 *   sequential loads are rare and the final one always wins.
-	 * - `'progress'` — not guarded; progress updates are transient.
-	 * - `'error'` — not guarded; errors are always relevant.
-	 *
-	 * @param data — Response from the PGN processor worker.
-	 */
-	private handleWorkerMessage(data: WorkerResponse) {
-		const { type, payload, id } = data;
-		if (type === 'load') {
-			this.gamesMetadata.set(payload.metadata);
-			this.isLoading.set(false);
-
-			// Populate unique players with ELO sorting
-			const whitePlayerElos = new Map<string, number>();
-			const blackPlayerElos = new Map<string, number>();
-			const ecoCodes = new Map<string, number>();
-
-			for (const meta of payload.metadata) {
-				if (
-					meta.white &&
-					meta.white !== 'Unknown' &&
-					!meta.white.startsWith('BOT ')
-				) {
-					const currentMax = whitePlayerElos.get(meta.white) || 0;
-					whitePlayerElos.set(
-						meta.white,
-						Math.max(currentMax, meta.whiteElo || 0),
-					);
-				}
-				if (
-					meta.black &&
-					meta.black !== 'Unknown' &&
-					!meta.black.startsWith('BOT ')
-				) {
-					const currentMax = blackPlayerElos.get(meta.black) || 0;
-					blackPlayerElos.set(
-						meta.black,
-						Math.max(currentMax, meta.blackElo || 0),
-					);
-				}
-				// Exclude ECO codes with '?' as they are likely non-standard games
-				if (meta.eco && !meta.eco.includes('?')) {
-					ecoCodes.set(meta.eco, (ecoCodes.get(meta.eco) || 0) + 1);
-				}
+	// ---- Move navigation ----
+	jumpToMove(index: number): void {
+		const moves = this.moves();
+		if (index >= -1 && index < moves.length) {
+			this.chess.reset();
+			for (let i = 0; i <= index; i++) this.chess.move(moves[i]);
+			this.currentMoveIndex.set(index);
+			this.currentFen.set(this.chess.fen());
+			const clockIndex = index + 1;
+			if (clockIndex >= 0 && clockIndex < this.clockHistory.length) {
+				const c = this.clockHistory[clockIndex];
+				this.whiteTimeRemaining.set(this.formatTime(c.white));
+				this.blackTimeRemaining.set(this.formatTime(c.black));
 			}
-
-			// Count Time Controls (normalized with originals mapping)
-			const timeControls = new Map<
-				string,
-				{ count: number; originals: Map<string, number> }
-			>();
-			const events = new Map<string, number>();
-			for (const meta of payload.metadata) {
-				const normalized = meta.timeControlNormalized;
-				const original = meta.timeControl?.trim();
-				if (normalized) {
-					const existing = timeControls.get(normalized) || {
-						count: 0,
-						originals: new Map<string, number>(),
-					};
-					existing.count += 1;
-					if (original) {
-						existing.originals.set(
-							original,
-							(existing.originals.get(original) || 0) + 1,
-						);
-					}
-					timeControls.set(normalized, existing);
-				}
-				if (meta.event && !meta.event.includes('?')) {
-					events.set(meta.event, (events.get(meta.event) || 0) + 1);
-				}
+		}
+	}
+	next(): void {
+		const moves = this.moves();
+		const idx = this.currentMoveIndex();
+		if (idx < moves.length - 1) {
+			const next = moves[idx + 1];
+			this.chess.move(next);
+			this.currentMoveIndex.set(idx + 1);
+			this.currentFen.set(this.chess.fen());
+			const ci = idx + 2;
+			if (ci < this.clockHistory.length) {
+				const c = this.clockHistory[ci];
+				this.whiteTimeRemaining.set(this.formatTime(c.white));
+				this.blackTimeRemaining.set(this.formatTime(c.black));
 			}
-
-			// Sort players by ELO descending
-			const sortedWhitePlayers = Array.from(whitePlayerElos.entries())
-				.sort((a, b) => b[1] - a[1])
-				.map(([name]) => name);
-
-			const sortedBlackPlayers = Array.from(blackPlayerElos.entries())
-				.sort((a, b) => b[1] - a[1])
-				.map(([name]) => name);
-
-			this.uniqueWhitePlayers.set(sortedWhitePlayers);
-			this.uniqueBlackPlayers.set(sortedBlackPlayers);
-			this.uniqueEcoCodes.set(ecoCodes);
-			this.uniqueTimeControls.set(timeControls);
-			this.uniqueEvents.set(events);
-
-			// Auto-select first game if available
-			if (payload.count > 0) {
-				this.loadGame(0);
+		}
+	}
+	prev(): void {
+		if (this.currentMoveIndex() >= 0) {
+			this.chess.undo();
+			this.currentMoveIndex.update((i) => i - 1);
+			this.currentFen.set(this.chess.fen());
+			const ci = this.currentMoveIndex() + 1;
+			if (ci >= 0 && ci < this.clockHistory.length) {
+				const c = this.clockHistory[ci];
+				this.whiteTimeRemaining.set(this.formatTime(c.white));
+				this.blackTimeRemaining.set(this.formatTime(c.black));
 			}
-
-			// Clear filters
-			this.clearFilters();
-		} else if (type === 'progress') {
-			this.loadingProgress.set(payload.percent);
-			this.loadingStatus.set(payload.status);
-		} else if (type === 'filter') {
-			if (id === this.currentFilterId) {
-				this.filteredGamesIndices.set(payload);
-				this.isFiltering.set(false);
-				if (this.autoSelectOnFinish) {
-					this.selectAllGames();
-					this.autoSelectOnFinish = false;
-				}
-
-				// Load first game from filtered results
-				if (payload.length > 0) {
-					this.loadGame(payload[0]);
-				}
-
-				// Uncheck filterMoves after filtering completes if flag is set
-				if (this.shouldUncheckFilterMoves) {
-					this.filterMoves.set(false);
-					this.shouldUncheckFilterMoves = false;
-				}
-			}
-		} else if (type === 'loadGame') {
-			// Reject stale responses — only process the latest requested game
-			if (id !== this.currentLoadGameId) {
-				return;
-			}
-			const { moves, pgn, evaluations, error } = payload;
-
-			if (error) {
-				console.error('Worker failed to parse game:', error);
-				this.pgnInput.set(
-					`Error parsing game: ${error} \n\nRaw PGN: \n${pgn} `,
-				);
-				this.moves.set([]);
-				this.evaluations.set([]);
-				this.moveClocks.set([]);
-			} else {
-				this.moves.set(moves);
-
-				// Use worker's evaluations, or fall back to direct PGN extraction
-				let evals = evaluations || [];
-				const hasEval = evals.some((e) => e !== null);
-				if (!hasEval && moves.length > 0 && pgn) {
-					evals = this.extractEvalsFromPgn(pgn, moves);
-				}
-				this.evaluations.set(evals);
-				this.chess.reset();
-				this.currentMoveIndex.set(-1);
-				this.currentFen.set(this.chess.fen());
-				this.stopReplay();
-				this.pgnInput.set(pgn);
-
-				// Extract clock data from PGN [%clk ...] comments for display
-				this.extractClockHistory(pgn);
-				// Reset clock display to initial position
-				if (this.clockHistory.length > 0) {
-					const startClocks = this.clockHistory[0];
-					if (startClocks) {
-						this.whiteTimeRemaining.set(
-							this.formatTime(startClocks.white),
-						);
-						this.blackTimeRemaining.set(
-							this.formatTime(startClocks.black),
-						);
-					}
-				} else {
-					this.whiteTimeRemaining.set('');
-					this.blackTimeRemaining.set('');
-				}
-
-				// If filtering by moves is active, jump to the filtered position
-				if (this.filterMoves() && this.activeFilterMoves.length > 0) {
-					if (moves.length >= this.activeFilterMoves.length) {
-						this.jumpToMove(this.activeFilterMoves.length - 1);
-					}
-				}
-
-				// If FEN / position filtering is active, jump to the move that
-				// reaches the target FEN position, so the board shows the
-				// filtered position instead of the start position.
-				if (
-					this.filterByFenEnabled() &&
-					this.filterFen() &&
-					moves.length > 0
-				) {
-					const fenIndex = this.findMoveIndexForFen(
-						moves,
-						this.filterFen(),
-					);
-					if (fenIndex >= 0) {
-						this.jumpToMove(fenIndex);
-					}
-				}
-			}
-
-			this.isLoading.set(false);
-		} else if (type === 'error') {
-			console.error('Worker error:', payload);
-			this.isLoading.set(false);
+		}
+	}
+	start(): void {
+		this.chess.reset();
+		this.currentMoveIndex.set(-1);
+		this.currentFen.set(this.chess.fen());
+		if (this.clockHistory.length > 0) {
+			const c = this.clockHistory[0];
+			this.whiteTimeRemaining.set(this.formatTime(c.white));
+			this.blackTimeRemaining.set(this.formatTime(c.black));
+		}
+	}
+	end(): void {
+		this.chess.reset();
+		for (const m of this.moves()) this.chess.move(m);
+		this.currentMoveIndex.set(this.moves().length - 1);
+		this.currentFen.set(this.chess.fen());
+		if (this.clockHistory.length > 0) {
+			const c = this.clockHistory[this.clockHistory.length - 1];
+			this.whiteTimeRemaining.set(this.formatTime(c.white));
+			this.blackTimeRemaining.set(this.formatTime(c.black));
 		}
 	}
 
-	/**
-	 * Formats a normalized time control key for display.
-	 *
-	 * Converts `"seconds+increment"` (e.g. `"5400+30"`) to a human-readable
-	 * form using minutes when divisible by 60 and ≤ 180 (e.g. `"90+30"`).
-	 *
-	 * @param key — Normalized time control string like `"5400+30"`.
-	 * @returns Display-friendly time control string.
-	 */
-	private formatTimeControlKey(key: string): string {
-		const match = key.match(/^(\d+)\+(\d+)$/);
-		if (!match) return key;
-		const baseSeconds = parseInt(match[1], 10);
-		const incrementSeconds = parseInt(match[2], 10);
-		if (Number.isNaN(baseSeconds) || Number.isNaN(incrementSeconds)) {
-			return key;
-		}
-		if (baseSeconds % 60 === 0) {
-			const baseMinutes = baseSeconds / 60;
-			if (baseMinutes <= 180) {
-				return `${baseMinutes}+${incrementSeconds}`;
-			}
-		}
-		return `${baseSeconds}+${incrementSeconds}`;
-	}
-
-	/**
-	 * Builds a summary string of the most common original time control formats.
-	 *
-	 * @param originals — Map of original format strings to occurrence counts.
-	 * @param maxItems — Maximum number of entries to include (default 6).
-	 * @returns Summary string like `"Originals: 90+30 (500), 180+2 (300) +3 more"`.
-	 */
-	private formatOriginalsSummary(
-		originals: Map<string, number>,
-		maxItems = 6,
-	): string {
-		const entries = Array.from(originals.entries()).sort((a, b) => b[1] - a[1]);
-		const head = entries
-			.slice(0, maxItems)
-			.map(([value, count]) => `${value} (${count})`)
-			.join(', ');
-		const rest =
-			entries.length > maxItems ? ` +${entries.length - maxItems} more` : '';
-		return head ? `Originals: ${head}${rest}` : '';
-	}
-
-	/**
-	 * Applies the current filter criteria and re-runs game filtering.
-	 *
-	 * **Filtering contract**:
-	 * 1. All filter signal values are read synchronously at call time, forming an
-	 *    atomic snapshot. Any signal changes made after this call won't affect
-	 *    the current filter operation.
-	 * 2. A monotonic {@link currentFilterId} is incremented and sent to the worker.
-	 * 3. When the worker responds (via {@link handleWorkerMessage `'filter'`}), only
-	 *    the response whose `id` matches the latest {@link currentFilterId} is
-	 *    accepted; stale responses from prior filter requests are silently discarded.
-	 * 4. On completion, all games matching the criteria are selected
-	 *    (see {@link autoSelectOnFinish}).
-	 *
-	 * Stops any in-progress replay before sending the filter request.
-	 *
-	 * @see runFilterLogic
-	 * @see handleWorkerMessage
-	 */
-	applyFilter() {
-		// Stop any ongoing replay when filter is applied
+	// ---- Filter actions ----
+	applyFilter(): void {
 		this.stopReplay();
 		this.isReplayingSequence = false;
 		this.showAllGames.set(false);
+		this.showBetterMoveBtn.set(false);
+		this.analysisVisible.set(false);
 
-		// Collapse all panels except Replay
-		this.leftPanelSections.set({
-			players: false,
-			gameDetails: false,
-			rating: false,
-			position: false,
-		});
-
-		this.rightPanelSections.set({
-			moves: false,
-			replay: true,
-			loadCache: false,
-		});
-
-		// const games = this.games(); // REMOVED
-		const fWhite = this.filterWhite();
-		const fBlack = this.filterBlack();
-		const fResult = this.filterResult().join(',');
 		const fMoves = this.filterMoves();
-		const fIgnoreColor = this.ignoreColor();
-		const fRatingEnabled = this.filterRatingEnabled();
-		const fWhiteRating = fRatingEnabled
-			? parseInt(this.filterWhiteRating(), 10) || 0
-			: 0;
-		const fBlackRating = fRatingEnabled
-			? parseInt(this.filterBlackRating(), 10) || 0
-			: 0;
-		const fWhiteRatingMax = fRatingEnabled
-			? parseInt(this.filterWhiteRatingMax(), 10) || 0
-			: 0;
-		const fBlackRatingMax = fRatingEnabled
-			? parseInt(this.filterBlackRatingMax(), 10) || 0
-			: 0;
-		const fEco = this.filterEco();
-		const fTimeControl = this.filterTimeControl();
-		const fEvent = this.filterEvent();
-		const fFilterByFen = this.filterByFenEnabled();
-		const fFen = this.filterFen();
-		const fSortAscending = this.sortAscending();
-
-		// Use interactive moves if filtering by moves, otherwise use current game moves
 		const currentMoves = fMoves
 			? this.interactiveMoves()
 			: this.moves().slice(0, this.currentMoveIndex() + 1);
 		this.activeFilterMoves = currentMoves;
-
 		this.autoSelectOnFinish = true;
-		this.runFilterLogic(
-			fWhite,
-			fBlack,
-			fResult,
-			fMoves,
-			fIgnoreColor,
-			fWhiteRating,
-			fBlackRating,
-			fWhiteRatingMax,
-			fBlackRatingMax,
-			fEco,
-			fTimeControl,
-			fEvent,
-			currentMoves,
-			fFilterByFen,
-			fFen,
-			fSortAscending,
-		);
 
-		// Set flag to uncheck "Filter by Starting Moves" after filtering completes
-		if (fMoves) {
-			this.shouldUncheckFilterMoves = true;
-		}
+		this.currentFilterId++;
+		const id = this.currentFilterId;
+		this.isFiltering.set(true);
+
+		const fc: FilterCriteria = {
+			white: this.filterWhite(),
+			black: this.filterBlack(),
+			result: this.filterResult().join(','),
+			moves: fMoves,
+			ignoreColor: this.ignoreColor(),
+			minWhiteRating: this.filterRatingEnabled()
+				? parseInt(this.filterWhiteRating(), 10) || 0
+				: 0,
+			minBlackRating: this.filterRatingEnabled()
+				? parseInt(this.filterBlackRating(), 10) || 0
+				: 0,
+			maxWhiteRating: this.filterRatingEnabled()
+				? parseInt(this.filterWhiteRatingMax(), 10) || 0
+				: 0,
+			maxBlackRating: this.filterRatingEnabled()
+				? parseInt(this.filterBlackRatingMax(), 10) || 0
+				: 0,
+			eco: this.filterEco(),
+			timeControl: this.filterTimeControl(),
+			event: this.filterEvent(),
+			targetMoves: currentMoves,
+			filterByFen: this.filterByFenEnabled(),
+			targetFen: this.filterFen(),
+			sortAscending: this.sortAscending(),
+		};
+		this.pgnViewerEngine.filterGames(fc, id);
+
+		if (fMoves) this.shouldUncheckFilterMoves = true;
 	}
 
-	/**
-	 * Resets all filter fields to their default values and stops any in-progress replay.
-	 *
-	 * **Implicit apply**: After resetting the signals, this method calls
-	 * {@link applyFilter}, which sends an empty-filter (match-all) request to the
-	 * worker. The same stale-response guard described in {@link applyFilter}'s
-	 * contract applies here — only the most recent `clearFilters` + `applyFilter`
-	 * sequence will take effect.
-	 *
-	 * If the filter-moves mode was active, it's exited and the saved position is restored.
-	 *
-	 * @see applyFilter
-	 * @see runFilterLogic
-	 */
-	clearFilters() {
-		// Stop any ongoing replay
+	clearFilters(): void {
 		this.stopReplay();
 		this.isReplayingSequence = false;
 		this.showBetterMoveBtn.set(false);
 		this.analysisVisible.set(false);
 		this.showAllGames.set(false);
-		const hadFilterMoves = this.filterMoves();
 
-		// Clear all filter fields
+		const hadFilterMoves = this.filterMoves();
 		this.filterWhite.set('');
 		this.filterBlack.set('');
 		this.filterResult.set([]);
@@ -1932,161 +615,113 @@ toggle3d() {
 			this.jumpToMove(this.savedGameMoveIndex);
 			this.savedGameMoveIndex = null;
 		}
-
-		// Apply filter to reset view
 		this.applyFilter();
 	}
 
-	// ---- Cache Management -------
-
-	/** Current cache info (entry count, estimated size). Visible when expanded. */
-	cacheInfo = signal<{ count: number; estimatedBytes: number } | null>(null);
-
-	/**
-	 * Clears all cached PGN data from IndexedDB. The worker is notified so its
-	 * in-memory cached state is also discarded on the next load.
-	 */
-	clearPgnCache() {
-		// Notify the worker to clear its IndexedDB cache
-		this.pgnViewerEngine.clearCache(Date.now());
-		// Clear any local hash reference so the next load does a full re-parse
-		this.lastPgnHash = null;
-		// Reset cache info display
-		this.cacheInfo.set(null);
-		this.showMessage('PGN cache cleared.');
+	toggleSortDirection(): void {
+		this.sortAscending.update((v) => !v);
+	}
+	toggleGameSelection(index: number): void {
+		const s = new Set(this.selectedGames());
+		s.has(index) ? s.delete(index) : s.add(index);
+		this.selectedGames.set(s);
 	}
 
-	/**
-	 * Refreshes the displayed cache info (entry count and estimated size).
-	 */
-	async refreshCacheInfo() {
-		const info = await this.pgnCacheService.getCacheInfo();
-		this.cacheInfo.set(info);
+	// ---- Replay ----
+	replayGame(): void {
+		this.stopReplay();
+		this.start();
+		this.runReplayLogic();
+	}
+	continueReplay(): void {
+		this.stopReplay(false);
+		this.runReplayLogic();
+	}
+	stopSequence(): void {
+		this.isReplayingSequence = false;
+		this.stopReplay();
+	}
+	stopReplay(resolvePromise = true): void {
+		this.isReplaying.set(false);
+		this.replayTimeouts.forEach((t) => {
+			clearTimeout(t);
+			this.pendingTimeouts.delete(t);
+		});
+		this.replayTimeouts = [];
+		if (resolvePromise && this.replayResolve) {
+			this.replayResolve();
+			this.replayResolve = null;
+		}
+	}
+	async replayAllSelectedGames(): Promise<void> {
+		this.stopReplay();
+		this.isReplayingSequence = true;
+		const selectedSet = this.selectedGames();
+		const selected = this.filteredGamesIndices().filter((i) =>
+			selectedSet.has(i),
+		);
+		if (selected.length === 0) {
+			this.showMessage('No games selected. Please select games to replay.');
+			return;
+		}
+		for (let i = 0; i < selected.length; i++) {
+			if (!this.isReplayingSequence) break;
+			this.loadGame(selected[i]);
+			await new Promise((r) => setTimeout(r, 100));
+			await this.replayGameAsync();
+			if (i < selected.length - 1)
+				await new Promise((r) => setTimeout(r, 2000));
+		}
 	}
 
-	/**
-	 * Sends filter criteria to the PGN processor worker and tracks the request.
-	 *
-	 * Increments a monotonic filter ID to detect stale responses.
-	 * Called by {@link applyFilter} after collecting current signal values.
-	 *
-	 * @param fWhite — White player filter text.
-	 * @param fBlack — Black player filter text.
-	 * @param fResult — Comma-separated result filter string.
-	 * @param fMoves — Whether opening-move filtering is enabled.
-	 * @param fIgnoreColor — Whether to swap white/black matching.
-	 * @param fWhiteRating — Minimum white Elo.
-	 * @param fBlackRating — Minimum black Elo.
-	 * @param fWhiteRatingMax — Maximum white Elo.
-	 * @param fBlackRatingMax — Maximum black Elo.
-	 * @param fEco — ECO code filter.
-	 * @param fTimeControl — Time control filter.
-	 * @param fEvent — Event name filter.
-	 * @param targetMoves — SAN move sequence to match.
-	 * @param fFilterByFen — Whether position/FEN filtering is enabled.
-	 * @param fFen — Target FEN string for position-based filtering.
-	 */
-	/**
-	 * Builds and sends a filter criteria object to the worker, guarded by a
-	 * monotonic correlation ID for stale-response rejection.
-	 *
-	 * **Contract**:
-	 * - Before sending, {@link currentFilterId} is incremented and captured
-	 *   locally as `myFilterId`. The worker echoes this ID back in its response.
-	 * - The response handler ({@link handleWorkerMessage} `'filter'`) compares
-	 *   the echoed ID against {@link currentFilterId}. If they differ, the
-	 *   response is stale and discarded.
-	 * - All filter signal values should be read synchronously *before* calling
-	 *   this method (done by {@link applyFilter}) so the snapshot is atomic.
-	 *
-	 * @see applyFilter
-	 * @see handleWorkerMessage
-	 */
-	private runFilterLogic(
-		fWhite: string,
-		fBlack: string,
-		fResult: string,
-		fMoves: boolean,
-		fIgnoreColor: boolean,
-		fWhiteRating: number,
-		fBlackRating: number,
-		fWhiteRatingMax: number,
-		fBlackRatingMax: number,
-		fEco: string,
-		fTimeControl: string,
-		fEvent: string,
-		targetMoves: string[],
-		fFilterByFen: boolean,
-		fFen: string,
-		fSortAscending: boolean,
-	) {
-		this.currentFilterId++;
-		const myFilterId = this.currentFilterId;
-		this.isFiltering.set(true);
-
-		const filterCriteria: FilterCriteria = {
-			white: fWhite,
-			black: fBlack,
-			result: fResult,
-			moves: fMoves,
-			ignoreColor: fIgnoreColor,
-			minWhiteRating: fWhiteRating,
-			minBlackRating: fBlackRating,
-			maxWhiteRating: fWhiteRatingMax,
-			maxBlackRating: fBlackRatingMax,
-			eco: fEco,
-			timeControl: fTimeControl,
-			event: fEvent,
-			targetMoves: targetMoves,
-			filterByFen: fFilterByFen,
-			targetFen: fFen,
-			sortAscending: fSortAscending,
-		};
-
-		this.pgnViewerEngine.filterGames(filterCriteria, myFilterId);
+	// ---- Stockfish analysis ----
+	analyzePosition(fen: string): void {
+		if (!this.pgnViewerEngine.analyzePosition(fen, this.stockfishDepth()))
+			return;
+		this.isAnalyzing.set(true);
+		this.bestMoveInfo.set(null);
+	}
+	autoplayBestLine(): void {
+		const info = this.bestMoveInfo();
+		if (!info?.pv?.length) return;
+		(async () => {
+			for (const move of info.pv) {
+				this.currentFen.set(move.fen);
+				await new Promise((r) => setTimeout(r, 1000));
+			}
+		})();
+	}
+	previewPvMove(fen: string): void {
+		this.currentFen.set(fen);
+	}
+	toggleAnalysis(): void {
+		const wasVisible = this.analysisVisible();
+		this.analysisVisible.update((v) => !v);
+		// Start Stockfish analysis when the analysis panel is being opened
+		if (!wasVisible && this.analyzedFen) {
+			this.analyzePosition(this.analyzedFen);
+		}
 	}
 
-	// --- PGN Loading Logic ---
-
-	/**
-	 * Loads a raw PGN string into the viewer, resetting current game state.
-	 *
-	 * Computes a SHA-256 hash of the PGN content and passes it to the worker
-	 * for IndexedDB cache lookups. If the same PGN was loaded before, the
-	 * worker skips re-parsing and restores its state from the cache.
-	 *
-	 * Delegates to {@link PgnViewerEngineService.loadPgn} for background parsing.
-	 * The worker response (via {@link handleWorkerMessage}) populates metadata
-	 * and triggers the first game load.
-	 *
-	 * @param pgn — Raw PGN text (supports multi-game, compressed formats).
-	 */
-	async loadPgnString(pgn: string) {
-		// Reset state to ensure UI updates
+	// ---- Load & Cache ----
+	async loadPgnString(pgn: string): Promise<void> {
 		this.moves.set([]);
 		this.interactiveMoves.set([]);
 		this.currentMoveIndex.set(-1);
-		this.currentGameIndex.set(-1); // Force change detection when setting to 0 later
+		this.currentGameIndex.set(-1);
 		this.showAllGames.set(false);
 		this.currentFen.set(
 			'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 		);
-
-		// Show loading indicator immediately — worker progress updates will fill the bar
 		this.isLoading.set(true);
 		this.loadingProgress.set(0);
 		this.loadingStatus.set('Starting PGN parser...');
-
-		// Compute a hash of the PGN so the worker can attempt an IndexedDB cache restore
-		// and persist the parsed data for future loads.
 		this.lastPgnHash = null;
 		try {
 			this.lastPgnHash = await this.pgnCacheService.hashPgn(pgn);
 		} catch {
-			// Hash computation failed (e.g. SubtleCrypto unavailable) — load without cache
-			this.lastPgnHash = null;
+			/* ignore */
 		}
-
 		this.pgnViewerEngine.loadPgn(
 			pgn,
 			Date.now(),
@@ -2095,300 +730,81 @@ toggle3d() {
 			this.maxFenPlies(),
 		);
 	}
-
-	/**
-	 * Reads PGN text from the system clipboard and loads it into the viewer.
-	 *
-	 * Uses the Clipboard API. On failure, shows an error snackbar.
-	 */
-	async loadFromClipboard() {
+	async loadFromClipboard(): Promise<void> {
 		try {
 			const text = await navigator.clipboard.readText();
 			if (text) {
 				this.pgnInput.set(text);
 				this.loadPgnString(text);
-				this.loadGame(0);
 			}
-		} catch (err) {
-			console.error('Failed to read clipboard contents: ', err);
+		} catch {
 			this.showMessage('Failed to read clipboard.', 5000);
 		}
 	}
-
-	/**
-	 * Copies the current PGN text to the system clipboard.
-	 *
-	 * Uses the Clipboard API. On failure, shows an error snackbar.
-	 */
-	async copyToClipboard() {
+	async copyToClipboard(): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(this.pgnInput());
-			// Optional: You could add a temporary "Copied!" state here if desired
-		} catch (err) {
-			console.error('Failed to copy to clipboard: ', err);
+		} catch {
 			this.showMessage('Failed to copy to clipboard.', 5000);
 		}
 	}
-
-	/**
-	 * Updates the proportional replay duration from an input event.
-	 *
-	 * @param event — Change event from the proportional duration input.
-	 */
-	onProportionalDurationChange(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.proportionalDuration.set(parseFloat(value) || 1);
-	}
-
-	/**
-	 * Updates the minimum-seconds-between-moves setting from an input event.
-	 *
-	 * @param event — Change event from the minimum seconds input.
-	 */
-	onMinSecondsBetweenMovesChange(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.minSecondsBetweenMoves.set(parseFloat(value) || 0.1);
-	}
-
-	/**
-	 * Updates the fixed-time replay setting from an input event.
-	 *
-	 * @param event — Change event from the fixed time input.
-	 */
-	onFixedTimeChange(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.fixedTime.set(parseFloat(value) || 1);
-	}
-
-	/**
-	 * Updates the PGN input text from a textarea change event.
-	 *
-	 * @param event — Change event from the PGN textarea input.
-	 */
-	onPgnInputChange(event: Event) {
-		const value = (event.target as HTMLTextAreaElement).value;
-		this.pgnInput.set(value);
-	}
-
-	/**
-	 * Updates the index-start-positions setting from a checkbox event.
-	 *
-	 * @param event — Change event from the checkbox input.
-	 */
-	onIndexStartPositionsChange(event: Event) {
-		this.indexStartPositions.set((event.target as HTMLInputElement).checked);
-	}
-
-	/**
-	 * Updates the max FEN plies setting from a number input event.
-	 *
-	 * @param event — Change event from the number input.
-	 */
-	onMaxFenPliesChange(event: Event) {
-		const value = parseInt((event.target as HTMLInputElement).value, 10);
-		if (!isNaN(value) && value >= 1) {
-			this.maxFenPlies.set(value);
-		}
-	}
-
-	/**
-	 * Updates the URL input from a text input change event.
-	 *
-	 * @param event — Change event from the URL text input.
-	 */
-	onUrlInputChange(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.urlInput.set(value);
-	}
-
-	/**
-	 * Updates the event filter from a select element change event.
-	 *
-	 * @param event — Change event from the event filter `<select>` element.
-	 */
-	updateFilterEvent(event: Event) {
-		const value = (event.target as HTMLSelectElement).value;
-		this.filterEvent.set(value);
-	}
-
-	/**
-	 * Returns the list of years available in the Lichess database picker.
-	 *
-	 * Years range from 2020 to the current year.
-	 *
-	 * @returns Array of available year numbers.
-	 */
-	getLichessYears(): number[] {
-		const currentYear = new Date().getFullYear();
-		const years: number[] = [];
-		for (let year = 2020; year <= currentYear; year++) {
-			years.push(year);
-		}
-		return years;
-	}
-
-	/**
-	 * Returns the list of months available for the currently selected Lichess year.
-	 *
-	 * For past years, all 12 months are available. For the current year,
-	 * only months up to (current month - 1) are available.
-	 *
-	 * @returns Array of available month numbers (1–12).
-	 */
-	getLichessMonths(): number[] {
-		const selectedYear = this.lichessYear();
-		const now = new Date();
-		const currentYear = now.getFullYear();
-		const currentMonth = now.getMonth(); // 0-indexed
-
-		if (selectedYear < currentYear) {
-			// For past years, all 12 months are available
-			return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-		} else if (selectedYear === currentYear) {
-			// For current year, only up to current month - 1
-			const maxMonth = currentMonth; // currentMonth is already 0-indexed, so this gives us current month - 1 in 1-indexed
-			const months: number[] = [];
-			for (let m = 1; m <= maxMonth; m++) {
-				months.push(m);
-			}
-			return months;
-		} else {
-			return [];
-		}
-	}
-
-	/**
-	 * Updates the Lichess year selection and adjusts the month if needed.
-	 *
-	 * If the currently selected month is not available for the new year,
-	 * it falls back to the last available month.
-	 *
-	 * @param event — Change event from the year `<select>` element.
-	 */
-	onLichessYearChange(event: Event) {
-		const value = (event.target as HTMLSelectElement).value;
-		const year = parseInt(value, 10);
-		this.lichessYear.set(year);
-
-		// Adjust month if current selection is invalid for new year
-		const availableMonths = this.getLichessMonths();
-		if (!availableMonths.includes(this.lichessMonth())) {
-			this.lichessMonth.set(availableMonths[availableMonths.length - 1] || 1);
-		}
-	}
-
-	/**
-	 * Updates the Lichess month selection from a select element change event.
-	 *
-	 * @param event — Change event from the month `<select>` element.
-	 */
-	onLichessMonthChange(event: Event) {
-		const value = (event.target as HTMLSelectElement).value;
-		const month = parseInt(value, 10);
-		this.lichessMonth.set(month);
-	}
-
-	/**
-	 * Loads a PGN file from the Lichess broadcast database.
-	 *
-	 * Constructs the URL from the selected year and month
-	 * (`lichess_db_broadcast_YYYY-MM.pgn.zst`) and delegates to {@link loadFromUrl}.
-	 */
-	loadFromLichess() {
+	async loadFromLichess(): Promise<void> {
 		const year = this.lichessYear();
 		const month = this.lichessMonth();
-
 		if (!year || !month) {
 			this.showMessage('Please select a valid year and month.');
 			return;
 		}
-
-		// Format: lichess_db_broadcast_YYYY-MM.pgn.zst
-		const monthStr = month.toString().padStart(2, '0');
-		// Use relative path so it respects the base href (e.g. /ngx-chessground/ on GitHub Pages)
-		const url = `lichess/broadcast/lichess_db_broadcast_${year}-${monthStr}.pgn.zst`;
-
-		this.urlInput.set(url);
-		this.loadFromUrl();
+		const m = month.toString().padStart(2, '0');
+		this.urlInput.set(
+			`lichess/broadcast/lichess_db_broadcast_${year}-${m}.pgn.zst`,
+		);
+		await this.loadFromUrl();
 	}
-
-	/**
-	 * Fetches a PGN file from the URL in {@link urlInput} and loads it into the viewer.
-	 *
-	 * Supports plain `.pgn`, gzip-compressed `.pgn.gz`, and zstd-compressed `.pgn.zst`.
-	 * Shows a progress bar during download and delegates decompression/parsing.
-	 */
-	async loadFromUrl() {
+	async loadFromUrl(): Promise<void> {
 		const url = this.urlInput();
 		if (!url) return;
-
 		this.isLoading.set(true);
 		this.loadingProgress.set(0);
 		this.loadingStatus.set('Starting download...');
-
 		try {
 			const response = await fetch(url);
-			if (!response.ok) {
+			if (!response.ok)
 				throw new Error(`HTTP error! status: ${response.status} `);
-			}
-
-			const contentLength = response.headers.get('content-length');
-			const total = contentLength ? parseInt(contentLength, 10) : 0;
-
-			if (!response.body) {
-				throw new Error('Response body is null');
-			}
-
+			const total = parseInt(response.headers.get('content-length') || '0', 10);
+			if (!response.body) throw new Error('Response body is null');
 			const reader = response.body.getReader();
 			const chunks: Uint8Array[] = [];
-			let receivedLength = 0;
-
+			let received = 0;
 			while (true) {
 				const { done, value } = await reader.read();
-
 				if (done) break;
-
 				chunks.push(value);
-				receivedLength += value.length;
-
+				received += value.length;
 				if (total > 0) {
-					const progress = Math.round((receivedLength / total) * 100);
-					this.loadingProgress.set(progress);
+					this.loadingProgress.set(Math.round((received / total) * 100));
 					this.loadingStatus.set(
-						`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB / ${(total / 1024 / 1024).toFixed(2)} MB`,
+						`Downloading: ${(received / 1024 / 1024).toFixed(2)} MB / ${(total / 1024 / 1024).toFixed(2)} MB`,
 					);
 				} else {
 					this.loadingStatus.set(
-						`Downloading: ${(receivedLength / 1024 / 1024).toFixed(2)} MB`,
+						`Downloading: ${(received / 1024 / 1024).toFixed(2)} MB`,
 					);
 				}
 			}
-
-			// Combine chunks into single array
-			const buffer = new Uint8Array(receivedLength);
-			let position = 0;
+			const buffer = new Uint8Array(received);
+			let pos = 0;
 			for (const chunk of chunks) {
-				buffer.set(chunk, position);
-				position += chunk.length;
+				buffer.set(chunk, pos);
+				pos += chunk.length;
 			}
-
 			this.loadingStatus.set('Decompressing...');
-			let content: string;
-
-			// Check for ZST magic bytes (0xFD2FB528) or extension
-			const isZst = url.toLowerCase().endsWith('.zst');
-
-			if (isZst) {
-				const decompressed = decompressZst(buffer);
-				content = new TextDecoder().decode(decompressed);
-			} else {
-				content = new TextDecoder().decode(buffer);
-			}
-
+			const content = url.toLowerCase().endsWith('.zst')
+				? new TextDecoder().decode(decompressZst(buffer))
+				: new TextDecoder().decode(buffer);
 			this.loadingStatus.set('Processing games...');
 			this.setDeferredTimeout(() => {
 				this.loadPgnString(content);
-				this.loadGame(0);
 			});
 		} catch (e) {
 			console.error('Error loading from URL:', e);
@@ -2398,70 +814,49 @@ toggle3d() {
 			this.loadingStatus.set('');
 		}
 	}
-
-	/**
-	 * Reads a user-selected ZIP file containing PGN files and loads the first
-	 * `.pgn` entry found.
-	 *
-	 * Uses jszip to extract the archive.
-	 *
-	 * @param event — Change event from the ZIP file `<input>` element.
-	 */
-	async onPgnZipSelected(event: Event) {
+	clearPgnCache(): void {
+		this.pgnViewerEngine.clearCache(Date.now());
+		this.lastPgnHash = null;
+		this.cacheInfo.set(null);
+		this.showMessage('PGN cache cleared.');
+	}
+	async refreshCacheInfo(): Promise<void> {
+		this.cacheInfo.set(await this.pgnCacheService.getCacheInfo());
+	}
+	onPgnZipSelected(event: Event): void {
 		const input = event.target as HTMLInputElement;
-		if (!input.files || input.files.length === 0) return;
-
-		const file = input.files[0];
-		this.isLoading.set(true);
-
-		try {
-			const zip = await loadZipAsync(file);
-			const pgnFile = Object.values(zip.files).find((f) =>
-				f.name.endsWith('.pgn'),
-			);
-
-			if (pgnFile) {
-				const content = await pgnFile.async('string');
-				this.setDeferredTimeout(() => {
-					this.loadPgnString(content);
-					this.loadGame(0);
-				});
-			} else {
-				this.showMessage('No PGN file found in the zip archive.');
+		const file = input.files?.[0];
+		if (!file) return;
+		(async () => {
+			try {
+				const zip = await loadZipAsync(file);
+				const pgnFile = Object.values(zip.files).find((f) =>
+					f.name.endsWith('.pgn'),
+				);
+				if (pgnFile) {
+					const content = await pgnFile.async('string');
+					this.setDeferredTimeout(() => this.loadPgnString(content));
+				} else {
+					this.showMessage('No PGN file found in the zip archive.');
+					this.isLoading.set(false);
+				}
+			} catch (e) {
+				console.error('Error loading zip file:', e);
+				this.showMessage('Error loading zip file.', 5000);
 				this.isLoading.set(false);
 			}
-		} catch (e) {
-			console.error('Error loading zip file:', e);
-			this.showMessage('Error loading zip file.', 5000);
-			this.isLoading.set(false);
-		}
+		})();
 	}
-
-	/**
-	 * Reads a user-selected PGN file from a file input and loads it into the viewer.
-	 *
-	 * Handles `.pgn` and `.pgn.gz` files via the browser's FileReader API.
-	 *
-	 * @param event — Change event from the file `<input>` element.
-	 */
-	onPgnFileSelected(event: Event) {
+	onPgnFileSelected(event: Event): void {
 		const input = event.target as HTMLInputElement;
-		if (!input.files || input.files.length === 0) return;
-
+		if (!input.files?.length) return;
 		const file = input.files[0];
 		this.isLoading.set(true);
-
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			const content = e.target?.result as string;
-			if (content) {
-				this.setDeferredTimeout(() => {
-					this.loadPgnString(content);
-					this.loadGame(0);
-				});
-			} else {
-				this.isLoading.set(false);
-			}
+			if (content) this.setDeferredTimeout(() => this.loadPgnString(content));
+			else this.isLoading.set(false);
 		};
 		reader.onerror = () => {
 			this.isLoading.set(false);
@@ -2470,321 +865,275 @@ toggle3d() {
 		reader.readAsText(file);
 	}
 
-	// --- Game Logic ---
+	// ---- Snapshot position ----
+	snapshotCurrentPosition(): void {
+		this.filterFen.set(this.currentFen());
+		this.filterByFenEnabled.set(true);
+	}
 
-	/**
-	 * Loads a specific game by its index in the parsed game list.
-	 *
-	 * **Stale-response guard**: Increments {@link currentLoadGameId} and passes
-	 * the value as the correlation ID. The worker echoes it back in its response.
-	 * The response handler ({@link handleWorkerMessage} `'loadGame'`) discards
-	 * any response whose ID doesn't match the latest {@link currentLoadGameId}.
-	 * This prevents out-of-order responses from showing the wrong game when the
-	 * user rapidly clicks through games.
-	 *
-	 * Delegates parsing to the PGN processor worker. The response
-	 * (via {@link handleWorkerMessage}) updates moves, evaluations, and clocks.
-	 *
-	 * @param index — Zero-based game index.
-	 */
-	loadGame(index: number) {
-		const count = this.gamesMetadata().length;
-		if (index >= 0 && index < count) {
-			this.currentGameIndex.set(index);
-			this.moves.set([]);
-			this.evaluations.set([]);
-			this.moveClocks.set([]);
-			this.pgnInput.set('Loading...');
-			this.isLoading.set(true);
-			this.currentLoadGameId++;
-			this.pgnViewerEngine.loadGame(index, this.currentLoadGameId);
+	/** Safe text highlighting for typeahead. */
+	highlightText(text: string, query: string): TextSegment[] {
+		return highlightMatch(text, query);
+	}
+
+	/** Lookup ECO opening moves from the ECO_MOVES map. */
+	getOpeningMoves(code: string): string {
+		return ECO_MOVES[code] || '';
+	}
+
+	// ======================================================================
+	// Private methods
+	// ======================================================================
+
+	private getMovableDests(): Map<Key, Key[]> {
+		const dests = new Map<Key, Key[]>();
+		for (const move of this.chess.moves({ verbose: true })) {
+			const from = move.from as Key;
+			if (!dests.has(from)) dests.set(from, []);
+			dests.get(from)?.push(move.to as Key);
 		}
+		return dests;
 	}
 
-	/**
-	 * Toggles a game's selection state for batch replay operations.
-	 *
-	 * @param index — Zero-based game index to toggle.
-	 */
-	toggleGameSelection(index: number) {
-		const selected = new Set(this.selectedGames());
-		if (selected.has(index)) {
-			selected.delete(index);
-		} else {
-			selected.add(index);
-		}
-		this.selectedGames.set(selected);
-	}
-
-	/** Selects all games in the current filtered list for batch replay. */
-	selectAllGames() {
-		const indices = this.filteredGamesIndices();
-		const selected = new Set<number>();
-		for (const i of indices) {
-			selected.add(i);
-		}
-		this.selectedGames.set(selected);
-	}
-
-	/** Clears all game selections. */
-	clearSelection() {
-		this.selectedGames.set(new Set());
-	}
-
-	/** Advances to the next game in the navigation list (selected or filtered), if available. */
-	nextGame() {
-		const nav = this.navigationIndices();
-		const pos = nav.indexOf(this.currentGameIndex());
-		if (pos >= 0 && pos < nav.length - 1) {
-			this.loadGame(nav[pos + 1]);
-		}
-	}
-
-	/** Moves to the previous game in the navigation list (selected or filtered), if available. */
-	prevGame() {
-		const nav = this.navigationIndices();
-		const pos = nav.indexOf(this.currentGameIndex());
-		if (pos > 0) {
-			this.loadGame(nav[pos - 1]);
-		}
-	}
-
-	// --- Navigation Logic ---
-
-	/**
-	 * Jumps the board to a specific move index, replaying all moves up to that point.
-	 *
-	 * `-1` resets to the starting position before any moves.
-	 * Also updates the clock display from {@link clockHistory} if available.
-	 *
-	 * @param index — The target move index (-1 for start position).
-	 */
-	jumpToMove(index: number) {
-		const moves = this.moves();
-		if (index >= -1 && index < moves.length) {
-			this.chess.reset();
-			for (let i = 0; i <= index; i++) {
-				this.chess.move(moves[i]);
+	private handleBoardMove(orig: string, dest: string): void {
+		try {
+			const move = this.chess.move({ from: orig, to: dest });
+			if (move) {
+				this.currentFen.set(this.chess.fen());
+				this.interactiveMoves.update((m) => [...m, move.san]);
+				if (this.filterByFenEnabled()) this.filterFen.set(this.chess.fen());
 			}
-			this.currentMoveIndex.set(index);
+		} catch {
 			this.currentFen.set(this.chess.fen());
+		}
+	}
 
-			// Update clock display from clockHistory if available
-			const clockIndex = index + 1;
-			if (clockIndex >= 0 && clockIndex < this.clockHistory.length) {
-				const clocks = this.clockHistory[clockIndex];
-				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
-				this.blackTimeRemaining.set(this.formatTime(clocks.black));
+	private handleWorkerMessage(data: WorkerResponse): void {
+		const { type, payload, id } = data;
+		if (type === 'load') {
+			this.gamesMetadata.set(payload.metadata);
+			this.isLoading.set(false);
+			const whitePlayerElos = new Map<string, number>();
+			const blackPlayerElos = new Map<string, number>();
+			const ecoCodes = new Map<string, number>();
+			const timeControls = new Map<
+				string,
+				{ count: number; originals: Map<string, number> }
+			>();
+			const events = new Map<string, number>();
+
+			for (const meta of payload.metadata) {
+				if (
+					meta.white &&
+					meta.white !== 'Unknown' &&
+					!meta.white.startsWith('BOT ')
+				) {
+					whitePlayerElos.set(
+						meta.white,
+						Math.max(whitePlayerElos.get(meta.white) || 0, meta.whiteElo || 0),
+					);
+				}
+				if (
+					meta.black &&
+					meta.black !== 'Unknown' &&
+					!meta.black.startsWith('BOT ')
+				) {
+					blackPlayerElos.set(
+						meta.black,
+						Math.max(blackPlayerElos.get(meta.black) || 0, meta.blackElo || 0),
+					);
+				}
+				if (meta.eco && !meta.eco.includes('?')) {
+					ecoCodes.set(meta.eco, (ecoCodes.get(meta.eco) || 0) + 1);
+				}
+				const normalized = meta.timeControlNormalized;
+				const original = meta.timeControl?.trim();
+				if (normalized) {
+					const existing = timeControls.get(normalized) || {
+						count: 0,
+						originals: new Map<string, number>(),
+					};
+					existing.count += 1;
+					if (original)
+						existing.originals.set(
+							original,
+							(existing.originals.get(original) || 0) + 1,
+						);
+					timeControls.set(normalized, existing);
+				}
+				if (meta.event && !meta.event.includes('?')) {
+					events.set(meta.event, (events.get(meta.event) || 0) + 1);
+				}
+			}
+			this.uniqueWhitePlayers.set(
+				Array.from(whitePlayerElos.entries())
+					.sort((a, b) => b[1] - a[1])
+					.map(([n]) => n),
+			);
+			this.uniqueBlackPlayers.set(
+				Array.from(blackPlayerElos.entries())
+					.sort((a, b) => b[1] - a[1])
+					.map(([n]) => n),
+			);
+			this.uniqueEcoCodes.set(ecoCodes);
+			this.uniqueTimeControls.set(timeControls);
+			this.uniqueEvents.set(events);
+			if (payload.count > 0) this.loadGame(0);
+			this.clearFilters();
+		} else if (type === 'progress') {
+			this.loadingProgress.set(payload.percent);
+			this.loadingStatus.set(payload.status);
+		} else if (type === 'filter') {
+			if (id === this.currentFilterId) {
+				this.filteredGamesIndices.set(payload);
+				this.isFiltering.set(false);
+				if (this.autoSelectOnFinish) {
+					const selected = new Set<number>();
+					for (const i of payload) selected.add(i);
+					this.selectedGames.set(selected);
+					this.autoSelectOnFinish = false;
+				}
+				if (payload.length > 0) this.loadGame(payload[0]);
+				if (this.shouldUncheckFilterMoves) {
+					this.filterMoves.set(false);
+					this.shouldUncheckFilterMoves = false;
+				}
+			}
+		} else if (type === 'loadGame') {
+			if (id !== this.currentLoadGameId) return;
+			const { moves, pgn, evaluations, error } = payload;
+			if (error) {
+				console.error('Worker error:', error);
+				this.pgnInput.set(
+					`Error parsing game: ${error} \n\nRaw PGN: \n${pgn} `,
+				);
+				this.moves.set([]);
+				this.evaluations.set([]);
+				this.moveClocks.set([]);
+			} else {
+				this.moves.set(moves);
+				let evals = evaluations || [];
+				const hasEval = evals.some((e) => e !== null);
+				if (!hasEval && moves.length > 0 && pgn)
+					evals = this.extractEvalsFromPgn(pgn, moves);
+				this.evaluations.set(evals);
+				this.chess.reset();
+				this.currentMoveIndex.set(-1);
+				this.currentFen.set(this.chess.fen());
+				this.stopReplay();
+				this.pgnInput.set(pgn);
+				this.extractClockHistory(pgn);
+				if (this.clockHistory.length > 0) {
+					const start = this.clockHistory[0];
+					this.whiteTimeRemaining.set(this.formatTime(start.white));
+					this.blackTimeRemaining.set(this.formatTime(start.black));
+				} else {
+					this.whiteTimeRemaining.set('');
+					this.blackTimeRemaining.set('');
+				}
+				if (
+					this.filterMoves() &&
+					this.activeFilterMoves.length > 0 &&
+					moves.length >= this.activeFilterMoves.length
+				) {
+					this.jumpToMove(this.activeFilterMoves.length - 1);
+				}
+				if (this.filterByFenEnabled() && this.filterFen() && moves.length > 0) {
+					const fi = this.findMoveIndexForFen(moves, this.filterFen());
+					if (fi >= 0) this.jumpToMove(fi);
+				}
+			}
+			this.isLoading.set(false);
+		} else if (type === 'error') {
+			console.error('Worker error:', payload);
+			this.isLoading.set(false);
+		}
+	}
+
+	private handleStockfishMessage(event: MessageEvent): void {
+		const line = event.data;
+		if (typeof line !== 'string') return;
+		if (line.startsWith('bestmove')) this.isAnalyzing.set(false);
+		else if (line.startsWith('info') && line.includes(' pv ')) {
+			const pvIndex = line.indexOf(' pv ');
+			const pvString = line.substring(pvIndex + 4);
+			const uciMoves = pvString.split(' ');
+			if (uciMoves.length > 0) {
+				const bestMove = uciMoves[0];
+				let scoreText = '';
+				const cpMatch = line.match(/score cp (-?\d+)/);
+				const mateMatch = line.match(/score mate (-?\d+)/);
+				let isBlackToMove = false;
+				if (this.analyzedFen) {
+					const parts = this.analyzedFen.split(' ');
+					if (parts.length > 1 && parts[1] === 'b') isBlackToMove = true;
+				}
+				if (mateMatch) {
+					let mate = parseInt(mateMatch[1], 10);
+					if (isBlackToMove) mate = -mate;
+					scoreText = `#${mate}`;
+				} else if (cpMatch) {
+					let cp = parseInt(cpMatch[1], 10);
+					if (isBlackToMove) cp = -cp;
+					scoreText = (cp / 100).toFixed(2);
+					if (cp > 0) scoreText = `+${scoreText}`;
+				}
+				const sanPv = this.analyzedFen
+					? this.uciToSan(this.analyzedFen, uciMoves)
+					: [];
+				let bestMoveSan = bestMove;
+				if (this.analyzedFen) {
+					try {
+						const temp = new Chess(this.analyzedFen);
+						const u = bestMove;
+						const m = temp.move({
+							from: u.substring(0, 2),
+							to: u.substring(2, 4),
+							promotion: u.length > 4 ? u.substring(4, 5) : undefined,
+						});
+						if (m) bestMoveSan = m.san;
+					} catch {
+						/* ignore */
+					}
+				}
+				this.bestMoveInfo.set({
+					move: bestMoveSan,
+					pv: sanPv,
+					score: scoreText,
+				});
 			}
 		}
 	}
 
-	/** Scrolls the move list container to keep the active move visible. */
-	private scrollToActiveMove() {
-		const moveList = this.moveList();
-		if (!moveList) return;
-		const container = moveList.nativeElement;
-		const activeElement = container.querySelector(
-			'.move-btn.active',
-		) as HTMLElement;
-		if (activeElement) {
-			activeElement.scrollIntoView({
-				behavior: 'smooth',
-				block: 'nearest',
-				inline: 'nearest',
-			});
-		}
-	}
+	private analyzedFen: string | null = null;
 
-	/**
-	 * Advances to the next move in the current game.
-	 *
-	 * Updates the board, move index, and clock display.
-	 */
-	next() {
-		const moves = this.moves();
-		const currentIdx = this.currentMoveIndex();
-		if (currentIdx < moves.length - 1) {
-			const nextMove = moves[currentIdx + 1];
-			this.chess.move(nextMove);
-			this.currentMoveIndex.set(currentIdx + 1);
-			this.currentFen.set(this.chess.fen());
-
-			const nextMoveIdx = currentIdx + 1;
-			if (nextMoveIdx + 1 < this.clockHistory.length) {
-				const clocks = this.clockHistory[nextMoveIdx + 1];
-				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
-				this.blackTimeRemaining.set(this.formatTime(clocks.black));
+	private uciToSan(
+		fen: string,
+		uciMoves: string[],
+	): { san: string; fen: string }[] {
+		try {
+			const temp = new Chess(fen);
+			const out: { san: string; fen: string }[] = [];
+			for (const uci of uciMoves) {
+				const m = temp.move({
+					from: uci.substring(0, 2),
+					to: uci.substring(2, 4),
+					promotion: uci.length > 4 ? uci.substring(4, 5) : undefined,
+				});
+				if (!m) break;
+				out.push({ san: m.san, fen: temp.fen() });
 			}
+			return out;
+		} catch {
+			return [];
 		}
 	}
 
-	/**
-	 * Goes back one move in the current game.
-	 *
-	 * Undoes the last move on the board and updates the clock display.
-	 */
-	prev() {
-		if (this.currentMoveIndex() >= 0) {
-			this.chess.undo();
-			this.currentMoveIndex.update((i) => i - 1);
-			this.currentFen.set(this.chess.fen());
+	// ======================================================================
+	// Replay internals
+	// ======================================================================
 
-			const currentIdx = this.currentMoveIndex();
-			if (currentIdx + 1 >= 0 && currentIdx + 1 < this.clockHistory.length) {
-				const clocks = this.clockHistory[currentIdx + 1];
-				this.whiteTimeRemaining.set(this.formatTime(clocks.white));
-				this.blackTimeRemaining.set(this.formatTime(clocks.black));
-			}
-		}
-	}
-
-	/** Stops any in-progress replay sequence and cancels pending timeouts. */
-	stopSequence() {
-		this.isReplayingSequence = false;
-		this.stopReplay();
-	}
-
-	/**
-	 * Toggles the rating filter enable/disable checkbox.
-	 *
-	 * @param event — Change event from the rating-filter checkbox.
-	 */
-	toggleFilterRatingEnabled(event: Event) {
-		const checked = (event.target as HTMLInputElement).checked;
-		this.filterRatingEnabled.set(checked);
-	}
-
-	/**
-	 * Applies a rating preset (e.g. "2000+", "2500+", "3000+") from a dropdown.
-	 *
-	 * Sets the minimum rating to the selected value and the maximum to 3000
-	 * (or 4000 for the "3000+" tier).
-	 *
-	 * @param event — Change event from the rating preset `<select>` element.
-	 */
-	applyRatingPreset(event: Event) {
-		const value = (event.target as HTMLSelectElement).value;
-		if (!value) return;
-
-		this.filterRatingEnabled.set(true);
-
-		// Support both single-value (e.g. "2000" → 2000–3000)
-		// and range (e.g. "2000-2199" → 2000–2199) formats
-		const rangeMatch = value.match(/^(\d+)-(\d+)$/);
-		if (rangeMatch) {
-			const min = rangeMatch[1];
-			const max = rangeMatch[2];
-			this.filterWhiteRating.set(min);
-			this.filterBlackRating.set(min);
-			this.filterWhiteRatingMax.set(max);
-			this.filterBlackRatingMax.set(max);
-		} else {
-			const min = value;
-			const max = value === '3000' ? '4000' : '3000';
-			this.filterWhiteRating.set(min);
-			this.filterBlackRating.set(min);
-			this.filterWhiteRatingMax.set(max);
-			this.filterBlackRatingMax.set(max);
-		}
-	}
-
-	/**
-	 * Toggles the "stop on error" replay option.
-	 *
-	 * @param event — Change event from the stop-on-error checkbox.
-	 */
-	toggleStopOnError(event: Event) {
-		const checked = (event.target as HTMLInputElement).checked;
-		this.stopOnError.set(checked);
-	}
-
-	/**
-	 * Updates the stop-on-error evaluation threshold from an input event.
-	 *
-	 * @param event — Input event from the threshold number field.
-	 */
-	updateStopOnErrorThreshold(event: Event) {
-		const value = (event.target as HTMLInputElement).value;
-		this.stopOnErrorThreshold.set(parseFloat(value) || 1.0);
-	}
-
-	/**
-	 * Resets the board to the starting position (before any moves).
-	 *
-	 * Also restores initial clock times if clock history data is available.
-	 */
-	start() {
-		this.chess.reset();
-		this.currentMoveIndex.set(-1);
-		this.currentFen.set(this.chess.fen());
-
-		if (this.clockHistory.length > 0) {
-			const startClocks = this.clockHistory[0];
-			if (startClocks) {
-				this.whiteTimeRemaining.set(this.formatTime(startClocks.white));
-				this.blackTimeRemaining.set(this.formatTime(startClocks.black));
-			}
-		}
-	}
-
-	/**
-	 * Jumps to the final position of the current game.
-	 *
-	 * Replays all moves from the start to reach the end-of-game position.
-	 */
-	end() {
-		this.chess.reset();
-		const moves = this.moves();
-		for (const move of moves) {
-			this.chess.move(move);
-		}
-		this.currentMoveIndex.set(moves.length - 1);
-		this.currentFen.set(this.chess.fen());
-
-		// Update clock display from clockHistory if available
-		if (this.clockHistory.length > 0) {
-			const lastClocks = this.clockHistory[this.clockHistory.length - 1];
-			if (lastClocks) {
-				this.whiteTimeRemaining.set(this.formatTime(lastClocks.white));
-				this.blackTimeRemaining.set(this.formatTime(lastClocks.black));
-			}
-		}
-	}
-
-	// --- Replay Logic ---
-
-	/**
-	 * Starts an auto-replay of the current game from the beginning.
-	 *
-	 * Stops any in-progress replay, resets to the start position,
-	 * then runs the replay logic with timing based on the selected mode.
-	 */
-	replayGame() {
-		this.stopReplay();
-		this.start();
-		this.runReplayLogic();
-	}
-
-	/**
-	 * Continues an auto-replay from the current move position.
-	 *
-	 * Preserves the replay Promise (doesn't resolve it prematurely)
-	 * so batch replay sequences can resume from where they left off.
-	 */
-	continueReplay() {
-		this.stopReplay(false);
-		this.runReplayLogic();
-	}
-
-	/**
-	 * Executes the replay logic for the currently loaded game.
-	 *
-	 * Parses the game PGN, calculates move timing based on the selected
-	 * {@link replayMode}, and schedules the replay via {@link scheduleReplay}.
-	 */
-	private runReplayLogic() {
-		// Use the currently loaded PGN from the input area
+	private runReplayLogic(): void {
 		const gamePgn = this.pgnInput();
 		const onComplete = this.replayResolve
 			? () => {
@@ -2794,116 +1143,54 @@ toggle3d() {
 					}
 				}
 			: undefined;
-
 		try {
-			const tempChess = new Chess();
-			tempChess.loadPgn(gamePgn);
-			const history = tempChess.history({ verbose: true });
-
+			const temp = new Chess();
+			temp.loadPgn(gamePgn);
+			const history = temp.history({ verbose: true });
 			const timeOuts = this.calculateReplayTimeouts(history);
 			this.scheduleReplay(timeOuts, history.length, onComplete);
-		} catch (_e) {
-			// console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
+		} catch {
 			try {
 				const timeOuts = this.calculateReplayTimeoutsChessops(gamePgn);
 				this.scheduleReplay(timeOuts, timeOuts.length, onComplete);
-			} catch (_e2) {
-				// console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
-				// Fallback: use moves list length and fixed time
-				const moveCount = this.moves().length;
-				const timeOuts = Array(moveCount)
+			} catch {
+				const len = this.moves().length;
+				const timeOuts = Array(len)
 					.fill(0)
 					.map((_, i) => (i + 1) * this.fixedTime());
-				this.scheduleReplay(timeOuts, moveCount);
+				this.scheduleReplay(timeOuts, len, onComplete);
 			}
 		}
 	}
 
-	/**
-	 * Sequentially replays all selected games in the filtered game list.
-	 *
-	 * Each game is loaded, replayed from start to finish, then a 2-second pause
-	 * is inserted before the next game. Respects the current filter sort order.
-	 */
-	async replayAllSelectedGames() {
-		this.stopReplay();
-		this.isReplayingSequence = true;
-
-		// Use filteredGamesIndices to maintain the sort order (by Elo sum)
-		// Filter this list to include only selected games
-		const selectedSet = this.selectedGames();
-		const selected = this.filteredGamesIndices().filter((idx) =>
-			selectedSet.has(idx),
-		);
-
-		if (selected.length === 0) {
-			this.showMessage('No games selected. Please select games to replay.');
-			return;
-		}
-
-		for (let i = 0; i < selected.length; i++) {
-			if (!this.isReplayingSequence) break;
-			const gameIndex = selected[i];
-			this.loadGame(gameIndex);
-
-			// Wait for the game to load
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// Replay the current game
-			await this.replayGameAsync();
-
-			// Wait a bit between games (2 seconds)
-			if (i < selected.length - 1) {
-				await new Promise((resolve) => setTimeout(resolve, 2000));
-			}
-		}
-	}
-
-	/**
-	 * Returns a Promise that resolves when the current game's replay completes.
-	 *
-	 * Used by batch replay sequences to await each game's auto-play before
-	 * moving to the next selected game.
-	 *
-	 * @returns Promise resolved by {@link scheduleReplay} via {@link replayResolve}.
-	 */
 	private replayGameAsync(): Promise<void> {
 		return new Promise((resolve) => {
 			this.stopReplay();
 			this.replayResolve = resolve;
 			this.start();
-
 			const gamePgn = this.pgnInput();
-
 			try {
-				const tempChess = new Chess();
-				tempChess.loadPgn(gamePgn);
-				const history = tempChess.history({ verbose: true });
-
+				const temp = new Chess();
+				temp.loadPgn(gamePgn);
+				const history = temp.history({ verbose: true });
 				const timeOuts = this.calculateReplayTimeouts(history);
-
-				// Actually schedule the replay
 				this.scheduleReplay(timeOuts, history.length, () => {
 					resolve();
 					this.replayResolve = null;
 				});
-			} catch (_e) {
-				// console.warn("Replay PGN parsing failed with chess.js, trying chessops", e);
+			} catch {
 				try {
 					const timeOuts = this.calculateReplayTimeoutsChessops(gamePgn);
 					this.scheduleReplay(timeOuts, timeOuts.length, () => {
 						resolve();
 						this.replayResolve = null;
 					});
-				} catch (_e2) {
-					// console.warn("Replay PGN parsing failed with chessops, falling back to simple replay", e2);
-					// Fallback
-					const moveCount = this.moves().length;
-					const timeOuts = Array(moveCount)
+				} catch {
+					const len = this.moves().length;
+					const timeOuts = Array(len)
 						.fill(0)
 						.map((_, i) => (i + 1) * this.fixedTime());
-
-					this.scheduleReplay(timeOuts, moveCount, () => {
+					this.scheduleReplay(timeOuts, len, () => {
 						resolve();
 						this.replayResolve = null;
 					});
@@ -2912,221 +1199,41 @@ toggle3d() {
 		});
 	}
 
-	/**
-	 * Stops any in-progress replay, clears scheduled timeouts, and optionally
-	 * resolves the replay Promise used by batch replay sequences.
-	 *
-	 * @param resolvePromise — When `true` (default), resolve any pending replay Promise.
-	 */
-	stopReplay(resolvePromise = true) {
-		this.isReplaying.set(false);
-		this.replayTimeouts.forEach((t) => {
-			clearTimeout(t);
-			this.pendingTimeouts.delete(t);
-		});
-		this.replayTimeouts = [];
-
-		if (resolvePromise && this.replayResolve) {
-			this.replayResolve();
-			this.replayResolve = null;
-		}
-	}
-
-	/**
-	 * Calculates replay timeouts by parsing clock comments from the PGN via chessops.
-	 *
-	 * Fallback used when chess.js parsing fails. Reads `[%clk h:m:s]` comments
-	 * to determine think time per move in `'realtime'` and `'proportional'` modes.
-	 *
-	 * @param pgn — Raw PGN string for the game.
-	 * @returns Array of seconds delays, one per move.
-	 */
-	private calculateReplayTimeoutsChessops(pgn: string): number[] {
-		const games = parsePgn(pgn);
-		if (games.length === 0) throw new Error('No games found by chessops');
-
-		const game = games[0];
-		const timeOuts: number[] = [];
-		this.clockHistory = [];
-
-		// Try to parse time control from headers
-		let timeControlSeconds = 0;
-		if (game.headers.has('TimeControl')) {
-			const tc = game.headers.get('TimeControl')?.split('+');
-			if (tc) timeControlSeconds = parseInt(tc[0], 10);
-		}
-
-		let whiteTime = timeControlSeconds;
-		let blackTime = timeControlSeconds;
-		this.clockHistory.push({ white: whiteTime, black: blackTime });
-
-		const thinkTimes: number[] = [];
-		let node = game.moves;
-		let isWhite = true;
-
-		while (node.children.length > 0) {
-			const child = node.children[0]; // Main line
-			let moveTime = 0;
-			let hasClockComment = false;
-
-			// Check comments for clock
-			if (child.data?.comments) {
-				for (const comment of child.data.comments) {
-					const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
-					if (clkMatch) {
-						hasClockComment = true;
-						let h = 0,
-							m = 0,
-							s = 0;
-						if (clkMatch[1]) h = parseInt(clkMatch[1], 10);
-						m = parseInt(clkMatch[2], 10);
-						s = parseInt(clkMatch[3], 10);
-
-						const timeInSeconds = h * 3600 + m * 60 + s;
-
-						if (isWhite) {
-							moveTime = Math.max(0.1, whiteTime - timeInSeconds);
-							whiteTime = timeInSeconds;
-						} else {
-							moveTime = Math.max(0.1, blackTime - timeInSeconds);
-							blackTime = timeInSeconds;
-						}
-						break; // Found clock, stop looking
-					}
-				}
-			}
-
-			if (!hasClockComment) {
-				moveTime = this.fixedTime();
-			}
-
-			thinkTimes.push(moveTime);
-			this.clockHistory.push({ white: whiteTime, black: blackTime });
-
-			node = child;
-			isWhite = !isWhite;
-		}
-
-		// Calculate timeouts based on mode (reuse logic if possible, or duplicate for now)
-		if (this.replayMode() === 'fixed') {
-			return thinkTimes.map((_, i) => (i + 1) * this.fixedTime());
-		}
-
-		if (this.replayMode() === 'realtime') {
-			let totalTime = 0;
-			for (let i = 0; i < thinkTimes.length; i++) {
-				totalTime += thinkTimes[i];
-				timeOuts.push(totalTime);
-			}
-			return timeOuts;
-		}
-
-		if (this.replayMode() === 'proportional') {
-			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
-			const targetDurationSeconds = this.proportionalDuration() * 60;
-			const scaleFactor =
-				totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
-			const minSeconds = this.minSecondsBetweenMoves();
-
-			let currentScaledTime = 0;
-			for (let i = 0; i < thinkTimes.length; i++) {
-				let scaledMoveTime = thinkTimes[i] * scaleFactor;
-				if (scaledMoveTime < minSeconds) {
-					scaledMoveTime = minSeconds;
-				}
-				currentScaledTime += scaledMoveTime;
-				timeOuts.push(currentScaledTime);
-			}
-			return timeOuts;
-		}
-
-		return thinkTimes.map((_, i) => (i + 1) * 1);
-	}
-
-	/**
-	 * Clock state at each half-move: remaining seconds for white and black.
-	 * Index 0 is the initial clock state. Populated by {@link calculateReplayTimeouts}.
-	 */
-	private clockHistory: { white: number; black: number }[] = [];
-
-	/**
-	 * Per-move formatted clock strings for display in the move list.
-	 * After white's move, shows white's remaining time; after black's — black's.
-	 */
-	moveClocks = signal<string[]>([]);
-
-	/**
-	 * Calculates per-move replay delays from game history and clock comments.
-	 *
-	 * Parses `[%clk h:m:s]` comments to compute think times. Supports three modes:
-	 * `'fixed'` (constant delay), `'realtime'` (actual think time), and
-	 * `'proportional'` (scaled to fit {@link proportionalDuration}).
-	 *
-	 * @param history — Verbose move history from chess.js.
-	 * @returns Array of seconds delays, one per move.
-	 */
 	private calculateReplayTimeouts(history: Move[]): number[] {
-		const timeOuts: number[] = [];
+		const _timeOuts: number[] = [];
 		this.clockHistory = [];
-
-		// Re-simulate game to extract clocks correctly — use a fresh Chess
-		// instance because this.chess may have been reset by start() / stopReplay().
 		const tempChess = new Chess();
 		tempChess.loadPgn(this.pgnInput());
 		const header = tempChess.header();
 		const moves = tempChess.history({ verbose: true });
 		const moveComments = tempChess.getComments();
-
-		// Try to parse time control
 		let timeControlSeconds = 0;
 		if (header.TimeControl) {
 			const tc = header.TimeControl.split('+');
 			timeControlSeconds = parseInt(tc[0], 10);
 		}
-
-		// Initialize clocks
 		let whiteTime = timeControlSeconds;
 		let blackTime = timeControlSeconds;
-
-		// Map FEN to comment for easier lookup
 		const fenToComment = new Map<string, string>();
-		moveComments.forEach((c) => {
+		for (const c of moveComments) {
 			fenToComment.set(c.fen, c.comment);
-		});
-
-		// Initial clock state
+		}
 		this.clockHistory.push({ white: whiteTime, black: blackTime });
-
-		// Calculate think times
 		const thinkTimes: number[] = [];
 		let hasClockComments = false;
-
 		for (let i = 0; i < moves.length; i++) {
 			const move = moves[i];
 			const isWhite = move.color === 'w';
-			// chess.js attaches comments to the position AFTER the move
 			const comment = fenToComment.get(move.after);
-
 			let moveTime = 0;
-
 			if (comment) {
-				// Try to parse %clk
-				// Matches: [%clk 0:03:02] or [%clk 03:02] or [%clk 3:02]
 				const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
 				if (clkMatch) {
 					hasClockComments = true;
-					let h = 0,
-						m = 0,
-						s = 0;
-
-					if (clkMatch[1]) {
-						h = parseInt(clkMatch[1], 10);
-					}
-					m = parseInt(clkMatch[2], 10);
-					s = parseInt(clkMatch[3], 10);
-
+					const h = clkMatch[1] ? parseInt(clkMatch[1], 10) : 0;
+					const m = parseInt(clkMatch[2], 10);
+					const s = parseInt(clkMatch[3], 10);
 					const timeInSeconds = h * 3600 + m * 60 + s;
-
 					if (isWhite) {
 						moveTime = Math.max(0.1, whiteTime - timeInSeconds);
 						whiteTime = timeInSeconds;
@@ -3136,209 +1243,196 @@ toggle3d() {
 					}
 				}
 			}
-
-			// Fallback if no clock comment or parsing failed
-			if (moveTime === 0 && !hasClockComments) {
-				moveTime = this.fixedTime(); // Default to fixed time setting
-			} else if (moveTime === 0 && hasClockComments) {
-				// If we have clock comments generally but missed this one, assume small time
-				moveTime = 1;
-			}
-
+			moveTime =
+				moveTime === 0 && !hasClockComments
+					? this.fixedTime()
+					: moveTime === 0
+						? 1
+						: moveTime;
 			thinkTimes.push(moveTime);
 			this.clockHistory.push({ white: whiteTime, black: blackTime });
 		}
-
-		// If no clock comments found at all, clear clock history so we don't show empty clocks
 		if (!hasClockComments) {
 			this.clockHistory = [];
 			this.whiteTimeRemaining.set('');
 			this.blackTimeRemaining.set('');
-		} else {
-			// Set initial clocks for display
-			if (this.clockHistory.length > 0) {
-				this.whiteTimeRemaining.set(
-					this.formatTime(this.clockHistory[0].white),
-				);
-				this.blackTimeRemaining.set(
-					this.formatTime(this.clockHistory[0].black),
-				);
-			}
+		} else if (this.clockHistory.length > 0) {
+			this.whiteTimeRemaining.set(this.formatTime(this.clockHistory[0].white));
+			this.blackTimeRemaining.set(this.formatTime(this.clockHistory[0].black));
 		}
-
-		if (this.replayMode() === 'fixed') {
-			for (let i = 0; i < history.length; i++) {
-				timeOuts.push((i + 1) * this.fixedTime());
-			}
-			return timeOuts;
-		}
-
+		if (this.replayMode() === 'fixed')
+			return history.map((_, i) => (i + 1) * this.fixedTime());
 		if (this.replayMode() === 'realtime') {
-			let totalTime = 0;
-			for (let i = 0; i < thinkTimes.length; i++) {
-				totalTime += thinkTimes[i];
-				timeOuts.push(totalTime);
-			}
-			return timeOuts;
+			let t = 0;
+			return thinkTimes.map((v) => (t += v));
 		}
-
 		if (this.replayMode() === 'proportional') {
-			// Calculate total game duration
-			const totalGameDuration = thinkTimes.reduce((a, b) => a + b, 0);
-			const targetDurationSeconds = this.proportionalDuration() * 60;
-			const scaleFactor =
-				totalGameDuration > 0 ? targetDurationSeconds / totalGameDuration : 1;
-			const minSeconds = this.minSecondsBetweenMoves();
-
-			let currentScaledTime = 0;
-			for (let i = 0; i < thinkTimes.length; i++) {
-				let scaledMoveTime = thinkTimes[i] * scaleFactor;
-				if (scaledMoveTime < minSeconds) {
-					scaledMoveTime = minSeconds;
-				}
-				currentScaledTime += scaledMoveTime;
-				timeOuts.push(currentScaledTime);
-			}
-			return timeOuts;
+			const total = thinkTimes.reduce((a, b) => a + b, 0);
+			const target = this.proportionalDuration() * 60;
+			const scale = total > 0 ? target / total : 1;
+			const min = this.minSecondsBetweenMoves();
+			let cur = 0;
+			return thinkTimes.map((v) => {
+				cur += Math.max(v * scale, min);
+				return cur;
+			});
 		}
-
-		// Fallback
-		for (let i = 0; i < history.length; i++) {
-			timeOuts.push((i + 1) * 1);
-		}
-
-		return timeOuts;
+		return thinkTimes.map((_, i) => (i + 1) * 1);
 	}
 
-	/**
-	 * Extracts clock history from a loaded PGN's `[%clk ...]` comments.
-	 *
-	 * Parses the PGN with chess.js to get per-move `[%clk]` comments,
-	 * then computes remaining time for both players after each half-move.
-	 * Populates {@link clockHistory} (index 0 = initial clock state).
-	 *
-	 * If no clock comments are found, `clockHistory` is cleared.
-	 *
-	 * @param pgn — Raw PGN string for a single game.
-	 */
-	private extractClockHistory(pgn: string): void {
+	private calculateReplayTimeoutsChessops(pgn: string): number[] {
+		const games = parsePgn(pgn);
+		if (games.length === 0) throw new Error('No games found by chessops');
+		const game = games[0];
+		const _timeOuts: number[] = [];
 		this.clockHistory = [];
-
-		try {
-			const tempChess = new Chess();
-			tempChess.loadPgn(pgn);
-			const moves = tempChess.history({ verbose: true });
-			const comments = tempChess.getComments();
-
-			// Map FEN → comment for quick lookup
-			const fenToComment = new Map<string, string>();
-			for (const c of comments) {
-				fenToComment.set(c.fen, c.comment);
-			}
-
-			// Parse initial time control from header
-			const header = tempChess.header();
-			let timeControlSeconds = 0;
-			if (header.TimeControl) {
-				const tc = header.TimeControl.split('+');
-				timeControlSeconds = parseInt(tc[0], 10);
-			}
-
-			let whiteTime = timeControlSeconds;
-			let blackTime = timeControlSeconds;
-
-			// Initial clock state
-			this.clockHistory.push({ white: whiteTime, black: blackTime });
-
-			let hasClocks = false;
-
-			for (const move of moves) {
-				const isWhite = move.color === 'w';
-				const comment = fenToComment.get(move.after);
-
-				if (comment) {
-					const clkMatch = comment.match(
-						/%clk\s+(?:(\d+):)?(\d+):(\d+)/,
-					);
+		let timeControlSeconds = 0;
+		if (game.headers.has('TimeControl')) {
+			const tc = game.headers.get('TimeControl')?.split('+');
+			if (tc) timeControlSeconds = parseInt(tc[0], 10);
+		}
+		let whiteTime = timeControlSeconds;
+		let blackTime = timeControlSeconds;
+		this.clockHistory.push({ white: whiteTime, black: blackTime });
+		const thinkTimes: number[] = [];
+		let node = game.moves;
+		let isWhite = true;
+		while (node.children.length > 0) {
+			const child = node.children[0];
+			let moveTime = 0;
+			let has = false;
+			if (child.data?.comments) {
+				for (const comment of child.data.comments) {
+					const clkMatch = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
 					if (clkMatch) {
-						hasClocks = true;
+						has = true;
 						const h = clkMatch[1] ? parseInt(clkMatch[1], 10) : 0;
 						const m = parseInt(clkMatch[2], 10);
 						const s = parseInt(clkMatch[3], 10);
 						const timeInSeconds = h * 3600 + m * 60 + s;
-
 						if (isWhite) {
+							moveTime = Math.max(0.1, whiteTime - timeInSeconds);
 							whiteTime = timeInSeconds;
 						} else {
+							moveTime = Math.max(0.1, blackTime - timeInSeconds);
 							blackTime = timeInSeconds;
+						}
+						break;
+					}
+				}
+			}
+			if (!has) moveTime = this.fixedTime();
+			thinkTimes.push(moveTime);
+			this.clockHistory.push({ white: whiteTime, black: blackTime });
+			node = child;
+			isWhite = !isWhite;
+		}
+		if (this.replayMode() === 'fixed')
+			return thinkTimes.map((_, i) => (i + 1) * this.fixedTime());
+		if (this.replayMode() === 'realtime') {
+			let t = 0;
+			return thinkTimes.map((v) => (t += v));
+		}
+		if (this.replayMode() === 'proportional') {
+			const total = thinkTimes.reduce((a, b) => a + b, 0);
+			const target = this.proportionalDuration() * 60;
+			const scale = total > 0 ? target / total : 1;
+			const min = this.minSecondsBetweenMoves();
+			let cur = 0;
+			return thinkTimes.map((v) => {
+				cur += Math.max(v * scale, min);
+				return cur;
+			});
+		}
+		return thinkTimes.map((_, i) => (i + 1) * 1);
+	}
+
+	private scheduleReplay(
+		timeOuts: number[],
+		totalMoves: number,
+		onComplete?: () => void,
+	): void {
+		this.isReplaying.set(true);
+		this.showBetterMoveBtn.set(false);
+		this.analysisVisible.set(false);
+		this.bestMoveInfo.set(null);
+		const startIdx = this.currentMoveIndex() + 1;
+		if (startIdx >= totalMoves) {
+			this.isReplaying.set(false);
+			if (onComplete) onComplete();
+			return;
+		}
+		const startTime = startIdx > 0 ? timeOuts[startIdx - 1] : 0;
+		for (let i = startIdx; i < totalMoves; i++) {
+			const delay = Math.max(0, (timeOuts[i] - startTime) * 1000);
+			const isLast = i === totalMoves - 1;
+			const tid = setTimeout(() => {
+				this.next();
+				if (this.stopOnError()) {
+					const idx = this.currentMoveIndex();
+					const evals = this.evaluations();
+					if (idx > 0 && idx < evals.length) {
+						const cur = this.parseEval(evals[idx]);
+						const prev = this.parseEval(evals[idx - 1]);
+						if (
+							cur !== null &&
+							prev !== null &&
+							Math.abs(cur - prev) > this.stopOnErrorThreshold()
+						) {
+							this.stopReplay(false);
+							this.showBetterMoveBtn.set(true);
+							const prevFen = this.getFenBeforeMove(idx);
+							if (prevFen) this.analyzedFen = prevFen;
 						}
 					}
 				}
-
-				this.clockHistory.push({ white: whiteTime, black: blackTime });
-			}
-
-			if (!hasClocks) {
-				this.clockHistory = [];
-				this.moveClocks.set([]);
-			} else {
-				this.buildMoveClocks(moves);
-			}
-		} catch {
-			this.clockHistory = [];
-			this.moveClocks.set([]);
+				if (isLast && onComplete && this.isReplaying()) {
+					const ctid = this.setDeferredTimeout(() => {
+						if (onComplete) onComplete();
+					}, 500);
+					this.replayTimeouts.push(ctid);
+				}
+			}, delay);
+			this.replayTimeouts.push(tid);
 		}
 	}
 
-	/**
-	 * Builds the {@link moveClocks} signal from {@link clockHistory} and verbose moves.
-	 *
-	 * Each entry shows the remaining time for the player who just moved.
-	 * Called after {@link extractClockHistory} completes.
-	 */
-	private buildMoveClocks(moves: Move[]): void {
-		const clocks: string[] = [];
-		for (let i = 0; i < moves.length; i++) {
-			const hIdx = i + 1;
-			if (hIdx < this.clockHistory.length) {
-				const isWhite = moves[i].color === 'w';
-				const time = isWhite
-					? this.clockHistory[hIdx].white
-					: this.clockHistory[hIdx].black;
-				clocks.push(this.formatTime(time));
-			} else {
-				clocks.push('');
-			}
-		}
-		this.moveClocks.set(clocks);
+	// ======================================================================
+	// Helpers
+	// ======================================================================
+
+	private formatTimeControlKey(key: string): string {
+		const m = key.match(/^(\d+)\+(\d+)$/);
+		if (!m) return key;
+		const base = parseInt(m[1], 10);
+		const inc = parseInt(m[2], 10);
+		if (Number.isNaN(base) || Number.isNaN(inc)) return key;
+		return base % 60 === 0 && base / 60 <= 180 ? `${base / 60}+${inc}` : key;
 	}
 
-	/**
-	 * Formats a duration in seconds as a clock display string.
-	 *
-	 * @param seconds — Duration in seconds.
-	 * @returns Formatted string: `"h:mm:ss"` or `"m:ss"`.
-	 */
+	private formatOriginalsSummary(
+		originals: Map<string, number>,
+		maxItems = 6,
+	): string {
+		const entries = Array.from(originals.entries()).sort((a, b) => b[1] - a[1]);
+		const head = entries
+			.slice(0, maxItems)
+			.map(([v, c]) => `${v} (${c})`)
+			.join(', ');
+		const rest =
+			entries.length > maxItems ? ` +${entries.length - maxItems} more` : '';
+		return head ? `Originals: ${head}${rest}` : '';
+	}
+
 	private formatTime(seconds: number): string {
 		const h = Math.floor(seconds / 3600);
 		const m = Math.floor((seconds % 3600) / 60);
 		const s = Math.floor(seconds % 60);
-
-		if (h > 0) {
-			return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} `;
-		}
-		return `${m}:${s.toString().padStart(2, '0')} `;
+		return h > 0
+			? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} `
+			: `${m}:${s.toString().padStart(2, '0')} `;
 	}
 
-	/**
-	 * Parses a `[%eval ...]` PGN comment value into a numeric score.
-	 *
-	 * Mate scores (`#3`, `#-2`) are converted to large values near ±20.
-	 * Centipawn scores are parsed as floats.
-	 *
-	 * @param evalStr — Raw evaluation string, or `null`.
-	 * @returns Numeric evaluation score, or `null` if unparseable.
-	 */
 	private parseEval(evalStr: string | null): number | null {
 		if (!evalStr) return null;
 		if (evalStr.startsWith('#')) {
@@ -3348,210 +1442,154 @@ toggle3d() {
 		return parseFloat(evalStr);
 	}
 
-	/**
-	 * Extracts per-move [%eval] values from a PGN string by scanning
-	 * inline comment annotations in move order.
-	 *
-	 * Used as a fallback when the worker's evaluation extraction fails.
-	 *
-	 * @param pgnText — Raw PGN text for a single game.
-	 * @param parsedMoves — Number of half-moves already parsed.
-	 * @returns Array aligned with moves; null where no eval found.
-	 */
 	private extractEvalsFromPgn(
 		pgnText: string,
 		parsedMoves: string[],
 	): (string | null)[] {
 		const evals: (string | null)[] = new Array(parsedMoves.length).fill(null);
-
-		// Collect all [%eval …] values in order
 		const values: string[] = [];
-		const evalRegex = /\[%eval\s+([^\]]+)\]/g;
-		let match;
-		while ((match = evalRegex.exec(pgnText)) !== null) {
-			values.push(match[1]);
+		const re = /\[%eval\s+([^\]]+)\]/g;
+		let m: RegExpExecArray | null;
+		m = re.exec(pgnText);
+		while (m !== null) {
+			values.push(m[1]);
+			m = re.exec(pgnText);
 		}
 		if (values.length === 0) return evals;
-
-		// Determine offset: first eval before first move number → initial-position eval
 		const firstEvalIdx = pgnText.search(/\[%eval\s+([^\]]+)\]/);
 		const firstMoveIdx = pgnText.search(/\b\d+\.\s+/);
-		const offset =
-			firstMoveIdx >= 0 && firstEvalIdx < firstMoveIdx ? 1 : 0;
-
+		const offset = firstMoveIdx >= 0 && firstEvalIdx < firstMoveIdx ? 1 : 0;
 		for (let i = 0; i < parsedMoves.length; i++) {
-			const valIdx = i + offset;
-			if (valIdx < values.length) {
-				evals[i] = values[valIdx];
-			}
+			const vi = i + offset;
+			if (vi < values.length) evals[i] = values[vi];
 		}
 		return evals;
 	}
 
-	/**
-	 * Schedules timed callbacks to auto-play moves during replay.
-	 *
-	 * Uses the selected replay mode timing, handles the "stop on error" feature
-	 * (pauses when evaluation change exceeds {@link stopOnErrorThreshold}),
-	 * and calls the optional `onComplete` callback after the last move.
-	 *
-	 * @param timeOuts — Per-move delays in seconds.
-	 * @param totalMoves — Total number of moves in the game.
-	 * @param onComplete — Optional callback when replay finishes.
-	 */
-	private scheduleReplay(
-		timeOuts: number[],
-		totalMoves: number,
-		onComplete?: () => void,
-	) {
-		const _totalGameTime = timeOuts[timeOuts.length - 1] || 1;
-		this.isReplaying.set(true);
-		this.showBetterMoveBtn.set(false);
-		this.analysisVisible.set(false);
-		this.bestMoveInfo.set(null);
-
-		const startMoveIndex = this.currentMoveIndex() + 1; // Start from next move
-
-		if (startMoveIndex >= totalMoves) {
-			this.isReplaying.set(false);
-			if (onComplete) onComplete();
-			return;
-		}
-
-		const startTime = startMoveIndex > 0 ? timeOuts[startMoveIndex - 1] : 0;
-
-		for (let i = startMoveIndex; i < totalMoves; i++) {
-			let delay = 0;
-			if (
-				this.replayMode() === 'fixed' ||
-				this.replayMode() === 'realtime' ||
-				this.replayMode() === 'proportional'
-			) {
-				// Calculate relative delay from "now" (which corresponds to startTime in the game)
-				delay = (timeOuts[i] - startTime) * 1000;
-			} else {
-				// Fallback
-				delay = (i - startMoveIndex + 1) * 1000;
+	private extractClockHistory(pgn: string): void {
+		this.clockHistory = [];
+		try {
+			const temp = new Chess();
+			temp.loadPgn(pgn);
+			const moves = temp.history({ verbose: true });
+			const comments = temp.getComments();
+			const fenToComment = new Map<string, string>();
+			for (const c of comments) fenToComment.set(c.fen, c.comment);
+			const header = temp.header();
+			let tc = 0;
+			if (header.TimeControl) {
+				const t = header.TimeControl.split('+');
+				tc = parseInt(t[0], 10);
 			}
-
-			// Ensure non-negative delay
-			delay = Math.max(0, delay);
-
-			const isLast = i === totalMoves - 1;
-			const timeoutId = setTimeout(() => {
-				this.next();
-
-				// Stop on Error Check
-				if (this.stopOnError()) {
-					const currentIdx = this.currentMoveIndex();
-					const evals = this.evaluations();
-					if (currentIdx > 0 && currentIdx < evals.length) {
-						const currentEval = this.parseEval(evals[currentIdx]);
-						const prevEval = this.parseEval(evals[currentIdx - 1]);
-
-						if (currentEval !== null && prevEval !== null) {
-							// If diff > threshold
-							if (
-								Math.abs(currentEval - prevEval) > this.stopOnErrorThreshold()
-							) {
-								this.stopReplay(false);
-
-								const prevFen = this.getFenBeforeMove(currentIdx);
-								if (prevFen) {
-									this.showBetterMoveBtn.set(true);
-									this.analyzePosition(prevFen);
-								}
-							}
-						}
+			let wt = tc,
+				bt = tc;
+			this.clockHistory.push({ white: wt, black: bt });
+			let has = false;
+			for (const move of moves) {
+				const isW = move.color === 'w';
+				const comment = fenToComment.get(move.after);
+				if (comment) {
+					const clk = comment.match(/%clk\s+(?:(\d+):)?(\d+):(\d+)/);
+					if (clk) {
+						has = true;
+						const h = clk[1] ? parseInt(clk[1], 10) : 0;
+						const m = parseInt(clk[2], 10);
+						const s = parseInt(clk[3], 10);
+						const tis = h * 3600 + m * 60 + s;
+						if (isW) wt = tis;
+						else bt = tis;
 					}
 				}
-
-				if (isLast && onComplete && this.isReplaying()) {
-					// Give a small buffer for the last animation
-					const completionTimeoutId = this.setDeferredTimeout(() => {
-						// Only call onComplete if we didn't stop manually (check isReplaying?)
-						// stopReplay() sets isReplaying to false.
-						// If we stopped on error, we don't proceed to next game in sequence.
-						if (onComplete) onComplete();
-					}, 500);
-					this.replayTimeouts.push(completionTimeoutId);
-				}
-			}, delay);
-			this.replayTimeouts.push(timeoutId);
+				this.clockHistory.push({ white: wt, black: bt });
+			}
+			if (!has) {
+				this.clockHistory = [];
+				this.moveClocks.set([]);
+			} else this.buildMoveClocks(moves);
+		} catch {
+			this.clockHistory = [];
+			this.moveClocks.set([]);
 		}
 	}
 
-	/**
-	 * Normalizes a FEN string to the first 4 fields for position comparison.
-	 * Strips move counters so positions differing only in plies or move number
-	 * are treated as equivalent.
-	 *
-	 * @param fen — Full FEN string.
-	 * @returns Normalized FEN with only board-relevant fields.
-	 */
-	private normalizeFen(fen: string): string {
-		const parts = fen.split(' ');
-		return parts.slice(0, 4).join(' ');
+	private buildMoveClocks(moves: Move[]): void {
+		const clocks: string[] = [];
+		for (let i = 0; i < moves.length; i++) {
+			const hi = i + 1;
+			if (hi < this.clockHistory.length) {
+				const isW = moves[i].color === 'w';
+				const time = isW
+					? this.clockHistory[hi].white
+					: this.clockHistory[hi].black;
+				clocks.push(this.formatTime(time));
+			} else clocks.push('');
+		}
+		this.moveClocks.set(clocks);
 	}
 
-	/**
-	 * Finds the zero-based move index where the given moves reach a target FEN
-	 * position. Also checks the starting position (index -1) before any moves
-	 * are applied.
-	 *
-	 * The comparison uses normalized FEN (first 4 fields only) so that
-	 * positions differing only in move counters are treated as equivalent.
-	 *
-	 * @param moves — Array of SAN move strings to replay.
-	 * @param targetFen — The target FEN position to find.
-	 * @returns The move index (0-based) where the target FEN is reached, or
-	 *          -1 if the starting position matches the target (no moves needed),
-	 *          or -1 if not found at all.
-	 */
-	private findMoveIndexForFen(
-		moves: string[],
-		targetFen: string,
-	): number {
+	private findMoveIndexForFen(moves: string[], targetFen: string): number {
 		try {
-			const normalizedTarget = this.normalizeFen(targetFen);
-			const tempChess = new Chess();
-
-			// Check starting position (index -1) first
-			if (this.normalizeFen(tempChess.fen()) === normalizedTarget) {
-				return -1;
-			}
-
+			const norm = this.normalizeFen(targetFen);
+			const temp = new Chess();
+			if (this.normalizeFen(temp.fen()) === norm) return -1;
 			for (let i = 0; i < moves.length; i++) {
-				tempChess.move(moves[i]);
-				if (
-					this.normalizeFen(tempChess.fen()) === normalizedTarget
-				) {
-					return i;
-				}
+				temp.move(moves[i]);
+				if (this.normalizeFen(temp.fen()) === norm) return i;
 			}
-
 			return -1;
-		} catch (e) {
-			console.error('Error finding FEN position in moves', e);
+		} catch {
 			return -1;
 		}
+	}
+
+	private normalizeFen(fen: string): string {
+		return fen.split(' ').slice(0, 4).join(' ');
 	}
 
 	private getFenBeforeMove(moveIndex: number): string | null {
 		try {
-			const tempChess = new Chess();
-			tempChess.loadPgn(this.pgnInput());
-			// Navigate to moveIndex - 1
-			// history returns array of moves.
-			const moves = tempChess.history();
-			tempChess.reset();
-			for (let i = 0; i < moveIndex; i++) {
-				tempChess.move(moves[i]);
-			}
-			return tempChess.fen();
-		} catch (e) {
-			console.error('Error generating previous FEN', e);
+			const temp = new Chess();
+			temp.loadPgn(this.pgnInput());
+			const moves = temp.history();
+			temp.reset();
+			for (let i = 0; i < moveIndex; i++) temp.move(moves[i]);
+			return temp.fen();
+		} catch {
 			return null;
 		}
+	}
+
+	private scrollToActiveMove(): void {
+		const el = this.moveList();
+		if (!el) return;
+		const active = el.nativeElement.querySelector(
+			'.move-btn.active',
+		) as HTMLElement;
+		if (active)
+			active.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest',
+				inline: 'nearest',
+			});
+	}
+
+	private setDeferredTimeout(
+		cb: () => void,
+		delay = 0,
+	): ReturnType<typeof setTimeout> {
+		const id = setTimeout(() => {
+			this.pendingTimeouts.delete(id);
+			cb();
+		}, delay);
+		this.pendingTimeouts.add(id);
+		return id;
+	}
+
+	private showMessage(msg: string, duration = 4000): void {
+		this.snackBar.open(msg, 'Dismiss', {
+			duration,
+			horizontalPosition: 'end',
+			verticalPosition: 'top',
+		});
 	}
 }

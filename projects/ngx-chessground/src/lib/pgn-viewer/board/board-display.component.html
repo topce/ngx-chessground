@@ -1,0 +1,175 @@
+<div class="board-wrapper" [class.in3d]="in3d()" [class.staunton]="in3d()">
+  <!-- Top Player Info -->
+  <div class="player-info top">
+    <div class="player-name-group">
+      <span class="name">{{ topPlayerName() }}</span>
+      <span
+        class="turn-indicator"
+        [class]="topPlayerTurnClass()"
+        [class.active]="activeColor() === topPlayerActiveColor()"
+        [title]="topPlayerTitle()"
+      ></span>
+      <span class="clock inset">{{ topTimeRemaining() || '--:--' }}</span>
+    </div>
+  </div>
+
+  <!-- Board + Evaluation Bar -->
+  <div class="board-container">
+    <ngx-chessground [runFunction]="runFunction()"></ngx-chessground>
+    <evaluation-bar [evaluation]="evaluation()" [flipped]="flipped()" />
+  </div>
+
+  <!-- Bottom Player Info -->
+  <div class="player-info bottom">
+    <div class="player-name-group">
+      <span class="name">{{ bottomPlayerName() }}</span>
+      <span
+        class="turn-indicator"
+        [class]="bottomPlayerTurnClass()"
+        [class.active]="activeColor() === bottomPlayerActiveColor()"
+        [title]="bottomPlayerTitle()"
+      ></span>
+      <span class="clock inset">{{ bottomTimeRemaining() || '--:--' }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Game Result -->
+<div class="game-result-display">{{ gameResult() }}</div>
+
+<!-- Board Controls -->
+<div class="board-controls">
+  <button type="button" 
+    (click)="flipBoard.emit()"
+    class="board-ctrl-btn"
+    title="Flip board orientation"
+    aria-label="Flip board">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+      <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+    </svg>
+    Flip
+  </button>
+  <button type="button" 
+    (click)="toggle3d.emit()"
+    class="board-ctrl-btn"
+    [class.active]="in3d()"
+    title="Toggle 3D board appearance"
+    aria-label="Toggle 3D">
+    @if (in3d()) {
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path d="M3 9h18"/><path d="M9 3v18"/>
+      </svg>
+      2D
+    } @else {
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2L3 7.5v9L12 22l9-4.5v-9L12 2z"/>
+        <path d="M12 2v20"/><path d="M3 7.5l9 4.5 9-4.5"/>
+      </svg>
+      3D
+    }
+  </button>
+</div>
+
+<!-- Stockfish Analysis -->
+@if (showBetterMoveBtn()) {
+  <div class="analysis-container">
+    <div class="analysis-controls">
+      @if (!analysisVisible()) {
+        <label class="depth-label">
+          Depth:
+          <input
+            type="number"
+            [value]="stockfishDepth()"
+            (input)="onStockfishDepthChange($event)"
+            min="1"
+            max="50"
+            class="small-input depth-input"
+          />
+        </label>
+        <button type="button" 
+          (click)="toggleAnalysis.emit()"
+          class="primary-button small"
+        >
+          Show Better Move
+        </button>
+      }
+    </div>
+
+    @if (analysisVisible()) {
+      <div class="analysis-result">
+        @if (isAnalyzing()) {
+          <span class="analyzing-text">Thinking...</span>
+        } @else if (bestMoveInfo(); as info) {
+          <div class="best-move">
+            <div class="best-move-header">
+              <strong>
+                Best: {{ info.move }}
+                @if (info.score) {
+                  <span class="eval-score">({{ info.score }})</span>
+                }
+              </strong>
+              <button type="button" 
+                (click)="autoplayBestLine.emit()"
+                class="primary-button xsmall"
+                title="Play Best Line"
+              >
+                ▶ Play
+              </button>
+            </div>
+            <div class="pv-line">
+              @for (pvMove of info.pv; track $index) {
+                <button type="button" 
+                  class="pv-move-btn"
+                  (click)="previewPvMove.emit(pvMove.fen)"
+                >
+                  {{ pvMove.san }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- Move Navigation -->
+<div class="move-navigation">
+  <button type="button" 
+    (click)="start.emit()"
+    [disabled]="!canGoFirst()"
+    class="nav-btn"
+    aria-label="First Move"
+  >
+    |&lt;
+  </button>
+  <button type="button" 
+    (click)="prev.emit()"
+    [disabled]="!canGoPrev()"
+    class="nav-btn"
+    aria-label="Previous Move"
+  >
+    &lt;
+  </button>
+  <span class="move-status" aria-live="polite">
+    {{ currentMoveIndex() + 1 }} / {{ movesCount() }}
+  </span>
+  <button type="button" 
+    (click)="next.emit()"
+    [disabled]="!canGoNext()"
+    class="nav-btn"
+    aria-label="Next Move"
+  >
+    &gt;
+  </button>
+  <button type="button" 
+    (click)="end.emit()"
+    [disabled]="!canGoLast()"
+    class="nav-btn"
+    aria-label="Last Move"
+  >
+    &gt;|
+  </button>
+</div>

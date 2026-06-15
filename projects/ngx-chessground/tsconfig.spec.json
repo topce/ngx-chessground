@@ -5,20 +5,14 @@
 		"declaration": false,
 		"types": ["node"]
 	},
-	"include": [
-		"src/**/*.spec.ts",
-		"src/**/*.test.ts",
-		"src/test-providers.ts"
-	],
-	"exclude": [
-		"src/**/*.worker.ts"
-  ],
-  "angularCompilerOptions": {
-    "extendedDiagnostics": {
-      "checks": {
-        "nullishCoalescingNotNullable": "error",
-        "optionalChainNotNullable": "error"
-      }
-    }
-  }
+	"include": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/test-providers.ts"],
+	"exclude": ["src/**/*.worker.ts"],
+	"angularCompilerOptions": {
+		"extendedDiagnostics": {
+			"checks": {
+				"nullishCoalescingNotNullable": "error",
+				"optionalChainNotNullable": "error"
+			}
+		}
+	}
 }

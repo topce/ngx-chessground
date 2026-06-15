@@ -1,0 +1,29 @@
+<div class="move-list-header">
+  <h3>Moves</h3>
+</div>
+<div class="move-list-section">
+  <div class="move-list" role="list" #moveList>
+    @for (move of moves(); track $index) {
+      @if (isWhiteMove($index)) {
+        <span class="move-number">{{ moveNumber($index) }}.</span>
+      }
+      <button type="button" 
+        class="move-btn"
+        [class.active]="$index === currentMoveIndex()"
+        [class.last-move]="highlightLastMove() && $index === moves().length - 1"
+        (click)="jumpToMove.emit($index)"
+        [attr.aria-label]="
+          'Jump to move ' +
+          moveNumber($index) +
+          (isWhiteMove($index) ? ' White ' : ' Black ') +
+          move
+        "
+      >
+        {{ move }}
+      </button>
+      @if ($index < moveClocks().length && moveClocks()[$index]) {
+        <span class="move-clock">{{ moveClocks()[$index] }}</span>
+      }
+    }
+  </div>
+</div>

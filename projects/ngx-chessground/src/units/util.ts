@@ -42,7 +42,7 @@ export function toColor(chess: ChessInstance): Color {
  * @param promotion - The chess.js promotion character ('q', 'r', 'b', 'n')
  * @returns The corresponding chessground piece role ('queen', 'rook', 'bishop', 'knight')
  */
-function promotionToRole(
+export function promotionToRole(
 	promotion: string,
 ): 'queen' | 'rook' | 'bishop' | 'knight' {
 	switch (promotion) {

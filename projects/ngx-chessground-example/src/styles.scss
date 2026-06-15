@@ -14,11 +14,11 @@
   --color-primary-light: #E0E0E8;
   --color-secondary: #38384A;
   --color-secondary-hover: #4A4A5E;
-  --color-accent: #A67C00;
-  --color-accent-hover: #C49A1A;
+  --color-accent: #7A5F00;
+  --color-accent-hover: #937200;
   --color-accent-subtle: #F5EDD6;
-  --color-cta: #A67C00;
-  --color-cta-hover: #C49A1A;
+  --color-cta: #7A5F00;
+  --color-cta-hover: #937200;
   --color-danger: #B8312A;
   --color-danger-hover: #D4443C;
 
@@ -31,7 +31,7 @@
   /* Text */
   --text-primary: #0D0D1A;
   --text-secondary: #3D3D52;
-  --text-muted: #78788E;
+  --text-muted: #5D5D6E;
   --text-inverse: #F5F2EC;
 
   /* Borders */
@@ -81,6 +81,56 @@
   /* Panel widths */
   --panel-width: 320px;
   --panel-min-width: 280px;
+
+  /* cg-* aliases for PGN viewer components */
+  --cg-primary: var(--color-primary);
+  --cg-primary-hover: var(--color-primary-hover);
+  --cg-primary-light: var(--color-primary-light);
+  --cg-secondary: var(--color-secondary);
+  --cg-accent: var(--color-accent);
+  --cg-accent-hover: var(--color-accent-hover);
+  --cg-accent-subtle: var(--color-accent-subtle);
+  --cg-cta: var(--color-cta);
+  --cg-cta-hover: var(--color-cta-hover);
+  --cg-danger: var(--color-danger);
+  --cg-danger-hover: var(--color-danger-hover);
+  --cg-bg-page: var(--bg-page);
+  --cg-bg-surface: var(--bg-surface);
+  --cg-bg-alt: var(--bg-surface-alt);
+  --cg-bg-hover: var(--bg-hover);
+  --cg-text: var(--text-primary);
+  --cg-text-secondary: var(--text-secondary);
+  --cg-text-muted: var(--text-muted);
+  --cg-text-inverse: var(--text-inverse);
+  --cg-border: var(--border-color);
+  --cg-border-light: var(--border-color-light);
+  --cg-font-heading: var(--font-heading);
+  --cg-font-body: var(--font-body);
+  --cg-font-mono: var(--font-mono);
+  --cg-radius-sm: var(--radius-sm);
+  --cg-radius-md: var(--radius-md);
+  --cg-radius-lg: var(--radius-lg);
+  --cg-radius-xl: var(--radius-xl);
+  --cg-radius-full: var(--radius-full);
+  --cg-shadow-sm: var(--shadow-sm);
+  --cg-shadow-md: var(--shadow-md);
+  --cg-shadow-lg: var(--shadow-lg);
+  --cg-shadow-xl: var(--shadow-xl);
+  --cg-shadow-glow: var(--shadow-glow);
+  --cg-transition: var(--transition-fast);
+
+  /* Evaluation bar */
+  --eval-bar-bg: #000000;
+  --eval-bar-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08), inset 0 0 8px rgba(0, 0, 0, 0.5);
+  --eval-fill-white: #ffffff;
+  --eval-fill-black: #ffffff;
+  --eval-fill-equal: #ffffff;
+  --eval-text-white-bg: #ffffff;
+  --eval-text-white-color: #000000;
+  --eval-text-black-bg: #000000;
+  --eval-text-black-color: #ffffff;
+  --eval-text-equal-bg: #000000;
+  --eval-text-equal-color: #ffffff;
 
   /* Board */
   --board-shadow: 0 8px 32px rgba(13, 13, 26, 0.14);
@@ -134,7 +184,7 @@ html[data-theme="dark"] {
 
   --text-primary: #E8E8EE;
   --text-secondary: #9A9AAA;
-  --text-muted: #6A6A7A;
+  --text-muted: #9090A4;
   --text-inverse: #141420;
 
   --border-color: #3A3A4E;
@@ -150,6 +200,19 @@ html[data-theme="dark"] {
 
   --glass-bg: rgba(30, 30, 48, 0.8);
   --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Dark evaluation bar */
+  --eval-bar-bg: #1a1a2e;
+  --eval-bar-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06), inset 0 0 8px rgba(0, 0, 0, 0.6);
+  --eval-fill-white: #f5f2ec;
+  --eval-fill-black: #1a1a2e;
+  --eval-fill-equal: #555566;
+  --eval-text-white-bg: #f5f2ec;
+  --eval-text-white-color: #1a1a2e;
+  --eval-text-black-bg: #1a1a2e;
+  --eval-text-black-color: #f5f2ec;
+  --eval-text-equal-bg: #555566;
+  --eval-text-equal-color: #f5f2ec;
 }
 
 /* ---- Base Styles ---- */
@@ -275,6 +338,22 @@ html {
 .sponsor-dialog-panel .mat-mdc-dialog-content a {
   color: var(--color-accent);
   font-weight: 600;
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ==========================================================================

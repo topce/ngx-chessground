@@ -1,0 +1,375 @@
+<div class="left-panel-inner">
+  <h3>Game Browser</h3>
+
+  <!-- Collapsible: Players -->
+  <div class="collapsible-section">
+    <h4
+      class="section-header"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="leftPanelSections()['players']"
+      [attr.aria-controls]="'section-players-content'"
+      (click)="toggleSection('players')"
+      (keydown.enter)="toggleSection('players'); $event.preventDefault()"
+      (keydown.space)="toggleSection('players'); $event.preventDefault()"
+    >
+      <span class="chevron" [class.expanded]="leftPanelSections()['players']">▶</span>
+      Players
+    </h4>
+    <div class="section-content" [class.expanded]="leftPanelSections()['players']" id="section-players-content">
+      <div class="filter-section">
+        <div class="filter-row">
+          <player-typeahead
+            label="White"
+            [suggestions]="uniqueWhitePlayers()"
+            [(value)]="filterWhite"
+          />
+        </div>
+        <div class="filter-row">
+          <player-typeahead
+            label="Black"
+            [suggestions]="uniqueBlackPlayers()"
+            [(value)]="filterBlack"
+          />
+        </div>
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="ignoreColor()"
+              (change)="ignoreColor.set(!ignoreColor())"
+            />
+            Ignore Color
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapsible: Game Details -->
+  <div class="collapsible-section">
+    <h4
+      class="section-header"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="leftPanelSections()['gameDetails']"
+      [attr.aria-controls]="'section-details-content'"
+      (click)="toggleSection('gameDetails')"
+      (keydown.enter)="toggleSection('gameDetails'); $event.preventDefault()"
+      (keydown.space)="toggleSection('gameDetails'); $event.preventDefault()"
+    >
+      <span class="chevron" [class.expanded]="leftPanelSections()['gameDetails']">▶</span>
+      Game Details
+    </h4>
+    <div class="section-content" [class.expanded]="leftPanelSections()['gameDetails']" id="section-details-content">
+      <div class="filter-section">
+        <div class="filter-row filter-result-row">
+          <span class="filter-label">Result:</span>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('1-0')"
+              (change)="toggleResult('1-0', $event)"
+            />
+            White wins (1-0)
+          </label>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('1/2-1/2')"
+              (change)="toggleResult('1/2-1/2', $event)"
+            />
+            Draw (½-½)
+          </label>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('0-1')"
+              (change)="toggleResult('0-1', $event)"
+            />
+            Black wins (0-1)
+          </label>
+          <label class="checkbox-label result-option">
+            <input
+              type="checkbox"
+              [checked]="filterResult().includes('*')"
+              (change)="toggleResult('*', $event)"
+            />
+            Unfinished (*)
+          </label>
+        </div>
+        <div class="filter-row">
+          <select
+            [value]="filterEco()"
+            (change)="updateFilterEco($event)"
+            aria-label="Filter by ECO Opening"
+          >
+            <option value="">All Openings</option>
+            @for (ecoData of sortedEcoCodes(); track ecoData.code) {
+              <option [value]="ecoData.code">
+                {{ ecoData.code }}
+                @if (getOpeningMovesSafe(ecoData.code)) {
+                  - {{ getOpeningMovesSafe(ecoData.code) }}
+                }
+                ({{ ecoData.count }})
+              </option>
+            }
+          </select>
+        </div>
+        <div class="filter-row">
+          <select
+            [value]="filterTimeControl()"
+            (change)="updateFilterTimeControl($event)"
+            aria-label="Filter by Time Control"
+          >
+            <option value="">All Time Controls</option>
+            @for (tcData of sortedTimeControls(); track tcData.key) {
+              <option
+                [value]="tcData.key"
+                [attr.title]="tcData.originalsSummary"
+              >
+                {{ tcData.label }} ({{ tcData.count }})
+              </option>
+            }
+          </select>
+        </div>
+        <div class="filter-row">
+          <select
+            [value]="filterEvent()"
+            (change)="updateFilterEvent($event)"
+            aria-label="Filter by Event"
+          >
+            <option value="">All Events</option>
+            @for (evtData of sortedEvents(); track evtData.event) {
+              <option [value]="evtData.event">
+                {{ evtData.event }} ({{ evtData.count }})
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapsible: Rating -->
+  <div class="collapsible-section">
+    <h4
+      class="section-header"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="leftPanelSections()['rating']"
+      [attr.aria-controls]="'section-rating-content'"
+      (click)="toggleSection('rating')"
+      (keydown.enter)="toggleSection('rating'); $event.preventDefault()"
+      (keydown.space)="toggleSection('rating'); $event.preventDefault()"
+    >
+      <span class="chevron" [class.expanded]="leftPanelSections()['rating']">▶</span>
+      Rating
+    </h4>
+    <div class="section-content" [class.expanded]="leftPanelSections()['rating']" id="section-rating-content">
+      <div class="filter-section">
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="filterRatingEnabled()"
+              (change)="filterRatingEnabled.set(!filterRatingEnabled())"
+            />
+            Rating
+          </label>
+          <select
+            (change)="applyRatingPreset($event)"
+            class="preset-select"
+            aria-label="Rating Presets"
+          >
+            <option value="">Select Level...</option>
+            <option value="0-1999">Below 2000</option>
+            <option value="2000">Candidate Master (2000+)</option>
+            <option value="2000-2199">2000 – 2200</option>
+            <option value="2200">National Master (2200+)</option>
+            <option value="2200-2299">2200 – 2300</option>
+            <option value="2300">FIDE Master (2300+)</option>
+            <option value="2300-2399">2300 – 2400</option>
+            <option value="2400">Intl. Master (2400+)</option>
+            <option value="2400-2499">2400 – 2500</option>
+            <option value="2500">Grandmaster (2500+)</option>
+            <option value="2500-2699">2500 – 2700</option>
+            <option value="2700">Super GM (2700+)</option>
+            <option value="3000">Chess engines (3000 - 4000)</option>
+            <option value="2700-3000">2700+</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <input
+            type="number"
+            placeholder="White Rating >"
+            aria-label="Filter by White Rating Min"
+            [value]="filterWhiteRating()"
+            (input)="updateWhiteRating($any($event.target).value)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+          <input
+            type="number"
+            placeholder="White Rating <"
+            aria-label="Filter by White Rating Max"
+            [value]="filterWhiteRatingMax()"
+            (input)="updateWhiteRatingMax($any($event.target).value)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+        </div>
+        <div class="filter-row">
+          <input
+            type="number"
+            placeholder="Black Rating >"
+            aria-label="Filter by Black Rating Min"
+            [value]="filterBlackRating()"
+            (input)="updateBlackRating($any($event.target).value)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+          <input
+            type="number"
+            placeholder="Black Rating <"
+            aria-label="Filter by Black Rating Max"
+            [value]="filterBlackRatingMax()"
+            (input)="updateBlackRatingMax($any($event.target).value)"
+            class="rating-input"
+            step="50"
+            [disabled]="!filterRatingEnabled()"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapsible: Position -->
+  <div class="collapsible-section">
+    <h4
+      class="section-header"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="leftPanelSections()['position']"
+      [attr.aria-controls]="'section-position-content'"
+      (click)="toggleSection('position')"
+      (keydown.enter)="toggleSection('position'); $event.preventDefault()"
+      (keydown.space)="toggleSection('position'); $event.preventDefault()"
+    >
+      <span class="chevron" [class.expanded]="leftPanelSections()['position']">▶</span>
+      Position
+    </h4>
+    <div class="section-content" [class.expanded]="leftPanelSections()['position']" id="section-position-content">
+      <div class="filter-section">
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="filterMoves()"
+              (change)="filterMoves.set(!filterMoves())"
+            />
+            Enter Starting Moves
+          </label>
+        </div>
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="filterByFenEnabled()"
+              (change)="filterByFenEnabled.set(!filterByFenEnabled())"
+            />
+            Search by Position
+          </label>
+        </div>
+        @if (filterByFenEnabled()) {
+          <div class="filter-row fen-row">
+            <input
+              type="text"
+              class="fen-input"
+              placeholder="Paste FEN or use board position"
+              aria-label="Search by FEN position"
+              [value]="filterFen()"
+              (input)="updateFilterFen($any($event.target).value)"
+              spellcheck="false"
+            />
+            <button type="button" 
+              (click)="snapshotCurrentPosition.emit()"
+              class="secondary-button small"
+              title="Use current board position as filter">
+              📷 Board
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Action Buttons -->
+  <div class="filter-actions">
+    <button type="button" type="button" (click)="clearFilters.emit()" class="secondary-button small">Clear</button>
+    <button type="button" type="button" (click)="applyFilter.emit()" class="primary-button small">Filter</button>
+    <button type="button" 
+      (click)="toggleSortDirection.emit()"
+      class="sort-button small"
+      [title]="sortAscending() ? 'Sorted: Lowest Elo first' : 'Sorted: Highest Elo first'"
+    >
+      @if (sortAscending()) {
+        ↑ Low
+      } @else {
+        ↓ High
+      }
+    </button>
+  </div>
+
+  <!-- Game List -->
+  <div class="game-list-wrapper">
+    @if (gamesMetadata().length > 0) {
+      <div class="game-list-header">
+        <span class="game-list-count">Games: {{ totalFilteredCount() }}</span>
+      </div>
+
+      <!-- Game Navigator -->
+      <div class="game-nav-bar">
+        <button type="button" 
+          (click)="onPrevGame()"
+          [disabled]="!canGoPrev()"
+          class="nav-arrow-btn"
+          aria-label="Previous Game"
+          title="Previous game"
+        >
+          ◀
+        </button>
+        <div class="nav-game-info">
+          <span class="nav-game-number">
+            @if (selectedGamesCount() > 0) {
+              <span class="nav-selected-badge">{{ selectedGamesCount() }} selected</span>
+            }
+          </span>
+          <span class="nav-game-players">{{ currentWhitePlayer() }} vs {{ currentBlackPlayer() }}</span>
+          <span class="nav-game-result">{{ currentGameResult() }}</span>
+        </div>
+        <button type="button" 
+          (click)="onNextGame()"
+          [disabled]="!canGoNext()"
+          class="nav-arrow-btn"
+          aria-label="Next Game"
+          title="Next game"
+        >
+          ▶
+        </button>
+      </div>
+
+      @if (isFiltering()) {
+        <div class="filtering-indicator" role="status" aria-live="polite">Filtering...</div>
+      }
+      <div class="selection-controls">
+        <span class="selection-count">{{ selectedGamesCount() }} selected</span>
+      </div>
+    } @else {
+      <div class="empty-state">No games loaded</div>
+    }
+  </div>
+</div>

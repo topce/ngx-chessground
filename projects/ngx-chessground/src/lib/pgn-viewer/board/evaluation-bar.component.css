@@ -1,0 +1,109 @@
+:host {
+	display: contents;
+}
+
+.evaluation-bar-container {
+	--eval-bar-bg: #000000;
+	--eval-bar-shadow:
+		0 0 0 2px rgba(255, 255, 255, 0.08), inset 0 0 8px rgba(0, 0, 0, 0.5);
+	--eval-fill-white: #ffffff;
+	--eval-fill-black: #ffffff;
+	--eval-fill-equal: #ffffff;
+	--eval-text-white-bg: #ffffff;
+	--eval-text-white-color: #000000;
+	--eval-text-black-bg: #000000;
+	--eval-text-black-color: #ffffff;
+	--eval-text-equal-bg: #000000;
+	--eval-text-equal-color: #ffffff;
+
+	width: 28px;
+	background-color: var(--eval-bar-bg);
+	border-radius: 6px;
+	position: relative;
+	display: flex;
+	flex-direction: column-reverse;
+	box-shadow: var(--eval-bar-shadow);
+	margin-right: 6px;
+	overflow: hidden;
+	flex-shrink: 0;
+	contain: layout style paint;
+	isolation: isolate;
+	cursor: default;
+}
+
+.evaluation-bar-container.flipped {
+	transform: scaleY(-1);
+	transition: none;
+}
+
+.evaluation-bar-container.flipped .evaluation-text {
+	transform: scaleY(-1) translateY(-50%);
+	transition: none;
+}
+
+.evaluation-bar-container::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-top: 1px dashed rgba(255, 255, 255, 0.15);
+	top: 50%;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.evaluation-fill {
+	width: 100%;
+	height: 100%;
+	transform-origin: bottom;
+	transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform;
+	contain: layout style paint;
+	background: var(--eval-fill-equal);
+}
+
+.evaluation-fill.eval-white {
+	background: var(--eval-fill-white);
+}
+.evaluation-fill.eval-black {
+	background: var(--eval-fill-black);
+}
+.evaluation-fill.eval-equal {
+	background: var(--eval-fill-equal);
+}
+
+.evaluation-text {
+	position: absolute;
+	top: 50%;
+	right: calc(100% + 8px);
+	padding: 2px 8px;
+	min-width: 48px;
+	text-align: center;
+	font-size: 11px;
+	font-weight: 800;
+	pointer-events: none;
+	transform: translateY(-50%);
+	white-space: nowrap;
+	z-index: 2;
+	border-radius: 4px;
+	line-height: 1.4;
+	transition: top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	contain: layout style paint;
+	will-change: top;
+}
+
+.evaluation-text.eval-white {
+	color: var(--eval-text-white-color);
+	background: var(--eval-text-white-bg);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.evaluation-text.eval-black {
+	color: var(--eval-text-black-color);
+	background: var(--eval-text-black-bg);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.evaluation-text.eval-equal {
+	color: var(--eval-text-equal-color);
+	background: var(--eval-text-equal-bg);
+}

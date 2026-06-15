@@ -9,7 +9,9 @@
 		"ignoreUnknown": false,
 		"includes": [
 			"./projects/**",
-			"!!**/projects/ngx-chessground/assets/stockfish/stockfish.js"
+			"!!**/projects/ngx-chessground/assets/stockfish/stockfish.js",
+			"!!**/move-list.component.html",
+			"!!**/player-typeahead.component.html"
 		]
 	},
 	"formatter": {
