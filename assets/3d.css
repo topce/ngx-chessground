@@ -1,6 +1,6 @@
 .in3d .cg-wrap {
-	width: 320px;
-	height: 290.3125px;
+	width: 320px !important;
+	height: 290.3125px !important;
 	background-image: none;
 }
 .in3d cg-board::before {
