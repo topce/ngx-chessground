@@ -114,8 +114,8 @@ export class HomePageComponent {
 	}
 
 	public onClick(name: string, runFn: (el: HTMLElement) => Api) {
-		// scroll to top
-		window.scrollTo(0, 0);
+		// Defer scroll to avoid blocking the interaction's next paint
+		requestAnimationFrame(() => window.scrollTo(0, 0));
 
 		if (this.rightList.findIndex((unit) => unit.name === name) !== -1) {
 			this.leftValue.set(null);
