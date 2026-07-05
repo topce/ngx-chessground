@@ -34,7 +34,6 @@ jobs:
 
       - name: Build desktop binaries (all targets)
         run: |
-          node scripts/download-stockfish-wasm.js
           deno task desktop:build:all
 
       - name: Create checksums

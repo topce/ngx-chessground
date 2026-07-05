@@ -178,13 +178,18 @@ async function main() {
     }
   }
 
-  // Print sizes
+  // Print sizes (after rename)
   for (const file of FILES) {
-    const p = path.resolve(STOCKFISH_WASM_DIR, file);
-    const stat = fs.statSync(p);
-    console.log(
-      `  ${file}: ${(stat.size / 1024 / 1024).toFixed(1)} MB`,
-    );
+    const renamed = RENAME_MAP[file] || file;
+    const p = path.resolve(STOCKFISH_WASM_DIR, renamed);
+    if (fs.existsSync(p)) {
+      const stat = fs.statSync(p);
+      console.log(
+        `  ${renamed}: ${(stat.size / 1024 / 1024).toFixed(1)} MB`,
+      );
+    } else {
+      console.warn(`  ${renamed}: not found (rename issue)`);
+    }
   }
 }
 
