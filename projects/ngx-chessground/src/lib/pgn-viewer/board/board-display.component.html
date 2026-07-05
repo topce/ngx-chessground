@@ -109,6 +109,9 @@
                 @if (info.score) {
                   <span class="eval-score">({{ info.score }})</span>
                 }
+                @if (alternativeLabel()) {
+                  <span class="alt-label">{{ alternativeLabel() }}</span>
+                }
               </strong>
               <button type="button" 
                 (click)="autoplayBestLine.emit()"
@@ -128,6 +131,39 @@
                 </button>
               }
             </div>
+            @if (hasPrevAlternative() || hasNextAlternative()) {
+              <div class="alt-nav">
+                <button type="button"
+                  (click)="prevBestMove.emit()"
+                  [disabled]="!hasPrevAlternative()"
+                  class="alt-nav-btn"
+                  title="Previous best move"
+                  aria-label="Previous best move"
+                >← Prev</button>
+                <button type="button"
+                  (click)="nextBestMove.emit()"
+                  [disabled]="!hasNextAlternative()"
+                  class="alt-nav-btn"
+                  title="Next best move"
+                  aria-label="Next best move"
+                >Next →</button>
+              </div>
+            }
+          </div>
+        }
+        @if (autoplayCompleted() && !isAnalyzing()) {
+          <div class="reevaluate-section">
+            <button type="button"
+              (click)="reevaluate.emit()"
+              class="primary-button small"
+              title="Analyze the current board position"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
+              Re-evaluate
+            </button>
           </div>
         }
       </div>

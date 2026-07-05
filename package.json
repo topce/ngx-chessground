@@ -1,6 +1,6 @@
 {
   "name": "ngx-chessground",
-  "version": "22.0.0",
+  "version": "22.1.0",
   "description": "angular wrapper for ornicar/chessground",
   "scripts": {
     "tsc-lib": "tsc --project ./projects/ngx-chessground/tsconfig.lib.json",
@@ -25,8 +25,16 @@
     "update:deps": "ncu -u && ncu -u --cwd projects/ngx-chessground && npm install --force",
     "publish:lib": "npm run build:lib:prod && cd dist/ngx-chessground && npm publish",
     "download-lichess": "node scripts/download-lichess.js",
+    "download:stockfish": "node scripts/download-stockfish-wasm.js",
     "postinstall": "npm audit --audit-level=moderate || true",
-    "audit:deps": "npm audit --audit-level=moderate"
+    "audit:deps": "npm audit --audit-level=moderate",
+    "desktop:build": "deno task desktop:build",
+    "desktop:dev": "deno task desktop:dev",
+    "desktop:build:all": "deno task desktop:build:all",
+    "desktop:build:linux": "deno task desktop:build:linux",
+    "desktop:build:linux-arm64": "deno task desktop:build:linux-arm64",
+    "desktop:build:windows": "deno task desktop:build:windows"
+
   },
   "dependencies": {
     "@angular/animations": "^22.0.1",

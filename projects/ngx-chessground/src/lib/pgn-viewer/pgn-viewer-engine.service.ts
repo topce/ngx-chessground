@@ -143,6 +143,7 @@ export class PgnViewerEngineService {
 		}
 
 		this.stockfishWorker.postMessage('stop');
+		this.stockfishWorker.postMessage('setoption name MultiPV value 3');
 		this.stockfishWorker.postMessage(`position fen ${fen}`);
 		this.stockfishWorker.postMessage(`go depth ${depth}`);
 		return true;

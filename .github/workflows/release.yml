@@ -1,0 +1,54 @@
+name: Release Desktop Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build desktop binaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: canary
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular app (production)
+        run: npm run build:app:prod
+
+      - name: Build desktop binaries (all targets)
+        run: |
+          node scripts/download-stockfish-wasm.js
+          deno task desktop:build:all
+
+      - name: Create checksums
+        run: |
+          sha256sum ngx-chessground-* > SHASUMS256.txt
+          cat SHASUMS256.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          files: |
+            ngx-chessground-*
+            SHASUMS256.txt

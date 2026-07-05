@@ -72,6 +72,14 @@ export class BoardDisplayComponent {
 	readonly analysisVisible = input<boolean>(false);
 	readonly showBetterMoveBtn = input<boolean>(false);
 	readonly stockfishDepth = model<number>(18);
+	/** Whether there is a next alternative move to cycle to. */
+	readonly hasNextAlternative = input<boolean>(false);
+	/** Whether there is a previous alternative to cycle back to. */
+	readonly hasPrevAlternative = input<boolean>(false);
+	/** Label showing current alternative position (e.g. "2/3"). */
+	readonly alternativeLabel = input<string>('');
+	/** Whether autoplay of the best line has completed (enables re-evaluate). */
+	readonly autoplayCompleted = input<boolean>(false);
 
 	// ---- Events ----
 	readonly flipBoard = output<void>();
@@ -84,6 +92,12 @@ export class BoardDisplayComponent {
 	readonly autoplayBestLine = output<void>();
 	readonly previewPvMove = output<string>();
 	readonly toggleAnalysis = output<void>();
+	/** Cycle to the next-best engine move. */
+	readonly nextBestMove = output<void>();
+	/** Cycle to the previous engine move. */
+	readonly prevBestMove = output<void>();
+	/** Re-evaluate the position currently displayed on the board. */
+	readonly reevaluate = output<void>();
 
 	// ---- Depth change handler ----
 	onStockfishDepthChange(event: Event): void {

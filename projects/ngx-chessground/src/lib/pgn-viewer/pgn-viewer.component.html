@@ -89,6 +89,10 @@
         [analysisVisible]="analysisVisible()"
         [showBetterMoveBtn]="showBetterMoveBtn()"
         [isEndOfReplay]="isEndOfReplay()"
+        [hasNextAlternative]="currentAlternativeIndex() < allAlternatives().length - 1"
+        [hasPrevAlternative]="currentAlternativeIndex() > 0"
+        [alternativeLabel]="allAlternatives().length > 1 ? (currentAlternativeIndex() + 1) + '/' + allAlternatives().length : ''"
+        [autoplayCompleted]="autoplayCompleted()"
         [(stockfishDepth)]="stockfishDepth"
         (flipBoard)="flipBoard()"
         (toggle3d)="toggle3d()"
@@ -100,6 +104,9 @@
         (autoplayBestLine)="autoplayBestLine()"
         (previewPvMove)="previewPvMove($event)"
         (toggleAnalysis)="toggleAnalysis()"
+        (nextBestMove)="nextBestMove()"
+        (prevBestMove)="prevBestMove()"
+        (reevaluate)="reevaluatePosition()"
       />
     </div>
 

@@ -31,6 +31,7 @@ import type {
 	GameMetadata,
 	WorkerResponse,
 } from './pgn-processor.worker';
+import type { BestMoveInfo } from './pgn-viewer.types';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 import { ReplayPanelComponent } from './replay/replay-panel.component';
 import { highlightMatch, type TextSegment } from './text-highlight';
@@ -284,15 +285,22 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// ---- Stockfish signals ----
 	isAnalyzing = signal<boolean>(false);
-	bestMoveInfo = signal<{
-		move: string;
-		pv: { san: string; fen: string }[];
-		score?: string;
-	} | null>(null);
+	/** All PV lines collected from the current analysis (sorted by MultiPV rank). */
+	allAlternatives = signal<BestMoveInfo[]>([]);
+	/** Index into allAlternatives indicating which line is currently displayed. */
+	currentAlternativeIndex = signal<number>(0);
+	/** Computed: currently displayed best move info (cycles through alternatives). */
+	readonly bestMoveInfo = computed<BestMoveInfo | null>(() => {
+		const alts = this.allAlternatives();
+		const idx = this.currentAlternativeIndex();
+		return idx >= 0 && idx < alts.length ? alts[idx] : null;
+	});
 	showBetterMoveBtn = signal<boolean>(false);
 	analysisVisible = signal<boolean>(false);
 	stockfishDepth = signal<number>(18);
 	analysisVisibleChanged = signal<boolean>(false);
+	/** True after autoplayBestLine completes — enables the re-evaluate button. */
+	autoplayCompleted = signal<boolean>(false);
 
 	evaluations = signal<(string | null)[]>([]);
 	currentEvaluation = computed(() => {
@@ -711,17 +719,40 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		if (!this.pgnViewerEngine.analyzePosition(fen, this.stockfishDepth()))
 			return;
 		this.isAnalyzing.set(true);
-		this.bestMoveInfo.set(null);
+		this.allAlternatives.set([]);
+		this.currentAlternativeIndex.set(0);
+		this.autoplayCompleted.set(false);
+		this.analysisVisible.set(true);
 	}
 	autoplayBestLine(): void {
 		const info = this.bestMoveInfo();
 		if (!info?.pv?.length) return;
+		this.autoplayCompleted.set(false);
 		(async () => {
 			for (const move of info.pv) {
 				this.currentFen.set(move.fen);
 				await new Promise((r) => setTimeout(r, 1000));
 			}
+			this.autoplayCompleted.set(true);
 		})();
+	}
+	/** Cycle to the next-best engine move in the current analysis. */
+	nextBestMove(): void {
+		const alts = this.allAlternatives();
+		const idx = this.currentAlternativeIndex();
+		if (idx < alts.length - 1) {
+			this.currentAlternativeIndex.set(idx + 1);
+		}
+	}
+	/** Cycle to the previous engine move in the current analysis. */
+	prevBestMove(): void {
+		const idx = this.currentAlternativeIndex();
+		if (idx > 0) this.currentAlternativeIndex.set(idx - 1);
+	}
+	/** Re-analyze the board position currently displayed. */
+	reevaluatePosition(): void {
+		this.analyzedFen = this.currentFen();
+		this.analyzePosition(this.currentFen());
 	}
 	previewPvMove(fen: string): void {
 		this.currentFen.set(fen);
@@ -1103,11 +1134,27 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	// Temp storage for multi-PV lines during analysis; flushed to allAlternatives on bestmove.
+	private readonly pendingAlternatives = new Map<number, BestMoveInfo>();
+
 	private handleStockfishMessage(event: MessageEvent): void {
 		const line = event.data;
 		if (typeof line !== 'string') return;
-		if (line.startsWith('bestmove')) this.isAnalyzing.set(false);
-		else if (line.startsWith('info') && line.includes(' pv ')) {
+		if (line.startsWith('bestmove')) {
+			this.isAnalyzing.set(false);
+			// Sort multi-PV lines by rank and publish them
+			const sorted = Array.from(this.pendingAlternatives.entries())
+				.sort(([a], [b]) => a - b)
+				.map(([, info]) => info);
+			this.allAlternatives.set(sorted);
+			this.currentAlternativeIndex.set(0);
+			this.pendingAlternatives.clear();
+			this.autoplayCompleted.set(false);
+		} else if (line.startsWith('info') && line.includes(' pv ')) {
+			// Extract multi-PV rank (defaults to 1 for single-PV engines)
+			const multiPvMatch = line.match(/multipv (\d+)/);
+			const rank = multiPvMatch ? parseInt(multiPvMatch[1], 10) : 1;
+
 			const pvIndex = line.indexOf(' pv ');
 			const pvString = line.substring(pvIndex + 4);
 			const uciMoves = pvString.split(' ');
@@ -1149,7 +1196,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 						/* ignore */
 					}
 				}
-				this.bestMoveInfo.set({
+				this.pendingAlternatives.set(rank, {
 					move: bestMoveSan,
 					pv: sanPv,
 					score: scoreText,
@@ -1412,7 +1459,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.isReplaying.set(true);
 		this.showBetterMoveBtn.set(false);
 		this.analysisVisible.set(false);
-		this.bestMoveInfo.set(null);
+		this.allAlternatives.set([]);
+		this.autoplayCompleted.set(false);
 		const startIdx = this.currentMoveIndex() + 1;
 		if (startIdx >= totalMoves) {
 			this.isReplaying.set(false);

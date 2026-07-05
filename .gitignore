@@ -49,4 +49,23 @@ Thumbs.db
 graphify-out
 .claude
 .agents
+# Deno Desktop build artifacts
+desktop/stockfish-wasm/
+ngx-chessground.app
+ngx-chessground-linux/
+ngx-chessground-linux-arm64/
+ngx-chessground-windows/
+ngx-chessground.dylib
+ngx-chessground.dylib.tmp-*
+ngx-chessground-*.dmg
+ngx-chessground-*.AppImage
+ngx-chessground-*.deb
+ngx-chessground-*.rpm
+ngx-chessground-*.msi
+nds.gz
+deno.lock
+#
+.codewhale
 messages
+trace.json
+skills-lock.json

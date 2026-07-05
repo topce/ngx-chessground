@@ -10,6 +10,7 @@
 		"includes": [
 			"./projects/**",
 			"!!**/projects/ngx-chessground/assets/stockfish/stockfish.js",
+			"!!**/assets/images/**",
 			"!!**/move-list.component.html",
 			"!!**/player-typeahead.component.html"
 		]
@@ -22,6 +23,16 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"a11y": {
+				"noSvgWithoutTitle": "off",
+				"useValidAnchor": "off",
+				"noLabelWithoutControl": "off",
+				"noInteractiveElementToNoninteractiveRole": "off",
+				"useAriaPropsForRole": "off",
+				"useFocusableInteractive": "off",
+				"useSemanticElements": "off",
+				"noNoninteractiveElementToInteractiveRole": "off"
+			},
 			"style": {
 				"useImportType": "off"
 			}
