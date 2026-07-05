@@ -3,6 +3,7 @@ import { GoatComponent } from './goat/goat.component';
 import { HomePageComponent } from './home-page/home-page.component';
 import { MeComponent } from './me/me.component';
 import { PlayLikeGoatComponent } from './play-like-goat/play-like-goat.component';
+import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy.component';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'pgn-viewer', pathMatch: 'full' },
@@ -17,5 +18,6 @@ export const routes: Routes = [
 				(m) => m.PgnViewerComponent,
 			),
 	},
+	{ path: 'privacy-policy', component: PrivacyPolicyComponent },
 	{ path: '**', redirectTo: '' },
 ];

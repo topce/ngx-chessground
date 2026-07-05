@@ -42,6 +42,7 @@ yarn-error.log
 testem.log
 /typings
 
+/ngx-chessground/
 # System Files
 .DS_Store
 Thumbs.db
@@ -61,7 +62,8 @@ ngx-chessground-*.dmg
 ngx-chessground-*.AppImage
 ngx-chessground-*.deb
 ngx-chessground-*.rpm
-ngx-chessground-*.msi
+*.msi
+*.ico
 nds.gz
 deno.lock
 #
