@@ -1,5 +1,22 @@
 # Changelog
 
+## [22.2.0] - 2026-07-05
+
+### Added
+- Privacy Policy page (Angular route + footer link) for Windows Store compliance
+- Native MSI installer with proper `ngx-chessground.exe` launcher (no .bat wrapper)
+
+### Changed
+- Updated Deno to 2.9.1 canary (laufey v0.5.0) — fixes WebView2 runtime detection on Windows
+- Windows portable build now uses `ngx-chessground.exe` entry point
+
+### Fixed
+- MSI installer no longer fails with "Failed to find the app exe path" WebView2 error
+- Windows Store submission requirements met (privacy policy, x64 architecture, MSI installer)
+
+### Removed
+- Broken GitHub Actions cross-compile release workflow
+
 ## [22.1.0] - 2026-07-05
 
 ### Added
