@@ -1,7 +1,7 @@
 /**
  * GMBJT Music — Gambit Bonnevoie Chess Club Songs
  *
- * 50 chess-themed songs created by the GMBJTeam using ChatGPT, Gemini, and Suno.
+ * 68 chess-themed songs created by the GMBJTeam using ChatGPT, Gemini, and Suno.
  * Full playlist: https://suno.com/playlist/12948ea4-d6cf-4a82-b27f-bf07cafb7b13
  */
 export interface GMBJTSong {
@@ -362,6 +362,132 @@ export const GMBJT_SONGS: GMBJTSong[] = [
 		id: '7bbdfe42-6bfc-43c0-aac5-efe96422f668',
 		url: 'https://cdn1.suno.ai/7bbdfe42-6bfc-43c0-aac5-efe96422f668.mp3',
 		sunoUrl: 'https://suno.com/song/7bbdfe42-6bfc-43c0-aac5-efe96422f668',
+	},
+	{
+		title: '960',
+		author: 'rexma777',
+		id: '14b9affc-221d-4040-9d17-17f51e8db15c',
+		url: 'https://cdn1.suno.ai/14b9affc-221d-4040-9d17-17f51e8db15c.mp3',
+		sunoUrl: 'https://suno.com/song/14b9affc-221d-4040-9d17-17f51e8db15c',
+	},
+	{
+		title: 'Steinitz',
+		author: 'rexma777',
+		id: '48a166d6-2e55-450b-ba6f-b4a2127f2646',
+		url: 'https://cdn1.suno.ai/48a166d6-2e55-450b-ba6f-b4a2127f2646.mp3',
+		sunoUrl: 'https://suno.com/song/48a166d6-2e55-450b-ba6f-b4a2127f2646',
+	},
+	{
+		title: 'Stillness',
+		author: 'rexma777',
+		id: '73ba9c3b-6f20-4692-bbcb-fa22df91a0f7',
+		url: 'https://cdn1.suno.ai/73ba9c3b-6f20-4692-bbcb-fa22df91a0f7.mp3',
+		sunoUrl: 'https://suno.com/song/73ba9c3b-6f20-4692-bbcb-fa22df91a0f7',
+	},
+	{
+		title: 'Nimzowitsch',
+		author: 'rexma777',
+		id: 'f392c073-d72a-41d5-9b65-0b003bde6087',
+		url: 'https://cdn1.suno.ai/f392c073-d72a-41d5-9b65-0b003bde6087.mp3',
+		sunoUrl: 'https://suno.com/song/f392c073-d72a-41d5-9b65-0b003bde6087',
+	},
+	{
+		title: 'Euphoria',
+		author: 'rexma777',
+		id: 'ac1408a1-73c8-47b4-a8b4-f79a189b8ace',
+		url: 'https://cdn1.suno.ai/ac1408a1-73c8-47b4-a8b4-f79a189b8ace.mp3',
+		sunoUrl: 'https://suno.com/song/ac1408a1-73c8-47b4-a8b4-f79a189b8ace',
+	},
+	{
+		title: 'Christmas Over the Chessboard',
+		author: 'rexma777',
+		id: 'a239450f-2527-4094-b120-f90e6962a7b5',
+		url: 'https://cdn1.suno.ai/a239450f-2527-4094-b120-f90e6962a7b5.mp3',
+		sunoUrl: 'https://suno.com/song/a239450f-2527-4094-b120-f90e6962a7b5',
+	},
+	{
+		title: 'Siggy',
+		author: 'rexma777',
+		id: '4576814b-7155-436b-a950-135e5872c679',
+		url: 'https://cdn1.suno.ai/4576814b-7155-436b-a950-135e5872c679.mp3',
+		sunoUrl: 'https://suno.com/song/4576814b-7155-436b-a950-135e5872c679',
+	},
+	{
+		title: 'Lasker',
+		author: 'rexma777',
+		id: '41c9e8cf-f709-453f-8b22-10ac2fe35f2c',
+		url: 'https://cdn1.suno.ai/41c9e8cf-f709-453f-8b22-10ac2fe35f2c.mp3',
+		sunoUrl: 'https://suno.com/song/41c9e8cf-f709-453f-8b22-10ac2fe35f2c',
+	},
+	{
+		title: 'Capablanca',
+		author: 'rexma777',
+		id: '5e958c82-a274-4c67-95eb-053f8d671638',
+		url: 'https://cdn1.suno.ai/5e958c82-a274-4c67-95eb-053f8d671638.mp3',
+		sunoUrl: 'https://suno.com/song/5e958c82-a274-4c67-95eb-053f8d671638',
+	},
+	{
+		title: 'Alekhine',
+		author: 'rexma777',
+		id: 'c0b06899-826b-4728-8dee-eeed29132d75',
+		url: 'https://cdn1.suno.ai/c0b06899-826b-4728-8dee-eeed29132d75.mp3',
+		sunoUrl: 'https://suno.com/song/c0b06899-826b-4728-8dee-eeed29132d75',
+	},
+	{
+		title: 'Smyslov',
+		author: 'rexma777',
+		id: '153de2ec-c8ca-45c2-b46a-38e81cf94104',
+		url: 'https://cdn1.suno.ai/153de2ec-c8ca-45c2-b46a-38e81cf94104.mp3',
+		sunoUrl: 'https://suno.com/song/153de2ec-c8ca-45c2-b46a-38e81cf94104',
+	},
+	{
+		title: 'Two Knights',
+		author: 'rexma777',
+		id: 'e9acc588-a324-4afe-83ac-26244aa566f2',
+		url: 'https://cdn1.suno.ai/e9acc588-a324-4afe-83ac-26244aa566f2.mp3',
+		sunoUrl: 'https://suno.com/song/e9acc588-a324-4afe-83ac-26244aa566f2',
+	},
+	{
+		title: 'Queening',
+		author: 'rexma777',
+		id: '13059a8b-5cbc-4f88-9daa-998c1123fbb6',
+		url: 'https://cdn1.suno.ai/13059a8b-5cbc-4f88-9daa-998c1123fbb6.mp3',
+		sunoUrl: 'https://suno.com/song/13059a8b-5cbc-4f88-9daa-998c1123fbb6',
+	},
+	{
+		title: 'Alexander the Great',
+		author: 'rexma777',
+		id: 'b55a03c1-6e94-468a-bdad-0b9686ffc650',
+		url: 'https://cdn1.suno.ai/b55a03c1-6e94-468a-bdad-0b9686ffc650.mp3',
+		sunoUrl: 'https://suno.com/song/b55a03c1-6e94-468a-bdad-0b9686ffc650',
+	},
+	{
+		title: 'Kraljica',
+		author: 'rexma777',
+		id: '53f1c86e-8400-41f7-b6db-89690c6c672f',
+		url: 'https://cdn1.suno.ai/53f1c86e-8400-41f7-b6db-89690c6c672f.mp3',
+		sunoUrl: 'https://suno.com/song/53f1c86e-8400-41f7-b6db-89690c6c672f',
+	},
+	{
+		title: 'Julius Caesar',
+		author: 'rexma777',
+		id: 'f94a15a6-52e4-4867-b01b-34a9344773b0',
+		url: 'https://cdn1.suno.ai/f94a15a6-52e4-4867-b01b-34a9344773b0.mp3',
+		sunoUrl: 'https://suno.com/song/f94a15a6-52e4-4867-b01b-34a9344773b0',
+	},
+	{
+		title: 'Prokleto proljeće',
+		author: 'rexma777',
+		id: 'aa622c0f-3e4d-488e-8852-ede291bd974f',
+		url: 'https://cdn1.suno.ai/aa622c0f-3e4d-488e-8852-ede291bd974f.mp3',
+		sunoUrl: 'https://suno.com/song/aa622c0f-3e4d-488e-8852-ede291bd974f',
+	},
+	{
+		title: 'Botvinnik is Winning',
+		author: 'rexma777',
+		id: 'c0912099-d530-4582-9fbc-ab2a4bff8a2e',
+		url: 'https://cdn1.suno.ai/c0912099-d530-4582-9fbc-ab2a4bff8a2e.mp3',
+		sunoUrl: 'https://suno.com/song/c0912099-d530-4582-9fbc-ab2a4bff8a2e',
 	},
 ];
 
