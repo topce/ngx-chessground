@@ -18,8 +18,7 @@ Cross-compiles from a single machine to macOS, Linux, and Windows.
 
 ```sh
 npm install --force
-npm run build:app:prod
-deno task desktop:build
+deno task desktop:build   # builds the Angular app (desktop config) + bundles
 open ngx-chessground.app
 ```
 
@@ -32,8 +31,20 @@ open ngx-chessground.app
 | **Before** | **744 MB** | Angular app (14 MB) + Deno runtime (~70 MB) + **lichess database (645 MB)** |
 | **After** | **~120 MB** | Angular app (14 MB) + Deno runtime (~70 MB) + webview (~15 MB) |
 
-The lichess database (`public/lichess/`) is excluded from the desktop build automatically.
-It's only needed for the web app (loaded on demand from the server).
+The lichess database (`public/lichess/`) is **not copied or bundled** for desktop builds.
+Desktop tasks build with the Angular `desktop` configuration
+(`ng build --configuration production,desktop`), which ignores the `lichess/**` asset
+folder — so the 663 MB of games never land in `dist/` and the Angular build stays fast.
+The `--exclude dist/ngx-chessground-example/browser/lichess` flag in the `deno.json`
+tasks remains as a safety net.
+
+Instead, the desktop server (`desktop/server.ts`) **proxies** `/lichess/broadcast/*.pgn.zst`
+requests to the public lichess database server (`https://database.lichess.org/broadcast/`) —
+the same source `scripts/download-lichess.js` uses — so the app loads the data over the
+network without bundling it. It's only needed on disk for the web app (served statically).
+
+To host the files elsewhere (e.g. a GitHub repo/release), change the `LICHESS_BASE`
+constant in `desktop/server.ts` and add `--allow-net` is already included in the tasks.
 
 ## Building for Desktop
 
@@ -127,7 +138,7 @@ deno desktop ... --compress xz --output ngx-chessground.AppImage
 ```sh
 # macOS .dmg
 deno desktop --no-check \
-  --exclude node_modules --exclude .opencode --exclude coverage \
+  --exclude node_modules --exclude .opencode/node_modules --exclude coverage \
   --include dist/ngx-chessground-example/browser \
   --backend webview \
   --output ngx-chessground.dmg \
@@ -135,7 +146,7 @@ deno desktop --no-check \
 
 # Linux .deb
 deno desktop --no-check \
-  --exclude node_modules --exclude .opencode --exclude coverage \
+  --exclude node_modules --exclude .opencode/node_modules --exclude coverage \
   --include dist/ngx-chessground-example/browser \
   --backend webview --target x86_64-unknown-linux-gnu \
   --output ngx-chessground.deb \
@@ -143,7 +154,7 @@ deno desktop --no-check \
 
 # Windows .msi
 deno desktop --no-check \
-  --exclude node_modules --exclude .opencode --exclude coverage \
+  --exclude node_modules --exclude .opencode/node_modules --exclude coverage \
   --include dist/ngx-chessground-example/browser \
   --backend webview --target x86_64-pc-windows-msvc \
   --output ngx-chessground.msi \

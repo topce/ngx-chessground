@@ -128,6 +128,28 @@
 								}
 							],
 							"serviceWorker": "projects/ngx-chessground-example/ngsw-config.json"
+						},
+						"desktop": {
+							"assets": [
+								"projects/ngx-chessground-example/src/favicon.ico",
+								"projects/ngx-chessground-example/src/assets",
+								{
+									"glob": "**/*",
+									"input": "./projects/ngx-chessground/assets",
+									"output": "/assets/"
+								},
+								{
+									"glob": "**/*",
+									"input": "./public",
+									"output": "/",
+									"ignore": ["lichess/**"]
+								},
+								{
+									"glob": "**/*",
+									"input": "./projects/ngx-chessground-example/public",
+									"output": "/"
+								}
+							]
 						}
 					}
 				},

@@ -17,6 +17,12 @@
 const MODULE_DIR = new URL(".", import.meta.url).pathname;
 const API_PREFIX = "/api";
 
+// Remote source for the lichess broadcast database (.pgn.zst monthly dumps).
+// Same location scripts/download-lichess.js uses. Swap for a GitHub repo URL
+// (e.g. https://raw.githubusercontent.com/<user>/<repo>/main/lichess) if you
+// prefer to host the files there.
+const LICHESS_BASE = "https://database.lichess.org/broadcast";
+
 function getBuildDirs(): string[] {
   const fromModule = MODULE_DIR.endsWith("/desktop/")
     ? `${MODULE_DIR.replace(/\/desktop\/$/, "")}/dist/ngx-chessground-example/browser`
@@ -71,6 +77,53 @@ Deno.serve(async (req: Request) => {
     return Response.json({
       fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     });
+  }
+
+  // --- Lichess broadcast database (streamed remotely, not bundled) ---
+  // The 663MB lichess broadcast database is excluded from the desktop bundle
+  // (see --exclude dist/.../browser/lichess in deno.json tasks). Requests to
+  // /lichess/broadcast/*.pgn.zst are proxied from the public lichess database
+  // server — the same source scripts/download-lichess.js uses.
+  // To host the files elsewhere (e.g. a GitHub repo/release), change the
+  // LICHESS_BASE constant below to that location.
+
+  if (path.startsWith("/lichess/broadcast/")) {
+    const file = path.replace("/lichess/broadcast/", "");
+    // Sanitize: only allow alphanumeric, dash, dot
+    if (!/^[a-zA-Z0-9_.-]+$/.test(file)) {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    const remote = `${LICHESS_BASE}/${file}`;
+    try {
+      // Forward Range headers so partial/streaming downloads work end-to-end
+      const headers = new Headers();
+      const range = req.headers.get("range");
+      if (range) headers.set("range", range);
+      const res = await fetch(remote, { redirect: "follow", headers });
+      if (!res.ok) {
+        return Response.json(
+          { error: `Lichess file not found remotely: ${file}` },
+          { status: res.status },
+        );
+      }
+      return new Response(res.body, {
+        status: res.status,
+        headers: {
+          "content-type": res.headers.get("content-type")
+            ?? "application/octet-stream",
+          "content-length": res.headers.get("content-length") ?? "",
+          "content-range": res.headers.get("content-range") ?? "",
+          "accept-ranges": res.headers.get("accept-ranges") ?? "bytes",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    } catch (e) {
+      return Response.json(
+        { error: `Failed to fetch ${file}: ${e}` },
+        { status: 502 },
+      );
+    }
   }
 
   // --- Stockfish 18 WASM (large multi-threaded engine) ---
