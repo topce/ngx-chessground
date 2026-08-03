@@ -97,6 +97,7 @@ describe('PgnViewerEngineService', () => {
 		expect(stockfishWorker.messages).toEqual([
 			'uci',
 			'stop',
+			'setoption name MultiPV value 3',
 			'position fen fen-string',
 			'go depth 18',
 		]);

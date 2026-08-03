@@ -47,7 +47,7 @@ Your support helps me maintain the library, add new features, and keep the appli
 - 📦 **Pre-built Unit Presets**: `initial`, `castling`, `playVsRandom`, `playFullRandom`, `slowAnim`, and more — pre-configured board setups ready to drop in.
 - 🔧 **Utility Functions**: Exported helpers — `toDests()`, `toColor()`, `playOtherSide()`, `aiPlay()` — for building custom chess UIs.
 - 🎨 **Promotion Dialog**: Built-in Material dialog for pawn promotion selection with queen/rook/bishop/knight options.
-- 🆙 **Modern Angular**: Standalone components, signal-based inputs, compatible with Angular 21 out of the box.
+- 🆙 **Modern Angular**: Standalone components, signal-based inputs, compatible with Angular 22 out of the box.
 
 ### 🎮 Application Features (PGN Viewer & Demo)
 - 📖 **Comprehensive PGN Viewer**: Load and navigate through complex chess games effortlessly.
@@ -194,6 +194,7 @@ The documentation server will start at `http://localhost:9090`
 
 | NgxChessground | Angular Framework |
 |----------------|-------------------|
+| **22.x**       | 22.x              |
 | **21.x**       | 21.x              |
 | **20.x**       | 20.x              |
 | **19.x**       | 19.x              |

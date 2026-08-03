@@ -1,5 +1,14 @@
 # Changelog
 
+## [22.3.0] - 2026-08-03
+
+### Changed
+- Updated Angular to 22.1 (core 22.1.0, CLI 22.1.2) across library and example app
+- Library peer dependencies now declare `@angular/core`/`@angular/common` ^22.0.0 (previously ^21.0.0), matching the Angular version the library is built with
+
+### Fixed
+- Removed unused `RouterLink` import in privacy policy component
+
 ## [22.2.0] - 2026-07-05
 
 ### Added
