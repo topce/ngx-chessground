@@ -8,10 +8,10 @@
 	width: 100%;
 	box-sizing: border-box;
 	flex: 1;
-	padding: 0.35rem 0.5rem;
+	padding: var(--cg-typeahead-pad-y, 0.35rem) var(--cg-typeahead-pad-x, 0.5rem);
 	border: 1px solid var(--cg-border, #c8c2b6);
 	border-radius: var(--cg-radius-sm, 4px);
-	font-size: 0.8rem;
+	font-size: var(--cg-typeahead-font, 0.8rem);
 	font-family: var(--cg-font-body);
 	background: var(--cg-bg-surface, #ffffff);
 	color: var(--cg-text, #0d0d1a);
@@ -33,12 +33,15 @@
 }
 
 .typeahead-dropdown {
+	/* Fallback when rendered outside the viewer: the component's JS anchors
+	   the dropdown with inline position:fixed relative to the viewer
+	   container, escaping the left panel's scroll/clip context. */
 	position: absolute;
 	top: 100%;
 	left: 0;
 	right: 0;
-	z-index: 100;
-	max-height: 220px;
+	z-index: 1000;
+	max-height: 440px;
 	overflow-y: auto;
 	background: var(--cg-bg-surface, #ffffff);
 	border: 1px solid var(--cg-accent, #a67c00);
@@ -46,6 +49,15 @@
 	border-radius: 0 0 var(--cg-radius-md, 8px) var(--cg-radius-md, 8px);
 	box-shadow: var(--cg-shadow-lg, 0 10px 25px rgba(13, 13, 26, 0.08));
 	margin-top: -1px;
+}
+
+/* Opening upward: flip the accent border to the bottom edge and the
+   rounded corners to the top. */
+.typeahead-dropdown.open-up {
+	margin-top: 0;
+	border-radius: var(--cg-radius-md, 8px) var(--cg-radius-md, 8px) 0 0;
+	border-top: 1px solid var(--cg-accent, #a67c00);
+	border-bottom: 2px solid var(--cg-accent, #a67c00);
 }
 
 .typeahead-item {

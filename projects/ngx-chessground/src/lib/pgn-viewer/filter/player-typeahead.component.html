@@ -1,5 +1,6 @@
 <div class="typeahead-wrapper">
   <input
+    #input
     type="text"
     [placeholder]="label()"
     [attr.aria-label]="'Filter by ' + label() + ' player'"
@@ -17,7 +18,15 @@
   />
   @if (isOpen() && filteredSuggestions().length > 0) {
     <div
+      #dropdown
       class="typeahead-dropdown"
+      [class.open-up]="openUp()"
+      [style.position]="dropdownPosition()?.position"
+      [style.left]="dropdownPosition()?.left"
+      [style.top]="dropdownPosition()?.top"
+      [style.width]="dropdownPosition()?.width"
+      [style.max-height]="dropdownPosition()?.maxHeight"
+      [style.visibility]="dropdownPosition()?.visibility"
       role="listbox"
       [id]="'typeahead-listbox-' + label()"
     >

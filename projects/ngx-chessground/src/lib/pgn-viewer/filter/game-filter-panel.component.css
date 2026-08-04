@@ -81,16 +81,26 @@ h2 {
 	margin: 0.35rem 0 0.15rem 0;
 }
 
+/* ---- Expanded Players Section: double the footprint ---- */
+.section-content.players-content.expanded {
+	--cg-typeahead-pad-y: 0.75rem;
+	--cg-typeahead-font: 1rem;
+	--cg-filter-row-gap: 0.75rem;
+	--cg-filter-section-gap: 0.75rem;
+	--cg-filter-font: 0.95rem;
+	margin: 0.5rem 0 0.25rem 0;
+}
+
 /* ---- Filter Section ---- */
 .filter-section {
 	display: flex;
 	flex-direction: column;
-	gap: 0.45rem;
+	gap: var(--cg-filter-section-gap, 0.45rem);
 }
 
 .filter-row {
 	display: flex;
-	gap: 0.35rem;
+	gap: var(--cg-filter-row-gap, 0.35rem);
 }
 
 .filter-row input[type="text"],
@@ -174,7 +184,7 @@ h2 {
 }
 
 .checkbox-label {
-	font-size: 0.8rem;
+	font-size: var(--cg-filter-font, 0.8rem);
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;

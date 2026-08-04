@@ -83,6 +83,10 @@
 	font-family: var(--cg-font-body);
 	overflow: hidden;
 	container-type: inline-size;
+	/* Establish the containing block for fixed-position descendants
+	   (e.g. the player typeahead dropdown) so they can escape the
+	   panels' scroll/clip context while staying inside the viewer. */
+	contain: layout;
 }
 
 .main-content {
