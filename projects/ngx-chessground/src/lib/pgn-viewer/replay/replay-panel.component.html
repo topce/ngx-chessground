@@ -131,6 +131,23 @@
       </label>
     </div>
 
+    <div class="option-row">
+      <label class="checkbox-label">
+        Errors:
+        <select
+          [value]="stopOnErrorSide()"
+          (change)="onStopOnErrorSideChange($event)"
+          [disabled]="!stopOnError()"
+          class="small-input side-select"
+          aria-label="Which side's errors to stop on"
+        >
+          <option value="both">Both (Black &amp; White)</option>
+          <option value="white">White only</option>
+          <option value="black">Black only</option>
+        </select>
+      </label>
+    </div>
+
     <div class="replay-actions">
       <button type="button" (click)="replayGame.emit()" class="action-btn">Replay</button>
       @if (canContinueReplay()) {

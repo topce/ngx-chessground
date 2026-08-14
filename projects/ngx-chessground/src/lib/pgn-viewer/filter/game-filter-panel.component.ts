@@ -45,6 +45,13 @@ export class GameFilterPanelComponent {
 		{ broadcastName: string; count: number }[]
 	>([]);
 
+	// ---- Upset Filters ----
+	readonly filterUpsetEnabled = model<boolean>(false);
+	readonly filterUpsetWin = model<boolean>(false);
+	readonly filterUpsetDraw = model<boolean>(false);
+	/** Minimum Elo gap between players for a game to count as an upset. */
+	readonly filterUpsetMinDiff = model<string>('300');
+
 	// ---- Rating Filters ----
 	readonly filterRatingEnabled = model<boolean>(false);
 	readonly filterWhiteRating = model<string>('2000');
@@ -64,6 +71,7 @@ export class GameFilterPanelComponent {
 	readonly leftPanelSections = model<Record<string, boolean>>({
 		players: true,
 		gameDetails: true,
+		upsets: false,
 		rating: false,
 		position: false,
 	});
@@ -160,6 +168,18 @@ export class GameFilterPanelComponent {
 			this.filterWhiteRatingMax.set(max);
 			this.filterBlackRatingMax.set(max);
 		}
+	}
+
+	toggleUpsetWin(event: Event): void {
+		this.filterUpsetWin.set((event.target as HTMLInputElement).checked);
+	}
+
+	toggleUpsetDraw(event: Event): void {
+		this.filterUpsetDraw.set((event.target as HTMLInputElement).checked);
+	}
+
+	updateUpsetMinDiff(value: string): void {
+		this.filterUpsetMinDiff.set(value);
 	}
 
 	toggleResult(value: string, event: Event): void {

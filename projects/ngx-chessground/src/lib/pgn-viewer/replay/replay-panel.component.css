@@ -161,3 +161,14 @@
 	outline: 2px solid var(--cg-accent, #a67c00);
 	outline-offset: 2px;
 }
+
+.side-select {
+	width: auto;
+	min-width: 130px;
+	cursor: pointer;
+}
+
+.side-select:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}

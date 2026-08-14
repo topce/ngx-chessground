@@ -1,5 +1,5 @@
 import { Component, input, model, output } from '@angular/core';
-import type { ReplayMode } from '../pgn-viewer.types';
+import type { ReplayMode, StopOnErrorSide } from '../pgn-viewer.types';
 
 /**
  * Replay control panel for the PGN viewer.
@@ -36,6 +36,8 @@ export class ReplayPanelComponent {
 	readonly fastTime = model<number>(0.3);
 	readonly stopOnError = model<boolean>(false);
 	readonly stopOnErrorThreshold = model<number>(1.0);
+	/** Which side's errors should trigger the stop: 'both' | 'white' | 'black'. */
+	readonly stopOnErrorSide = model<StopOnErrorSide>('both');
 
 	readonly isReplaying = input<boolean>(false);
 	readonly canContinueReplay = input<boolean>(false);
@@ -81,6 +83,11 @@ export class ReplayPanelComponent {
 	onStopOnErrorThresholdChange(event: Event): void {
 		const value = (event.target as HTMLInputElement).value;
 		this.stopOnErrorThreshold.set(parseFloat(value) || 1.0);
+	}
+
+	onStopOnErrorSideChange(event: Event): void {
+		const value = (event.target as HTMLSelectElement).value as StopOnErrorSide;
+		this.stopOnErrorSide.set(value);
 	}
 
 	toggleExpanded(): void {

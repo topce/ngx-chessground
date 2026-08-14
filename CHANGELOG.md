@@ -1,5 +1,17 @@
 # Changelog
 
+## [22.4.0] - 2026-08-14
+
+### Added
+- Upset game filter in the PGN viewer: keep only games where the weaker-rated player (by Elo) beats or draws the stronger-rated player, with configurable outcome flags (win/draw) and minimum Elo gap (default 300). When enabled, results sort by upset size (largest gap first by default)
+- `stopOnErrorSide` signal on the PGN viewer (`'both' | 'white' | 'black'`) — stop-on-error replay now halts only on errors made by the configured side
+
+### Changed
+- Stop-on-error now attributes evaluation drops to the player who just moved (previously any absolute swing beyond the threshold triggered a stop, including moves that *gained* evaluation)
+
+### Fixed
+- `isUpsetGame` no longer counts equal-rating games as upsets when the minimum Elo gap is 0
+
 ## [22.3.0] - 2026-08-03
 
 ### Changed

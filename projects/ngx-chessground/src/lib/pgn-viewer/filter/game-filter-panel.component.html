@@ -167,6 +167,71 @@
     </div>
   </div>
 
+  <!-- Collapsible: Upsets -->
+  <div class="collapsible-section">
+    <h3
+      class="section-header"
+      tabindex="0"
+      role="button"
+      [attr.aria-expanded]="leftPanelSections()['upsets']"
+      [attr.aria-controls]="'section-upsets-content'"
+      (click)="toggleSection('upsets')"
+      (keydown.enter)="toggleSection('upsets'); $event.preventDefault()"
+      (keydown.space)="toggleSection('upsets'); $event.preventDefault()"
+    >
+      <span class="chevron" [class.expanded]="leftPanelSections()['upsets']">▶</span>
+      Upsets
+    </h3>
+    <div class="section-content" [class.expanded]="leftPanelSections()['upsets']" id="section-upsets-content">
+      <div class="filter-section">
+        <div class="filter-row">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="filterUpsetEnabled()"
+              (change)="filterUpsetEnabled.set(!filterUpsetEnabled())"
+            />
+            Only upsets (weaker player scores vs. stronger player)
+          </label>
+        </div>
+        @if (filterUpsetEnabled()) {
+          <div class="filter-row filter-result-row">
+            <span class="filter-label">Outcome:</span>
+            <label class="checkbox-label result-option">
+              <input
+                type="checkbox"
+                [checked]="filterUpsetWin()"
+                (change)="toggleUpsetWin($event)"
+              />
+              Weaker player wins
+            </label>
+            <label class="checkbox-label result-option">
+              <input
+                type="checkbox"
+                [checked]="filterUpsetDraw()"
+                (change)="toggleUpsetDraw($event)"
+              />
+              Weaker player draws
+            </label>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label" title="Minimum Elo gap between the two players for a result to count as an upset">Min Elo gap:</span>
+            <input
+              type="number"
+              class="rating-input upset-gap-input"
+              aria-label="Minimum Elo gap for upsets"
+              [value]="filterUpsetMinDiff()"
+              (input)="updateUpsetMinDiff($any($event.target).value)"
+              min="0"
+              step="50"
+            />
+            <span class="upset-hint">{{ sortAscending() ? 'smallest upsets first' : 'biggest upsets first' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
   <!-- Collapsible: Rating -->
   <div class="collapsible-section">
     <h3

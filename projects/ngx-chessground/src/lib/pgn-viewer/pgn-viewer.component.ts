@@ -31,7 +31,7 @@ import type {
 	GameMetadata,
 	WorkerResponse,
 } from './pgn-processor.worker';
-import type { BestMoveInfo } from './pgn-viewer.types';
+import type { BestMoveInfo, StopOnErrorSide } from './pgn-viewer.types';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
 import { ReplayPanelComponent } from './replay/replay-panel.component';
 import { highlightMatch, type TextSegment } from './text-highlight';
@@ -105,6 +105,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	filterResult = signal<string[]>([]);
 	filterMoves = signal<boolean>(false);
 	ignoreColor = signal<boolean>(false);
+	filterUpsetEnabled = signal<boolean>(false);
+	filterUpsetWin = signal<boolean>(false);
+	filterUpsetDraw = signal<boolean>(false);
+	/** Minimum Elo gap between players for a game to count as an upset. */
+	filterUpsetMinDiff = signal<string>('300');
 	filterRatingEnabled = signal<boolean>(false);
 	filterWhiteRating = signal<string>('2000');
 	filterBlackRating = signal<string>('2000');
@@ -262,6 +267,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	fastTime = signal<number>(0.3);
 	stopOnError = signal<boolean>(false);
 	stopOnErrorThreshold = signal<number>(1.0);
+	/** Which side's errors trigger "stop on error": 'both' | 'white' | 'black'. */
+	stopOnErrorSide = signal<StopOnErrorSide>('both');
 	isReplaying = signal<boolean>(false);
 	canContinueReplay = computed(
 		() =>
@@ -615,6 +622,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			filterByFen: this.filterByFenEnabled(),
 			targetFen: this.filterFen(),
 			sortAscending: this.sortAscending(),
+			upsetEnabled: this.filterUpsetEnabled(),
+			upsetWin: this.filterUpsetWin(),
+			upsetDraw: this.filterUpsetDraw(),
+			minUpsetEloDiff: this.filterUpsetEnabled()
+				? parseInt(this.filterUpsetMinDiff(), 10) || 0
+				: 0,
 		};
 		this.pgnViewerEngine.filterGames(fc, id);
 
@@ -634,6 +647,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterResult.set([]);
 		this.filterMoves.set(false);
 		this.ignoreColor.set(false);
+		this.filterUpsetEnabled.set(false);
+		this.filterUpsetWin.set(false);
+		this.filterUpsetDraw.set(false);
+		this.filterUpsetMinDiff.set('300');
 		this.filterRatingEnabled.set(false);
 		this.filterWhiteRating.set('2000');
 		this.filterBlackRating.set('2000');
@@ -1479,15 +1496,28 @@ export class NgxPgnViewerComponent implements OnDestroy {
 					if (idx > 0 && idx < evals.length) {
 						const cur = this.parseEval(evals[idx]);
 						const prev = this.parseEval(evals[idx - 1]);
-						if (
-							cur !== null &&
-							prev !== null &&
-							Math.abs(cur - prev) > this.stopOnErrorThreshold()
-						) {
-							this.stopReplay(false);
-							this.showBetterMoveBtn.set(true);
-							const prevFen = this.getFenBeforeMove(idx);
-							if (prevFen) this.analyzedFen = prevFen;
+						if (cur !== null && prev !== null) {
+							const diff = cur - prev; // from White's perspective
+							const threshold = this.stopOnErrorThreshold();
+							// An "error" is a drop in the mover's own evaluation:
+							// White erred when White's eval drops; Black erred when
+							// White's eval rises (i.e. Black's eval drops).
+							const isWhiteMove = this.isWhiteMove();
+							const whiteError = isWhiteMove && diff < -threshold;
+							const blackError = !isWhiteMove && diff > threshold;
+							const side = this.stopOnErrorSide();
+							const triggered =
+								side === 'white'
+									? whiteError
+									: side === 'black'
+										? blackError
+										: whiteError || blackError;
+							if (triggered) {
+								this.stopReplay(false);
+								this.showBetterMoveBtn.set(true);
+								const prevFen = this.getFenBeforeMove(idx);
+								if (prevFen) this.analyzedFen = prevFen;
+							}
 						}
 					}
 				}
@@ -1545,6 +1575,19 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			return val > 0 ? 20 + 10 / Math.abs(val) : -(20 + 10 / Math.abs(val));
 		}
 		return parseFloat(evalStr);
+	}
+
+	/**
+	 * Whether the move that just played was made by White.
+	 *
+	 * Uses the FEN of the position AFTER the move: its active color is the
+	 * side to move next, so the mover is the opposite color. This stays
+	 * correct for games that start from a custom FEN position.
+	 */
+	private isWhiteMove(): boolean {
+		const parts = this.currentFen().split(' ');
+		// 'w' to move next means Black just moved; anything else means White did.
+		return parts.length < 2 || parts[1] !== 'w';
 	}
 
 	private extractEvalsFromPgn(

@@ -9,6 +9,7 @@ import type { TextSegment } from './text-highlight';
 export type LeftPanelSection =
 	| 'players'
 	| 'gameDetails'
+	| 'upsets'
 	| 'rating'
 	| 'position';
 
@@ -17,6 +18,9 @@ export type RightPanelSection = 'moves' | 'replay' | 'loadCache';
 
 /** Replay timing mode. */
 export type ReplayMode = 'realtime' | 'proportional' | 'fixed' | 'fast';
+
+/** Which side's errors should trigger "stop on error" during replay. */
+export type StopOnErrorSide = 'both' | 'white' | 'black';
 
 /** Player name with optional selection state for typeahead. */
 export interface PlayerSuggestion {
@@ -29,6 +33,8 @@ export interface EvaluationChange {
 	moveIndex: number;
 	diff: number;
 	threshold: number;
+	/** Side whose move caused the evaluation change. */
+	side: 'white' | 'black';
 }
 
 /** Clock state at a given half-move. */

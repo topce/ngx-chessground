@@ -2,6 +2,7 @@
 
 import { Chess } from 'chess.js';
 import { parsePgn } from 'chessops/pgn';
+import { isUpsetGame } from './upset';
 
 /**
  * Payload for the 'load' message, containing PGN text and indexing options.
@@ -106,6 +107,20 @@ export interface FilterCriteria {
 	 * `true` = ascending (lowest Elo first).
 	 */
 	sortAscending: boolean;
+	/**
+	 * When `true`, keep only upset games: the weaker-rated player
+	 * (by Elo) either beats or draws the stronger-rated player.
+	 * Requires both players to have a known Elo and the rating gap to
+	 * be at least {@link minUpsetEloDiff}. When enabled, results are
+	 * sorted by upset size (rating gap) instead of Elo sum.
+	 */
+	upsetEnabled: boolean;
+	/** When `true` and {@link upsetEnabled}, include upsets where the weaker player wins. */
+	upsetWin: boolean;
+	/** When `true` and {@link upsetEnabled}, include upsets where the weaker player draws. */
+	upsetDraw: boolean;
+	/** Minimum Elo gap between the players for a game to count as an upset. Default 0. */
+	minUpsetEloDiff: number;
 }
 
 /**
@@ -703,6 +718,18 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 			if (!resultMatch) continue;
 		}
 
+		// Upset filtering — the weaker-rated player beats or draws the stronger player.
+		// Requires both Elos to be known and the rating gap to reach the minimum.
+		if (criteria.upsetEnabled) {
+			const upsetMatch = isUpsetGame(
+				info,
+				criteria.upsetWin,
+				criteria.upsetDraw,
+				Math.max(0, criteria.minUpsetEloDiff || 0),
+			);
+			if (!upsetMatch) continue;
+		}
+
 		// ECO filtering
 		if (fEcoLower && !info.eco?.toLowerCase().includes(fEcoLower)) continue;
 
@@ -815,9 +842,18 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		matches.push(i);
 	}
 
-	// Sort matches by sum of Elo ratings, with game index as tiebreaker
-	// to ensure deterministic ordering when Elo sums are equal.
+	// Sort matches by "upset size" (Elo gap, biggest upset first) when the
+	// upset filter is active, otherwise by sum of Elo ratings. Game index
+	// is used as a deterministic tiebreaker in both cases.
 	matches.sort((a, b) => {
+		const gapA = Math.abs(gameMetadata[a].whiteElo - gameMetadata[a].blackElo);
+		const gapB = Math.abs(gameMetadata[b].whiteElo - gameMetadata[b].blackElo);
+		if (criteria.upsetEnabled) {
+			if (gapB !== gapA) {
+				return criteria.sortAscending ? gapA - gapB : gapB - gapA;
+			}
+			return a - b;
+		}
 		const sumA = gameMetadata[a].whiteElo + gameMetadata[a].blackElo;
 		const sumB = gameMetadata[b].whiteElo + gameMetadata[b].blackElo;
 		if (sumB !== sumA) {

@@ -163,6 +163,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `replaySpeed` | `Signal<number>` | Scaled speed factor for proportional replay. |
 | `stopOnError` | `Signal<boolean>` | When true, auto-replay halts on significant evaluation drops. |
 | `stopOnErrorThreshold` | `Signal<number>` | Evaluation drop threshold (in pawns) for stop-on-error. |
+| `stopOnErrorSide` | `Signal<'both' | 'white' | 'black'>` | Which side's errors trigger stop-on-error: both, White only, or Black only (default: `'both'`). |
 | `showBetterMoveBtn` | `Signal<boolean>` | Whether to show a "better move" button after stop-on-error triggers. |
 | `bestMoveInfo` | `Signal<{ move: string; pv: { san: string; fen: string }[] } \| null>` | Stockfish best-move and PV lines, or null. |
 | `isAnalyzing` | `Signal<boolean>` | Whether Stockfish is currently analyzing a position. |
@@ -207,7 +208,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 
 #### Stockfish Integration ("Stop on Error")
 
-When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During auto-replay, it compares successive position evaluations. If the evaluation drops more than `stopOnErrorThreshold` pawns (default: 1.0), the replay halts and the UI displays Stockfish's suggested best move and principal variation.
+When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During auto-replay, it compares successive position evaluations. If the evaluation drops more than `stopOnErrorThreshold` pawns (default: 1.0) for the side configured by `stopOnErrorSide`, the replay halts and the UI displays Stockfish's suggested best move and principal variation. An "error" is attributed to the player who just moved: White errors when the evaluation (from White's perspective) drops after a White move, Black errors when it rises after a Black move. `stopOnErrorSide` accepts `'both'` (default), `'white'` (only White's errors), or `'black'` (only Black's errors).
 
 **Requirements**: Stockfish 18 single-threaded from [nmrugg/stockfish.js](https://github.com/nmrugg/stockfish.js) (`stockfish-18-single.js` + `stockfish-18-single.wasm`) must be served at `assets/stockfish/stockfish.js` and `assets/stockfish/stockfish.wasm`. The library ships these files (renamed) in its assets directory.
 
@@ -218,6 +219,10 @@ When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During 
 The viewer can parse PGN files containing multiple games. Use `games` to inspect metadata (players, ECO, result), `selectedGameIndex` to navigate, and `filterWhite`/`filterBlack`/`filterEco` to filter the game list.
 
 **Supported formats**: Plain PGN, GZ-compressed PGN (`.pgn.gz` via `fzstd`), and ZIP archives containing PGN files (`.zip` via `jszip`).
+
+#### Upset Filtering
+
+Enable "Only upsets" in the filter panel to keep only games where the weaker-rated player (by Elo) beat or drew the stronger-rated player. Requires both players to have a known Elo rating. Configure which outcomes count (weaker player wins and/or draws) and the minimum Elo gap (default 300). When the upset filter is active, results are sorted by upset size (largest rating gap first by default; toggle ascending/descending to reverse).
 
 #### Opening-Move Filtering
 

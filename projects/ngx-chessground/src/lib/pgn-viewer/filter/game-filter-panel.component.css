@@ -183,6 +183,31 @@ h2 {
 	width: 50%;
 }
 
+.upset-gap-input {
+	width: 6rem;
+	flex: 0 0 auto;
+	padding: 0.3rem 0.5rem;
+	border: 1px solid var(--cg-border, #c8c2b6);
+	border-radius: var(--cg-radius-sm, 4px);
+	font-size: 0.8rem;
+	font-family: var(--cg-font-body);
+	background: var(--cg-bg-surface, #ffffff);
+	color: var(--cg-text, #0d0d1a);
+}
+
+.upset-gap-input:focus {
+	outline: none;
+	border-color: var(--cg-accent, #a67c00);
+	box-shadow: 0 0 0 3px rgba(166, 124, 0, 0.12);
+}
+
+.upset-hint {
+	font-size: 0.68rem;
+	color: var(--cg-text-muted, #78788e);
+	white-space: nowrap;
+	align-self: center;
+}
+
 .checkbox-label {
 	font-size: var(--cg-filter-font, 0.8rem);
 	display: flex;
