@@ -11,17 +11,17 @@
 .section-header {
 	display: flex;
 	align-items: center;
-	gap: 0.35rem;
-	padding: 0.3rem 0;
+	gap: 0.4rem;
+	padding: 0.35rem 0;
 	cursor: pointer;
 	user-select: none;
 	font-family: var(--cg-font-heading);
 	font-size: 0.72rem;
 	font-weight: 600;
 	color: var(--cg-text, #0d0d1a);
-	border-bottom: 2px solid var(--cg-accent, #a67c00);
+	border-bottom: 1px solid var(--cg-border-light, #e0dcd2);
 	text-transform: uppercase;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.08em;
 	transition: color var(--cg-transition, 200ms ease);
 	outline: none;
 }
@@ -37,14 +37,22 @@
 }
 
 .section-header .chevron {
-	font-size: 0.55rem;
-	transition: transform var(--cg-transition, 200ms ease);
+	width: 7px;
+	height: 7px;
+	flex-shrink: 0;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: rotate(-45deg);
+	transition:
+		transform var(--cg-transition, 200ms ease),
+		color var(--cg-transition, 200ms ease);
 	color: var(--cg-text-muted, #78788e);
 	display: inline-block;
 }
 
 .section-header .chevron.expanded {
-	transform: rotate(90deg);
+	transform: rotate(45deg);
+	color: var(--cg-accent, #a67c00);
 }
 
 .section-content {

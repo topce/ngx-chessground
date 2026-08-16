@@ -9,7 +9,7 @@
     (keydown.enter)="toggleExpanded(); $event.preventDefault()"
     (keydown.space)="toggleExpanded(); $event.preventDefault()"
   >
-    <span class="chevron" [class.expanded]="expanded()">▶</span>
+    <span class="chevron" [class.expanded]="expanded()" aria-hidden="true"></span>
     Replay
   </h3>
 
@@ -110,14 +110,17 @@
       </div>
     }
 
-    <div class="option-row">
+    <div class="option-row stop-error-row">
       <label class="checkbox-label">
         <input
           type="checkbox"
           [checked]="stopOnError()"
           (change)="onStopOnErrorChange($event)"
         />
-        Stop on Error (&gt;
+        Stop on Error
+      </label>
+      <span class="inline-number" [class.disabled]="!stopOnError()">
+        &gt;
         <input
           type="number"
           [value]="stopOnErrorThreshold()"
@@ -127,25 +130,23 @@
           [disabled]="!stopOnError()"
           aria-label="Stop on error threshold in centipawns"
         />
-        )
-      </label>
+        cp
+      </span>
     </div>
 
     <div class="option-row">
-      <label class="checkbox-label">
-        Errors:
-        <select
-          [value]="stopOnErrorSide()"
-          (change)="onStopOnErrorSideChange($event)"
-          [disabled]="!stopOnError()"
-          class="small-input side-select"
-          aria-label="Which side's errors to stop on"
-        >
-          <option value="both">Both (Black &amp; White)</option>
-          <option value="white">White only</option>
-          <option value="black">Black only</option>
-        </select>
-      </label>
+      <span class="option-label" id="stop-on-error-side-label">Errors</span>
+      <select
+        [value]="stopOnErrorSide()"
+        (change)="onStopOnErrorSideChange($event)"
+        [disabled]="!stopOnError()"
+        class="small-input side-select"
+        aria-labelledby="stop-on-error-side-label"
+      >
+        <option value="both">Both (Black &amp; White)</option>
+        <option value="white">White only</option>
+        <option value="black">Black only</option>
+      </select>
     </div>
 
     <div class="replay-actions">

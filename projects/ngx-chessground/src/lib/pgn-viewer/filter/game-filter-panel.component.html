@@ -13,7 +13,7 @@
       (keydown.enter)="toggleSection('players'); $event.preventDefault()"
       (keydown.space)="toggleSection('players'); $event.preventDefault()"
     >
-      <span class="chevron" [class.expanded]="leftPanelSections()['players']">▶</span>
+      <span class="chevron" [class.expanded]="leftPanelSections()['players']" aria-hidden="true"></span>
       Players
     </h3>
     <div class="section-content players-content" [class.expanded]="leftPanelSections()['players']" id="section-players-content">
@@ -58,13 +58,13 @@
       (keydown.enter)="toggleSection('gameDetails'); $event.preventDefault()"
       (keydown.space)="toggleSection('gameDetails'); $event.preventDefault()"
     >
-      <span class="chevron" [class.expanded]="leftPanelSections()['gameDetails']">▶</span>
+      <span class="chevron" [class.expanded]="leftPanelSections()['gameDetails']" aria-hidden="true"></span>
       Game Details
     </h3>
     <div class="section-content" [class.expanded]="leftPanelSections()['gameDetails']" id="section-details-content">
       <div class="filter-section">
         <div class="filter-row filter-result-row">
-          <span class="filter-label">Result:</span>
+          <span class="filter-label">Result</span>
           <label class="checkbox-label result-option">
             <input
               type="checkbox"
@@ -179,31 +179,34 @@
       (keydown.enter)="toggleSection('upsets'); $event.preventDefault()"
       (keydown.space)="toggleSection('upsets'); $event.preventDefault()"
     >
-      <span class="chevron" [class.expanded]="leftPanelSections()['upsets']">▶</span>
+      <span class="chevron" [class.expanded]="leftPanelSections()['upsets']" aria-hidden="true"></span>
       Upsets
     </h3>
     <div class="section-content" [class.expanded]="leftPanelSections()['upsets']" id="section-upsets-content">
       <div class="filter-section">
         <div class="filter-row">
-          <label class="checkbox-label">
+          <label class="checkbox-label two-line">
             <input
               type="checkbox"
               [checked]="filterUpsetEnabled()"
               (change)="filterUpsetEnabled.set(!filterUpsetEnabled())"
             />
-            Only upsets (weaker player scores vs. stronger player)
+            <span class="label-text">
+              <span class="label-main">Only upsets</span>
+              <span class="label-sub">Keep games where the weaker-rated player scores</span>
+            </span>
           </label>
         </div>
         @if (filterUpsetEnabled()) {
           <div class="filter-row filter-result-row">
-            <span class="filter-label">Outcome:</span>
+            <span class="filter-label">Outcome</span>
             <label class="checkbox-label result-option">
               <input
                 type="checkbox"
                 [checked]="filterUpsetWin()"
                 (change)="toggleUpsetWin($event)"
               />
-              Weaker player wins
+              Weaker wins
             </label>
             <label class="checkbox-label result-option">
               <input
@@ -211,15 +214,21 @@
                 [checked]="filterUpsetDraw()"
                 (change)="toggleUpsetDraw($event)"
               />
-              Weaker player draws
+              Weaker draws
             </label>
           </div>
-          <div class="filter-row">
-            <span class="filter-label" title="Minimum Elo gap between the two players for a result to count as an upset">Min Elo gap:</span>
+          <div class="filter-row gap-row">
+            <label
+              class="filter-label"
+              for="upset-min-diff"
+              title="Minimum Elo gap between the two players for a result to count as an upset"
+            >
+              Min Elo gap
+            </label>
             <input
+              id="upset-min-diff"
               type="number"
               class="rating-input upset-gap-input"
-              aria-label="Minimum Elo gap for upsets"
               [value]="filterUpsetMinDiff()"
               (input)="updateUpsetMinDiff($any($event.target).value)"
               min="0"
@@ -244,7 +253,7 @@
       (keydown.enter)="toggleSection('rating'); $event.preventDefault()"
       (keydown.space)="toggleSection('rating'); $event.preventDefault()"
     >
-      <span class="chevron" [class.expanded]="leftPanelSections()['rating']">▶</span>
+      <span class="chevron" [class.expanded]="leftPanelSections()['rating']" aria-hidden="true"></span>
       Rating
     </h3>
     <div class="section-content" [class.expanded]="leftPanelSections()['rating']" id="section-rating-content">
@@ -340,7 +349,7 @@
       (keydown.enter)="toggleSection('position'); $event.preventDefault()"
       (keydown.space)="toggleSection('position'); $event.preventDefault()"
     >
-      <span class="chevron" [class.expanded]="leftPanelSections()['position']">▶</span>
+      <span class="chevron" [class.expanded]="leftPanelSections()['position']" aria-hidden="true"></span>
       Position
     </h3>
     <div class="section-content" [class.expanded]="leftPanelSections()['position']" id="section-position-content">
@@ -376,11 +385,30 @@
               (input)="updateFilterFen($any($event.target).value)"
               spellcheck="false"
             />
-            <button type="button" 
+            <button
+              type="button"
               (click)="snapshotCurrentPosition.emit()"
               class="secondary-button small"
-              title="Use current board position as filter">
-              📷 Board
+              title="Use current board position as filter"
+            >
+              <svg
+                class="btn-icon"
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M4 8h2.5l1.6-2h7.8l1.6 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                />
+                <circle cx="12" cy="13.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+              Board
             </button>
           </div>
         }
@@ -392,15 +420,17 @@
   <div class="filter-actions">
     <button type="button" (click)="clearFilters.emit()" class="secondary-button small">Clear</button>
     <button type="button" (click)="applyFilter.emit()" class="primary-button small">Filter</button>
-    <button type="button" 
+    <button
+      type="button"
       (click)="toggleSortDirection.emit()"
       class="sort-button small"
+      [attr.aria-pressed]="sortAscending()"
       [title]="sortAscending() ? 'Sorted: Lowest Elo first' : 'Sorted: Highest Elo first'"
     >
       @if (sortAscending()) {
-        ↑ Low
+        <span class="sort-arrow" aria-hidden="true">↑</span> Low
       } @else {
-        ↓ High
+        <span class="sort-arrow" aria-hidden="true">↓</span> High
       }
     </button>
   </div>
@@ -414,14 +444,15 @@
 
       <!-- Game Navigator -->
       <div class="game-nav-bar">
-        <button type="button" 
+        <button
+          type="button"
           (click)="onPrevGame()"
           [disabled]="!canGoPrev()"
           class="nav-arrow-btn"
           aria-label="Previous Game"
           title="Previous game"
         >
-          ◀
+          <span class="nav-chevron prev" aria-hidden="true"></span>
         </button>
         <div class="nav-game-info">
           <span class="nav-game-number">
@@ -432,25 +463,33 @@
           <span class="nav-game-players">{{ currentWhitePlayer() }} vs {{ currentBlackPlayer() }}</span>
           <span class="nav-game-result">{{ currentGameResult() }}</span>
         </div>
-        <button type="button" 
+        <button
+          type="button"
           (click)="onNextGame()"
           [disabled]="!canGoNext()"
           class="nav-arrow-btn"
           aria-label="Next Game"
           title="Next game"
         >
-          ▶
+          <span class="nav-chevron next" aria-hidden="true"></span>
         </button>
       </div>
 
       @if (isFiltering()) {
-        <div class="filtering-indicator" role="status" aria-live="polite">Filtering...</div>
+        <div class="filtering-indicator" role="status" aria-live="polite">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          Filtering
+        </div>
       }
       <div class="selection-controls">
         <span class="selection-count">{{ selectedGamesCount() }} selected</span>
       </div>
     } @else {
-      <div class="empty-state">No games loaded</div>
+      <div class="empty-state" role="status">
+        <span class="empty-glyph" aria-hidden="true">♞</span>
+        <p class="empty-title">No games loaded</p>
+        <p class="empty-sub">Load a PGN file or URL to populate the game browser.</p>
+      </div>
     }
   </div>
 </div>

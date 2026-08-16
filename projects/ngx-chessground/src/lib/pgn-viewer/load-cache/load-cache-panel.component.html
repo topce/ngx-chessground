@@ -9,7 +9,7 @@
     (keydown.enter)="toggleExpanded(); $event.preventDefault()"
     (keydown.space)="toggleExpanded(); $event.preventDefault()"
   >
-    <span class="chevron" [class.expanded]="expanded()">▶</span>
+    <span class="chevron" [class.expanded]="expanded()" aria-hidden="true"></span>
     Load &amp; Cache
   </h3>
 

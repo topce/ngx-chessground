@@ -7,15 +7,15 @@
 .typeahead-wrapper input[type="text"] {
 	width: 100%;
 	box-sizing: border-box;
-	flex: 1;
-	padding: var(--cg-typeahead-pad-y, 0.35rem) var(--cg-typeahead-pad-x, 0.5rem);
+	height: 2.75rem;
+	padding: 0 0.75rem;
 	border: 1px solid var(--cg-border, #c8c2b6);
-	border-radius: var(--cg-radius-sm, 4px);
-	font-size: var(--cg-typeahead-font, 0.8rem);
+	border-radius: var(--cg-radius-md, 8px);
+	font-size: 0.875rem;
 	font-family: var(--cg-font-body);
 	background: var(--cg-bg-surface, #ffffff);
 	color: var(--cg-text, #0d0d1a);
-	cursor: pointer;
+	cursor: text;
 	transition:
 		border-color var(--cg-transition, 200ms ease),
 		box-shadow var(--cg-transition, 200ms ease);
@@ -44,29 +44,35 @@
 	max-height: 440px;
 	overflow-y: auto;
 	background: var(--cg-bg-surface, #ffffff);
-	border: 1px solid var(--cg-accent, #a67c00);
+	border: 1px solid var(--cg-border, #c8c2b6);
 	border-top: 2px solid var(--cg-accent, #a67c00);
 	border-radius: 0 0 var(--cg-radius-md, 8px) var(--cg-radius-md, 8px);
 	box-shadow: var(--cg-shadow-lg, 0 10px 25px rgba(13, 13, 26, 0.08));
 	margin-top: -1px;
+	padding: 0.25rem 0;
 }
 
-/* Opening upward: flip the accent border to the bottom edge and the
+/* Opening upward: flip the accent hairline to the bottom edge and the
    rounded corners to the top. */
 .typeahead-dropdown.open-up {
 	margin-top: 0;
 	border-radius: var(--cg-radius-md, 8px) var(--cg-radius-md, 8px) 0 0;
-	border-top: 1px solid var(--cg-accent, #a67c00);
+	border-top: 1px solid var(--cg-border, #c8c2b6);
 	border-bottom: 2px solid var(--cg-accent, #a67c00);
 }
 
 .typeahead-item {
-	padding: 0.4rem 0.6rem;
-	font-size: 0.8rem;
+	min-height: 2.75rem;
+	display: flex;
+	align-items: center;
+	padding: 0 0.75rem;
+	font-size: 0.875rem;
 	font-family: var(--cg-font-body);
 	color: var(--cg-text, #0d0d1a);
 	cursor: pointer;
-	transition: background-color var(--cg-transition, 200ms ease);
+	transition:
+		background-color var(--cg-transition, 200ms ease),
+		color var(--cg-transition, 200ms ease);
 	border-bottom: 1px solid var(--cg-border-light, #e0dcd2);
 	white-space: nowrap;
 	overflow: hidden;
@@ -77,14 +83,15 @@
 	border-bottom: none;
 }
 
-.typeahead-item:hover,
-.typeahead-item.active {
-	background-color: var(--cg-primary-light, #e0e0e8);
-	color: var(--cg-accent, #a67c00);
+.typeahead-item:hover {
+	background-color: var(--cg-bg-alt, #e6e0d6);
+	color: var(--cg-text, #0d0d1a);
 }
 
 .typeahead-item.active {
-	border-left: 3px solid var(--cg-primary, #0d0d1a);
+	background-color: var(--cg-accent-subtle, #f5edd6);
+	color: var(--cg-accent, #a67c00);
+	border-left: 3px solid var(--cg-accent, #a67c00);
 	font-weight: 600;
 }
 
@@ -97,11 +104,14 @@
 }
 
 .typeahead-no-results {
-	padding: 0.5rem 0.6rem;
+	min-height: 2.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 0.75rem;
 	font-size: 0.8rem;
 	color: var(--cg-text-muted, #78788e);
 	text-align: center;
-	font-style: italic;
 }
 
 .typeahead-dropdown::-webkit-scrollbar {
