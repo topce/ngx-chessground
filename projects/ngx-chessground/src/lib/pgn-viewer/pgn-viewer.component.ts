@@ -11,7 +11,7 @@ import {
 	viewChild,
 } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Chess, type Move, type Square } from 'chess.js';
+import { Chess, type Move, type Piece, type Square } from 'chess.js';
 import { Chessground } from 'chessground';
 import { Api } from 'chessground/api';
 import type { Config } from 'chessground/config';
@@ -329,6 +329,20 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	practiceEvaluation = signal<string | null>(null);
 	/** FEN currently being analyzed by Stockfish in practice mode (guards stale results). */
 	private practiceAnalysisFen: string | null = null;
+	/**
+	 * Live chessground API of the mounted board, captured by {@link runFunction}.
+	 * Used to push the committed position (FEN + legal move destinations) to the
+	 * board synchronously after a user move, so drag & drop stays responsive
+	 * even while Angular change detection has not flushed yet.
+	 */
+	private boardApi: Api | null = null;
+	/**
+	 * Incremented whenever the board must be force-synchronized to the internal
+	 * chess.js position, even when the FEN string itself did not change (e.g.
+	 * after a rejected move that chessground already rendered). Tracked by
+	 * {@link boardConfig} to guarantee a fresh config is always pushed.
+	 */
+	private boardSyncTick = signal(0);
 
 	/** Whether the "Analyze practice" button should be offered (game not replaying). */
 	practiceAvailable = computed(() => !this.isReplaying());
@@ -405,11 +419,17 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		// Signal reads inside the returned closure are untracked by this
 		// computed (they execute when the function is invoked), so the closure
 		// identity stays stable across every position change.
-		return (el: HTMLElement) =>
-			Chessground(el, {
+		return (el: HTMLElement) => {
+			const api = Chessground(el, {
 				fen: this.currentFen(),
 				orientation: this.flipped() ? 'black' : 'white',
 			});
+			// Stash the live API so practice moves can push the committed
+			// position synchronously (see pushBoardNow) without waiting for
+			// Angular's change-detection round trip.
+			this.boardApi = api;
+			return api;
+		};
 	});
 
 	/**
@@ -417,8 +437,24 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 * live Chessground instance via `Api.set()` on every change.
 	 */
 	boardConfig = computed<Partial<Config>>(() => {
+		// Force-sync requests: tracking this signal guarantees a fresh config
+		// object is pushed to the board even when the FEN is unchanged, so the
+		// board can always be snapped back to the chess.js position.
+		this.boardSyncTick();
 		const fen = this.currentFen();
 		const isEditable = this.filterMoves() || this.practiceMode();
+		// Free play lets the same side move twice in a row, which makes
+		// chessground's internally toggled turnColor drift from the real
+		// position. Keep it in sync with the FEN so check highlighting and
+		// any turn-dependent behavior follow the actual side to move.
+		const fenParts = fen.split(' ');
+		const turnColor = (fenParts[1] === 'w' ? 'white' : 'black') as
+			| 'white'
+			| 'black';
+		// In practice mode the game ends at checkmate/stalemate: dragging and
+		// click-moves are disabled so pieces cannot be picked up and dropped
+		// back uselessly.
+		const practiceOver = this.practiceMode() && this.practiceResult() !== null;
 		// Derive check from the displayed FEN (the internal chess instance can
 		// lag behind during PV previews / auto-played lines).
 		let check = false;
@@ -429,17 +465,22 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 		return {
 			fen,
+			turnColor,
 			orientation: this.flipped() ? 'black' : 'white',
 			viewOnly: !isEditable,
 			lastMove: this.lastMoveSquares(),
 			check,
 			addPieceZIndex: this.in3d(),
 			premovable: { enabled: false },
-			draggable: { showGhost: true },
+			draggable: { showGhost: true, enabled: !practiceOver },
+			selectable: { enabled: !practiceOver },
 			movable: {
 				free: false,
 				color: isEditable ? 'both' : undefined,
-				dests: isEditable ? this.getMovableDests() : undefined,
+				dests: isEditable
+					? this.getMovableDests(this.practiceMode())
+					: undefined,
+				showDests: isEditable,
 				events: {
 					after: (orig, dest) => {
 						if (isEditable) this.handleBoardMove(orig, dest);
@@ -1222,19 +1263,43 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.uniqueBroadcastNames.set(broadcastNames);
 	}
 
-	private getMovableDests(): Map<Key, Key[]> {
+	/**
+	 * Legal destination map for the board's editable pieces.
+	 *
+	 * For practice mode (`includeBothSides`) the map contains legal moves for
+	 * **both** sides, so the user can move White or Black pieces at any time
+	 * (flipping the board never locks a side out). For opening-move filtering
+	 * only the side to move is included, preserving strict alternation.
+	 */
+	private getMovableDests(includeBothSides = false): Map<Key, Key[]> {
 		const dests = new Map<Key, Key[]>();
-		for (const move of this.chess.moves({ verbose: true })) {
+		const add = (move: { from: string; to: string }) => {
 			const from = move.from as Key;
 			if (!dests.has(from)) dests.set(from, []);
 			dests.get(from)?.push(move.to as Key);
+		};
+		for (const move of this.chess.moves({ verbose: true })) add(move);
+		if (includeBothSides) {
+			// Legal moves for the other side: legality depends on the position,
+			// not on whose turn it is, so generating from a copy with the turn
+			// flipped yields that side's legal moves on this same board.
+			try {
+				const parts = this.chess.fen().split(' ');
+				const otherTurn = parts[1] === 'w' ? 'b' : 'w';
+				const temp = new Chess(
+					[parts[0], otherTurn, ...parts.slice(2)].join(' '),
+				);
+				for (const move of temp.moves({ verbose: true })) add(move);
+			} catch {
+				/* ignore invalid positions */
+			}
 		}
 		return dests;
 	}
 
 	private handleBoardMove(orig: string, dest: string): void {
 		if (this.practiceMode()) {
-			void this.handlePracticeMove(orig, dest);
+			this.handlePracticeMove(orig, dest);
 			return;
 		}
 		try {
@@ -1243,42 +1308,158 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				this.currentFen.set(this.chess.fen());
 				this.interactiveMoves.update((m) => [...m, move.san]);
 				if (this.filterByFenEnabled()) this.filterFen.set(this.chess.fen());
+				// Push the committed position + destinations to the board right
+				// away so consecutive drag & drop moves never see stale dests.
+				this.pushBoardNow();
+			} else {
+				// The move was rejected: snap the rendered board back to the
+				// chess.js position (chessground already drew the drop).
+				this.forceBoardSync();
 			}
 		} catch {
-			this.currentFen.set(this.chess.fen());
+			this.forceBoardSync();
 		}
 	}
 
 	/**
-	 * Applies a move played on the board during practice mode, showing the
-	 * promotion dialog when needed, then triggers re-analysis of the new
-	 * position.
+	 * Applies a move played on the board during practice mode.
+	 *
+	 * Practice is free play: either side may move at any time, so the move is
+	 * applied to a copy of the position with the moving side to move (which
+	 * keeps chess.js's legality check while ignoring turn alternation).
+	 *
+	 * Every path ends in exactly one of two states: the move is committed
+	 * (FEN update + re-analysis + immediate board push), or it is rejected and
+	 * the board is force-synchronized back to the chess.js position. The board
+	 * can therefore never stay desynchronized from chess.js — a desync makes
+	 * subsequent drag & drop moves silently fail.
 	 */
-	private async handlePracticeMove(orig: string, dest: string): Promise<void> {
+	private handlePracticeMove(orig: string, dest: string): void {
+		if (!this.practiceMode()) return;
+		let piece: Piece | undefined;
+		try {
+			piece = this.chess.get(orig as Square);
+		} catch {
+			this.forceBoardSync();
+			return;
+		}
+		if (!piece) {
+			// The dropped square holds no piece in chess.js — the rendered
+			// board is out of sync; snap it back to the truth.
+			this.forceBoardSync();
+			return;
+		}
+		const isPromotion =
+			piece.type === 'p' && (dest.endsWith('8') || dest.endsWith('1'));
+		if (isPromotion) {
+			// The promotion dialog is modal; commit (or re-sync) once it closes.
+			void this.promotionService
+				.showPromotionDialog(piece.color === 'w' ? 'white' : 'black')
+				.then((promotion) => {
+					// The user may have exited practice mode while the dialog was open.
+					if (!this.practiceMode()) {
+						this.forceBoardSync();
+						return;
+					}
+					const move = this.applyPracticeMove(orig, dest, promotion);
+					if (move) this.commitPracticeMove(move);
+					else this.forceBoardSync();
+				})
+				.catch(() => {
+					// The dialog failed to open/close: revert the rendered drop.
+					this.forceBoardSync();
+				});
+		} else {
+			const move = this.applyPracticeMove(orig, dest, undefined);
+			if (move) this.commitPracticeMove(move);
+			else this.forceBoardSync();
+		}
+	}
+
+	/**
+	 * Commits an applied practice move: updates the FEN, appends the move to
+	 * the session list and triggers re-analysis of the new position.
+	 */
+	private commitPracticeMove(move: Move): void {
+		this.currentFen.set(this.chess.fen());
+		this.practiceMoves.update((moves) => [
+			...moves,
+			{ san: move.san, evaluation: null },
+		]);
+		this.practiceEvaluation.set(null);
+		this.analyzePracticePosition();
+		// Push the committed position + destinations to the board right away
+		// so consecutive drag & drop moves never see stale dests.
+		this.pushBoardNow();
+	}
+
+	/**
+	 * Force-pushes the chess.js position to the board, even when the FEN string
+	 * did not change, healing any desync between chessground's rendered state
+	 * and chess.js (chessground applies a drop to its own state before the app
+	 * validates it — a rejected drop must be explicitly reverted).
+	 */
+	private forceBoardSync(): void {
+		this.currentFen.set(this.chess.fen());
+		this.boardSyncTick.update((v) => v + 1);
+		// Also synchronize the live instance immediately instead of waiting for
+		// Angular's change-detection round trip.
+		this.pushBoardNow();
+	}
+
+	/**
+	 * Synchronously pushes the current chess.js position and legal move
+	 * destinations to the live chessground instance.
+	 *
+	 * chessground clears `movable.dests` after every user drop and only
+	 * re-receives them once the `after` callback plus Angular change detection
+	 * have run. This immediate push closes that window, so rapid consecutive
+	 * drag & drop moves in free play are never rejected.
+	 */
+	private pushBoardNow(): void {
+		if (!this.boardApi) return;
+		// Invalidate chessground's cached board bounds: the board may have
+		// moved due to a layout shift that fires no scroll/resize event, and
+		// stale bounds make every subsequent drag map to the wrong square.
+		this.boardApi.state.dom.bounds.clear();
+		const fen = this.chess.fen();
+		const practice = this.practiceMode();
+		this.boardApi.set({
+			fen,
+			turnColor: fen.split(' ')[1] === 'w' ? 'white' : 'black',
+			movable: {
+				free: false,
+				color: 'both',
+				dests: this.getMovableDests(practice),
+				showDests: true,
+			},
+		});
+	}
+
+	/**
+	 * Applies a practice move for either side: rebuilds the position with the
+	 * moving side to move so chess.js validates legality, then adopts the
+	 * resulting position. Returns the made move, or null when illegal.
+	 */
+	private applyPracticeMove(
+		orig: string,
+		dest: string,
+		promotion: 'q' | 'r' | 'b' | 'n' | undefined,
+	): Move | null {
 		try {
 			const piece = this.chess.get(orig as Square);
-			const isPromotion =
-				piece?.type === 'p' && (dest.endsWith('8') || dest.endsWith('1'));
-			let promotion: 'q' | 'r' | 'b' | 'n' | undefined;
-			if (isPromotion) {
-				promotion = await this.promotionService.showPromotionDialog(
-					piece?.color === 'w' ? 'white' : 'black',
-				);
-				// The user may have exited practice mode while the dialog was open.
-				if (!this.practiceMode()) return;
-			}
-			const move = this.chess.move({ from: orig, to: dest, promotion });
-			if (move) {
-				this.currentFen.set(this.chess.fen());
-				this.practiceMoves.update((moves) => [
-					...moves,
-					{ san: move.san, evaluation: null },
-				]);
-				this.practiceEvaluation.set(null);
-				this.analyzePracticePosition();
-			}
+			const mover = piece?.color;
+			if (!mover) return null;
+			const parts = this.chess.fen().split(' ');
+			const temp = new Chess(
+				[parts[0], mover === 'w' ? 'w' : 'b', ...parts.slice(2)].join(' '),
+			);
+			const move = temp.move({ from: orig, to: dest, promotion });
+			if (!move) return null;
+			this.chess = temp;
+			return move;
 		} catch {
-			this.currentFen.set(this.chess.fen());
+			return null;
 		}
 	}
 

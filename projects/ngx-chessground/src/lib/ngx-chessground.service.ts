@@ -115,6 +115,12 @@ export class NgxChessgroundService implements OnDestroy {
 	 */
 	public setConfig(config: Partial<Config>): void {
 		if (this.cg) {
+			// The board may have moved since chessground last measured it —
+			// e.g. a layout shift that fires no scroll/resize event (a panel
+			// growing below the board). Invalidate the cached bounds so the
+			// next mouse event maps to the correct square instead of failing
+			// silently and making drag & drop appear broken.
+			this.cg.state.dom.bounds.clear();
 			this.cg.set(config as Config);
 		} else {
 			this.pendingConfig = config;

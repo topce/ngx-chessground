@@ -183,6 +183,17 @@
 	overflow-y: auto;
 }
 
+/*
+ * During practice the move list below the board grows with every move.
+ * With the default `justify-content: center` each new row re-centers the
+ * whole column, shifting the board under the user's cursor mid-drag and
+ * making drops land on the wrong square. Pin the board to the top while
+ * practicing so its position stays stable.
+ */
+.center-panel.practicing {
+	justify-content: flex-start;
+}
+
 /* ---- Right panel collapsible sections ---- */
 .collapsible-section {
 	display: flex;

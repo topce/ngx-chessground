@@ -68,7 +68,7 @@
     ></div>
 
     <!-- Center Panel: Board -->
-    <div class="panel center-panel">
+    <div class="panel center-panel" [class.practicing]="practiceMode()">
       <board-display
         [runFunction]="runFunction()"
         [config]="boardConfig()"
@@ -125,7 +125,6 @@
           [moves]="practiceMoves()"
           [fen]="currentFen()"
           [result]="practiceResult()"
-          [sideToMove]="activeColor()"
           [(depth)]="stockfishDepth"
           (exit)="exitPractice()"
           (undoMove)="undoPracticeMove()"

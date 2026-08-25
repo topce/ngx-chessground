@@ -19,11 +19,11 @@ describe('PracticePanelComponent', () => {
 		return btn as HTMLButtonElement;
 	}
 
-	it('renders the idle state and side-to-move hint', async () => {
+	it('renders the idle state and free-play hint', async () => {
 		const { element } = await createComponent();
 		expect(element.textContent).toContain('Practice');
 		expect(element.textContent).toContain('Stockfish idle');
-		expect(element.textContent).toContain('White to move');
+		expect(element.textContent).toContain('move either side');
 	});
 
 	it('renders analysis state with evaluation and best move', async () => {
@@ -54,13 +54,6 @@ describe('PracticePanelComponent', () => {
 		expect(element.textContent).toContain('Eval');
 		expect(element.textContent).toContain('+0.32');
 		expect(element.textContent).not.toContain('Stockfish idle');
-	});
-
-	it('shows the black side-to-move hint when it is Black to move', async () => {
-		const { fixture, element } = await createComponent();
-		fixture.componentRef.setInput('sideToMove', 'b');
-		await fixture.whenStable();
-		expect(element.textContent).toContain('Black to move');
 	});
 
 	it('renders move pairs with per-move evaluations', async () => {

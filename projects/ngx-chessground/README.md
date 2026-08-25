@@ -235,7 +235,7 @@ When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During 
 While the game is **not** replaying, the board controls show an **Analyze Practice** button. Pressing it enters practice mode:
 
 - The session starts from the **currently displayed board position** (use move navigation to set the starting point first).
-- The board becomes editable for **both sides** — play moves for White and Black freely (legal moves only; pawn promotions open the piece-choice dialog).
+- The board becomes editable for **both sides** — move White or Black pieces at any time, in any order (only legal moves; pawn promotions open the piece-choice dialog). Flipping the board never locks either side out.
 - Stockfish **continuously re-analyzes the current position** after every move, undo, or restart, showing the evaluation (also on the evaluation bar), best move, and principal variation. The search depth follows the shared `stockfishDepth` setting.
 - The panel lists the session moves with their per-move evaluations, plus **Undo**, **Restart**, and **Exit** controls. Game-over results (checkmate, stalemate, draw) are detected and displayed.
 - Practice mode and the stop-on-error **Show Better Move** panel are mutually exclusive: entering practice hides the better-move panel, and opening "Show Better Move" closes an active practice session.

@@ -34,8 +34,6 @@ export class PracticePanelComponent {
 	readonly fen = input<string>('');
 	/** Game result ('1-0', '0-1', '1/2-1/2') or null while ongoing. */
 	readonly result = input<string | null>(null);
-	/** Side to move in the current position ('w' | 'b'). */
-	readonly sideToMove = input<string>('w');
 
 	// ---- Events ----
 	readonly exit = output<void>();
@@ -50,10 +48,6 @@ export class PracticePanelComponent {
 	// ---- Computed ----
 	readonly canUndo = computed(() => this.moves().length > 0);
 	readonly hasMoves = computed(() => this.moves().length > 0);
-	/** Side to move label ('White' | 'Black'). */
-	readonly sideToMoveLabel = computed(() =>
-		this.sideToMove() === 'w' ? 'White' : 'Black',
-	);
 
 	/** Moves grouped into full-move pairs for display: `1. e4 e5`. */
 	readonly movePairs = computed(() => {
