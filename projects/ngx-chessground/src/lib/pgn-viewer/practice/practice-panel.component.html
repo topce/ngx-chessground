@@ -1,0 +1,182 @@
+<div class="practice-panel" role="region" aria-label="Practice mode">
+  <!-- Header -->
+  <div class="practice-header">
+    <div class="practice-title">
+      <span class="practice-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/>
+        </svg>
+        Practice
+      </span>
+      <span class="status-text" [class.analyzing]="isAnalyzing()" aria-live="polite">
+        @if (isAnalyzing()) {
+          <span class="analyzing-dot" aria-hidden="true"></span>
+          Analyzing…
+        } @else if (evaluation()) {
+          Eval <strong>{{ evaluation() }}</strong>
+        } @else {
+          Stockfish idle
+        }
+      </span>
+    </div>
+    <button
+      type="button"
+      class="exit-btn"
+      (click)="exit.emit()"
+      title="Leave practice mode and return to the loaded game"
+      aria-label="Exit practice mode"
+    >
+      ✕ Exit
+    </button>
+  </div>
+
+  <!-- Game over -->
+  @if (result(); as gameResult) {
+    <div class="practice-result">Game over: {{ gameResult }}</div>
+  }
+
+  <!-- Engine line -->
+  <div class="engine-line">
+    @if (bestMoveInfo(); as info) {
+      <span class="engine-best">
+        <span class="engine-best-label">Best</span>
+        <strong>{{ info.move }}</strong>
+        @if (info.score) {
+          <span class="eval-score">({{ info.score }})</span>
+        }
+      </span>
+      <span class="pv-line">
+        @for (pvMove of info.pv; track $index) {
+          <span class="pv-san">{{ pvMove.san }}</span>
+        }
+      </span>
+    } @else if (!isAnalyzing()) {
+      <span class="engine-idle">No analysis yet</span>
+    }
+    <label class="depth-label">
+      Depth
+      <input
+        type="number"
+        [value]="depth()"
+        (input)="onDepthChange($event)"
+        min="1"
+        max="50"
+        class="depth-input"
+        aria-label="Stockfish search depth"
+      />
+    </label>
+    <button
+      type="button"
+      class="action-btn"
+      (click)="reanalyze.emit()"
+      title="Re-analyze the current position"
+    >
+      Analyze
+    </button>
+  </div>
+
+  <!-- Session controls -->
+  <div class="session-controls">
+    <button
+      type="button"
+      class="action-btn"
+      (click)="undoMove.emit()"
+      [disabled]="!canUndo()"
+      title="Take back the last practice move"
+    >
+      ↶ Undo
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      (click)="restart.emit()"
+      [disabled]="!hasMoves()"
+      title="Restart the practice session from its starting position"
+    >
+      ↺ Restart
+    </button>
+  </div>
+
+  <!-- Move list -->
+  <div class="practice-moves">
+    @if (moves().length > 0) {
+      <div class="moves-list">
+        @for (pair of movePairs(); track pair.number) {
+          <div class="move-pair">
+            <span class="move-number">{{ pair.number }}.</span>
+            <span class="move-san">
+              {{ pair.white.san }}
+              @if (pair.white.evaluation) {
+                <span class="move-eval">{{ pair.white.evaluation }}</span>
+              }
+            </span>
+            @if (pair.black; as blackMove) {
+              <span class="move-san">
+                {{ blackMove.san }}
+                @if (blackMove.evaluation) {
+                  <span class="move-eval">{{ blackMove.evaluation }}</span>
+                }
+              </span>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-hint">
+        {{ sideToMoveLabel() }} to move — play a move for either side on the board.
+      </div>
+    }
+  </div>
+
+  <!-- Export -->
+  <div class="export-section">
+    <div class="fen-row">
+      <input
+        class="fen-input"
+        type="text"
+        readonly
+        [value]="fen()"
+        (focus)="selectFen($event)"
+        aria-label="Current position FEN"
+        spellcheck="false"
+      />
+      <button
+        type="button"
+        class="action-btn"
+        (click)="copyFen.emit()"
+        title="Copy the current FEN to the clipboard"
+      >
+        Copy FEN
+      </button>
+    </div>
+    <div class="export-buttons">
+      <button
+        type="button"
+        class="action-btn"
+        (click)="copyMoves.emit()"
+        [disabled]="!hasMoves()"
+        title="Copy the move list to the clipboard"
+      >
+        Copy moves
+      </button>
+      <button
+        type="button"
+        class="action-btn"
+        (click)="copyPgn.emit()"
+        [disabled]="!hasMoves()"
+        title="Copy the full PGN (with evaluations) to the clipboard"
+      >
+        Copy PGN
+      </button>
+      <button
+        type="button"
+        class="action-btn"
+        (click)="downloadPgn.emit()"
+        [disabled]="!hasMoves()"
+        title="Download the analysis as a PGN file"
+      >
+        Download PGN
+      </button>
+    </div>
+  </div>
+</div>

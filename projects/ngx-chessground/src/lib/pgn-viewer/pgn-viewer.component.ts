@@ -11,14 +11,16 @@ import {
 	viewChild,
 } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Chess, Move } from 'chess.js';
+import { Chess, type Move, type Square } from 'chess.js';
 import { Chessground } from 'chessground';
 import { Api } from 'chessground/api';
+import type { Config } from 'chessground/config';
 import { Key } from 'chessground/types';
 import { parsePgn } from 'chessops/pgn';
 import { decompress as decompressZst } from 'fzstd';
 import { loadAsync as loadZipAsync } from 'jszip';
 
+import { PromotionService } from '../promotion-dialog/promotion.service';
 import { BoardDisplayComponent } from './board/board-display.component';
 import { ECO_MOVES } from './eco-moves';
 // Sub-components
@@ -31,8 +33,13 @@ import type {
 	GameMetadata,
 	WorkerResponse,
 } from './pgn-processor.worker';
-import type { BestMoveInfo, StopOnErrorSide } from './pgn-viewer.types';
+import type {
+	BestMoveInfo,
+	PracticeMove,
+	StopOnErrorSide,
+} from './pgn-viewer.types';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
+import { PracticePanelComponent } from './practice/practice-panel.component';
 import { ReplayPanelComponent } from './replay/replay-panel.component';
 import { highlightMatch, type TextSegment } from './text-highlight';
 
@@ -61,6 +68,7 @@ import { highlightMatch, type TextSegment } from './text-highlight';
 		MoveListComponent,
 		ReplayPanelComponent,
 		LoadCachePanelComponent,
+		PracticePanelComponent,
 	],
 	templateUrl: './pgn-viewer.component.html',
 	styleUrl: './pgn-viewer.component.css',
@@ -69,6 +77,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	private readonly pgnViewerEngine = inject(PgnViewerEngineService);
 	private readonly snackBar = inject(MatSnackBar);
 	private readonly pgnCacheService = inject(PgnCacheService);
+	private readonly promotionService = inject(PromotionService);
 
 	// ======================================================================
 	// Inputs
@@ -309,6 +318,43 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/** True after autoplayBestLine completes — enables the re-evaluate button. */
 	autoplayCompleted = signal<boolean>(false);
 
+	// ---- Practice mode signals ----
+	/** Whether practice mode (free play for both sides + continuous analysis) is active. */
+	practiceMode = signal<boolean>(false);
+	/** FEN of the position where the current practice session started. */
+	practiceStartFen = signal<string>('');
+	/** Moves played during the practice session, with engine evaluations. */
+	practiceMoves = signal<PracticeMove[]>([]);
+	/** Stockfish evaluation of the current practice position (White's perspective). */
+	practiceEvaluation = signal<string | null>(null);
+	/** FEN currently being analyzed by Stockfish in practice mode (guards stale results). */
+	private practiceAnalysisFen: string | null = null;
+
+	/** Whether the "Analyze practice" button should be offered (game not replaying). */
+	practiceAvailable = computed(() => !this.isReplaying());
+	/** Evaluation shown on the evaluation bar: practice eval while practicing. */
+	boardEvaluation = computed(() =>
+		this.practiceMode() ? this.practiceEvaluation() : this.currentEvaluation(),
+	);
+	/** Game result of the current practice position, or null while ongoing. */
+	practiceResult = computed<string | null>(() => {
+		if (!this.practiceMode()) return null;
+		try {
+			const c = new Chess(this.currentFen());
+			if (c.isCheckmate()) return c.turn() === 'w' ? '0-1' : '1-0';
+			if (c.isStalemate() || c.isDraw()) return '1/2-1/2';
+		} catch {
+			/* ignore invalid positions */
+		}
+		return null;
+	});
+	/** Game result displayed under the board (practice result while practicing). */
+	displayGameResult = computed(() =>
+		this.practiceMode()
+			? (this.practiceResult() ?? '*')
+			: this.currentGameResult(),
+	);
+
 	evaluations = signal<(string | null)[]>([]);
 	currentEvaluation = computed(() => {
 		const evals = this.evaluations();
@@ -348,30 +394,59 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// Computed — Run function for chessground
 	// ======================================================================
 
+	/**
+	 * Stable board factory: created once and never re-created afterwards, so the
+	 * Chessground instance is never torn down on position changes. All state
+	 * updates (fen, orientation, movable pieces, highlights) flow through the
+	 * {@link boardConfig} input instead, which reconfigures the live instance
+	 * in place — keeping drag & drop responsive and animations intact.
+	 */
 	runFunction = computed<(el: HTMLElement) => Api>(() => {
-		const fen = this.currentFen();
-		const isEditable = this.filterMoves();
-		const lastMove = this.lastMoveSquares();
-		const orientation = this.flipped() ? 'black' : 'white';
-		const is3d = this.in3d();
+		// Signal reads inside the returned closure are untracked by this
+		// computed (they execute when the function is invoked), so the closure
+		// identity stays stable across every position change.
 		return (el: HTMLElement) =>
 			Chessground(el, {
-				addPieceZIndex: is3d,
-				fen,
-				orientation,
-				viewOnly: !isEditable,
-				lastMove,
-				movable: {
-					free: false,
-					color: isEditable ? 'both' : undefined,
-					dests: isEditable ? this.getMovableDests() : undefined,
-					events: {
-						after: (orig, dest) => {
-							if (isEditable) this.handleBoardMove(orig, dest);
-						},
+				fen: this.currentFen(),
+				orientation: this.flipped() ? 'black' : 'white',
+			});
+	});
+
+	/**
+	 * Complete board state passed to the board component and applied to the
+	 * live Chessground instance via `Api.set()` on every change.
+	 */
+	boardConfig = computed<Partial<Config>>(() => {
+		const fen = this.currentFen();
+		const isEditable = this.filterMoves() || this.practiceMode();
+		// Derive check from the displayed FEN (the internal chess instance can
+		// lag behind during PV previews / auto-played lines).
+		let check = false;
+		try {
+			check = new Chess(fen).inCheck();
+		} catch {
+			/* ignore invalid positions */
+		}
+		return {
+			fen,
+			orientation: this.flipped() ? 'black' : 'white',
+			viewOnly: !isEditable,
+			lastMove: this.lastMoveSquares(),
+			check,
+			addPieceZIndex: this.in3d(),
+			premovable: { enabled: false },
+			draggable: { showGhost: true },
+			movable: {
+				free: false,
+				color: isEditable ? 'both' : undefined,
+				dests: isEditable ? this.getMovableDests() : undefined,
+				events: {
+					after: (orig, dest) => {
+						if (isEditable) this.handleBoardMove(orig, dest);
 					},
 				},
-			});
+			},
+		};
 	});
 
 	// ======================================================================
@@ -474,6 +549,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	loadGame(index: number): void {
 		const count = this.gamesMetadata().length;
 		if (index >= 0 && index < count) {
+			this.clearPracticeState();
 			this.currentGameIndex.set(index);
 			this.moves.set([]);
 			this.evaluations.set([]);
@@ -512,6 +588,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// ---- Move navigation ----
 	jumpToMove(index: number): void {
+		this.exitPractice();
 		const moves = this.moves();
 		if (index >= -1 && index < moves.length) {
 			this.chess.reset();
@@ -527,6 +604,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 	next(): void {
+		if (this.practiceMode()) return;
 		const moves = this.moves();
 		const idx = this.currentMoveIndex();
 		if (idx < moves.length - 1) {
@@ -543,6 +621,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 	prev(): void {
+		if (this.practiceMode()) return;
 		if (this.currentMoveIndex() >= 0) {
 			this.chess.undo();
 			this.currentMoveIndex.update((i) => i - 1);
@@ -556,6 +635,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 	start(): void {
+		if (this.practiceMode()) return;
 		this.chess.reset();
 		this.currentMoveIndex.set(-1);
 		this.currentFen.set(this.chess.fen());
@@ -566,6 +646,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 	end(): void {
+		if (this.practiceMode()) return;
 		this.chess.reset();
 		for (const m of this.moves()) this.chess.move(m);
 		this.currentMoveIndex.set(this.moves().length - 1);
@@ -580,6 +661,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// ---- Filter actions ----
 	applyFilter(): void {
 		this.stopReplay();
+		this.exitPractice();
 		this.isReplayingSequence = false;
 		this.showAllGames.set(false);
 		this.showBetterMoveBtn.set(false);
@@ -686,11 +768,13 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// ---- Replay ----
 	replayGame(): void {
+		this.exitPractice();
 		this.stopReplay();
 		this.start();
 		this.runReplayLogic();
 	}
 	continueReplay(): void {
+		this.exitPractice();
 		this.stopReplay(false);
 		this.runReplayLogic();
 	}
@@ -775,12 +859,109 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.currentFen.set(fen);
 	}
 	toggleAnalysis(): void {
+		// "Show Better Move" is exclusive with practice mode: opening it shows
+		// the better-move panel and closes the practice panel.
+		this.exitPractice();
 		const wasVisible = this.analysisVisible();
 		this.analysisVisible.update((v) => !v);
 		// Start Stockfish analysis when the analysis panel is being opened
 		if (!wasVisible && this.analyzedFen) {
 			this.analyzePosition(this.analyzedFen);
 		}
+	}
+
+	// ---- Practice mode ----
+	/**
+	 * Enters practice mode: free play for both sides starting from the
+	 * currently displayed position, with continuous Stockfish analysis.
+	 */
+	startPractice(): void {
+		if (this.practiceMode() || this.isReplaying()) return;
+		// Practice mode is exclusive with the "Show Better Move" analysis panel.
+		this.showBetterMoveBtn.set(false);
+		this.analysisVisible.set(false);
+		// Rebuild the internal chess instance from the displayed position so
+		// PV previews / auto-played lines are reflected in the game state.
+		try {
+			this.chess = new Chess(this.currentFen());
+		} catch {
+			this.chess = new Chess();
+		}
+		this.practiceMode.set(true);
+		this.practiceStartFen.set(this.chess.fen());
+		this.practiceMoves.set([]);
+		this.practiceEvaluation.set(null);
+		this.currentFen.set(this.chess.fen());
+		this.analyzePracticePosition();
+	}
+
+	/** Leaves practice mode and restores the loaded game position. */
+	exitPractice(): void {
+		if (!this.practiceMode()) return;
+		this.clearPracticeState();
+		this.restoreGamePosition();
+	}
+
+	/** Takes back the last practice move and re-analyzes the resulting position. */
+	undoPracticeMove(): void {
+		if (!this.practiceMode()) return;
+		if (!this.chess.undo()) return;
+		this.practiceMoves.update((moves) => moves.slice(0, -1));
+		this.practiceEvaluation.set(null);
+		this.currentFen.set(this.chess.fen());
+		this.analyzePracticePosition();
+	}
+
+	/** Restarts the practice session from the position where it started. */
+	restartPractice(): void {
+		if (!this.practiceMode()) return;
+		try {
+			this.chess = new Chess(this.practiceStartFen());
+		} catch {
+			this.chess = new Chess();
+		}
+		this.practiceMoves.set([]);
+		this.practiceEvaluation.set(null);
+		this.currentFen.set(this.chess.fen());
+		this.analyzePracticePosition();
+	}
+
+	/** Re-analyzes the current practice position (e.g. after a depth change). */
+	reanalyzePracticePosition(): void {
+		if (this.practiceMode()) this.analyzePracticePosition();
+	}
+
+	// ---- Practice export ----
+	async copyPracticeFen(): Promise<void> {
+		await this.copyTextToClipboard(
+			this.currentFen(),
+			'FEN copied to clipboard.',
+		);
+	}
+	async copyPracticeMoves(): Promise<void> {
+		await this.copyTextToClipboard(
+			this.buildPracticeMoveText(),
+			'Moves copied to clipboard.',
+		);
+	}
+	async copyPracticePgn(): Promise<void> {
+		await this.copyTextToClipboard(
+			this.buildPracticePgn(),
+			'PGN copied to clipboard.',
+		);
+	}
+	/** Downloads the practice session as a PGN file. */
+	downloadPracticePgn(): void {
+		const pgn = this.buildPracticePgn();
+		const blob = new Blob([pgn], { type: 'application/x-chess-pgn' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = `practice-analysis-${this.formatPgnDate()}.pgn`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
 	}
 
 	// ---- Load & Cache ----
@@ -1052,6 +1233,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	private handleBoardMove(orig: string, dest: string): void {
+		if (this.practiceMode()) {
+			void this.handlePracticeMove(orig, dest);
+			return;
+		}
 		try {
 			const move = this.chess.move({ from: orig, to: dest });
 			if (move) {
@@ -1061,6 +1246,153 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			}
 		} catch {
 			this.currentFen.set(this.chess.fen());
+		}
+	}
+
+	/**
+	 * Applies a move played on the board during practice mode, showing the
+	 * promotion dialog when needed, then triggers re-analysis of the new
+	 * position.
+	 */
+	private async handlePracticeMove(orig: string, dest: string): Promise<void> {
+		try {
+			const piece = this.chess.get(orig as Square);
+			const isPromotion =
+				piece?.type === 'p' && (dest.endsWith('8') || dest.endsWith('1'));
+			let promotion: 'q' | 'r' | 'b' | 'n' | undefined;
+			if (isPromotion) {
+				promotion = await this.promotionService.showPromotionDialog(
+					piece?.color === 'w' ? 'white' : 'black',
+				);
+				// The user may have exited practice mode while the dialog was open.
+				if (!this.practiceMode()) return;
+			}
+			const move = this.chess.move({ from: orig, to: dest, promotion });
+			if (move) {
+				this.currentFen.set(this.chess.fen());
+				this.practiceMoves.update((moves) => [
+					...moves,
+					{ san: move.san, evaluation: null },
+				]);
+				this.practiceEvaluation.set(null);
+				this.analyzePracticePosition();
+			}
+		} catch {
+			this.currentFen.set(this.chess.fen());
+		}
+	}
+
+	/** Starts Stockfish analysis of the current practice position. */
+	private analyzePracticePosition(): void {
+		if (!this.practiceMode()) return;
+		const fen = this.chess.fen();
+		// Keep the practice analysis FEN separate from analyzedFen so the
+		// "Show Better Move" flow keeps its own position.
+		this.practiceAnalysisFen = fen;
+		// Drop any pending PV lines so a bestmove flushed by the 'stop' of the
+		// previous search cannot be mistaken for the new position's result.
+		this.pendingAlternatives.clear();
+		this.analyzePosition(fen);
+	}
+
+	/** Clears practice state without touching the chess instance. */
+	private clearPracticeState(): void {
+		this.practiceMode.set(false);
+		this.practiceStartFen.set('');
+		this.practiceMoves.set([]);
+		this.practiceEvaluation.set(null);
+		this.practiceAnalysisFen = null;
+	}
+
+	/** Rebuilds the chess instance and FEN from the loaded game's current move index. */
+	private restoreGamePosition(): void {
+		const index = this.currentMoveIndex();
+		const moves = this.moves();
+		this.chess.reset();
+		for (let i = 0; i <= index && i < moves.length; i++) {
+			this.chess.move(moves[i]);
+		}
+		this.currentFen.set(this.chess.fen());
+	}
+
+	/**
+	 * Publishes a completed Stockfish analysis result to the practice state,
+	 * ignoring results that do not belong to the currently displayed position.
+	 */
+	private applyPracticeAnalysisResult(score: string | null | undefined): void {
+		if (!this.practiceMode()) return;
+		if (this.practiceAnalysisFen !== this.currentFen()) return;
+		this.practiceEvaluation.set(score ?? null);
+		this.practiceMoves.update((moves) => {
+			if (moves.length === 0) return moves;
+			const copy = [...moves];
+			const last = copy[copy.length - 1];
+			copy[copy.length - 1] = { ...last, evaluation: score ?? null };
+			return copy;
+		});
+	}
+
+	/** Formats practice moves as a single text line, e.g. `"1. e4 e5 2. Nf3"`. */
+	private buildPracticeMoveText(): string {
+		const moves = this.practiceMoves();
+		const parts: string[] = [];
+		for (let i = 0; i < moves.length; i += 2) {
+			const white = moves[i];
+			const black = moves[i + 1];
+			parts.push(`${i / 2 + 1}. ${white.san}`);
+			if (black) parts.push(black.san);
+		}
+		return parts.join(' ');
+	}
+
+	/**
+	 * Builds a full PGN for the practice session, including evaluation
+	 * comments for analyzed moves.
+	 */
+	private buildPracticePgn(): string {
+		const result = this.practiceResult() ?? '*';
+		const headers = [
+			'[Event "Practice analysis"]',
+			'[Site "ngx-chessground"]',
+			`[Date "${this.formatPgnDate()}"]`,
+			'[White "Practice"]',
+			'[Black "Practice"]',
+		];
+		const startFen = this.practiceStartFen();
+		const standardFen =
+			'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+		if (startFen && startFen !== standardFen) {
+			headers.push('[SetUp "1"]');
+			headers.push(`[FEN "${startFen}"]`);
+		}
+		headers.push(`[Result "${result}"]`);
+		const moveText = this.practiceMoves()
+			.map((move, i) => {
+				const number = i % 2 === 0 ? `${i / 2 + 1}. ` : '';
+				const comment = move.evaluation
+					? ` { [%eval ${move.evaluation.replace(/^\+/, '')}] }`
+					: '';
+				return `${number}${move.san}${comment}`;
+			})
+			.join(' ');
+		return `${headers.join('\n')}\n\n${moveText} ${result}\n`;
+	}
+
+	/** Formats today's date as a PGN header value, e.g. `2026.08.24`. */
+	private formatPgnDate(): string {
+		return new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+	}
+
+	/** Copies text to the clipboard with user feedback. */
+	private async copyTextToClipboard(
+		text: string,
+		message: string,
+	): Promise<void> {
+		try {
+			await navigator.clipboard.writeText(text);
+			this.showMessage(message, 2500);
+		} catch {
+			this.showMessage('Failed to copy to clipboard.', 5000);
 		}
 	}
 
@@ -1167,6 +1499,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.currentAlternativeIndex.set(0);
 			this.pendingAlternatives.clear();
 			this.autoplayCompleted.set(false);
+			// In practice mode, publish the completed evaluation (empty results
+			// come from searches aborted by 'stop' and must not overwrite state).
+			if (sorted.length > 0) {
+				this.applyPracticeAnalysisResult(sorted[0]?.score);
+			}
 		} else if (line.startsWith('info') && line.includes(' pv ')) {
 			// Extract multi-PV rank (defaults to 1 for single-PV engines)
 			const multiPvMatch = line.match(/multipv (\d+)/);
@@ -1177,12 +1514,17 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			const uciMoves = pvString.split(' ');
 			if (uciMoves.length > 0) {
 				const bestMove = uciMoves[0];
+				// The FEN this analysis belongs to: the practice position when in
+				// practice mode, otherwise the stop-on-error analysis position.
+				const analysisFen = this.practiceMode()
+					? this.practiceAnalysisFen
+					: this.analyzedFen;
 				let scoreText = '';
 				const cpMatch = line.match(/score cp (-?\d+)/);
 				const mateMatch = line.match(/score mate (-?\d+)/);
 				let isBlackToMove = false;
-				if (this.analyzedFen) {
-					const parts = this.analyzedFen.split(' ');
+				if (analysisFen) {
+					const parts = analysisFen.split(' ');
 					if (parts.length > 1 && parts[1] === 'b') isBlackToMove = true;
 				}
 				if (mateMatch) {
@@ -1195,13 +1537,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 					scoreText = (cp / 100).toFixed(2);
 					if (cp > 0) scoreText = `+${scoreText}`;
 				}
-				const sanPv = this.analyzedFen
-					? this.uciToSan(this.analyzedFen, uciMoves)
-					: [];
+				const sanPv = analysisFen ? this.uciToSan(analysisFen, uciMoves) : [];
 				let bestMoveSan = bestMove;
-				if (this.analyzedFen) {
+				if (analysisFen) {
 					try {
-						const temp = new Chess(this.analyzedFen);
+						const temp = new Chess(analysisFen);
 						const u = bestMove;
 						const m = temp.move({
 							from: u.substring(0, 2),

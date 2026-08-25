@@ -71,6 +71,7 @@
     <div class="panel center-panel">
       <board-display
         [runFunction]="runFunction()"
+        [config]="boardConfig()"
         [(flipped)]="flipped"
         [(in3d)]="in3d"
         [topPlayerName]="topPlayerName()"
@@ -84,8 +85,8 @@
         [bottomPlayerTitle]="bottomPlayerTitle()"
         [topTimeRemaining]="topTimeRemaining()"
         [bottomTimeRemaining]="bottomTimeRemaining()"
-        [gameResult]="currentGameResult()"
-        [evaluation]="currentEvaluation()"
+        [gameResult]="displayGameResult()"
+        [evaluation]="boardEvaluation()"
         [currentMoveIndex]="currentMoveIndex()"
         [movesCount]="moves().length"
         [isAnalyzing]="isAnalyzing()"
@@ -97,6 +98,8 @@
         [hasPrevAlternative]="currentAlternativeIndex() > 0"
         [alternativeLabel]="allAlternatives().length > 1 ? (currentAlternativeIndex() + 1) + '/' + allAlternatives().length : ''"
         [autoplayCompleted]="autoplayCompleted()"
+        [practiceAvailable]="practiceAvailable()"
+        [practiceActive]="practiceMode()"
         [(stockfishDepth)]="stockfishDepth"
         (flipBoard)="flipBoard()"
         (toggle3d)="toggle3d()"
@@ -111,7 +114,29 @@
         (nextBestMove)="nextBestMove()"
         (prevBestMove)="prevBestMove()"
         (reevaluate)="reevaluatePosition()"
+        (startPractice)="startPractice()"
       />
+
+      @if (practiceMode()) {
+        <practice-panel
+          [isAnalyzing]="isAnalyzing()"
+          [evaluation]="practiceEvaluation()"
+          [bestMoveInfo]="bestMoveInfo()"
+          [moves]="practiceMoves()"
+          [fen]="currentFen()"
+          [result]="practiceResult()"
+          [sideToMove]="activeColor()"
+          [(depth)]="stockfishDepth"
+          (exit)="exitPractice()"
+          (undoMove)="undoPracticeMove()"
+          (restart)="restartPractice()"
+          (reanalyze)="reanalyzePracticePosition()"
+          (copyFen)="copyPracticeFen()"
+          (copyMoves)="copyPracticeMoves()"
+          (copyPgn)="copyPracticePgn()"
+          (downloadPgn)="downloadPracticePgn()"
+        />
+      }
     </div>
 
     <!-- Resize Handle -->

@@ -3,10 +3,12 @@ import {
 	Component,
 	type ElementRef,
 	inject,
+	input,
 	model,
 	viewChild,
 } from '@angular/core';
 import type { Api } from 'chessground/api';
+import type { Config } from 'chessground/config';
 import { NgxChessgroundService } from '../ngx-chessground.service';
 
 /**
@@ -17,6 +19,12 @@ import { NgxChessgroundService } from '../ngx-chessground.service';
  * - Uses an Angular `afterRenderEffect()` to watch both `runFunction` changes
  *   and `viewChild` population, redrawing the board after Angular finishes DOM
  *   rendering. This is the recommended approach for third-party library integration.
+ * - When the `runFunction` identity changes, the previous Chessground instance
+ *   is destroyed before the new one is created.
+ * - Provides an optional `config` input: when its identity changes, the config
+ *   is applied to the **existing** instance in place via `Api.set()`. This keeps
+ *   animations and drag & drop state intact and is far cheaper than recreating
+ *   the instance — the preferred way to update positions/moves.
  * - Provides a `toggleOrientation()` method to flip the board.
  *
  * Uses {@link NgxChessgroundService} (provided at component level) for snabbdom patching
@@ -61,8 +69,23 @@ export class NgxChessgroundComponent {
 	 */
 	runFunction = model<(el: HTMLElement) => Api>();
 
+	/**
+	 * Optional partial Chessground config applied to the live instance via
+	 * `Api.set()` whenever its identity changes.
+	 *
+	 * Prefer updating the board through this input instead of changing
+	 * `runFunction`: the instance is reconfigured in place, preserving
+	 * animations, drag & drop state and avoiding recreation costs.
+	 */
+	readonly config = input<Partial<Config> | null>(null);
+
 	/** Service managing the chessground instance and snabbdom patching lifecycle. */
 	private readonly ngxChessgroundService = inject(NgxChessgroundService);
+
+	/** Last run function applied, used to skip redundant instance recreation. */
+	private lastFn: ((el: HTMLElement) => Api) | undefined;
+	/** Last config applied, used to skip redundant set() calls. */
+	private lastConfig: Partial<Config> | null | undefined;
 
 	/**
 	 * Sets up an `afterRenderEffect` that redraws the chessboard after Angular
@@ -85,14 +108,23 @@ export class NgxChessgroundComponent {
 				return {
 					el: this.elementView(),
 					fn: this.runFunction(),
+					config: this.config(),
 				};
 			},
 			write: (data) => {
 				// DOM manipulation only — never read the DOM here
-				const { el, fn } = data();
-				if (el.nativeElement && fn) {
+				const { el, fn, config } = data();
+				if (!el.nativeElement || !fn) return;
+				if (fn !== this.lastFn) {
+					this.lastFn = fn;
 					this.ngxChessgroundService.redraw(el.nativeElement, fn);
+					// A freshly created instance only carries the run function's
+					// baked-in config — apply the current config input on top.
+					if (config) this.ngxChessgroundService.setConfig(config);
+				} else if (config && config !== this.lastConfig) {
+					this.ngxChessgroundService.setConfig(config);
 				}
+				this.lastConfig = config;
 			},
 		});
 	}

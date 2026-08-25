@@ -1,5 +1,6 @@
 import { Component, computed, input, model, output } from '@angular/core';
 import type { Api } from 'chessground/api';
+import type { Config } from 'chessground/config';
 import { NgxChessgroundComponent } from '../../ngx-chessground/ngx-chessground.component';
 import type { BestMoveInfo } from '../pgn-viewer.types';
 import { EvaluationBarComponent } from './evaluation-bar.component';
@@ -26,6 +27,11 @@ export class BoardDisplayComponent {
 	readonly runFunction = input.required<
 		((el: HTMLElement) => Api) | undefined
 	>();
+	/**
+	 * Partial Chessground config applied to the live board instance via
+	 * `Api.set()` on every change (position, orientation, movable pieces).
+	 */
+	readonly config = input<Partial<Config> | null>(null);
 	/** Whether the board is flipped (black at bottom). */
 	readonly flipped = model<boolean>(false);
 	/** Whether to render 3D Staunton pieces. */
@@ -57,13 +63,19 @@ export class BoardDisplayComponent {
 	readonly currentMoveIndex = input<number>(-1);
 	readonly movesCount = input<number>(0);
 
-	readonly canGoFirst = computed(() => this.currentMoveIndex() >= 0);
-	readonly canGoPrev = computed(() => this.currentMoveIndex() >= 0);
+	readonly canGoFirst = computed(
+		() => !this.practiceActive() && this.currentMoveIndex() >= 0,
+	);
+	readonly canGoPrev = computed(
+		() => !this.practiceActive() && this.currentMoveIndex() >= 0,
+	);
 	readonly canGoNext = computed(
-		() => this.currentMoveIndex() < this.movesCount() - 1,
+		() =>
+			!this.practiceActive() && this.currentMoveIndex() < this.movesCount() - 1,
 	);
 	readonly canGoLast = computed(
-		() => this.currentMoveIndex() < this.movesCount() - 1,
+		() =>
+			!this.practiceActive() && this.currentMoveIndex() < this.movesCount() - 1,
 	);
 
 	// ---- Stockfish Analysis ----
@@ -80,6 +92,12 @@ export class BoardDisplayComponent {
 	readonly alternativeLabel = input<string>('');
 	/** Whether autoplay of the best line has completed (enables re-evaluate). */
 	readonly autoplayCompleted = input<boolean>(false);
+
+	// ---- Practice Mode ----
+	/** Whether the "Analyze practice" button should be offered (game not replaying). */
+	readonly practiceAvailable = input<boolean>(false);
+	/** Whether practice mode is currently active. */
+	readonly practiceActive = input<boolean>(false);
 
 	// ---- Events ----
 	readonly flipBoard = output<void>();
@@ -98,6 +116,8 @@ export class BoardDisplayComponent {
 	readonly prevBestMove = output<void>();
 	/** Re-evaluate the position currently displayed on the board. */
 	readonly reevaluate = output<void>();
+	/** Start practice mode from the current board position. */
+	readonly startPractice = output<void>();
 
 	// ---- Depth change handler ----
 	onStockfishDepthChange(event: Event): void {

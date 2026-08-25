@@ -250,6 +250,24 @@ ngx-chessground {
 	opacity: 1;
 }
 
+.board-ctrl-btn:disabled {
+	opacity: 0.75;
+	cursor: default;
+}
+
+.board-ctrl-btn:disabled:hover {
+	color: var(--cg-text-muted, #78788e);
+}
+
+.board-ctrl-btn:disabled:hover svg {
+	opacity: 0.65;
+	transform: none;
+}
+
+.board-ctrl-btn:disabled:active {
+	transform: none;
+}
+
 .board-ctrl-btn:focus-visible {
 	outline: 2px solid var(--cg-accent, #a67c00);
 	outline-offset: 2px;

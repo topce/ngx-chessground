@@ -106,6 +106,7 @@ The fundamental chessboard component. It manages the DOM element and delegates c
 | Input | Type | Description |
 |-------|------|-------------|
 | `runFunction` | `(el: HTMLElement) => Api` | **Required (signal-based model).** Function called with the board container element. Must create a chessground instance and return its `Api`. |
+| `config` | `Partial<Config>` | **Optional.** When its identity changes, the config is applied to the *existing* instance in place via `Api.set()` — preserving animations and drag & drop state, without the cost of recreating the instance. Preferred for position/move updates. |
 
 #### Properties / Methods
 
@@ -116,7 +117,7 @@ The fundamental chessboard component. It manages the DOM element and delegates c
 
 #### Usage Pattern
 
-The component uses Angular's `effect()` to watch `runFunction` changes — whenever it changes, the board redraws. This means you can dynamically switch board configurations by updating the signal.
+The component uses Angular's `afterRenderEffect()` to watch `runFunction` changes — whenever its identity changes, the previous Chessground instance is **destroyed first** (unbinding its document listeners) and a new board is created. To update the position, orientation, or movable pieces without recreating the board, pass a new object to the `config` input instead — the live instance is reconfigured in place, which keeps drag & drop responsive and move animations intact.
 
 ---
 
@@ -185,6 +186,12 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `includeDraws` | `Signal<boolean>` | Whether to include drawn games in filtered results (default: `true`). |
 | `filterMoves` | `Signal<boolean>` | Whether opening-move filtering is active. |
 | `selectedGames` | `Signal<Set<number>>` | Set of selected game indices for batch operations. |
+| `practiceMode` | `Signal<boolean>` | Whether practice mode (free play for both sides with continuous Stockfish analysis) is active. |
+| `practiceAvailable` | `Signal<boolean>` | Whether the "Analyze practice" button is offered (game not replaying). |
+| `practiceMoves` | `Signal<PracticeMove[]>` | Moves played during the practice session, with per-move evaluations. |
+| `practiceEvaluation` | `Signal<string \| null>` | Stockfish evaluation of the current practice position (White's perspective). |
+| `practiceResult` | `Signal<string \| null>` | Game result of the practice position (`'1-0'`, `'0-1'`, `'1/2-1/2'`) or null while ongoing. |
+| `boardEvaluation` | `Signal<string \| null>` | Evaluation shown on the evaluation bar (practice eval while practicing). |
 
 #### Methods
 
@@ -199,6 +206,15 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `stopReplay(resolvePromise = true)` | Stop the active replay. |
 | `stopSequence()` | Stop batch replay across multiple games. |
 | `loadGame(index: number)` | Load a specific game by index from the parsed game list. |
+| `startPractice()` | Enter practice mode from the currently displayed position and start Stockfish analysis. |
+| `exitPractice()` | Leave practice mode and restore the loaded game position. |
+| `undoPracticeMove()` | Take back the last practice move and re-analyze the resulting position. |
+| `restartPractice()` | Restart the practice session from the position where it started. |
+| `reanalyzePracticePosition()` | Re-analyze the current practice position (e.g. after a depth change). |
+| `copyPracticeFen()` | Copy the current practice FEN to the clipboard. |
+| `copyPracticeMoves()` | Copy the practice move list (SAN) to the clipboard. |
+| `copyPracticePgn()` | Copy the full practice PGN (with evaluation comments) to the clipboard. |
+| `downloadPracticePgn()` | Download the practice session as a PGN file. |
 
 #### Replay Modes
 
@@ -213,6 +229,25 @@ When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During 
 **Requirements**: Stockfish 18 single-threaded from [nmrugg/stockfish.js](https://github.com/nmrugg/stockfish.js) (`stockfish-18-single.js` + `stockfish-18-single.wasm`) must be served at `assets/stockfish/stockfish.js` and `assets/stockfish/stockfish.wasm`. The library ships these files (renamed) in its assets directory.
 
 **Credits**: Stockfish © T. Romstad, M. Costalba, J. Kiiski, G. Linscott & contributors. JS/WASM build by [nmrugg](https://github.com/nmrugg/stockfish.js) (© Chess.com, LLC). Licensed under GPLv3.
+
+#### Practice Mode ("Analyze Practice")
+
+While the game is **not** replaying, the board controls show an **Analyze Practice** button. Pressing it enters practice mode:
+
+- The session starts from the **currently displayed board position** (use move navigation to set the starting point first).
+- The board becomes editable for **both sides** — play moves for White and Black freely (legal moves only; pawn promotions open the piece-choice dialog).
+- Stockfish **continuously re-analyzes the current position** after every move, undo, or restart, showing the evaluation (also on the evaluation bar), best move, and principal variation. The search depth follows the shared `stockfishDepth` setting.
+- The panel lists the session moves with their per-move evaluations, plus **Undo**, **Restart**, and **Exit** controls. Game-over results (checkmate, stalemate, draw) are detected and displayed.
+- Practice mode and the stop-on-error **Show Better Move** panel are mutually exclusive: entering practice hides the better-move panel, and opening "Show Better Move" closes an active practice session.
+
+**Export**: from the practice panel you can
+
+- **Copy FEN** — the current practice position FEN,
+- **Copy moves** — the SAN move list (e.g. `1. e4 e5 2. Nf3`),
+- **Copy PGN** — a full PGN with `[FEN]`/`[SetUp]` headers when the session did not start from the standard position and `[%eval]` comments for analyzed moves,
+- **Download PGN** — the same PGN saved as a `.pgn` file.
+
+Exiting practice mode (or triggering replay, game navigation, or filtering) restores the loaded game position.
 
 #### Multi-Game PGN Support
 

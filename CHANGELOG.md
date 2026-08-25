@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- Practice mode ("Analyze Practice") in the PGN viewer: free play for both sides starting from the currently displayed position, with continuous Stockfish analysis after every move, per-move evaluations, undo/restart controls, and export of the analysis (copy FEN, copy SAN moves, copy/download PGN with `[%eval]` comments). Practice mode and the stop-on-error "Show Better Move" panel are mutually exclusive
+- Optional `config` input on `NgxChessgroundComponent`: applies a partial Chessground config to the live instance in place via `Api.set()`
+
+### Changed
+- Board position updates (navigation, replay, practice moves, PV previews) now reconfigure the existing Chessground instance in place instead of recreating it — preserving move animations and reducing per-update cost
+
+### Fixed
+- Chessground instance leak: every board update created a new Chessground instance without destroying the previous one, accumulating document drag & drop listeners and causing stuck piece dragging (most visible in practice mode). Old instances are now destroyed before recreation and on component teardown
+
 ## [22.4.0] - 2026-08-14
 
 ### Added
