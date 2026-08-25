@@ -467,13 +467,20 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			fen,
 			turnColor,
 			orientation: this.flipped() ? 'black' : 'white',
-			viewOnly: !isEditable,
+			// NOTE: never set `viewOnly`. Chessground (re)binds its drag
+			// listeners only inside `redrawAll()` — which an orientation flip
+			// triggers — honoring the viewOnly value at that moment. Flipping
+			// the board while in replay mode (viewOnly) would therefore drop
+			// the listeners, and entering practice mode afterwards reconfigures
+			// in place without re-binding them, leaving drag & drop dead until
+			// the next flip. Gate interactivity through movable/draggable/
+			// selectable instead, which are re-applied on every config push.
 			lastMove: this.lastMoveSquares(),
 			check,
 			addPieceZIndex: this.in3d(),
 			premovable: { enabled: false },
-			draggable: { showGhost: true, enabled: !practiceOver },
-			selectable: { enabled: !practiceOver },
+			draggable: { showGhost: true, enabled: isEditable && !practiceOver },
+			selectable: { enabled: isEditable && !practiceOver },
 			movable: {
 				free: false,
 				color: isEditable ? 'both' : undefined,
