@@ -319,7 +319,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	autoplayCompleted = signal<boolean>(false);
 
 	// ---- Practice mode signals ----
-	/** Whether practice mode (free play for both sides + continuous analysis) is active. */
+	/** Whether practice mode (turn-based play + continuous analysis) is active. */
 	practiceMode = signal<boolean>(false);
 	/** FEN of the position where the current practice session started. */
 	practiceStartFen = signal<string>('');
@@ -442,11 +442,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		// board can always be snapped back to the chess.js position.
 		this.boardSyncTick();
 		const fen = this.currentFen();
-		const isEditable = this.filterMoves() || this.practiceMode();
-		// Free play lets the same side move twice in a row, which makes
-		// chessground's internally toggled turnColor drift from the real
-		// position. Keep it in sync with the FEN so check highlighting and
-		// any turn-dependent behavior follow the actual side to move.
+		const practice = this.practiceMode();
+		const isEditable = this.filterMoves() || practice;
+		// Keep chessground's turnColor in sync with the FEN so check
+		// highlighting and turn-dependent behavior (only the side to move is
+		// draggable while filtering or practicing) follow the actual position.
 		const fenParts = fen.split(' ');
 		const turnColor = (fenParts[1] === 'w' ? 'white' : 'black') as
 			| 'white'
@@ -483,10 +483,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			selectable: { enabled: isEditable && !practiceOver },
 			movable: {
 				free: false,
-				color: isEditable ? 'both' : undefined,
-				dests: isEditable
-					? this.getMovableDests(this.practiceMode())
-					: undefined,
+				color: practice ? turnColor : isEditable ? 'both' : undefined,
+				dests: isEditable ? this.getMovableDests() : undefined,
 				showDests: isEditable,
 				events: {
 					after: (orig, dest) => {
@@ -870,6 +868,9 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.isAnalyzing.set(true);
 		this.allAlternatives.set([]);
 		this.currentAlternativeIndex.set(0);
+		// Discard any PV lines still buffered from a previous (possibly
+		// aborted) search so they cannot be published with the new result.
+		this.pendingAlternatives.clear();
 		this.autoplayCompleted.set(false);
 		this.analysisVisible.set(true);
 	}
@@ -920,8 +921,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 
 	// ---- Practice mode ----
 	/**
-	 * Enters practice mode: free play for both sides starting from the
-	 * currently displayed position, with continuous Stockfish analysis.
+	 * Enters practice mode: turn-based play starting from the currently
+	 * displayed position, with continuous Stockfish analysis.
 	 */
 	startPractice(): void {
 		if (this.practiceMode() || this.isReplaying()) return;
@@ -1273,33 +1274,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Legal destination map for the board's editable pieces.
 	 *
-	 * For practice mode (`includeBothSides`) the map contains legal moves for
-	 * **both** sides, so the user can move White or Black pieces at any time
-	 * (flipping the board never locks a side out). For opening-move filtering
-	 * only the side to move is included, preserving strict alternation.
+	 * The map contains legal moves for the **side to move** only, so the user
+	 * can move whichever color the position dictates and never the other side.
 	 */
-	private getMovableDests(includeBothSides = false): Map<Key, Key[]> {
+	private getMovableDests(): Map<Key, Key[]> {
 		const dests = new Map<Key, Key[]>();
-		const add = (move: { from: string; to: string }) => {
+		for (const move of this.chess.moves({ verbose: true })) {
 			const from = move.from as Key;
 			if (!dests.has(from)) dests.set(from, []);
 			dests.get(from)?.push(move.to as Key);
-		};
-		for (const move of this.chess.moves({ verbose: true })) add(move);
-		if (includeBothSides) {
-			// Legal moves for the other side: legality depends on the position,
-			// not on whose turn it is, so generating from a copy with the turn
-			// flipped yields that side's legal moves on this same board.
-			try {
-				const parts = this.chess.fen().split(' ');
-				const otherTurn = parts[1] === 'w' ? 'b' : 'w';
-				const temp = new Chess(
-					[parts[0], otherTurn, ...parts.slice(2)].join(' '),
-				);
-				for (const move of temp.moves({ verbose: true })) add(move);
-			} catch {
-				/* ignore invalid positions */
-			}
 		}
 		return dests;
 	}
@@ -1331,9 +1314,9 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	/**
 	 * Applies a move played on the board during practice mode.
 	 *
-	 * Practice is free play: either side may move at any time, so the move is
-	 * applied to a copy of the position with the moving side to move (which
-	 * keeps chess.js's legality check while ignoring turn alternation).
+	 * Practice is turn-based: only the side to move may move, and only legal
+	 * moves are accepted. The move is applied directly to the internal chess.js
+	 * instance, which enforces both legality and turn alternation.
 	 *
 	 * Every path ends in exactly one of two states: the move is committed
 	 * (FEN update + re-analysis + immediate board push), or it is rejected and
@@ -1421,7 +1404,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 * chessground clears `movable.dests` after every user drop and only
 	 * re-receives them once the `after` callback plus Angular change detection
 	 * have run. This immediate push closes that window, so rapid consecutive
-	 * drag & drop moves in free play are never rejected.
+	 * drag & drop moves are never rejected.
 	 */
 	private pushBoardNow(): void {
 		if (!this.boardApi) return;
@@ -1431,22 +1414,23 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.boardApi.state.dom.bounds.clear();
 		const fen = this.chess.fen();
 		const practice = this.practiceMode();
+		const turnColor = fen.split(' ')[1] === 'w' ? 'white' : 'black';
 		this.boardApi.set({
 			fen,
-			turnColor: fen.split(' ')[1] === 'w' ? 'white' : 'black',
+			turnColor,
 			movable: {
 				free: false,
-				color: 'both',
-				dests: this.getMovableDests(practice),
+				color: practice ? turnColor : 'both',
+				dests: this.getMovableDests(),
 				showDests: true,
 			},
 		});
 	}
 
 	/**
-	 * Applies a practice move for either side: rebuilds the position with the
-	 * moving side to move so chess.js validates legality, then adopts the
-	 * resulting position. Returns the made move, or null when illegal.
+	 * Applies a practice move for the side to move: rejects moves by the other
+	 * side, then lets chess.js validate legality and turn alternation in place.
+	 * Returns the made move, or null when the move is not allowed.
 	 */
 	private applyPracticeMove(
 		orig: string,
@@ -1455,16 +1439,9 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	): Move | null {
 		try {
 			const piece = this.chess.get(orig as Square);
-			const mover = piece?.color;
-			if (!mover) return null;
-			const parts = this.chess.fen().split(' ');
-			const temp = new Chess(
-				[parts[0], mover === 'w' ? 'w' : 'b', ...parts.slice(2)].join(' '),
-			);
-			const move = temp.move({ from: orig, to: dest, promotion });
-			if (!move) return null;
-			this.chess = temp;
-			return move;
+			// Only the side to move may move: reject the other color outright.
+			if (!piece || piece.color !== this.chess.turn()) return null;
+			return this.chess.move({ from: orig, to: dest, promotion });
 		} catch {
 			return null;
 		}

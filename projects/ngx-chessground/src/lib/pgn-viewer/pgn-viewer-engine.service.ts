@@ -37,6 +37,18 @@ export class PgnViewerEngineService {
 	private pgnWorker: Worker | null = null;
 	/** Web Worker running the Stockfish chess engine. */
 	private stockfishWorker: Worker | null = null;
+	/** True once Stockfish completes its UCI handshake (uciok → isready → readyok). */
+	private stockfishReady = false;
+	/** True while a `go` command is running and its `bestmove` has not arrived yet. */
+	private searching = false;
+	/**
+	 * When true, drop engine output until the next `bestmove`. This swallows the
+	 * trailing info + bestmove of a search that was aborted by `stop`, so it
+	 * cannot be mistaken for the result of the search that replaced it.
+	 */
+	private ignoreUntilBestmove = false;
+	/** Analysis request made while the engine was still booting; flushed once ready. */
+	private pendingAnalysis: { fen: string; depth: number } | null = null;
 
 	/**
 	 * Creates and initializes both Web Workers.
@@ -54,6 +66,10 @@ export class PgnViewerEngineService {
 		}
 
 		this.dispose();
+		this.stockfishReady = false;
+		this.searching = false;
+		this.ignoreUntilBestmove = false;
+		this.pendingAnalysis = null;
 
 		this.pgnWorker = new Worker(
 			new URL('./pgn-processor.worker', import.meta.url),
@@ -64,7 +80,34 @@ export class PgnViewerEngineService {
 
 		try {
 			this.stockfishWorker = new Worker('assets/stockfish/stockfish.js');
-			this.stockfishWorker.onmessage = callbacks.onStockfishMessage;
+			this.stockfishWorker.onmessage = (event: MessageEvent) => {
+				const data = event.data;
+				if (typeof data !== 'string') {
+					callbacks.onStockfishMessage(event);
+					return;
+				}
+				// Swallow the trailing output (info + bestmove) of a search that
+				// was aborted by `stop`, until its `bestmove` closes it out.
+				if (this.ignoreUntilBestmove) {
+					if (data.startsWith('bestmove')) this.ignoreUntilBestmove = false;
+					return;
+				}
+				// Drive the UCI handshake and queue analysis until ready.
+				if (data.startsWith('uciok')) {
+					this.stockfishWorker?.postMessage('setoption name MultiPV value 3');
+					this.stockfishWorker?.postMessage('isready');
+					return;
+				}
+				if (data.startsWith('readyok')) {
+					this.stockfishReady = true;
+					this.flushPendingAnalysis();
+					return;
+				}
+				if (data.startsWith('bestmove')) {
+					this.searching = false;
+				}
+				callbacks.onStockfishMessage(event);
+			};
 			this.stockfishWorker.postMessage('uci');
 		} catch (error) {
 			callbacks.onError?.('Failed to load Stockfish 18 worker.', error);
@@ -131,7 +174,9 @@ export class PgnViewerEngineService {
 	/**
 	 * Sends a FEN position to Stockfish for analysis at the given search depth.
 	 *
-	 * Stops any in-progress analysis before starting the new one.
+	 * Stops any in-progress analysis before starting the new one. If the engine
+	 * has not finished booting yet, the request is queued and issued once the
+	 * UCI handshake completes.
 	 *
 	 * @param fen — FEN string of the position to analyze.
 	 * @param depth — Search depth in plies.
@@ -141,12 +186,38 @@ export class PgnViewerEngineService {
 		if (!this.stockfishWorker) {
 			return false;
 		}
+		if (!this.stockfishReady) {
+			// Engine still booting: remember the latest request and run it once
+			// `readyok` arrives instead of silently dropping it.
+			this.pendingAnalysis = { fen, depth };
+			return true;
+		}
+		this.sendAnalysis(fen, depth);
+		return true;
+	}
 
+	/**
+	 * Aborts any in-flight search and starts a new one for `fen`.
+	 */
+	private sendAnalysis(fen: string, depth: number): void {
+		if (!this.stockfishWorker) return;
+		// If a search is still running, `stop` will make Stockfish emit a final
+		// `bestmove` for it. Mark that output as stale so it is swallowed and
+		// cannot be confused with the new search's result.
+		if (this.searching) this.ignoreUntilBestmove = true;
 		this.stockfishWorker.postMessage('stop');
 		this.stockfishWorker.postMessage('setoption name MultiPV value 3');
 		this.stockfishWorker.postMessage(`position fen ${fen}`);
 		this.stockfishWorker.postMessage(`go depth ${depth}`);
-		return true;
+		this.searching = true;
+	}
+
+	/** Runs the queued analysis request once the engine reports ready. */
+	private flushPendingAnalysis(): void {
+		if (!this.pendingAnalysis) return;
+		const { fen, depth } = this.pendingAnalysis;
+		this.pendingAnalysis = null;
+		this.sendAnalysis(fen, depth);
 	}
 
 	/**
@@ -171,5 +242,10 @@ export class PgnViewerEngineService {
 			this.stockfishWorker.terminate();
 			this.stockfishWorker = null;
 		}
+
+		this.stockfishReady = false;
+		this.searching = false;
+		this.ignoreUntilBestmove = false;
+		this.pendingAnalysis = null;
 	}
 }

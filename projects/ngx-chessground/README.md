@@ -186,7 +186,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `includeDraws` | `Signal<boolean>` | Whether to include drawn games in filtered results (default: `true`). |
 | `filterMoves` | `Signal<boolean>` | Whether opening-move filtering is active. |
 | `selectedGames` | `Signal<Set<number>>` | Set of selected game indices for batch operations. |
-| `practiceMode` | `Signal<boolean>` | Whether practice mode (free play for both sides with continuous Stockfish analysis) is active. |
+| `practiceMode` | `Signal<boolean>` | Whether practice mode (turn-based play with continuous Stockfish analysis) is active. |
 | `practiceAvailable` | `Signal<boolean>` | Whether the "Analyze practice" button is offered (game not replaying). |
 | `practiceMoves` | `Signal<PracticeMove[]>` | Moves played during the practice session, with per-move evaluations. |
 | `practiceEvaluation` | `Signal<string \| null>` | Stockfish evaluation of the current practice position (White's perspective). |
@@ -235,7 +235,7 @@ When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During 
 While the game is **not** replaying, the board controls show an **Analyze Practice** button. Pressing it enters practice mode:
 
 - The session starts from the **currently displayed board position** (use move navigation to set the starting point first).
-- The board becomes editable for **both sides** — move White or Black pieces at any time, in any order (only legal moves; pawn promotions open the piece-choice dialog). Flipping the board never locks either side out.
+- The board becomes editable for the **side to move** — take turns moving White and Black (only legal moves are accepted; pawn promotions open the piece-choice dialog). Moving the side that is not to move is not allowed.
 - Stockfish **continuously re-analyzes the current position** after every move, undo, or restart, showing the evaluation (also on the evaluation bar), best move, and principal variation. The search depth follows the shared `stockfishDepth` setting.
 - The panel lists the session moves with their per-move evaluations, plus **Undo**, **Restart**, and **Exit** controls. Game-over results (checkmate, stalemate, draw) are detected and displayed.
 - Practice mode and the stop-on-error **Show Better Move** panel are mutually exclusive: entering practice hides the better-move panel, and opening "Show Better Move" closes an active practice session.

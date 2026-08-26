@@ -56,6 +56,15 @@ describe('PgnViewerEngineService', () => {
 		const [pgnWorker, stockfishWorker] = MockWorker.instances;
 		expect(stockfishWorker.messages).toEqual(['uci']);
 
+		// Complete the UCI handshake so analysis commands are issued immediately.
+		stockfishWorker.emit('uciok');
+		expect(stockfishWorker.messages).toEqual([
+			'uci',
+			'setoption name MultiPV value 3',
+			'isready',
+		]);
+		stockfishWorker.emit('readyok');
+
 		const filterCriteria: FilterCriteria = {
 			white: 'Carlsen',
 			black: '',
@@ -100,6 +109,8 @@ describe('PgnViewerEngineService', () => {
 		]);
 		expect(stockfishWorker.messages).toEqual([
 			'uci',
+			'setoption name MultiPV value 3',
+			'isready',
 			'stop',
 			'setoption name MultiPV value 3',
 			'position fen fen-string',
@@ -112,7 +123,7 @@ describe('PgnViewerEngineService', () => {
 			payload: [4],
 		};
 		pgnWorker.emit(response);
-		stockfishWorker.emit({ data: 'bestmove e2e4' });
+		stockfishWorker.emit('bestmove e2e4');
 
 		expect(onPgnMessage).toHaveBeenCalledWith(response);
 		expect(onStockfishMessage).toHaveBeenCalledTimes(1);
@@ -124,6 +135,78 @@ describe('PgnViewerEngineService', () => {
 			'quit',
 		);
 		expect(stockfishWorker.terminated).toBe(true);
+	});
+
+	it('queues analysis until the UCI handshake completes', () => {
+		const service = TestBed.inject(PgnViewerEngineService);
+		const onStockfishMessage = vi.fn<(event: MessageEvent) => void>();
+		service.initialize({
+			onPgnMessage: vi.fn(),
+			onStockfishMessage,
+		});
+
+		const [, stockfishWorker] = MockWorker.instances;
+
+		// Before the engine is ready the request is queued, not sent.
+		expect(service.analyzePosition('fen-early', 10)).toBe(true);
+		expect(stockfishWorker.messages).toEqual(['uci']);
+
+		// uciok configures the engine and asks for readiness.
+		stockfishWorker.emit('uciok');
+		expect(stockfishWorker.messages).toEqual([
+			'uci',
+			'setoption name MultiPV value 3',
+			'isready',
+		]);
+
+		// readyok flushes the queued analysis.
+		stockfishWorker.emit('readyok');
+		expect(stockfishWorker.messages).toEqual([
+			'uci',
+			'setoption name MultiPV value 3',
+			'isready',
+			'stop',
+			'setoption name MultiPV value 3',
+			'position fen fen-early',
+			'go depth 10',
+		]);
+		expect(onStockfishMessage).not.toHaveBeenCalled();
+	});
+
+	it('swallows stale output from an aborted search', () => {
+		const service = TestBed.inject(PgnViewerEngineService);
+		const onStockfishMessage = vi.fn<(event: MessageEvent) => void>();
+		service.initialize({
+			onPgnMessage: vi.fn(),
+			onStockfishMessage,
+		});
+
+		const [, stockfishWorker] = MockWorker.instances;
+		stockfishWorker.emit('uciok');
+		stockfishWorker.emit('readyok');
+
+		// Start the first search and receive one of its info lines.
+		service.analyzePosition('fen-a', 18);
+		stockfishWorker.emit('info depth 1 multipv 1 score cp 30 pv e2e4');
+		expect(onStockfishMessage).toHaveBeenCalledTimes(1);
+
+		// Abort it by starting a new search.
+		service.analyzePosition('fen-b', 18);
+
+		// Trailing output from the aborted search must be swallowed.
+		stockfishWorker.emit('info depth 2 multipv 1 score cp 40 pv e2e4');
+		stockfishWorker.emit('bestmove e2e4');
+		expect(onStockfishMessage).toHaveBeenCalledTimes(1);
+
+		// Output from the new search is forwarded normally.
+		stockfishWorker.emit('info depth 1 multipv 1 score cp 50 pv d2d4');
+		stockfishWorker.emit('bestmove d2d4');
+		expect(onStockfishMessage).toHaveBeenCalledTimes(3);
+		expect(onStockfishMessage.mock.calls.map((call) => call[0].data)).toEqual([
+			'info depth 1 multipv 1 score cp 30 pv e2e4',
+			'info depth 1 multipv 1 score cp 50 pv d2d4',
+			'bestmove d2d4',
+		]);
 	});
 
 	it('delivers loadGame responses with the correct correlation ID', () => {

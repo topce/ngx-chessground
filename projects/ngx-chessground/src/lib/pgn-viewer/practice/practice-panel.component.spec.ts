@@ -19,11 +19,11 @@ describe('PracticePanelComponent', () => {
 		return btn as HTMLButtonElement;
 	}
 
-	it('renders the idle state and free-play hint', async () => {
+	it('renders the idle state and turn-based hint', async () => {
 		const { element } = await createComponent();
 		expect(element.textContent).toContain('Practice');
 		expect(element.textContent).toContain('Stockfish idle');
-		expect(element.textContent).toContain('move either side');
+		expect(element.textContent).toContain('move the side to move');
 	});
 
 	it('renders analysis state with evaluation and best move', async () => {

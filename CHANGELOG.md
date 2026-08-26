@@ -9,6 +9,7 @@
 ### Changed
 - Board position updates (navigation, replay, practice moves, PV previews) now reconfigure the existing Chessground instance in place instead of recreating it — preserving move animations and reducing per-update cost
 - Practice mode is now **free play**: either side may be moved at any time (legal moves only), so flipping the board no longer locks out one side
+- Practice mode is now **turn-based**: only the side to move may move (legal moves only) — the other side's pieces cannot be moved
 
 ### Fixed
 - Chessground instance leak: every board update created a new Chessground instance without destroying the previous one, accumulating document drag & drop listeners and causing stuck piece dragging (most visible in practice mode). Old instances are now destroyed before recreation and on component teardown

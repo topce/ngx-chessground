@@ -71,3 +71,4 @@ deno.lock
 messages
 trace.json
 skills-lock.json
+.playwright-cli
