@@ -125,6 +125,7 @@
   margin-left: auto;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .theme-toggle-btn {
@@ -162,29 +163,6 @@
 .app-content {
   min-height: calc(100vh - 56px);
   padding-bottom: 64px;
-}
-
-/* ==========================================================================
-   Footer
-   ========================================================================== */
-
-.app-footer {
-  text-align: center;
-  padding: 2rem 1.5rem;
-  border-top: 1px solid var(--border-color);
-
-  a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: var(--font-size-sm);
-    transition: color var(--transition-fast);
-
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-  }
 }
 
 /* ==========================================================================

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, viewChild } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
@@ -51,6 +51,7 @@ export class AppComponent {
 	private readonly destroyRef = inject(DestroyRef);
 
 	readonly themeService = inject(ThemeService);
+	readonly miniPlayer = viewChild(MiniPlayerComponent);
 
 	constructor() {
 		const sub = this.router.events
@@ -110,5 +111,9 @@ export class AppComponent {
 
 	toggleTheme(): void {
 		this.themeService.toggle();
+	}
+
+	toggleMusic(): void {
+		this.miniPlayer()?.togglePlayer();
 	}
 }

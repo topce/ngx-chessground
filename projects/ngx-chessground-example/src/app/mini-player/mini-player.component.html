@@ -1,7 +1,8 @@
 <!-- Mini Player Bar -->
-<div class="mini-bar" (click)="openOverlay()" (keydown.enter)="openOverlay()" (keydown.space)="openOverlay(); $event.preventDefault()" tabindex="0" role="button" [attr.aria-label]="'Open music player \u2014 ' + currentTrack().title + ' \u2014 ' + currentTrack().artist">
+<div class="mini-bar" *ngIf="!isHidden()" (click)="openOverlay()" (keydown.enter)="openOverlay()" (keydown.space)="openOverlay(); $event.preventDefault()" tabindex="0" role="button" [attr.aria-label]="'Open music player \u2014 ' + currentTrack().title + ' \u2014 ' + currentTrack().artist">
   <div class="mini-art" aria-hidden="true">
     <span class="mini-note">♪</span>
+    <span class="mini-live" [class.on]="hasStarted() && !isOverlayOpen()"></span>
   </div>
 
   <div class="mini-info">
@@ -10,26 +11,19 @@
   </div>
 
   <div class="mini-controls">
-    <button type="button" class="mini-ctrl" (click)="prev($event)" aria-label="Previous">
+    <button type="button" class="mini-ctrl" (click)="prev(); $event.stopPropagation()" aria-label="Previous">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
       </svg>
     </button>
 
-    <button type="button" *ngIf="!isPlaying()" class="mini-ctrl mini-play" (click)="play(); $event.stopPropagation()" aria-label="Play">
+    <button type="button" class="mini-ctrl mini-play" (click)="toggleOverlay(); $event.stopPropagation()" [attr.aria-label]="isOverlayOpen() ? 'Collapse music player' : 'Open music player'">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <polygon points="8,5 19,12 8,19"/>
       </svg>
     </button>
 
-    <button type="button" *ngIf="isPlaying()" class="mini-ctrl mini-stop" (click)="pause(); $event.stopPropagation()" aria-label="Stop">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <rect x="6" y="4" width="4" height="16"/>
-        <rect x="14" y="4" width="4" height="16"/>
-      </svg>
-    </button>
-
-    <button type="button" class="mini-ctrl" (click)="next($event)" aria-label="Next">
+    <button type="button" class="mini-ctrl" (click)="next(); $event.stopPropagation()" aria-label="Next">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
       </svg>
@@ -37,131 +31,74 @@
   </div>
 </div>
 
-<!-- Full Player Overlay -->
+<!-- Compact Player Strip (stays mounted after first open; collapsed hides it but keeps playing) -->
 <div
-  class="overlay-backdrop"
-  *ngIf="isOverlayOpen()"
-  (click)="closeOverlay()"
+  class="player-strip"
+  *ngIf="panelMounted() && !isHidden()"
+  [class.collapsed]="!isOverlayOpen()"
   (keydown)="onOverlayKeydown($event)"
   #overlay
   role="dialog"
   aria-modal="true"
   aria-label="Music player"
 >
-  <div class="overlay-card" (click)="$event.stopPropagation()" tabindex="-1">
-
-    <!-- Drag handle & close -->
-    <div class="overlay-top">
-      <div class="drag-bar"></div>
-      <button
-        type="button"
-        class="close-btn"
-        #closeBtn
-        (click)="closeOverlay()"
-        aria-label="Close music player">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
+  <div class="strip-top">
+    <div class="strip-info">
+      <span class="strip-title">{{ currentTrack().title }}</span>
+      <span class="strip-artist">{{ currentTrack().artist }}</span>
     </div>
 
-    <!-- Now Playing label -->
-    <div class="np-label">
-      <span class="np-dot"></span>
-      Now Playing
-    </div>
+    <button
+      type="button"
+      class="close-btn"
+      #closeBtn
+      (click)="closeOverlay()"
+      aria-label="Collapse music player">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
 
-    <!-- Album Art -->
-    <div class="art-large">
-      <span class="art-large-note">♪</span>
-      <div class="art-large-glow" [class.playing]="isPlaying()"></div>
-    </div>
+  <!-- Suno Embed Player (Suno requires its own player for playback) -->
+  <div class="suno-embed">
+    <iframe
+      [src]="embedUrl()"
+      title="Suno player for {{ currentTrack().title }}"
+      width="100%"
+      height="152"
+      frameborder="0"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+  </div>
 
-    <!-- Track Info -->
-    <div class="track-info">
-      <h2 class="track-title">{{ currentTrack().title }}</h2>
-      <p class="track-artist">{{ currentTrack().artist }}</p>
-    </div>
+  <div class="strip-controls">
+    <button type="button" class="ctrl-btn" (click)="prev()" aria-label="Previous">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
+      </svg>
+    </button>
 
-    <!-- Progress -->
-    <div class="progress-section">
-      <div
-        class="progress-bar"
-        (click)="seek($event)"
-        (keydown)="onSeekKeydown($event)"
-        role="slider"
-        tabindex="0"
-        [attr.aria-valuemin]="0"
-        [attr.aria-valuemax]="duration()"
-        [attr.aria-valuenow]="currentTime()"
-        [attr.aria-label]="'Seek track position'"
-      >
-        <div class="progress-fill" [style.width.%]="progress()"></div>
-        <div class="progress-thumb" [style.left.%]="progress()"></div>
-      </div>
-      <div class="time-row">
-        <span class="time">{{ formattedCurrent() }}</span>
-        <span class="time">{{ formattedDuration() }}</span>
-      </div>
-    </div>
+    <button type="button" class="toggle-btn" [class.active]="isShuffled()" (click)="toggleShuffle()" aria-label="Shuffle">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+        <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
+      </svg>
+      <span>Shuffle</span>
+    </button>
 
-    <!-- Main Controls -->
-    <div class="controls-row">
-      <button type="button" class="ctrl-btn" (click)="prev($event)" aria-label="Previous">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
-        </svg>
-      </button>
+    <a [href]="currentTrack().sunoUrl" target="_blank" rel="noopener" class="toggle-btn link-btn" title="Open this song on Suno">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      <span>Suno</span>
+    </a>
 
-      <button type="button" class="play-btn" (click)="togglePlay(); $event.stopPropagation()" aria-label="Play / Pause">
-        <svg *ngIf="isPlaying(); else playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
-        </svg>
-        <ng-template #playIcon>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <polygon points="8,5 19,12 8,19"/>
-          </svg>
-        </ng-template>
-      </button>
+    <button type="button" class="ctrl-btn" (click)="next()" aria-label="Next">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
+      </svg>
+    </button>
 
-      <button type="button" class="ctrl-btn" (click)="next($event)" aria-label="Next">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Secondary Controls -->
-    <div class="secondary-row">
-      <button type="button" class="toggle-btn" [class.active]="isShuffled()" (click)="toggleShuffle()" aria-label="Shuffle">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
-        </svg>
-        <span>Shuffle</span>
-      </button>
-
-      <button type="button" class="toggle-btn" [class.active]="playAll()" (click)="togglePlayAll()" aria-label="Play All">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-        </svg>
-        <span>Play All</span>
-      </button>
-
-      <span class="track-count">{{ currentIndex() + 1 }} / {{ playlist.length }}</span>
-    </div>
-
-    <!-- Links -->
-    <div class="overlay-links">
-      <a [href]="playlistUrl" target="_blank" rel="noopener" class="link">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        Full Playlist
-      </a>
-      <a [href]="musicPageUrl" target="_blank" rel="noopener" class="link">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        Gambit Music
-      </a>
-    </div>
+    <span class="track-count">{{ currentIndex() + 1 }} / {{ playlist.length }}</span>
   </div>
 </div>

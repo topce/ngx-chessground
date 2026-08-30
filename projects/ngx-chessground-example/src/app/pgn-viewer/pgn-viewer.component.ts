@@ -21,7 +21,8 @@ export class PgnViewerComponent {
 	pgnViewer = viewChild(NgxPgnViewerComponent);
 	private dialog = inject(MatDialog);
 	flipped = false;
-	readonly headerCollapsed = signal(false);
+	// Collapsed by default so the board gets maximum screen space.
+	readonly headerCollapsed = signal(true);
 	// Fischer's Evergreen Game: Donald Byrne vs. Robert James Fischer
 	readonly fischerEvergreen = `[Event "Third Rosenwald Trophy"]
 [Site "New York, NY USA"]

@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-	afterNextRender,
 	Component,
 	computed,
 	ElementRef,
@@ -9,6 +8,7 @@ import {
 	signal,
 	viewChild,
 } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
 	GMBJT_MUSIC_PAGE_URL,
 	GMBJT_PLAYLIST_URL,
@@ -18,10 +18,23 @@ import {
 interface Track {
 	title: string;
 	artist: string;
+	id: string;
 	duration: number;
-	url: string;
+	sunoUrl: string;
 }
 
+/**
+ * Suno locks down its audio (direct MP3 URLs return 403, clips are
+ * DRM-encrypted), so playback goes through Suno's official embed player.
+ * The embed always starts paused and exposes no control API, so:
+ *
+ *  - playback start is detected via the parent document's activeElement
+ *    becoming the iframe (fires when the user clicks into the player),
+ *  - the end of a track is derived from the song's known duration,
+ *  - when the countdown elapses the component auto-advances to the next
+ *    track (shuffle-aware). The freshly loaded embed still needs one click
+ *    on its play button (Suno never autoplays), but skipping is automatic.
+ */
 @Component({
 	selector: 'app-mini-player',
 	standalone: true,
@@ -33,8 +46,9 @@ export class MiniPlayerComponent implements OnDestroy {
 	readonly playlist: Track[] = GMBJT_SONGS.map((s) => ({
 		title: s.title,
 		artist: s.author,
-		duration: 0, // will be set from loadedmetadata
-		url: s.url,
+		id: s.id,
+		duration: s.duration,
+		sunoUrl: s.sunoUrl,
 	}));
 
 	// ── Template refs ──
@@ -45,22 +59,29 @@ export class MiniPlayerComponent implements OnDestroy {
 
 	// ── State ──
 	readonly currentIndex = signal(0);
-	readonly isPlaying = signal(false);
 	readonly isShuffled = signal(false);
-	readonly playAll = signal(false);
-	readonly currentTime = signal(0);
-	readonly duration = signal(0);
-	readonly volume = signal(0.5);
+	/** Whether the player strip is expanded (bottom sheet above the mini-bar). */
 	readonly isOverlayOpen = signal(false);
+	/** Whether the whole player (mini-bar + strip) is hidden. Closed by default. */
+	readonly isHidden = signal(true);
+	/**
+	 * The strip stays mounted after the first open — we only collapse/expand it.
+	 * Destroying it would unload the Suno iframe and stop background playback.
+	 */
+	readonly panelMounted = signal(false);
+	/** Music session started at least once (drives the "live" dot in the bar). */
+	readonly hasStarted = signal(false);
 	private previousFocus: HTMLElement | null = null;
 	private readonly focusableSelector =
-		'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, textarea, select';
+		'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, textarea, select, iframe';
 
-	private audio: HTMLAudioElement | null = null;
 	private shuffleOrder: number[] = [];
-	private timeHandler: (() => void) | null = null;
-	private metaHandler: (() => void) | null = null;
-	private endedHandler: (() => void) | null = null;
+
+	// ── Auto-advance engine ──
+	/** When the user last started playback (ms epoch) — derived from iframe focus. */
+	private playStartAt: number | null = null;
+	private wasIframeFocused = false;
+	private tickHandle: ReturnType<typeof setInterval> | null = null;
 
 	// ── Exposed links ──
 	readonly playlistUrl = GMBJT_PLAYLIST_URL;
@@ -68,43 +89,80 @@ export class MiniPlayerComponent implements OnDestroy {
 
 	// ── Computed ──
 	readonly currentTrack = computed(() => this.playlist[this.currentIndex()]);
-	readonly progress = computed(() => {
-		const dur = this.duration();
-		if (dur <= 0) return 0;
-		return (this.currentTime() / dur) * 100;
-	});
-	readonly formattedCurrent = computed(() =>
-		this.formatTime(this.currentTime()),
+	readonly embedUrl = computed(() =>
+		this.sanitizer.bypassSecurityTrustResourceUrl(
+			`https://suno.com/embed/${this.currentTrack().id}`,
+		),
 	);
-	readonly formattedDuration = computed(() => this.formatTime(this.duration()));
 
-	constructor() {
+	constructor(private readonly sanitizer: DomSanitizer) {
+		// QA hook: override all durations (seconds) to test auto-advance quickly.
+		const override = Number(
+			localStorage.getItem('mini-player-duration-override'),
+		);
+		if (override > 0) {
+			this.playlist = this.playlist.map((t) => ({ ...t, duration: override }));
+		}
+
 		this.buildShuffleOrder();
 
-		const saved = localStorage.getItem('mini-player-volume');
-		if (saved) this.volume.set(parseFloat(saved));
-
+		// Run the auto-advance clock only while the player strip is mounted.
 		effect(() => {
-			if (this.audio) this.audio.volume = this.volume();
-			localStorage.setItem('mini-player-volume', String(this.volume()));
+			if (this.panelMounted()) {
+				this.startAutoAdvance();
+			} else {
+				this.stopAutoAdvance();
+			}
 		});
 	}
 
-	// ── Overlay ──
+	// ── Panel ──
 	openOverlay(): void {
 		this.previousFocus = document.activeElement as HTMLElement | null;
+		this.panelMounted.set(true);
+		this.hasStarted.set(true);
 		this.isOverlayOpen.set(true);
-		afterNextRender(() => {
-			// Focus the close button after the overlay animation completes
-			const btn = this.closeBtnRef()?.nativeElement;
-			requestAnimationFrame(() => btn?.focus());
+		// The strip renders on the next change-detection cycle, so defer
+		// focusing the close button until it exists.
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => this.closeBtnRef()?.nativeElement.focus());
 		});
 	}
 
 	closeOverlay(): void {
 		this.isOverlayOpen.set(false);
-		// Restore focus to the element that opened the overlay
+		// The iframe stays mounted and keeps playing in the background.
 		requestAnimationFrame(() => this.previousFocus?.focus());
+	}
+
+	toggleOverlay(): void {
+		if (this.isOverlayOpen()) {
+			this.closeOverlay();
+		} else {
+			this.openOverlay();
+		}
+	}
+
+	/** Show the player (mini-bar + expanded strip). */
+	showPlayer(): void {
+		this.isHidden.set(false);
+		this.openOverlay();
+	}
+
+	/** Fully hide the player and stop any background playback. */
+	hidePlayer(): void {
+		this.isHidden.set(true);
+		this.isOverlayOpen.set(false);
+		this.panelMounted.set(false);
+	}
+
+	/** Toggle the whole player between hidden and visible. */
+	togglePlayer(): void {
+		if (this.isHidden()) {
+			this.showPlayer();
+		} else {
+			this.hidePlayer();
+		}
 	}
 
 	onOverlayKeydown(event: KeyboardEvent): void {
@@ -137,85 +195,13 @@ export class MiniPlayerComponent implements OnDestroy {
 		}
 	}
 
-	// ── Playback ──
-	togglePlay(event?: Event): void {
-		event?.stopPropagation();
-		if (this.isPlaying()) {
-			this.pause();
-		} else {
-			this.play();
-		}
+	// ── Navigation ──
+	next(): void {
+		this.currentIndex.set(this.computeNextIndex());
+		this.onTrackChanged();
 	}
 
-	play(): void {
-		if (!this.audio) {
-			this.playIndex(this.currentIndex());
-			return;
-		}
-		this.audio
-			.play()
-			.then(() => this.isPlaying.set(true))
-			.catch(() => {});
-	}
-
-	pause(): void {
-		this.audio?.pause();
-		this.isPlaying.set(false);
-	}
-
-	playIndex(index: number): void {
-		this.stopAudio();
-		const track = this.playlist[index];
-		if (!track?.url) return;
-
-		this.currentIndex.set(index);
-		this.currentTime.set(0);
-		this.duration.set(0);
-
-		const audio = new Audio(track.url);
-		audio.volume = this.volume();
-		audio.crossOrigin = 'anonymous';
-
-		this.timeHandler = () => this.currentTime.set(audio.currentTime);
-		this.metaHandler = () => this.duration.set(audio.duration);
-		this.endedHandler = () => this.next();
-
-		audio.addEventListener('timeupdate', this.timeHandler);
-		audio.addEventListener('loadedmetadata', this.metaHandler);
-		audio.addEventListener('ended', this.endedHandler);
-
-		audio
-			.play()
-			.then(() => this.isPlaying.set(true))
-			.catch(() => {});
-		this.audio = audio;
-	}
-
-	next(event?: Event): void {
-		event?.stopPropagation();
-		const tracks = this.playlist;
-		let nextIdx: number;
-
-		if (this.isShuffled()) {
-			const pos = this.shuffleOrder.indexOf(this.currentIndex());
-			nextIdx = this.shuffleOrder[(pos + 1) % this.shuffleOrder.length];
-		} else if (this.playAll() || this.currentIndex() < tracks.length - 1) {
-			nextIdx = (this.currentIndex() + 1) % tracks.length;
-		} else {
-			return;
-		}
-
-		this.playIndex(nextIdx);
-	}
-
-	prev(event?: Event): void {
-		event?.stopPropagation();
-		if (this.currentTime() > 3) {
-			if (this.audio) this.audio.currentTime = 0;
-			this.currentTime.set(0);
-			return;
-		}
-
+	prev(): void {
 		const tracks = this.playlist;
 		let prevIdx: number;
 
@@ -229,7 +215,8 @@ export class MiniPlayerComponent implements OnDestroy {
 			prevIdx = (this.currentIndex() - 1 + tracks.length) % tracks.length;
 		}
 
-		this.playIndex(prevIdx);
+		this.currentIndex.set(prevIdx);
+		this.onTrackChanged();
 	}
 
 	toggleShuffle(): void {
@@ -237,56 +224,58 @@ export class MiniPlayerComponent implements OnDestroy {
 		if (this.isShuffled()) this.buildShuffleOrder();
 	}
 
-	togglePlayAll(): void {
-		this.playAll.update((v) => !v);
+	// ── Auto-advance ──
+	private startAutoAdvance(): void {
+		this.stopAutoAdvance();
+		this.tickHandle = setInterval(() => this.tick(), 500);
 	}
 
-	seek(event: MouseEvent): void {
-		const bar = event.currentTarget as HTMLElement;
-		const rect = bar.getBoundingClientRect();
-		const x = (event.clientX - rect.left) / rect.width;
-		this.seekToRatio(x);
-	}
-
-	onSeekKeydown(event: KeyboardEvent): void {
-		const dur = this.duration();
-		if (dur <= 0) return;
-		const step = dur * 0.05; // 5% per key press
-		let newTime = this.currentTime();
-		switch (event.key) {
-			case 'ArrowRight':
-			case 'ArrowUp':
-				event.preventDefault();
-				newTime = Math.min(dur, newTime + step);
-				break;
-			case 'ArrowLeft':
-			case 'ArrowDown':
-				event.preventDefault();
-				newTime = Math.max(0, newTime - step);
-				break;
-			case 'Home':
-				event.preventDefault();
-				newTime = 0;
-				break;
-			case 'End':
-				event.preventDefault();
-				newTime = dur;
-				break;
-			default:
-				return;
-		}
-		if (this.audio) {
-			this.audio.currentTime = newTime;
-			this.currentTime.set(this.audio.currentTime);
+	private stopAutoAdvance(): void {
+		if (this.tickHandle !== null) {
+			clearInterval(this.tickHandle);
+			this.tickHandle = null;
 		}
 	}
 
-	private seekToRatio(ratio: number): void {
-		const dur = this.duration();
-		if (this.audio && dur > 0) {
-			this.audio.currentTime = ratio * dur;
-			this.currentTime.set(this.audio.currentTime);
+	private tick(): void {
+		const iframe = this.overlayRef()?.nativeElement?.querySelector('iframe');
+		const focused = !!iframe && document.activeElement === iframe;
+		// Focus entering the Suno player means the user clicked inside it,
+		// i.e. they pressed play (or restarted the track) — restart the clock.
+		if (focused && !this.wasIframeFocused) {
+			this.playStartAt = Date.now();
 		}
+		this.wasIframeFocused = focused;
+
+		if (this.playStartAt === null) return;
+		const track = this.currentTrack();
+		if (track.duration <= 0) return;
+		if (Date.now() - this.playStartAt >= track.duration * 1000) {
+			this.playStartAt = null;
+			this.advance();
+		}
+	}
+
+	private advance(): void {
+		this.currentIndex.set(this.computeNextIndex());
+		this.onTrackChanged();
+	}
+
+	private onTrackChanged(): void {
+		this.playStartAt = null;
+		this.wasIframeFocused = false;
+		// A freshly loaded Suno embed starts paused, so surface the strip so
+		// the user can start the new track.
+		if (!this.isOverlayOpen()) this.openOverlay();
+	}
+
+	private computeNextIndex(): number {
+		const tracks = this.playlist;
+		if (this.isShuffled()) {
+			const pos = this.shuffleOrder.indexOf(this.currentIndex());
+			return this.shuffleOrder[(pos + 1) % this.shuffleOrder.length];
+		}
+		return (this.currentIndex() + 1) % tracks.length;
 	}
 
 	// ── Helpers ──
@@ -301,28 +290,7 @@ export class MiniPlayerComponent implements OnDestroy {
 		}
 	}
 
-	private stopAudio(): void {
-		if (this.audio) {
-			if (this.timeHandler)
-				this.audio.removeEventListener('timeupdate', this.timeHandler);
-			if (this.metaHandler)
-				this.audio.removeEventListener('loadedmetadata', this.metaHandler);
-			if (this.endedHandler)
-				this.audio.removeEventListener('ended', this.endedHandler);
-			this.audio.pause();
-			this.audio = null;
-		}
-		this.isPlaying.set(false);
-	}
-
-	private formatTime(seconds: number): string {
-		if (!seconds || Number.isNaN(seconds)) return '0:00';
-		const m = Math.floor(seconds / 60);
-		const s = Math.floor(seconds % 60);
-		return `${m}:${s.toString().padStart(2, '0')}`;
-	}
-
 	ngOnDestroy(): void {
-		this.stopAudio();
+		this.stopAutoAdvance();
 	}
 }
