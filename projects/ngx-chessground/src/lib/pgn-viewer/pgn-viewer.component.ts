@@ -125,7 +125,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	filterWhiteRatingMax = signal<string>('2900');
 	filterBlackRatingMax = signal<string>('2900');
 	filterEco = signal<string>('');
-	filterTimeControl = signal<string>('');
+	filterTimeControl = signal<string[]>([]);
 	filterEvent = signal<string>('');
 	filterBroadcastName = signal<string>('');
 	filterFen = signal<string>('');
@@ -785,7 +785,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterWhiteRatingMax.set('4000');
 		this.filterBlackRatingMax.set('4000');
 		this.filterEco.set('');
-		this.filterTimeControl.set('');
+		this.filterTimeControl.set([]);
 		this.filterEvent.set('');
 		this.filterBroadcastName.set('');
 		this.filterFen.set('');

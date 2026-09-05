@@ -33,7 +33,7 @@ export class GameFilterPanelComponent {
 	// ---- Game Detail Filters ----
 	readonly filterResult = model<string[]>([]);
 	readonly filterEco = model<string>('');
-	readonly filterTimeControl = model<string>('');
+	readonly filterTimeControl = model<string[]>([]);
 	readonly filterEvent = model<string>('');
 	readonly filterBroadcastName = model<string>('');
 	readonly sortedEcoCodes = input<{ code: string; count: number }[]>([]);
@@ -131,9 +131,22 @@ export class GameFilterPanelComponent {
 		this.filterEco.set(value);
 	}
 
-	updateFilterTimeControl(event: Event): void {
-		const value = (event.target as HTMLSelectElement).value;
-		this.filterTimeControl.set(value);
+	toggleTimeControl(value: string, event: Event): void {
+		const checked = (event.target as HTMLInputElement).checked;
+		this.filterTimeControl.update((current) => {
+			if (checked) {
+				return current.includes(value) ? current : [...current, value];
+			}
+			return current.filter((v) => v !== value);
+		});
+	}
+
+	selectAllTimeControls(): void {
+		this.filterTimeControl.set(this.sortedTimeControls().map((tc) => tc.key));
+	}
+
+	clearTimeControls(): void {
+		this.filterTimeControl.set([]);
 	}
 
 	updateFilterEvent(event: Event): void {

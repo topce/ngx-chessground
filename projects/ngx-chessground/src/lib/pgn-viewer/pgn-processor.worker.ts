@@ -57,7 +57,7 @@ export type WorkerMessage =
  *   maxWhiteRating: Infinity,
  *   maxBlackRating: Infinity,
  *   eco: 'B33',
- *   timeControl: '180+2',
+ *   timeControl: ['180+2', '300+0'],
  *   event: '',
  *   filterByFen: false,
  *   targetFen: '',
@@ -95,8 +95,12 @@ export interface FilterCriteria {
 	maxBlackRating: number;
 	/** ECO code filter (case-insensitive substring, e.g. `"B33"`). */
 	eco: string;
-	/** Time control filter (case-insensitive substring, e.g. `"180+2"`). */
-	timeControl: string;
+	/**
+	 * Time control filter — normalized time controls to keep
+	 * (e.g. `["180+2", "60+0"]`). A game matches when its normalized
+	 * time control equals any entry. Empty array means no filter.
+	 */
+	timeControl: string[];
 	/** Event/tournament name filter (case-insensitive substring). */
 	event: string;
 	/** Broadcast name filter (case-insensitive substring). */
@@ -733,8 +737,12 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		// ECO filtering
 		if (fEcoLower && !info.eco?.toLowerCase().includes(fEcoLower)) continue;
 
-		// TimeControl filtering
-		if (fTimeControl && info.timeControlNormalized !== fTimeControl) continue;
+		// TimeControl filtering — keep games whose normalized time
+		// control equals any selected value; empty selection = no filter.
+		if (fTimeControl.length > 0) {
+			const gameTc = info.timeControlNormalized;
+			if (gameTc === undefined || !fTimeControl.includes(gameTc)) continue;
+		}
 
 		// Event filtering
 		if (fEventLower && !info.event?.toLowerCase().includes(fEventLower))

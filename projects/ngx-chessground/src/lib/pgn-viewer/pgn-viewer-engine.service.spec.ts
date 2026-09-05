@@ -77,7 +77,7 @@ describe('PgnViewerEngineService', () => {
 			maxWhiteRating: 0,
 			maxBlackRating: 0,
 			eco: '',
-			timeControl: '',
+			timeControl: [],
 			event: '',
 			broadcastName: '',
 			filterByFen: false,

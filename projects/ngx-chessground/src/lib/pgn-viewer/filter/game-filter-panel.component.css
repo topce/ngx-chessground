@@ -751,3 +751,129 @@ h2 {
 	outline: 2px solid var(--cg-accent, #a67c00);
 	outline-offset: 2px;
 }
+
+/* ---- Multi-select: Time Controls ---- */
+.tc-filter-block {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	width: 100%;
+}
+
+.tc-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+	flex-wrap: wrap;
+}
+
+.tc-selected-badge {
+	font-size: 0.66rem;
+	font-weight: 700;
+	color: var(--cg-accent, #a67c00);
+	background: var(--cg-accent-subtle, #f5edd6);
+	border: 1px solid var(--cg-accent, #a67c00);
+	border-radius: 999px;
+	padding: 0.05rem 0.5rem;
+	line-height: 1.4;
+	font-variant-numeric: tabular-nums;
+}
+
+.tc-empty-hint {
+	font-size: 0.68rem;
+	color: var(--cg-text-muted, #78788e);
+	font-style: italic;
+}
+
+.tc-quick-actions {
+	margin-left: auto;
+	display: inline-flex;
+	gap: 0.15rem;
+}
+
+.tc-action {
+	border: none;
+	background: none;
+	color: var(--cg-text-muted, #78788e);
+	font-size: 0.64rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	cursor: pointer;
+	padding: 0.2rem 0.4rem;
+	border-radius: var(--cg-radius-sm, 4px);
+	font-family: var(--cg-font-heading);
+	transition:
+		color var(--cg-transition, 200ms ease),
+		background-color var(--cg-transition, 200ms ease);
+}
+
+.tc-action:hover {
+	color: var(--cg-accent, #a67c00);
+	background: var(--cg-bg-alt, #e6e0d6);
+}
+
+.tc-action:focus-visible {
+	outline: 2px solid var(--cg-accent, #a67c00);
+	outline-offset: 1px;
+}
+
+.tc-option-list {
+	display: flex;
+	flex-direction: column;
+	max-height: 11rem;
+	overflow-y: auto;
+	border: 1px solid var(--cg-border-light, #e0dcd2);
+	border-radius: var(--cg-radius-md, 8px);
+	background: var(--cg-bg-surface, #ffffff);
+	padding: 0.15rem;
+}
+
+.tc-option {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.32rem 0.5rem;
+	font-size: 0.78rem;
+	border-radius: var(--cg-radius-sm, 4px);
+	cursor: pointer;
+	user-select: none;
+	transition: background-color var(--cg-transition, 200ms ease);
+}
+
+.tc-option:hover {
+	background: var(--cg-bg-hover, #dad3c8);
+}
+
+.tc-option input[type="checkbox"] {
+	accent-color: var(--cg-accent, #a67c00);
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.tc-option-name {
+	flex: 1;
+	min-width: 0;
+	color: var(--cg-text, #0d0d1a);
+	font-family: var(--cg-font-mono);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tc-option:has(input:checked) {
+	background: var(--cg-accent-subtle, #f5edd6);
+}
+
+.tc-option:has(input:checked) .tc-option-name {
+	color: var(--cg-accent, #a67c00);
+	font-weight: 600;
+}
+
+.tc-option-count {
+	font-size: 0.68rem;
+	color: var(--cg-text-muted, #78788e);
+	font-variant-numeric: tabular-nums;
+	flex-shrink: 0;
+}

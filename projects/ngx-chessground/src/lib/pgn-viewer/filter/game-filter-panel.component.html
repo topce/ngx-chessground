@@ -117,21 +117,57 @@
           </select>
         </div>
         <div class="filter-row">
-          <select
-            [value]="filterTimeControl()"
-            (change)="updateFilterTimeControl($event)"
-            aria-label="Filter by Time Control"
-          >
-            <option value="">All Time Controls</option>
-            @for (tcData of sortedTimeControls(); track tcData.key) {
-              <option
-                [value]="tcData.key"
-                [attr.title]="tcData.originalsSummary"
+          <div class="tc-filter-block">
+            <div class="tc-toolbar">
+              <span class="filter-label" id="tc-filter-label">Time Control</span>
+              @if (filterTimeControl().length > 0) {
+                <span class="tc-selected-badge"
+                  >{{ filterTimeControl().length }} selected</span
+                >
+              } @else {
+                <span class="tc-empty-hint">Any</span>
+              }
+              @if (sortedTimeControls().length > 0) {
+                <span class="tc-quick-actions">
+                  <button
+                    type="button"
+                    class="tc-action"
+                    (click)="selectAllTimeControls()"
+                    title="Select every time control"
+                  >
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    class="tc-action"
+                    (click)="clearTimeControls()"
+                    title="Clear time control filter — include every time control"
+                  >
+                    None
+                  </button>
+                </span>
+              }
+            </div>
+            @if (sortedTimeControls().length > 0) {
+              <div
+                class="tc-option-list"
+                role="group"
+                aria-labelledby="tc-filter-label"
               >
-                {{ tcData.label }} ({{ tcData.count }})
-              </option>
+                @for (tcData of sortedTimeControls(); track tcData.key) {
+                  <label class="tc-option" [attr.title]="tcData.originalsSummary">
+                    <input
+                      type="checkbox"
+                      [checked]="filterTimeControl().includes(tcData.key)"
+                      (change)="toggleTimeControl(tcData.key, $event)"
+                    />
+                    <span class="tc-option-name">{{ tcData.label }}</span>
+                    <span class="tc-option-count">{{ tcData.count }}</span>
+                  </label>
+                }
+              </div>
             }
-          </select>
+          </div>
         </div>
         <div class="filter-row">
           <select
