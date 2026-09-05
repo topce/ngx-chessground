@@ -63,10 +63,14 @@ export class PgnViewerComponent {
 
 1. a3 { [%eval 0.0] [%clk 0:03:00] } 1... a6 { [%eval 0.13] [%clk 0:03:00] } 2. b3 { [%eval -0.47] [%clk 0:02:59] } 2... h6 { [%eval 0.24] [%clk 0:03:00] } 3. c3 { [%eval -0.29] [%clk 0:02:59] } 3... Nf6 { [%eval 0.03] [%clk 0:02:57] } 4. d3 { [%eval -0.4] [%clk 0:02:59] } 4... d5 { [%eval -0.8] [%clk 0:02:57] } 5. e3 { [%eval -0.88] [%clk 0:02:59] } 5... e5 { [%eval -0.78] [%clk 0:02:56] } 6. f3 { [%eval -1.56] [%clk 0:02:58] } 6... c5 { [%eval -1.54] [%clk 0:02:55] } 7. g3 { [%eval -1.4] [%clk 0:02:58] } 7... Nc6 { [%eval -1.44] [%clk 0:02:55] } 8. h3 { [%eval -1.95] [%clk 0:02:58] } 8... Be7 { [%eval -1.49] [%clk 0:02:54] } 9. Ra2 { [%eval -2.29] [%clk 0:02:57] } 9... O-O { [%eval -2.58] [%clk 0:02:53] } 10. Rg2 { [%eval -3.51] [%clk 0:02:55] } 10... b5 { [%eval -3.2] [%clk 0:02:52] } 11. g4 { [%eval -4.15] [%clk 0:02:54] } 11... e4 { [%eval -3.35] [%clk 0:02:46] } 12. f4 { [%eval -3.78] [%clk 0:02:49] } 12... d4 { [%eval -3.91] [%clk 0:02:42] } 13. g5 { [%eval -3.82] [%clk 0:02:43] } 13... hxg5 { [%eval -3.52] [%clk 0:02:40] } 14. fxg5 { [%eval -3.89] [%clk 0:02:42] } 14... Nd5 { [%eval -3.75] [%clk 0:02:39] } 15. dxe4 { [%eval -3.7] [%clk 0:02:35] } 15... Nxe3 { [%eval -3.66] [%clk 0:02:36] } 16. Bxe3 { [%eval -3.51] [%clk 0:02:34] } 16... dxe3 { [%eval -3.51] [%clk 0:02:36] } 17. Qxd8 { [%eval -3.43] [%clk 0:02:33] } 17... Rxd8 { [%eval -3.67] [%clk 0:02:34] } 18. h4 { [%eval -4.68] [%clk 0:02:25] } 18... Be6 { [%eval -4.67] [%clk 0:02:31] } 19. h5 { [%eval -7.39] [%clk 0:02:19] } 19... Bxb3 { [%eval -7.2] [%clk 0:02:28] } 20. Be2 { [%eval -7.26] [%clk 0:02:18] } 20... Ne5 { [%eval -5.34] [%clk 0:02:25] } 21. g6 { [%eval -6.33] [%clk 0:02:16] } 21... Nd3+ { [%eval -6.13] [%clk 0:02:18] } 22. Bxd3 { [%eval -6.0] [%clk 0:02:14] } 22... Rxd3 { [%eval -6.31] [%clk 0:02:18] } 23. h6 { [%eval -6.18] [%clk 0:02:06] } 23... Rd1+ { [%eval -6.07] [%clk 0:02:07] } 24. Ke2 { [%eval -5.92] [%clk 0:02:04] } 24... Rxb1 { [%eval -5.46] [%clk 0:02:07] } 25. gxf7+ { [%eval -5.49] [%clk 0:01:59] } 25... Kxf7 { [%eval -5.17] [%clk 0:02:07] } 26. Rxg7+ { [%eval -4.94] [%clk 0:01:53] } 26... Ke6 { [%eval -3.59] [%clk 0:02:06] } 27. h7 { [%eval -3.48] [%clk 0:01:48] } 27... Bc4+ { [%eval -1.19] [%clk 0:01:36] } 28. Kxe3 { [%eval -1.21] [%clk 0:01:46] } 28... Rh8 { [%eval -1.36] [%clk 0:01:07] } 29. Rh6+ { [%eval -1.39] [%clk 0:01:34] } 29... Bf6 { [%eval 3.04] [%clk 0:00:59] } 30. Nf3 { [%eval 2.39] [%clk 0:01:31] } 30... Rf1 { [%eval 2.52] [%clk 0:00:31] } 31. Rgg6 { [%eval 0.1] [%clk 0:01:17] } 31... Ke7 { [%eval 0.04] [%clk 0:00:23] } 32. Rxf6 { [%eval 0.02] [%clk 0:01:13] } 32... Rxh7 { [%eval 0.13] [%clk 0:00:22] } 33. Rxa6 { [%eval 0.0] [%clk 0:01:05] } 33... Rxh6 { [%eval 0.0] [%clk 0:00:21] } 34. Rxh6 { [%eval 0.0] [%clk 0:01:03] } 34... Ra1 { [%eval 0.13] [%clk 0:00:20] } 35. Ne5 { [%eval 0.0] [%clk 0:01:01] } 35... Rxa3 { [%eval 0.0] [%clk 0:00:19] } 36. Kf4 { [%eval 0.0] [%clk 0:01:00] } 36... Rxc3 { [%eval 0.0] [%clk 0:00:18] } 37. Kf5 { [%eval 0.0] [%clk 0:00:58] } 37... b4 { [%eval 0.0] [%clk 0:00:17] } 38. Rh7+ { [%eval 0.0] [%clk 0:00:58] } 38... Kd6 { [%eval #1] [%clk 0:00:16] } 39. Rd7# { [%clk 0:00:55] } 1-0`;
 
-	currentPgn = this.fischerEvergreen;
+	/**
+	 * Empty until a data source is chosen: the demo game buttons below set it,
+	 * otherwise the startup flow auto-loads the newest Lichess month archive.
+	 */
+	currentPgn = '';
 
 	constructor() {
-		afterNextRender(() => this.loadFischer());
+		afterNextRender(() => void this.loadLatestLichessMonth());
 	}
 
 	loadFischer() {
@@ -75,6 +79,91 @@ export class PgnViewerComponent {
 
 	loadTopce() {
 		this.currentPgn = this.topceEvergreen;
+	}
+
+	// ======================================================================
+	// Startup: newest Lichess broadcast month
+	// ======================================================================
+
+	/**
+	 * Boot-time data source: instead of defaulting to a demo game, load the
+	 * newest Lichess monthly broadcast archive that actually exists.
+	 *
+	 * A month's archive only exists once that month has ended, so candidates
+	 * are probed newest-first starting from the month before today; the first
+	 * archive found to exist is loaded.
+	 */
+	private async loadLatestLichessMonth(): Promise<void> {
+		const viewer = this.pgnViewer();
+		if (!viewer) return;
+		for (const { year, month } of this.latestMonthCandidates()) {
+			const url = PgnViewerComponent.broadcastUrl(year, month);
+			if (await this.monthFileExists(url)) {
+				// Keep the viewer's Lichess date picker in sync with the load.
+				viewer.lichessYear.set(year);
+				viewer.lichessMonth.set(month);
+				viewer.urlInput.set(url);
+				await viewer.loadFromUrl();
+				return;
+			}
+		}
+		// No monthly archive is available (offline, fresh checkout, SPA host
+		// without the files): fall back to the bundled demo game so the board
+		// is never left empty.
+		this.loadFischer();
+	}
+
+	/** Months to try at startup, newest first, starting one month before today. */
+	private latestMonthCandidates(): { year: number; month: number }[] {
+		const now = new Date();
+		let year = now.getFullYear();
+		let month = now.getMonth() - 1; // 0-indexed, current month not yet archived
+		const candidates: { year: number; month: number }[] = [];
+		for (let i = 0; i < 2; i++) {
+			if (month < 0) {
+				month = 11;
+				year -= 1;
+			}
+			candidates.push({ year, month: month + 1 });
+			month -= 1;
+		}
+		return candidates;
+	}
+
+	private static broadcastUrl(year: number, month: number): string {
+		const m = month.toString().padStart(2, '0');
+		return `lichess/broadcast/lichess_db_broadcast_${year}-${m}.pgn.zst`;
+	}
+
+	/**
+	 * Cheap existence check: request a single byte of the archive and stop
+	 * reading as soon as headers arrive. Servers that ignore the Range header
+	 * would stream the whole file, so the body is cancelled after the first
+	 * chunk. SPA hosts that fall back to index.html for missing paths report
+	 * text/html — not a real archive — so those count as "missing".
+	 */
+	private async monthFileExists(url: string): Promise<boolean> {
+		const controller = new AbortController();
+		const timeout = setTimeout(() => controller.abort(), 10_000);
+		try {
+			const response = await fetch(url, {
+				headers: { Range: 'bytes=0-0' },
+				signal: controller.signal,
+			});
+			if (!response.ok) return false;
+			const contentType = response.headers.get('content-type') ?? '';
+			if (contentType.toLowerCase().includes('text/html')) return false;
+			const reader = response.body?.getReader();
+			if (reader) {
+				await reader.read().catch(() => undefined);
+				await reader.cancel().catch(() => undefined);
+			}
+			return true;
+		} catch {
+			return false;
+		} finally {
+			clearTimeout(timeout);
+		}
 	}
 
 	toggleHeader() {
