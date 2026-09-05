@@ -14,7 +14,15 @@
  *   deno task desktop:build
  */
 
-const MODULE_DIR = new URL(".", import.meta.url).pathname;
+// Directory containing this module. In a compiled `deno desktop` binary the
+// module lives on Deno's in-memory virtual filesystem; `import.meta.dirname`
+// gives the correct native path on every OS. `new URL(".", import.meta.url)
+//   .pathname` must NOT be used here because on Windows it produces an invalid
+// `/C:/...` path that cannot be opened.
+const MODULE_DIR = import.meta.dirname;
+const SEP = Deno.build.os === "windows" ? "\\" : "/";
+const DIST_REL = ["dist", "ngx-chessground-example", "browser"].join(SEP);
+
 const API_PREFIX = "/api";
 
 // Remote source for the lichess broadcast database (.pgn.zst monthly dumps).
@@ -24,10 +32,17 @@ const API_PREFIX = "/api";
 const LICHESS_BASE = "https://database.lichess.org/broadcast";
 
 function getBuildDirs(): string[] {
-  const fromModule = MODULE_DIR.endsWith("/desktop/")
-    ? `${MODULE_DIR.replace(/\/desktop\/$/, "")}/dist/ngx-chessground-example/browser`
-    : `${MODULE_DIR}dist/ngx-chessground-example/browser`;
-  const fromCwd = `dist/ngx-chessground-example/browser`;
+  // server.ts lives in <root>/desktop/ and the Angular bundle is embedded at
+  // <root>/dist/ngx-chessground-example/browser (dev mode uses the same layout
+  // relative to the repo root).
+  const fromModule = [
+    MODULE_DIR,
+    "..",
+    "dist",
+    "ngx-chessground-example",
+    "browser",
+  ].join(SEP);
+  const fromCwd = DIST_REL;
   return [fromModule, fromCwd];
 }
 
@@ -50,7 +65,7 @@ Deno.serve(async (req: Request) => {
   if (path === `${API_PREFIX}/debug` && req.method === "GET") {
     const dirs = getBuildDirs();
     const ex: Record<string, boolean> = {};
-    for (const d of dirs) ex[d] = await exists(`${d}/index.html`);
+    for (const d of dirs) ex[d] = await exists([d, "index.html"].join(SEP));
     return Response.json({
       cwd: Deno.cwd(),
       moduleDir: MODULE_DIR,
@@ -141,8 +156,8 @@ Deno.serve(async (req: Request) => {
     }
 
     const candidates = [
-      `${MODULE_DIR}stockfish-wasm/${file}`,
-      `${MODULE_DIR}../stockfish-wasm/${file}`,
+      [MODULE_DIR, "stockfish-wasm", file].join(SEP),
+      [MODULE_DIR, "..", "stockfish-wasm", file].join(SEP),
     ];
 
     for (const candidate of candidates) {
@@ -261,7 +276,7 @@ function serveFile(file: Deno.FsFile, filePath: string): Response {
 function serveIndexWithAdapter(file: Deno.FsFile): Response {
   let adapter = "";
   try {
-    adapter = Deno.readTextFileSync(MODULE_DIR + "desktop-adapter.js");
+    adapter = Deno.readTextFileSync([MODULE_DIR, "desktop-adapter.js"].join(SEP));
   } catch {
     adapter = "window.__desktop__ = { openFileDialog: () => null };";
   }
