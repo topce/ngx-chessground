@@ -5,7 +5,7 @@
 ## [22.5.1] - 2026-09-05
 
 ### Added
-- Windows desktop launcher now shows the real app icon: `desktop/icon.ico` is declared per-platform in `deno.json` and `scripts/set-exe-icon.js` patches the generated `.exe` with it — Windows reads the taskbar/app icon from the launcher executable rather than the runtime DLL
+- Windows desktop builds now embed the real app icon: `desktop/icon.ico` is declared per-platform in `deno.json` and passed to the bundler. `scripts/set-exe-icon.js` additionally patches the launcher `.exe` with it when the toolchain allows (Windows host or wine) — Windows reads the taskbar icon from the launcher executable, so cross-compiled builds without wine keep the stock launcher icon
 
 ### Fixed
 - The packaged Windows desktop app (broken since 22.5.0) could not load its web UI / Stockfish from a compiled `deno desktop` bundle: paths built from `new URL(".", import.meta.url).pathname` produced an invalid `/C:/...` path on Windows. `desktop/server.ts` now derives its module directory from `import.meta.dirname` and joins paths with native separators
