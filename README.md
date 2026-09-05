@@ -104,6 +104,50 @@ The demo application (`ngx-chessground-example`) is a powerful tool for explorin
 
 ---
 
+## 🖥️ Desktop Apps (Windows & macOS)
+
+The demo application also ships as **native desktop apps** for Windows and macOS — the full PGN viewer with Stockfish analysis running locally, no browser tab needed. Prebuilt portable bundles are attached to every [GitHub Release](https://github.com/topce/ngx-chessground/releases).
+
+| Platform | Download (latest release) | Requirements |
+|----------|---------------------------|--------------|
+| 🍎 macOS (Apple Silicon) | [`ngx-chessground-macos-arm64.zip`](https://github.com/topce/ngx-chessground/releases/latest/download/ngx-chessground-macos-arm64.zip) | macOS 10.15+ on an Apple Silicon Mac (M1/M2/M3/M4) |
+| 🪟 Windows (64-bit) | [`ngx-chessground-windows-x86_64.zip`](https://github.com/topce/ngx-chessground/releases/latest/download/ngx-chessground-windows-x86_64.zip) | Windows 10/11 (x64) + Microsoft Edge WebView2 runtime (preinstalled on Windows 11 / most Windows 10) |
+
+> ⚠️ **Unsigned builds**: the desktop bundles are **not signed**, so Windows SmartScreen and macOS Gatekeeper will show a **one-time warning** on first launch. The apps are built from this repository's public source code, are fully portable, and only run a local web server on `127.0.0.1` to serve the UI.
+
+<details>
+<summary><strong>🍎 Install on macOS</strong></summary>
+
+1. Download [`ngx-chessground-macos-arm64.zip`](https://github.com/topce/ngx-chessground/releases/latest/download/ngx-chessground-macos-arm64.zip).
+2. Double-click the archive to unzip it — you'll get **`ngx-chessground.app`**.
+3. *(Optional)* Drag `ngx-chessground.app` into your **Applications** folder.
+4. **First launch only** — Gatekeeper blocks the unsigned app, so **Control-click** (right-click) the app and choose **Open** → **Open**, or click **Open** in the "Apple could not verify" dialog that appears when you double-click it.
+5. The app window opens and loads the newest available Lichess broadcast / the demo game.
+
+*To skip the Gatekeeper prompt entirely (optional):*
+```bash
+xattr -dr com.apple.quarantine /Applications/ngx-chessground.app
+```
+
+> Requires an **Apple Silicon** Mac (M-series). The macOS bundle is built for `arm64` only; an Intel build is not currently published — Intel Mac users can use the [live demo / PWA](https://topce.github.io/ngx-chessground/) instead.
+</details>
+
+<details>
+<summary><strong>🪟 Install on Windows</strong></summary>
+
+1. Download [`ngx-chessground-windows-x86_64.zip`](https://github.com/topce/ngx-chessground/releases/latest/download/ngx-chessground-windows-x86_64.zip).
+2. Right-click the archive → **Extract All…** — you'll get the **`ngx-chessground-windows`** folder. Keep it as one folder: the `.exe` needs the `.dll` beside it.
+3. Open the folder and double-click **`ngx-chessground-windows.exe`**.
+4. If SmartScreen shows "Windows protected your PC", click **More info** → **Run anyway** (unsigned build).
+5. The app window opens and loads the newest available Lichess broadcast / the demo game. Pin it to the taskbar or create a shortcut for quick access.
+
+> No installation required — it's a portable app, and the bundled Stockfish engine runs locally for analysis. If the window stays blank, make sure the **Microsoft Edge WebView2 Runtime** is installed (see [Microsoft's WebView2 page](https://developer.microsoft.com/microsoft-edge/webview2/)).
+</details>
+
+> Want to run it on **Linux** or build it from source? See [`desktop/README.md`](./desktop/README.md) for the `deno task desktop:build` commands and all supported targets (Linux x86_64/arm64 included).
+
+---
+
 ## 🏗️ Repository Structure
 
 This repository contains two robust projects:
