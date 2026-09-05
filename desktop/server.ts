@@ -25,6 +25,20 @@ const DIST_REL = ["dist", "ngx-chessground-example", "browser"].join(SEP);
 
 const API_PREFIX = "/api";
 
+// ── Quit when the app window is closed ──────────────────────────────
+// `Deno.serve()` keeps the event loop alive forever, so the process would
+// otherwise survive after the user closes the window. Adopt the implicit
+// startup window and exit the process on its "close" event. (Deno.BrowserWindow
+// is not yet part of the ambient `deno.ns` types, so access it defensively.)
+const denoGlobal = Deno as unknown as Record<string, unknown>;
+if (typeof denoGlobal.BrowserWindow === "function") {
+  const BrowserWindow = denoGlobal.BrowserWindow as new (
+    options?: { title?: string },
+  ) => { addEventListener(type: string, listener: () => void): void };
+  const win = new BrowserWindow({ title: "ngx-chessground" });
+  win.addEventListener("close", () => Deno.exit(0));
+}
+
 // Remote source for the lichess broadcast database (.pgn.zst monthly dumps).
 // Same location scripts/download-lichess.js uses. Swap for a GitHub repo URL
 // (e.g. https://raw.githubusercontent.com/<user>/<repo>/main/lichess) if you

@@ -64,6 +64,7 @@ ngx-chessground-*.deb
 ngx-chessground-*.rpm
 *.msi
 *.ico
+!desktop/icon.ico
 # Desktop release archives (scripts/release-desktop.sh)
 /release-assets/
 nds.gz
