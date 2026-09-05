@@ -15,6 +15,36 @@
 - Chessground instance leak: every board update created a new Chessground instance without destroying the previous one, accumulating document drag & drop listeners and causing stuck piece dragging (most visible in practice mode). Old instances are now destroyed before recreation and on component teardown
 - Practice mode silently rejected moves for the side that was not to move — with the board flipped (black at bottom) White's moves appeared broken. Destination squares now include legal moves for both sides and moves apply to whichever side is dragged
 
+## [22.5.0] - 2026-09-05
+
+### Added
+- The app now boots into the **newest available Lichess monthly broadcast** instead
+  of a bundled demo game: it probes the most recent archive (the month before the
+  current one), falls back to the previous month when the newest isn't available
+  yet, and only shows the demo game when no archive exists at all
+- Practice mode in the PGN viewer ("Analyze Practice"): free/turn-based play from
+  any position with continuous Stockfish analysis, undo/restart controls, and
+  export of the session (copy FEN, copy SAN moves, copy/download PGN with
+  `[%eval]` comments)
+- Optional `config` input on `NgxChessgroundComponent`: applies a partial
+  Chessground config to the live instance in place via `Api.set()`
+- Desktop release automation: `scripts/release-desktop.sh` builds, packages and
+  publishes macOS/Linux/Windows bundles and installers to GitHub Releases in one
+  command (`npm run release:desktop -- <version>`)
+
+### Changed
+- Board position updates (navigation, replay, practice moves, PV previews) now
+  reconfigure the existing Chessground instance in place instead of recreating
+  it — preserving move animations and reducing per-update cost
+- Practice mode is now **turn-based**: only the side to move may move (legal moves
+  only), so flipping the board no longer locks out one side
+
+### Fixed
+- Chessground instance leak: every board update created a new Chessground
+  instance without destroying the previous one, accumulating drag & drop
+  listeners and causing stuck piece dragging (most visible in practice mode).
+  Old instances are now destroyed before recreation and on component teardown
+
 ## [22.4.0] - 2026-08-14
 
 ### Added

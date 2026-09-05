@@ -86,6 +86,38 @@ deno task desktop:dev   # dev build + hot-reload server
 
 ---
 
+## Releasing to GitHub
+
+[`scripts/release-desktop.sh`](../scripts/release-desktop.sh) automates the whole
+release: it creates/pushes the `v<version>` tag, builds all four desktop bundles,
+packages them into archives, and uploads them to a GitHub release.
+
+```sh
+# Draft release with the portable bundles (macOS, Linux x64/arm64, Windows)
+npm run release:desktop -- 22.5.0
+
+# Also build installers and publish immediately
+npm run release:desktop -- 22.5.0 --publish \
+  --installer dmg --installer msi --installer appimage
+
+# Reuse the current build and only package + release (no rebuilds)
+npm run release:desktop -- 22.5.0 --skip-build
+
+# Dry-run: print everything it would do, execute nothing
+npm run release:desktop -- 22.5.0 --dry-run
+```
+
+Notes:
+
+- Release notes default to the matching `## [<version>]` section in
+  `CHANGELOG.md`; override with `--notes <file>`.
+- Releases are **drafts** by default — review on GitHub, then publish with
+  `gh release edit v<version> --draft=false` (or pass `--publish`).
+- Use `--no-upload` to build/package locally without touching GitHub.
+- Requires `gh` (logged in), `deno` (>= 2.9) and `npm install --force` first.
+- Artifacts are unsigned; macOS Gatekeeper warns on first launch unless you
+  codesign/notarize before distribution.
+
 ## Building Installers
 
 `deno desktop` can produce platform-native installers via the `--output` flag.

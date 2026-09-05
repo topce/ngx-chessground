@@ -64,6 +64,8 @@ ngx-chessground-*.deb
 ngx-chessground-*.rpm
 *.msi
 *.ico
+# Desktop release archives (scripts/release-desktop.sh)
+/release-assets/
 nds.gz
 deno.lock
 #
