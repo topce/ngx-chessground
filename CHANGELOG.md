@@ -2,18 +2,14 @@
 
 ## [Unreleased]
 
-### Added
-- Practice mode ("Analyze Practice") in the PGN viewer: free play for both sides starting from the currently displayed position, with continuous Stockfish analysis after every move, per-move evaluations, undo/restart controls, and export of the analysis (copy FEN, copy SAN moves, copy/download PGN with `[%eval]` comments). Practice mode and the stop-on-error "Show Better Move" panel are mutually exclusive
-- Optional `config` input on `NgxChessgroundComponent`: applies a partial Chessground config to the live instance in place via `Api.set()`
+## [22.5.1] - 2026-09-05
 
-### Changed
-- Board position updates (navigation, replay, practice moves, PV previews) now reconfigure the existing Chessground instance in place instead of recreating it — preserving move animations and reducing per-update cost
-- Practice mode is now **free play**: either side may be moved at any time (legal moves only), so flipping the board no longer locks out one side
-- Practice mode is now **turn-based**: only the side to move may move (legal moves only) — the other side's pieces cannot be moved
+### Added
+- Windows desktop launcher now shows the real app icon: `desktop/icon.ico` is declared per-platform in `deno.json` and `scripts/set-exe-icon.js` patches the generated `.exe` with it — Windows reads the taskbar/app icon from the launcher executable rather than the runtime DLL
 
 ### Fixed
-- Chessground instance leak: every board update created a new Chessground instance without destroying the previous one, accumulating document drag & drop listeners and causing stuck piece dragging (most visible in practice mode). Old instances are now destroyed before recreation and on component teardown
-- Practice mode silently rejected moves for the side that was not to move — with the board flipped (black at bottom) White's moves appeared broken. Destination squares now include legal moves for both sides and moves apply to whichever side is dragged
+- The packaged Windows desktop app (broken since 22.5.0) could not load its web UI / Stockfish from a compiled `deno desktop` bundle: paths built from `new URL(".", import.meta.url).pathname` produced an invalid `/C:/...` path on Windows. `desktop/server.ts` now derives its module directory from `import.meta.dirname` and joins paths with native separators
+- Closing the app window no longer leaves a background process running — the embedded server now exits when the startup window closes
 
 ## [22.5.0] - 2026-09-05
 
