@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 #
-# Build the ngx-chessground desktop apps for all platforms, package them into
-# downloadable archives, and attach everything to a GitHub release.
+# Build the ngx-chessground desktop apps, package them into downloadable
+# archives, and attach everything to a GitHub release. By default all four
+# platforms are built (macOS arm64, Linux x86_64/arm64, Windows x86_64); pass
+# --platform (repeatable) to build only a subset.
+#
+# Portable bundles for macOS + Windows only, published immediately:
+#   ./scripts/release-desktop.sh 22.6.0 --publish --platform macos --platform windows
 #
 # Example flow (draft release, portable bundles only):
 #   ./scripts/release-desktop.sh 22.5.0
@@ -21,6 +26,8 @@
 #   --notes <file>    Release notes file (default: extract the CHANGELOG section)
 #   --installer <t>   Also build an installer for t in: dmg msi appimage deb rpm
 #                     (repeatable; requires a prior ng build in dist/)
+#   --platform <p>    Only build/package/upload platform p in:
+#                     macos linux linux-arm64 windows (repeatable; default: all)
 #   --dry-run         Print every action without executing anything
 #   -h | --help       Show this help
 #
@@ -41,9 +48,10 @@ SKIP_BUILD=0
 DRY_RUN=0
 NOTES_FILE=""
 INSTALLERS=()
+PLATFORMS=()
 
 usage() {
-  sed -n '2,29p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -60,6 +68,17 @@ run() {
   fi
 }
 
+# True when no --platform filter was given, or when $1 is among the selected
+# platforms (macos | linux | linux-arm64 | windows).
+selected() {
+  [ "${#PLATFORMS[@]}" -eq 0 ] && return 0
+  local p
+  for p in ${PLATFORMS[@]+"${PLATFORMS[@]}"}; do
+    [ "$p" = "$1" ] && return 0
+  done
+  return 1
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help) usage ;;
@@ -69,6 +88,7 @@ while [ $# -gt 0 ]; do
     --publish)    PUBLISH=1 ;;
     --notes)      shift; [ $# -ge 1 ] || die "--notes requires a file path"; NOTES_FILE="$1" ;;
     --installer)  shift; [ $# -ge 1 ] || die "--installer requires a type"; INSTALLERS+=("$1") ;;
+    --platform)   shift; [ $# -ge 1 ] || die "--platform requires a name"; PLATFORMS+=("$1") ;;
     --dry-run)    DRY_RUN=1 ;;
     -*)
       die "unknown option: $1 (see --help)" ;;
@@ -86,6 +106,12 @@ case "$VERSION" in
   *) die "invalid version '$VERSION' — expected e.g. 22.5.0 or v22.5.0" ;;
 esac
 [ "$PUBLISH" -eq 1 ] && [ "$DO_UPLOAD" -eq 0 ] && die "--publish conflicts with --no-upload"
+for p in ${PLATFORMS[@]+"${PLATFORMS[@]}"}; do
+  case "$p" in
+    macos|linux|linux-arm64|windows) ;;
+    *) die "unknown platform '$p' (macos | linux | linux-arm64 | windows)" ;;
+  esac
+done
 
 TAG="v$VERSION"
 ASSET_DIR="$ROOT/release-assets"
@@ -132,11 +158,11 @@ fi
 if [ "$SKIP_BUILD" -eq 1 ]; then
   info "reusing existing desktop artifacts (--skip-build)"
 else
-  info "building desktop apps (macOS arm64, Linux x86_64/arm64, Windows x86_64)… this takes a while"
-  run deno task desktop:build
-  run deno task desktop:build:linux
-  run deno task desktop:build:linux-arm64
-  run deno task desktop:build:windows
+  info "building selected desktop apps… this takes a while"
+  if selected macos;       then run deno task desktop:build; fi
+  if selected linux;       then run deno task desktop:build:linux; fi
+  if selected linux-arm64; then run deno task desktop:build:linux-arm64; fi
+  if selected windows;     then run deno task desktop:build:windows; fi
 fi
 
 # --- 3. Package --------------------------------------------------------------
@@ -147,37 +173,45 @@ fi
 
 info "packaging portable bundles into $ASSET_DIR"
 
-if [ -d ngx-chessground.app ]; then
-  if command -v ditto >/dev/null 2>&1; then
-    run ditto -c -k --sequesterRsrc --keepParent ngx-chessground.app \
-      "$ASSET_DIR/ngx-chessground-macos-arm64.zip"
+if selected macos; then
+  if [ -d ngx-chessground.app ]; then
+    if command -v ditto >/dev/null 2>&1; then
+      run ditto -c -k --sequesterRsrc --keepParent ngx-chessground.app \
+        "$ASSET_DIR/ngx-chessground-macos-arm64.zip"
+    else
+      run zip -rqy "$ASSET_DIR/ngx-chessground-macos-arm64.zip" ngx-chessground.app
+    fi
   else
-    run zip -rqy "$ASSET_DIR/ngx-chessground-macos-arm64.zip" ngx-chessground.app
+    warn "ngx-chessground.app not found — no macOS bundle to package (run without --skip-build)"
   fi
-else
-  warn "ngx-chessground.app not found — no macOS bundle to package (run without --skip-build)"
 fi
 
-if [ -d ngx-chessground-linux ]; then
-  run tar -czf "$ASSET_DIR/ngx-chessground-linux-x86_64.tar.gz" ngx-chessground-linux
-else
-  warn "ngx-chessground-linux/ not found — no Linux x86_64 bundle"
-fi
-
-if [ -d ngx-chessground-linux-arm64 ]; then
-  run tar -czf "$ASSET_DIR/ngx-chessground-linux-aarch64.tar.gz" ngx-chessground-linux-arm64
-else
-  warn "ngx-chessground-linux-arm64/ not found — no Linux arm64 bundle"
-fi
-
-if [ -d ngx-chessground-windows ]; then
-  if command -v zip >/dev/null 2>&1; then
-    run zip -rqy "$ASSET_DIR/ngx-chessground-windows-x86_64.zip" ngx-chessground-windows
+if selected linux; then
+  if [ -d ngx-chessground-linux ]; then
+    run tar -czf "$ASSET_DIR/ngx-chessground-linux-x86_64.tar.gz" ngx-chessground-linux
   else
-    run tar -czf "$ASSET_DIR/ngx-chessground-windows-x86_64.tar.gz" ngx-chessground-windows
+    warn "ngx-chessground-linux/ not found — no Linux x86_64 bundle"
   fi
-else
-  warn "ngx-chessground-windows/ not found — no Windows bundle"
+fi
+
+if selected linux-arm64; then
+  if [ -d ngx-chessground-linux-arm64 ]; then
+    run tar -czf "$ASSET_DIR/ngx-chessground-linux-aarch64.tar.gz" ngx-chessground-linux-arm64
+  else
+    warn "ngx-chessground-linux-arm64/ not found — no Linux arm64 bundle"
+  fi
+fi
+
+if selected windows; then
+  if [ -d ngx-chessground-windows ]; then
+    if command -v zip >/dev/null 2>&1; then
+      run zip -rqy "$ASSET_DIR/ngx-chessground-windows-x86_64.zip" ngx-chessground-windows
+    else
+      run tar -czf "$ASSET_DIR/ngx-chessground-windows-x86_64.tar.gz" ngx-chessground-windows
+    fi
+  else
+    warn "ngx-chessground-windows/ not found — no Windows bundle"
+  fi
 fi
 
 # --- 4. Optional installers ---------------------------------------------------
@@ -226,12 +260,10 @@ if [ "$DRY_RUN" -eq 0 ]; then
   done
 else
   # Dry-run: best-effort artifact names for the summary.
-  artifacts=(
-    "$ASSET_DIR/ngx-chessground-macos-arm64.zip"
-    "$ASSET_DIR/ngx-chessground-linux-x86_64.tar.gz"
-    "$ASSET_DIR/ngx-chessground-linux-aarch64.tar.gz"
-    "$ASSET_DIR/ngx-chessground-windows-x86_64.zip"
-  )
+  if selected macos;       then artifacts+=("$ASSET_DIR/ngx-chessground-macos-arm64.zip"); fi
+  if selected linux;       then artifacts+=("$ASSET_DIR/ngx-chessground-linux-x86_64.tar.gz"); fi
+  if selected linux-arm64; then artifacts+=("$ASSET_DIR/ngx-chessground-linux-aarch64.tar.gz"); fi
+  if selected windows;     then artifacts+=("$ASSET_DIR/ngx-chessground-windows-x86_64.zip"); fi
 fi
 [ "${#artifacts[@]}" -gt 0 ] || die "no artifacts were produced — run the build first"
 

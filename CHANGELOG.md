@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [22.6.0] - 2026-09-10
+
+### Changed
+- Desktop builds now ship **Stockfish 19** WASM instead of Stockfish 18 (locally built from the latest `nmrugg/stockfish.js` + `official-stockfish/Stockfish` sources), giving the packaged macOS and Windows apps a stronger analysis engine
+
 ## [22.5.1] - 2026-09-05
 
 ### Added

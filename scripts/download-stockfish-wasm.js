@@ -1,11 +1,16 @@
 /**
- * Download Stockfish 18 WASM (large multi-threaded engine) for the desktop app.
+ * Download a Stockfish WASM engine for the desktop app (fallback only).
  *
- * Downloads stockfish-18.js + stockfish-18.wasm from the nmrugg/stockfish.js
- * GitHub releases to desktop/stockfish-wasm/ for bundling with Deno Desktop.
+ * The desktop app ships a locally-built Stockfish 19 WASM in
+ * desktop/stockfish-wasm/. The desktop:* build tasks invoke this script first,
+ * but it skips the download whenever stockfish.js + stockfish.wasm already
+ * exist — so a locally-built engine is never overwritten.
  *
- * These files provide a much stronger engine than the browser stockfish.js
- * (~100MB, multi-threaded, Stockfish 18 vs ~4MB, single-thread, Stockfish ~10).
+ * When those files are missing, it fetches the last public nmrugg/stockfish.js
+ * release (stockfish-18-single, ~113MB full-strength single-threaded) from
+ * GitHub so the build can still run. To ship a newer engine, build it from
+ * nmrugg/stockfish.js + official-stockfish/Stockfish and drop stockfish.js +
+ * stockfish.wasm into desktop/stockfish-wasm/ (the directory is gitignored).
  *
  * Usage:
  *   node scripts/download-stockfish-wasm.js
@@ -23,8 +28,10 @@ const STOCKFISH_WASM_DIR = path.resolve(
   "stockfish-wasm",
 );
 
-// Large single-threaded Stockfish 18 — runs everywhere, no SharedArrayBuffer needed.
-// Other options: stockfish-18-lite-single (7MB), stockfish-18 (108MB multi-thread).
+// Public fallback: full-strength single-threaded Stockfish 18 (no
+// SharedArrayBuffer needed). The shipped desktop engine is a locally-built
+// Stockfish 19. Other nmrugg options: stockfish-18-lite-single (7MB),
+// stockfish-18 (108MB multi-thread).
 const FILES = ["stockfish-18-single.js", "stockfish-18-single.wasm"];
 // The JS wrapper locates wasm by replacing .js → .wasm in its own URL.
 // So stockfish.js → stockfish.wasm, which must match the files on disk.

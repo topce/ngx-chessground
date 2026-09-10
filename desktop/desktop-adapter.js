@@ -5,9 +5,9 @@
  * a Deno Desktop webview:
  *
  * 1. Native file dialog — intercepts file input clicks, routes to OS dialog.
- * 2. Stockfish 18 — intercepts the stockfish Worker constructor and redirects
- *    it to the large multi-threaded Stockfish 18 WASM engine instead of the
- *    smaller browser stockfish.js.
+ * 2. Stockfish 19 — intercepts the stockfish Worker constructor and redirects
+ *    it to the large Stockfish 19 WASM engine instead of the smaller browser
+ *    stockfish.js.
  */
 (function () {
   "use strict";
@@ -67,14 +67,14 @@
     }
   }, true);
 
-  // ── Stockfish 18: redirect Worker to large multi-threaded WASM ──
+  // ── Stockfish 19: redirect Worker to the large full-strength WASM ──
 
   /**
    * Intercept `new Worker('assets/stockfish/stockfish.js')` and load
-   * the large multi-threaded Stockfish 18 WASM instead.
+   * the large Stockfish 19 WASM instead.
    *
-   * Browser: assets/stockfish/stockfish.js (Stockfish ~10, single-thread)
-   * Desktop: /desktop-stockfish/stockfish-18.js (Stockfish 18, multi-thread)
+   * Browser: assets/stockfish/stockfish.js (Stockfish 18 lite, single-thread)
+   * Desktop: /desktop-stockfish/stockfish.js (Stockfish 19, full strength)
    */
 
   const BROWSER_STOCKFISH_URL = "assets/stockfish/stockfish.js";
@@ -90,7 +90,7 @@
        url.endsWith("/stockfish.js"))
     ) {
       console.log(
-        "[desktop] Loading multi-threaded Stockfish 18 instead of browser stockfish.js"
+        "[desktop] Loading Stockfish 19 instead of browser stockfish.js"
       );
       return new OriginalWorker(DESKTOP_STOCKFISH_URL, options);
     }

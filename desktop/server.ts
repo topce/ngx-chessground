@@ -6,8 +6,8 @@
  * Deno Desktop server for ngx-chessground.
  *
  * Serves the built Angular app and provides desktop-specific API endpoints
- * including file reading for PGN/ZIP files and the large multi-threaded
- * Stockfish 18 WASM engine.
+ * including file reading for PGN/ZIP files and the large Stockfish 19 WASM
+ * engine.
  *
  * Usage:
  *   deno desktop desktop/server.ts
@@ -155,12 +155,12 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // --- Stockfish 18 WASM (large multi-threaded engine) ---
+  // --- Stockfish 19 WASM (large full-strength engine) ---
   // Served from the bundled desktop/stockfish-wasm/ directory.
   // The desktop-adapter.js intercepts the Worker constructor to load
   // this engine instead of the smaller browser stockfish.js.
-  // NOTE: These files require the SharedArrayBuffer + COOP/COEP headers.
-  // The webview serves from localhost so CORS is not an issue.
+  // NOTE: This is the single-threaded build, so no SharedArrayBuffer or
+  // COOP/COEP headers are required. The webview serves from localhost.
 
   if (path.startsWith("/desktop-stockfish/")) {
     const file = path.replace("/desktop-stockfish/", "");
@@ -285,7 +285,7 @@ function serveFile(file: Deno.FsFile, filePath: string): Response {
 /**
  * Serve index.html with the desktop adapter script injected.
  * The adapter patches FileReader for PGN/ZIP and redirects the
- * Stockfish Worker to the large multi-threaded Stockfish 18 WASM.
+ * Stockfish Worker to the large Stockfish 19 WASM.
  */
 function serveIndexWithAdapter(file: Deno.FsFile): Response {
   let adapter = "";
