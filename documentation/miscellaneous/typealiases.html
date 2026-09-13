@@ -12,10 +12,75 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-        <div class="navbar navbar-default navbar-fixed-top visible-xs">
-            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -24,7 +89,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="hidden-xs menu">
+               <div class="d-none d-md-block menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -46,12 +111,18 @@
 
 
 
+
+
+
+
+
+
 <ol class="breadcrumb">
-  <li>Miscellaneous</li>
-  <li>Type aliases</li>
+  <li class="breadcrumb-item">Miscellaneous</li>
+  <li class="breadcrumb-item">Type aliases</li>
 </ol>
 
-<section>
+<section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -59,7 +130,28 @@
                 <td class="col-md-4">
                     <ul class="index-list">
                         <li>
+                            <a href="#LeftPanelSection" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts" ><b>LeftPanelSection</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-viewer.types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#PgnSource" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts" ><b>PgnSource</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-viewer.types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#PgnViewerErrorCode" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts" ><b>PgnViewerErrorCode</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-viewer.types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#PgnViewerNoticeLevel" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-notifier.ts" ><b>PgnViewerNoticeLevel</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-viewer-notifier.ts)</a>
+                        </li>
+                        <li>
                             <a href="#PromotionPiece" title="projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts" ><b>PromotionPiece</b>&nbsp;&nbsp;&nbsp;(projects/.../promotion-dialog.component.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ReplayMode" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts" ><b>ReplayMode</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-viewer.types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#RightPanelSection" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts" ><b>RightPanelSection</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-viewer.types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#StopOnErrorSide" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts" ><b>StopOnErrorSide</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-viewer.types.ts)</a>
                         </li>
                         <li>
                             <a href="#WorkerMessage" title="projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts" ><b>WorkerMessage</b>&nbsp;&nbsp;&nbsp;(projects/.../pgn-processor.worker.ts)</a>
@@ -74,8 +166,171 @@
     </table>
 </section>
 
-    <h3>projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</h3>
-    <section>
+    <h3>projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="LeftPanelSection"></a>
+                    <span class="name "><b>LeftPanelSection</b><a href="#LeftPanelSection"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Collapsible section identifier for the left panel.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;players&quot; | &quot;gameDetails&quot; | &quot;upsets&quot; | &quot;rating&quot; | &quot;position&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="PgnSource"></a>
+                    <span class="name "><b>PgnSource</b><a href="#PgnSource"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A PGN data source the viewer can load.</p>
+<p>A discriminated union rather than a set of boolean flags, so an invalid
+combination (&quot;load a URL and also this file&quot;) is unrepresentable.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type | literal type | literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="PgnViewerErrorCode"></a>
+                    <span class="name "><b>PgnViewerErrorCode</b><a href="#PgnViewerErrorCode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Machine-readable failure categories reported through <code>loadFailed</code>.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;DOWNLOAD_FAILED&quot; | &quot;PARSE_FAILED&quot; | &quot;CACHE_FAILED&quot; | &quot;ENGINE_FAILED&quot; | &quot;INVALID_SOURCE&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ReplayMode"></a>
+                    <span class="name "><b>ReplayMode</b><a href="#ReplayMode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Replay timing mode.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;realtime&quot; | &quot;proportional&quot; | &quot;fixed&quot; | &quot;fast&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="RightPanelSection"></a>
+                    <span class="name "><b>RightPanelSection</b><a href="#RightPanelSection"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Collapsible section identifier for the right panel.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../miscellaneous/variables.html#move" target="_self" >&quot;moves&quot; | &quot;replay&quot; | &quot;loadCache&quot;</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="StopOnErrorSide"></a>
+                    <span class="name "><b>StopOnErrorSide</b><a href="#StopOnErrorSide"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Which side&#39;s errors should trigger &quot;stop on error&quot; during replay.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;both&quot; | &quot;white&quot; | &quot;black&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-notifier.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="PgnViewerNoticeLevel"></a>
+                    <span class="name "><b>PgnViewerNoticeLevel</b><a href="#PgnViewerNoticeLevel"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Severity of a viewer notification.</p>
+<p><code>&#39;error&#39;</code> is used for failures the user must know about (a download that
+failed, a clipboard that could not be read); <code>&#39;info&#39;</code> covers confirmations
+such as &quot;PGN cache cleared.&quot;</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;info&quot; | &quot;error&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</h3>
+    <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -105,7 +360,7 @@
         </tbody>
     </table>
 </section>    <h3>projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</h3>
-    <section>
+    <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -124,7 +379,7 @@ so callers can match requests with responses.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <code>    <code>literal type | literal type | literal type</code>
+                    <code>    <code>literal type | literal type | literal type | literal type | literal type</code>
 </code>
                 </td>
             </tr>
@@ -147,7 +402,7 @@ so callers can match requests with responses.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <code>    <code>literal type | literal type | literal type | literal type</code>
+                    <code>    <code>literal type | literal type | literal type | literal type | literal type | literal type</code>
 </code>
                 </td>
             </tr>
@@ -186,6 +441,19 @@ so callers can match requests with responses.</p>
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -197,7 +465,6 @@ so callers can match requests with responses.</p>
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
-       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

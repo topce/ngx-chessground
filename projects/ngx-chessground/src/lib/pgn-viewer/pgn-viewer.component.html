@@ -192,6 +192,7 @@
         [(lichessYear)]="lichessYear"
         [(lichessMonth)]="lichessMonth"
         (loadPgnString)="loadPgnString($event)"
+        (fileLoadFailed)="onFileLoadFailed($event)"
         (clearPgnCache)="clearPgnCache()"
         (refreshCacheInfo)="refreshCacheInfo()"
         (loadFromLichess)="loadFromLichess()"

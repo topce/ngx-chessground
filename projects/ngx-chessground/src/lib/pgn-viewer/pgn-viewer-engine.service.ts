@@ -112,7 +112,7 @@ export class PgnViewerEngineService {
 			};
 			this.stockfishWorker.postMessage('uci');
 		} catch (error) {
-			callbacks.onError?.('Failed to load Stockfish 18 worker.', error);
+			callbacks.onError?.('Failed to load the Stockfish worker.', error);
 		}
 
 		return true;

@@ -1,0 +1,545 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  ClockState</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Clock state at a given half-move.</p>
+
+            </p>
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#black" 
+>
+                                            black
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#white" 
+>
+                                            white
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="black"></a>
+                                        <span class="name "><b>black</b>
+                                            <a href="#black">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>black:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Remaining time for Black, in seconds.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="white"></a>
+                                        <span class="name "><b>white</b>
+                                            <a href="#white">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>white:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Remaining time for White, in seconds.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import type { Key } from &#x27;chessground/types&#x27;;
+import type { TextSegment } from &#x27;./text-highlight&#x27;;
+
+/** Collapsible section identifier for the left panel. */
+export type LeftPanelSection &#x3D;
+	| &#x27;players&#x27;
+	| &#x27;gameDetails&#x27;
+	| &#x27;upsets&#x27;
+	| &#x27;rating&#x27;
+	| &#x27;position&#x27;;
+
+/** Collapsible section identifier for the right panel. */
+export type RightPanelSection &#x3D; &#x27;moves&#x27; | &#x27;replay&#x27; | &#x27;loadCache&#x27;;
+
+/** Replay timing mode. */
+export type ReplayMode &#x3D; &#x27;realtime&#x27; | &#x27;proportional&#x27; | &#x27;fixed&#x27; | &#x27;fast&#x27;;
+
+/** Which side&#x27;s errors should trigger &quot;stop on error&quot; during replay. */
+export type StopOnErrorSide &#x3D; &#x27;both&#x27; | &#x27;white&#x27; | &#x27;black&#x27;;
+
+/** Player name with optional selection state for typeahead. */
+export interface PlayerSuggestion {
+	/** Display name of the player. */
+	name: string;
+	/** Whether this suggestion is the highlighted one in the dropdown. */
+	active: boolean;
+}
+
+/** A single evaluation change representing a &quot;stop on error&quot; event. */
+export interface EvaluationChange {
+	/** Zero-based index of the move that caused the change. */
+	moveIndex: number;
+	/** Size of the evaluation swing, in pawns. */
+	diff: number;
+	/** The configured &#x60;stopOnErrorThreshold&#x60; this &#x60;diff&#x60; exceeded. */
+	threshold: number;
+	/** Side whose move caused the evaluation change. */
+	side: &#x27;white&#x27; | &#x27;black&#x27;;
+}
+
+/** Clock state at a given half-move. */
+export interface ClockState {
+	/** Remaining time for White, in seconds. */
+	white: number;
+	/** Remaining time for Black, in seconds. */
+	black: number;
+}
+
+/** Stockfish analysis result. */
+export interface BestMoveInfo {
+	/** Best move found, in SAN. */
+	move: string;
+	/** Principal variation, as SAN plus the FEN reached after each move. */
+	pv: { san: string; fen: string }[];
+	/**
+	 * Engine evaluation of the position, from White&#x27;s perspective
+	 * (e.g. &#x60;&#x27;+0.32&#x27;&#x60;, &#x60;&#x27;#-2&#x27;&#x60;).
+	 */
+	score?: string;
+}
+
+/** A single move played during practice mode. */
+export interface PracticeMove {
+	/** Move in standard algebraic notation (SAN). */
+	san: string;
+	/**
+	 * Stockfish evaluation of the position after this move, from White&#x27;s
+	 * perspective (e.g. &#x60;&#x27;+0.32&#x27;&#x60;, &#x60;&#x27;#-2&#x27;&#x60;), or null while pending/unknown.
+	 */
+	evaluation: string | null;
+}
+
+/** Complete export payload for a practice session. */
+export interface PracticeExport {
+	/** FEN of the position where the practice session started. */
+	startFen: string;
+	/** FEN of the current practice position. */
+	fen: string;
+	/** SAN moves played during the practice session. */
+	moves: string[];
+	/** Formatted move text (e.g. &#x60;&quot;1. e4 e5 2. Nf3&quot;&#x60;). */
+	moveText: string;
+	/** Full PGN of the practice session, including evaluation comments. */
+	pgn: string;
+}
+
+/** Game metadata for the filter panel&#x27;s game list. */
+export interface FilterGameInfo {
+	/** One-based game number as shown in the list. */
+	number: number;
+	/** Player with the white pieces. */
+	white: string;
+	/** Player with the black pieces. */
+	black: string;
+	/** Result string: &#x60;&#x27;1-0&#x27;&#x60;, &#x60;&#x27;0-1&#x27;&#x60;, &#x60;&#x27;1/2-1/2&#x27;&#x60; or &#x60;&#x27;*&#x27;&#x60;. */
+	result: string;
+}
+
+/** Typeahead keyboard navigation handler. */
+export interface TypeaheadKeyboardEvent {
+	/** The &#x60;KeyboardEvent.key&#x60; value that was pressed. */
+	key: string;
+	/** Suppresses the browser&#x27;s default handling of the key. */
+	preventDefault(): void;
+}
+
+/** Input/output contract for the player typeahead component. */
+export interface PlayerTypeaheadState {
+	/** Current text in the typeahead field. */
+	value: string;
+	/** Player names matching the current query. */
+	suggestions: string[];
+	/** Whether the suggestion dropdown is showing. */
+	isOpen: boolean;
+	/** Index of the highlighted suggestion, or &#x60;-1&#x60; when none is highlighted. */
+	activeIndex: number;
+}
+
+/**
+ * A PGN data source the viewer can load.
+ *
+ * A discriminated union rather than a set of boolean flags, so an invalid
+ * combination (&quot;load a URL and also this file&quot;) is unrepresentable.
+ */
+export type PgnSource &#x3D;
+	/** A remote archive or PGN file. &#x60;.zst&#x60; is decompressed automatically. */
+	| {
+			readonly kind: &#x27;url&#x27;;
+			/** Absolute or app-relative URL. */
+			readonly url: string;
+			/**
+			 * Remember this URL alongside the content hash so a later session
+			 * can restore it from cache without downloading. Defaults to the
+			 * URL itself, or &#x60;false&#x60; to opt out of bookmarking.
+			 */
+			readonly cacheAs?: string | false;
+	  }
+	/** Raw PGN text already held by the host. */
+	| {
+			readonly kind: &#x27;pgn&#x27;;
+			readonly text: string;
+			/** Optional origin, used for cache bookmarking. */
+			readonly sourceUrl?: string;
+	  }
+	/** A &#x60;File&#x60; from an &#x60;&lt;input type&#x3D;&quot;file&quot;&gt;&#x60; or drag &amp; drop. */
+	| {
+			readonly kind: &#x27;file&#x27;;
+			readonly file: File;
+	  };
+
+/** Optional per-call overrides for {@link PgnSource} loading. */
+export interface LoadOptions {
+	/**
+	 * Build a position index for the loaded games. Defaults to the viewer&#x27;s
+	 * current &#x60;indexStartPositions&#x60; setting.
+	 */
+	readonly indexStartPositions?: boolean;
+	/** Max half-moves replayed per game when indexing. Defaults to &#x60;maxFenPlies&#x60;. */
+	readonly maxFenPlies?: number;
+}
+
+/** Machine-readable failure categories reported through &#x60;loadFailed&#x60;. */
+export type PgnViewerErrorCode &#x3D;
+	/** The source could not be fetched (network, HTTP status, CORS). */
+	| &#x27;DOWNLOAD_FAILED&#x27;
+	/** The archive or PGN text could not be parsed into games. */
+	| &#x27;PARSE_FAILED&#x27;
+	/** The local cache could not be read or written. */
+	| &#x27;CACHE_FAILED&#x27;
+	/** The Stockfish worker could not be started. */
+	| &#x27;ENGINE_FAILED&#x27;
+	/** The source was rejected before any work started (missing/empty input). */
+	| &#x27;INVALID_SOURCE&#x27;;
+
+/**
+ * A failure the host can observe and react to.
+ *
+ * Every load path reports exactly one of these on failure, so a host needs a
+ * single handler rather than sniffing console output.
+ */
+export interface PgnViewerError {
+	/** Stable category for programmatic branching. */
+	readonly code: PgnViewerErrorCode;
+	/** Human-readable description, safe to display. */
+	readonly message: string;
+	/** The originating error, when there was one. */
+	readonly cause?: unknown;
+}
+
+export type { Key, TextSegment };
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'ClockState.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

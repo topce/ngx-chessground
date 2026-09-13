@@ -1,0 +1,2696 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  BoardDisplayComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts</code>
+</p>
+
+
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>Board display panel for the PGN viewer — center panel.</p>
+<p>Shows the chessboard with player names, clocks, turn indicators,
+evaluation bar, board control buttons (flip, 3D toggle),
+Stockfish analysis controls, and move navigation buttons.</p>
+<p>All state is owned by the parent container and passed via inputs.
+The component emits events for user interactions.</p>
+
+    </p>
+
+
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>board-display</code></td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-3">imports</td>
+                <td class="col-md-9">
+                                <code><a href="../components/NgxChessgroundComponent.html" target="_self" >NgxChessgroundComponent</a></code>
+                                <code><a href="../components/EvaluationBarComponent.html" target="_self" >EvaluationBarComponent</a></code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./board-display.component.html</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrl</td>
+                <td class="col-md-9"><code>./board-display.component.css</code></td>
+            </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#canGoFirst" >canGoFirst</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#canGoLast" >canGoLast</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#canGoNext" >canGoNext</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#canGoPrev" >canGoPrev</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#onAnalyzePosition" >onAnalyzePosition</a>
+                            </li>
+                            <li>
+                                <a href="#onStockfishDepthChange" >onStockfishDepthChange</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#activeColor" >activeColor</a>
+                            </li>
+                            <li>
+                                <a href="#alternativeLabel" >alternativeLabel</a>
+                            </li>
+                            <li>
+                                <a href="#analysisVisible" >analysisVisible</a>
+                            </li>
+                            <li>
+                                <a href="#autoplayCompleted" >autoplayCompleted</a>
+                            </li>
+                            <li>
+                                <a href="#bestMoveInfo" >bestMoveInfo</a>
+                            </li>
+                            <li>
+                                <a href="#bottomPlayerActiveColor" >bottomPlayerActiveColor</a>
+                            </li>
+                            <li>
+                                <a href="#bottomPlayerName" >bottomPlayerName</a>
+                            </li>
+                            <li>
+                                <a href="#bottomPlayerTitle" >bottomPlayerTitle</a>
+                            </li>
+                            <li>
+                                <a href="#bottomPlayerTurnClass" >bottomPlayerTurnClass</a>
+                            </li>
+                            <li>
+                                <a href="#bottomTimeRemaining" >bottomTimeRemaining</a>
+                            </li>
+                            <li>
+                                <a href="#config" >config</a>
+                            </li>
+                            <li>
+                                <a href="#currentMoveIndex" >currentMoveIndex</a>
+                            </li>
+                            <li>
+                                <a href="#evaluation" >evaluation</a>
+                            </li>
+                            <li>
+                                <a href="#flipped" >flipped</a>
+                            </li>
+                            <li>
+                                <a href="#gameResult" >gameResult</a>
+                            </li>
+                            <li>
+                                <a href="#hasNextAlternative" >hasNextAlternative</a>
+                            </li>
+                            <li>
+                                <a href="#hasPrevAlternative" >hasPrevAlternative</a>
+                            </li>
+                            <li>
+                                <a href="#in3d" >in3d</a>
+                            </li>
+                            <li>
+                                <a href="#isAnalyzing" >isAnalyzing</a>
+                            </li>
+                            <li>
+                                <a href="#isEndOfReplay" >isEndOfReplay</a>
+                            </li>
+                            <li>
+                                <a href="#movesCount" >movesCount</a>
+                            </li>
+                            <li>
+                                <a href="#practiceActive" >practiceActive</a>
+                            </li>
+                            <li>
+                                <a href="#practiceAvailable" >practiceAvailable</a>
+                            </li>
+                            <li>
+                                <a href="#runFunction" >runFunction</a>
+                            </li>
+                            <li>
+                                <a href="#showBetterMoveBtn" >showBetterMoveBtn</a>
+                            </li>
+                            <li>
+                                <a href="#stockfishDepth" >stockfishDepth</a>
+                            </li>
+                            <li>
+                                <a href="#topPlayerActiveColor" >topPlayerActiveColor</a>
+                            </li>
+                            <li>
+                                <a href="#topPlayerName" >topPlayerName</a>
+                            </li>
+                            <li>
+                                <a href="#topPlayerTitle" >topPlayerTitle</a>
+                            </li>
+                            <li>
+                                <a href="#topPlayerTurnClass" >topPlayerTurnClass</a>
+                            </li>
+                            <li>
+                                <a href="#topTimeRemaining" >topTimeRemaining</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#analyzePosition" >analyzePosition</a>
+                            </li>
+                            <li>
+                                <a href="#autoplayBestLine" >autoplayBestLine</a>
+                            </li>
+                            <li>
+                                <a href="#end" >end</a>
+                            </li>
+                            <li>
+                                <a href="#flipBoard" >flipBoard</a>
+                            </li>
+                            <li>
+                                <a href="#flipped" >flipped</a>
+                            </li>
+                            <li>
+                                <a href="#goToStart" >goToStart</a>
+                            </li>
+                            <li>
+                                <a href="#in3d" >in3d</a>
+                            </li>
+                            <li>
+                                <a href="#next" >next</a>
+                            </li>
+                            <li>
+                                <a href="#nextBestMove" >nextBestMove</a>
+                            </li>
+                            <li>
+                                <a href="#prev" >prev</a>
+                            </li>
+                            <li>
+                                <a href="#prevBestMove" >prevBestMove</a>
+                            </li>
+                            <li>
+                                <a href="#previewPvMove" >previewPvMove</a>
+                            </li>
+                            <li>
+                                <a href="#reevaluate" >reevaluate</a>
+                            </li>
+                            <li>
+                                <a href="#startPractice" >startPractice</a>
+                            </li>
+                            <li>
+                                <a href="#stockfishDepth" >stockfishDepth</a>
+                            </li>
+                            <li>
+                                <a href="#toggle3d" >toggle3d</a>
+                            </li>
+                            <li>
+                                <a href="#toggleAnalysis" >toggleAnalysis</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+
+    <section data-compodoc="block-inputs">
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="activeColor"></a>
+                        <b>activeColor</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;w&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:61</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Side to move, as used by chessground&#39;s piece theming.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="alternativeLabel"></a>
+                        <b>alternativeLabel</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="128" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:128</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Label showing current alternative position (e.g. &quot;2/3&quot;).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="analysisVisible"></a>
+                        <b>analysisVisible</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="118" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:118</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the analysis panel is expanded.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="autoplayCompleted"></a>
+                        <b>autoplayCompleted</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="130" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:130</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether autoplay of the best line has completed (enables re-evaluate).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bestMoveInfo"></a>
+                        <b>bestMoveInfo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/BestMoveInfo.html" target="_self" >BestMoveInfo | null</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="116" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:116</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Engine best move and principal variation, or <code>null</code>.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bottomPlayerActiveColor"></a>
+                        <b>bottomPlayerActiveColor</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;w&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:65</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Colour of the bottom player&#39;s piece icon.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bottomPlayerName"></a>
+                        <b>bottomPlayerName</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;Unknown&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:55</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Player shown below the board (White when unflipped).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bottomPlayerTitle"></a>
+                        <b>bottomPlayerTitle</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:69</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Title (GM/IM/…) prefix for the bottom player, or <code>&#39;&#39;</code>.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bottomPlayerTurnClass"></a>
+                        <b>bottomPlayerTurnClass</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:59</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Extra CSS class for the bottom player row, e.g. a turn indicator.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bottomTimeRemaining"></a>
+                        <b>bottomTimeRemaining</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:75</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Formatted remaining time for the bottom player, or <code>&#39;&#39;</code> when unknown.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="config"></a>
+                        <b>config</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Partial&lt;Config&gt; | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:45</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Partial Chessground config applied to the live board instance via
+<code>Api.set()</code> on every change (position, orientation, movable pieces).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="currentMoveIndex"></a>
+                        <b>currentMoveIndex</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>-1</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="89" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:89</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Zero-based index of the displayed move; <code>-1</code> is the start position.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="evaluation"></a>
+                        <b>evaluation</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="85" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:85</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Evaluation to display, in the viewer&#39;s display format, or <code>null</code>.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="flipped"></a>
+                        <b>flipped</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:47</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the board is flipped (black at bottom).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="gameResult"></a>
+                        <b>gameResult</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;*&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="79" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:79</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Result of the loaded game: <code>&#39;1-0&#39;</code>, <code>&#39;0-1&#39;</code>, <code>&#39;1/2-1/2&#39;</code> or <code>&#39;*&#39;</code>.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="hasNextAlternative"></a>
+                        <b>hasNextAlternative</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="124" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:124</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether there is a next alternative move to cycle to.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="hasPrevAlternative"></a>
+                        <b>hasPrevAlternative</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="126" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:126</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether there is a previous alternative to cycle back to.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="in3d"></a>
+                        <b>in3d</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:49</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether to render 3D Staunton pieces.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="isAnalyzing"></a>
+                        <b>isAnalyzing</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="114" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:114</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether Stockfish is analyzing the displayed position.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="isEndOfReplay"></a>
+                        <b>isEndOfReplay</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="81" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:81</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the board shows the final position of the game.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="movesCount"></a>
+                        <b>movesCount</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="91" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:91</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Total number of moves in the loaded game.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="practiceActive"></a>
+                        <b>practiceActive</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="136" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:136</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether practice mode is currently active.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="practiceAvailable"></a>
+                        <b>practiceAvailable</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="134" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:134</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the &quot;Analyze practice&quot; button should be offered (game not replaying).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="runFunction"></a>
+                        <b>runFunction</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>(el: HTMLElement) &#x3D;&gt; Api</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Required : </i>&nbsp;<b>true</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:40</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Chessground run function for rendering the board.</p>
+<p>Required and never <code>undefined</code>: the wrapper&#39;s <code>runFunction</code> input is
+required, so a missing factory is a compile-time error rather than a
+silently empty board.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="showBetterMoveBtn"></a>
+                        <b>showBetterMoveBtn</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="120" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:120</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the &quot;show better move&quot; button should be offered.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stockfishDepth"></a>
+                        <b>stockfishDepth</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>18</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="122" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:122</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Stockfish search depth (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="topPlayerActiveColor"></a>
+                        <b>topPlayerActiveColor</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;b&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:63</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Colour of the top player&#39;s piece icon.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="topPlayerName"></a>
+                        <b>topPlayerName</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;Unknown&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:53</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Player shown above the board (Black when unflipped).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="topPlayerTitle"></a>
+                        <b>topPlayerTitle</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:67</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Title (GM/IM/…) prefix for the top player, or <code>&#39;&#39;</code>.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="topPlayerTurnClass"></a>
+                        <b>topPlayerTurnClass</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:57</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Extra CSS class for the top player row, e.g. a turn indicator.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="topTimeRemaining"></a>
+                        <b>topTimeRemaining</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:73</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Formatted remaining time for the top player, or <code>&#39;&#39;</code> when unknown.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+    <section data-compodoc="block-outputs">
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="analyzePosition"></a>
+                        <b>analyzePosition</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="152" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:152</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to analyze a position; emits its FEN.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="autoplayBestLine"></a>
+                        <b>autoplayBestLine</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="154" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:154</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to autoplay the engine&#39;s best line.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="end"></a>
+                        <b>end</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="150" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:150</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to jump to the end of the game.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="flipBoard"></a>
+                        <b>flipBoard</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="140" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:140</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to flip the board orientation.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="flipped"></a>
+                        <b>flipped</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:47</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the board is flipped (black at bottom).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="goToStart"></a>
+                        <b>goToStart</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="144" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:144</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to jump to the start of the game.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="in3d"></a>
+                        <b>in3d</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:49</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether to render 3D Staunton pieces.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="next"></a>
+                        <b>next</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="148" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:148</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to step forward one move.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="nextBestMove"></a>
+                        <b>nextBestMove</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="160" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:160</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Cycle to the next-best engine move.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="prev"></a>
+                        <b>prev</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="146" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:146</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to step back one move.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="prevBestMove"></a>
+                        <b>prevBestMove</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="162" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:162</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Cycle to the previous engine move.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="previewPvMove"></a>
+                        <b>previewPvMove</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="156" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:156</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to preview a principal-variation move; emits its FEN.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="reevaluate"></a>
+                        <b>reevaluate</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="164" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:164</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Re-evaluate the position currently displayed on the board.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="startPractice"></a>
+                        <b>startPractice</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="166" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:166</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Start practice mode from the current board position.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stockfishDepth"></a>
+                        <b>stockfishDepth</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="122" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:122</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Stockfish search depth (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="toggle3d"></a>
+                        <b>toggle3d</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="142" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:142</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to toggle 3D pieces.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="toggleAnalysis"></a>
+                        <b>toggleAnalysis</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="158" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:158</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to show or hide the analysis panel.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onAnalyzePosition"></a>
+                    <span class="name">
+                        <span ><b>onAnalyzePosition</b></span>
+                        <a href="#onAnalyzePosition"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onAnalyzePosition(fen: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="176"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:176</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Forwards an analyze request for the given position.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>fen</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onStockfishDepthChange"></a>
+                    <span class="name">
+                        <span ><b>onStockfishDepthChange</b></span>
+                        <a href="#onStockfishDepthChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onStockfishDepthChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="170"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:170</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the Stockfish depth chosen in the number input.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="canGoFirst"></a>
+                    <span class="name">
+                            <span class="modifier">Readonly</span>
+                        <span ><b>canGoFirst</b></span>
+                        <a href="#canGoFirst"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>computed(
+		() &#x3D;&gt; !this.practiceActive() &amp;&amp; this.currentMoveIndex() &gt;&#x3D; 0,
+	)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="94" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:94</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Whether the &quot;jump to start&quot; control is enabled.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="canGoLast"></a>
+                    <span class="name">
+                            <span class="modifier">Readonly</span>
+                        <span ><b>canGoLast</b></span>
+                        <a href="#canGoLast"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>computed(
+		() &#x3D;&gt;
+			!this.practiceActive() &amp;&amp; this.currentMoveIndex() &lt; this.movesCount() - 1,
+	)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="107" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:107</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Whether the &quot;jump to end&quot; control is enabled.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="canGoNext"></a>
+                    <span class="name">
+                            <span class="modifier">Readonly</span>
+                        <span ><b>canGoNext</b></span>
+                        <a href="#canGoNext"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>computed(
+		() &#x3D;&gt;
+			!this.practiceActive() &amp;&amp; this.currentMoveIndex() &lt; this.movesCount() - 1,
+	)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="102" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:102</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Whether the &quot;next move&quot; control is enabled.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="canGoPrev"></a>
+                    <span class="name">
+                            <span class="modifier">Readonly</span>
+                        <span ><b>canGoPrev</b></span>
+                        <a href="#canGoPrev"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>computed(
+		() &#x3D;&gt; !this.practiceActive() &amp;&amp; this.currentMoveIndex() &gt;&#x3D; 0,
+	)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="98" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts:98</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Whether the &quot;previous move&quot; control is enabled.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+	booleanAttribute,
+	Component,
+	computed,
+	input,
+	model,
+	output,
+} from &#x27;@angular/core&#x27;;
+import type { Api } from &#x27;chessground/api&#x27;;
+import type { Config } from &#x27;chessground/config&#x27;;
+import { NgxChessgroundComponent } from &#x27;../../ngx-chessground/ngx-chessground.component&#x27;;
+import type { BestMoveInfo } from &#x27;../pgn-viewer.types&#x27;;
+import { EvaluationBarComponent } from &#x27;./evaluation-bar.component&#x27;;
+
+/**
+ * Board display panel for the PGN viewer — center panel.
+ *
+ * Shows the chessboard with player names, clocks, turn indicators,
+ * evaluation bar, board control buttons (flip, 3D toggle),
+ * Stockfish analysis controls, and move navigation buttons.
+ *
+ * All state is owned by the parent container and passed via inputs.
+ * The component emits events for user interactions.
+ */
+@Component({
+	selector: &#x27;board-display&#x27;,
+	imports: [NgxChessgroundComponent, EvaluationBarComponent],
+	templateUrl: &#x27;./board-display.component.html&#x27;,
+	styleUrl: &#x27;./board-display.component.css&#x27;,
+})
+export class BoardDisplayComponent {
+	// ---- Board State ----
+	/**
+	 * Chessground run function for rendering the board.
+	 *
+	 * Required and never &#x60;undefined&#x60;: the wrapper&#x27;s &#x60;runFunction&#x60; input is
+	 * required, so a missing factory is a compile-time error rather than a
+	 * silently empty board.
+	 */
+	readonly runFunction &#x3D; input.required&lt;(el: HTMLElement) &#x3D;&gt; Api&gt;();
+	/**
+	 * Partial Chessground config applied to the live board instance via
+	 * &#x60;Api.set()&#x60; on every change (position, orientation, movable pieces).
+	 */
+	readonly config &#x3D; input&lt;Partial&lt;Config&gt; | null&gt;(null);
+	/** Whether the board is flipped (black at bottom). */
+	readonly flipped &#x3D; model&lt;boolean&gt;(false);
+	/** Whether to render 3D Staunton pieces. */
+	readonly in3d &#x3D; model&lt;boolean&gt;(false);
+
+	// ---- Player Info ----
+	/** Player shown above the board (Black when unflipped). */
+	readonly topPlayerName &#x3D; input&lt;string&gt;(&#x27;Unknown&#x27;);
+	/** Player shown below the board (White when unflipped). */
+	readonly bottomPlayerName &#x3D; input&lt;string&gt;(&#x27;Unknown&#x27;);
+	/** Extra CSS class for the top player row, e.g. a turn indicator. */
+	readonly topPlayerTurnClass &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+	/** Extra CSS class for the bottom player row, e.g. a turn indicator. */
+	readonly bottomPlayerTurnClass &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+	/** Side to move, as used by chessground&#x27;s piece theming. */
+	readonly activeColor &#x3D; input&lt;string&gt;(&#x27;w&#x27;);
+	/** Colour of the top player&#x27;s piece icon. */
+	readonly topPlayerActiveColor &#x3D; input&lt;string&gt;(&#x27;b&#x27;);
+	/** Colour of the bottom player&#x27;s piece icon. */
+	readonly bottomPlayerActiveColor &#x3D; input&lt;string&gt;(&#x27;w&#x27;);
+	/** Title (GM/IM/…) prefix for the top player, or &#x60;&#x27;&#x27;&#x60;. */
+	readonly topPlayerTitle &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+	/** Title (GM/IM/…) prefix for the bottom player, or &#x60;&#x27;&#x27;&#x60;. */
+	readonly bottomPlayerTitle &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+
+	// ---- Clocks ----
+	/** Formatted remaining time for the top player, or &#x60;&#x27;&#x27;&#x60; when unknown. */
+	readonly topTimeRemaining &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+	/** Formatted remaining time for the bottom player, or &#x60;&#x27;&#x27;&#x60; when unknown. */
+	readonly bottomTimeRemaining &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+
+	// ---- Game Result ----
+	/** Result of the loaded game: &#x60;&#x27;1-0&#x27;&#x60;, &#x60;&#x27;0-1&#x27;&#x60;, &#x60;&#x27;1/2-1/2&#x27;&#x60; or &#x60;&#x27;*&#x27;&#x60;. */
+	readonly gameResult &#x3D; input&lt;string&gt;(&#x27;*&#x27;);
+	/** Whether the board shows the final position of the game. */
+	readonly isEndOfReplay &#x3D; input(false, { transform: booleanAttribute });
+
+	// ---- Evaluation ----
+	/** Evaluation to display, in the viewer&#x27;s display format, or &#x60;null&#x60;. */
+	readonly evaluation &#x3D; input&lt;string | null&gt;(null);
+
+	// ---- Move Navigation ----
+	/** Zero-based index of the displayed move; &#x60;-1&#x60; is the start position. */
+	readonly currentMoveIndex &#x3D; input&lt;number&gt;(-1);
+	/** Total number of moves in the loaded game. */
+	readonly movesCount &#x3D; input&lt;number&gt;(0);
+
+	/** Whether the &quot;jump to start&quot; control is enabled. */
+	readonly canGoFirst &#x3D; computed(
+		() &#x3D;&gt; !this.practiceActive() &amp;&amp; this.currentMoveIndex() &gt;&#x3D; 0,
+	);
+	/** Whether the &quot;previous move&quot; control is enabled. */
+	readonly canGoPrev &#x3D; computed(
+		() &#x3D;&gt; !this.practiceActive() &amp;&amp; this.currentMoveIndex() &gt;&#x3D; 0,
+	);
+	/** Whether the &quot;next move&quot; control is enabled. */
+	readonly canGoNext &#x3D; computed(
+		() &#x3D;&gt;
+			!this.practiceActive() &amp;&amp; this.currentMoveIndex() &lt; this.movesCount() - 1,
+	);
+	/** Whether the &quot;jump to end&quot; control is enabled. */
+	readonly canGoLast &#x3D; computed(
+		() &#x3D;&gt;
+			!this.practiceActive() &amp;&amp; this.currentMoveIndex() &lt; this.movesCount() - 1,
+	);
+
+	// ---- Stockfish Analysis ----
+	/** Whether Stockfish is analyzing the displayed position. */
+	readonly isAnalyzing &#x3D; input(false, { transform: booleanAttribute });
+	/** Engine best move and principal variation, or &#x60;null&#x60;. */
+	readonly bestMoveInfo &#x3D; input&lt;BestMoveInfo | null&gt;(null);
+	/** Whether the analysis panel is expanded. */
+	readonly analysisVisible &#x3D; input(false, { transform: booleanAttribute });
+	/** Whether the &quot;show better move&quot; button should be offered. */
+	readonly showBetterMoveBtn &#x3D; input(false, { transform: booleanAttribute });
+	/** Stockfish search depth (two-way). */
+	readonly stockfishDepth &#x3D; model&lt;number&gt;(18);
+	/** Whether there is a next alternative move to cycle to. */
+	readonly hasNextAlternative &#x3D; input(false, { transform: booleanAttribute });
+	/** Whether there is a previous alternative to cycle back to. */
+	readonly hasPrevAlternative &#x3D; input(false, { transform: booleanAttribute });
+	/** Label showing current alternative position (e.g. &quot;2/3&quot;). */
+	readonly alternativeLabel &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+	/** Whether autoplay of the best line has completed (enables re-evaluate). */
+	readonly autoplayCompleted &#x3D; input(false, { transform: booleanAttribute });
+
+	// ---- Practice Mode ----
+	/** Whether the &quot;Analyze practice&quot; button should be offered (game not replaying). */
+	readonly practiceAvailable &#x3D; input(false, { transform: booleanAttribute });
+	/** Whether practice mode is currently active. */
+	readonly practiceActive &#x3D; input(false, { transform: booleanAttribute });
+
+	// ---- Events ----
+	/** The user asked to flip the board orientation. */
+	readonly flipBoard &#x3D; output&lt;void&gt;();
+	/** The user asked to toggle 3D pieces. */
+	readonly toggle3d &#x3D; output&lt;void&gt;();
+	/** The user asked to jump to the start of the game. */
+	readonly goToStart &#x3D; output&lt;void&gt;();
+	/** The user asked to step back one move. */
+	readonly prev &#x3D; output&lt;void&gt;();
+	/** The user asked to step forward one move. */
+	readonly next &#x3D; output&lt;void&gt;();
+	/** The user asked to jump to the end of the game. */
+	readonly end &#x3D; output&lt;void&gt;();
+	/** The user asked to analyze a position; emits its FEN. */
+	readonly analyzePosition &#x3D; output&lt;string&gt;();
+	/** The user asked to autoplay the engine&#x27;s best line. */
+	readonly autoplayBestLine &#x3D; output&lt;void&gt;();
+	/** The user asked to preview a principal-variation move; emits its FEN. */
+	readonly previewPvMove &#x3D; output&lt;string&gt;();
+	/** The user asked to show or hide the analysis panel. */
+	readonly toggleAnalysis &#x3D; output&lt;void&gt;();
+	/** Cycle to the next-best engine move. */
+	readonly nextBestMove &#x3D; output&lt;void&gt;();
+	/** Cycle to the previous engine move. */
+	readonly prevBestMove &#x3D; output&lt;void&gt;();
+	/** Re-evaluate the position currently displayed on the board. */
+	readonly reevaluate &#x3D; output&lt;void&gt;();
+	/** Start practice mode from the current board position. */
+	readonly startPractice &#x3D; output&lt;void&gt;();
+
+	// ---- Depth change handler ----
+	/** Applies the Stockfish depth chosen in the number input. */
+	onStockfishDepthChange(event: Event): void {
+		const value &#x3D; Number((event.target as HTMLInputElement).value);
+		this.stockfishDepth.set(Number.isFinite(value) ? value : 1);
+	}
+
+	/** Forwards an analyze request for the given position. */
+	onAnalyzePosition(fen: string): void {
+		this.analyzePosition.emit(fen);
+	}
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;board-wrapper&quot; [class.in3d]&#x3D;&quot;in3d()&quot; [class.staunton]&#x3D;&quot;in3d()&quot; [class.end-of-replay]&#x3D;&quot;isEndOfReplay()&quot;&gt;
+  &lt;!-- Top Player Info --&gt;
+  &lt;div class&#x3D;&quot;player-info top&quot;&gt;
+    &lt;div class&#x3D;&quot;player-name-group&quot;&gt;
+      &lt;span class&#x3D;&quot;name&quot;&gt;{{ topPlayerName() }}&lt;/span&gt;
+      &lt;span
+        class&#x3D;&quot;turn-indicator&quot;
+        [class]&#x3D;&quot;topPlayerTurnClass()&quot;
+        [class.active]&#x3D;&quot;activeColor() &#x3D;&#x3D;&#x3D; topPlayerActiveColor()&quot;
+        [title]&#x3D;&quot;topPlayerTitle()&quot;
+      &gt;&lt;/span&gt;
+      &lt;span class&#x3D;&quot;clock inset&quot;&gt;{{ topTimeRemaining() || &#x27;--:--&#x27; }}&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Board + Evaluation Bar --&gt;
+  &lt;div class&#x3D;&quot;board-container&quot;&gt;
+    &lt;ngx-chessground
+      [runFunction]&#x3D;&quot;runFunction()&quot;
+      [config]&#x3D;&quot;config()&quot;
+    &gt;&lt;/ngx-chessground&gt;
+    &lt;evaluation-bar [evaluation]&#x3D;&quot;evaluation()&quot; [flipped]&#x3D;&quot;flipped()&quot; /&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Bottom Player Info --&gt;
+  &lt;div class&#x3D;&quot;player-info bottom&quot;&gt;
+    &lt;div class&#x3D;&quot;player-name-group&quot;&gt;
+      &lt;span class&#x3D;&quot;name&quot;&gt;{{ bottomPlayerName() }}&lt;/span&gt;
+      &lt;span
+        class&#x3D;&quot;turn-indicator&quot;
+        [class]&#x3D;&quot;bottomPlayerTurnClass()&quot;
+        [class.active]&#x3D;&quot;activeColor() &#x3D;&#x3D;&#x3D; bottomPlayerActiveColor()&quot;
+        [title]&#x3D;&quot;bottomPlayerTitle()&quot;
+      &gt;&lt;/span&gt;
+      &lt;span class&#x3D;&quot;clock inset&quot;&gt;{{ bottomTimeRemaining() || &#x27;--:--&#x27; }}&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Game Result --&gt;
+&lt;div class&#x3D;&quot;game-result-display&quot; [class.end-of-replay]&#x3D;&quot;isEndOfReplay()&quot;&gt;{{ gameResult() }}&lt;/div&gt;
+
+&lt;!-- Board Controls --&gt;
+&lt;div class&#x3D;&quot;board-controls&quot;&gt;
+  &lt;button type&#x3D;&quot;button&quot; 
+    (click)&#x3D;&quot;flipBoard.emit()&quot;
+    class&#x3D;&quot;board-ctrl-btn&quot;
+    title&#x3D;&quot;Flip board orientation&quot;
+    aria-label&#x3D;&quot;Flip board&quot;&gt;
+    &lt;svg width&#x3D;&quot;16&quot; height&#x3D;&quot;16&quot; viewBox&#x3D;&quot;0 0 24 24&quot; fill&#x3D;&quot;none&quot; stroke&#x3D;&quot;currentColor&quot; stroke-width&#x3D;&quot;1.8&quot; stroke-linecap&#x3D;&quot;round&quot; stroke-linejoin&#x3D;&quot;round&quot; aria-hidden&#x3D;&quot;true&quot;&gt;
+      &lt;polyline points&#x3D;&quot;17 1 21 5 17 9&quot;/&gt;&lt;path d&#x3D;&quot;M3 11V9a4 4 0 0 1 4-4h14&quot;/&gt;
+      &lt;polyline points&#x3D;&quot;7 23 3 19 7 15&quot;/&gt;&lt;path d&#x3D;&quot;M21 13v2a4 4 0 0 1-4 4H3&quot;/&gt;
+    &lt;/svg&gt;
+    Flip
+  &lt;/button&gt;
+  &lt;button type&#x3D;&quot;button&quot; 
+    (click)&#x3D;&quot;toggle3d.emit()&quot;
+    class&#x3D;&quot;board-ctrl-btn&quot;
+    [class.active]&#x3D;&quot;in3d()&quot;
+    title&#x3D;&quot;Toggle 3D board appearance&quot;
+    aria-label&#x3D;&quot;Toggle 3D&quot;&gt;
+    @if (in3d()) {
+      &lt;svg width&#x3D;&quot;16&quot; height&#x3D;&quot;16&quot; viewBox&#x3D;&quot;0 0 24 24&quot; fill&#x3D;&quot;none&quot; stroke&#x3D;&quot;currentColor&quot; stroke-width&#x3D;&quot;1.8&quot; stroke-linecap&#x3D;&quot;round&quot; stroke-linejoin&#x3D;&quot;round&quot; aria-hidden&#x3D;&quot;true&quot;&gt;
+        &lt;rect x&#x3D;&quot;3&quot; y&#x3D;&quot;3&quot; width&#x3D;&quot;18&quot; height&#x3D;&quot;18&quot; rx&#x3D;&quot;2&quot;/&gt;
+        &lt;path d&#x3D;&quot;M3 9h18&quot;/&gt;&lt;path d&#x3D;&quot;M9 3v18&quot;/&gt;
+      &lt;/svg&gt;
+      2D
+    } @else {
+      &lt;svg width&#x3D;&quot;16&quot; height&#x3D;&quot;16&quot; viewBox&#x3D;&quot;0 0 24 24&quot; fill&#x3D;&quot;none&quot; stroke&#x3D;&quot;currentColor&quot; stroke-width&#x3D;&quot;1.8&quot; stroke-linecap&#x3D;&quot;round&quot; stroke-linejoin&#x3D;&quot;round&quot; aria-hidden&#x3D;&quot;true&quot;&gt;
+        &lt;path d&#x3D;&quot;M12 2L3 7.5v9L12 22l9-4.5v-9L12 2z&quot;/&gt;
+        &lt;path d&#x3D;&quot;M12 2v20&quot;/&gt;&lt;path d&#x3D;&quot;M3 7.5l9 4.5 9-4.5&quot;/&gt;
+      &lt;/svg&gt;
+      3D
+    }
+  &lt;/button&gt;
+  @if (practiceAvailable()) {
+    &lt;button type&#x3D;&quot;button&quot; 
+      (click)&#x3D;&quot;startPractice.emit()&quot;
+      class&#x3D;&quot;board-ctrl-btn practice-btn&quot;
+      [class.active]&#x3D;&quot;practiceActive()&quot;
+      [disabled]&#x3D;&quot;practiceActive()&quot;
+      title&#x3D;&quot;Turn-based practice with continuous Stockfish analysis&quot;
+      aria-label&#x3D;&quot;Analyze practice&quot;&gt;
+      &lt;svg width&#x3D;&quot;16&quot; height&#x3D;&quot;16&quot; viewBox&#x3D;&quot;0 0 24 24&quot; fill&#x3D;&quot;none&quot; stroke&#x3D;&quot;currentColor&quot; stroke-width&#x3D;&quot;1.8&quot; stroke-linecap&#x3D;&quot;round&quot; stroke-linejoin&#x3D;&quot;round&quot; aria-hidden&#x3D;&quot;true&quot;&gt;
+        &lt;circle cx&#x3D;&quot;11&quot; cy&#x3D;&quot;11&quot; r&#x3D;&quot;7&quot;/&gt;
+        &lt;path d&#x3D;&quot;m21 21-4.3-4.3&quot;/&gt;
+        &lt;path d&#x3D;&quot;M8 11h6&quot;/&gt;
+      &lt;/svg&gt;
+      Analyze Practice
+    &lt;/button&gt;
+  }
+&lt;/div&gt;
+
+&lt;!-- Stockfish Analysis --&gt;
+@if (showBetterMoveBtn()) {
+  &lt;div class&#x3D;&quot;analysis-container&quot;&gt;
+    &lt;div class&#x3D;&quot;analysis-controls&quot;&gt;
+      @if (!analysisVisible()) {
+        &lt;label class&#x3D;&quot;depth-label&quot;&gt;
+          Depth:
+          &lt;input
+            type&#x3D;&quot;number&quot;
+            [value]&#x3D;&quot;stockfishDepth()&quot;
+            (input)&#x3D;&quot;onStockfishDepthChange($event)&quot;
+            min&#x3D;&quot;1&quot;
+            max&#x3D;&quot;50&quot;
+            class&#x3D;&quot;small-input depth-input&quot;
+          /&gt;
+        &lt;/label&gt;
+        &lt;button type&#x3D;&quot;button&quot; 
+          (click)&#x3D;&quot;toggleAnalysis.emit()&quot;
+          class&#x3D;&quot;primary-button small&quot;
+        &gt;
+          Show Better Move
+        &lt;/button&gt;
+      }
+    &lt;/div&gt;
+
+    @if (analysisVisible()) {
+      &lt;div class&#x3D;&quot;analysis-result&quot;&gt;
+        @if (isAnalyzing()) {
+          &lt;span class&#x3D;&quot;analyzing-text&quot;&gt;Thinking...&lt;/span&gt;
+        } @else if (bestMoveInfo(); as info) {
+          &lt;div class&#x3D;&quot;best-move&quot;&gt;
+            &lt;div class&#x3D;&quot;best-move-header&quot;&gt;
+              &lt;strong&gt;
+                Best: {{ info.move }}
+                @if (info.score) {
+                  &lt;span class&#x3D;&quot;eval-score&quot;&gt;({{ info.score }})&lt;/span&gt;
+                }
+                @if (alternativeLabel()) {
+                  &lt;span class&#x3D;&quot;alt-label&quot;&gt;{{ alternativeLabel() }}&lt;/span&gt;
+                }
+              &lt;/strong&gt;
+              &lt;button type&#x3D;&quot;button&quot; 
+                (click)&#x3D;&quot;autoplayBestLine.emit()&quot;
+                class&#x3D;&quot;primary-button xsmall&quot;
+                title&#x3D;&quot;Play Best Line&quot;
+              &gt;
+                ▶ Play
+              &lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class&#x3D;&quot;pv-line&quot;&gt;
+              @for (pvMove of info.pv; track $index) {
+                &lt;button type&#x3D;&quot;button&quot; 
+                  class&#x3D;&quot;pv-move-btn&quot;
+                  (click)&#x3D;&quot;previewPvMove.emit(pvMove.fen)&quot;
+                &gt;
+                  {{ pvMove.san }}
+                &lt;/button&gt;
+              }
+            &lt;/div&gt;
+            @if (hasPrevAlternative() || hasNextAlternative()) {
+              &lt;div class&#x3D;&quot;alt-nav&quot;&gt;
+                &lt;button type&#x3D;&quot;button&quot;
+                  (click)&#x3D;&quot;prevBestMove.emit()&quot;
+                  [disabled]&#x3D;&quot;!hasPrevAlternative()&quot;
+                  class&#x3D;&quot;alt-nav-btn&quot;
+                  title&#x3D;&quot;Previous best move&quot;
+                  aria-label&#x3D;&quot;Previous best move&quot;
+                &gt;← Prev&lt;/button&gt;
+                &lt;button type&#x3D;&quot;button&quot;
+                  (click)&#x3D;&quot;nextBestMove.emit()&quot;
+                  [disabled]&#x3D;&quot;!hasNextAlternative()&quot;
+                  class&#x3D;&quot;alt-nav-btn&quot;
+                  title&#x3D;&quot;Next best move&quot;
+                  aria-label&#x3D;&quot;Next best move&quot;
+                &gt;Next →&lt;/button&gt;
+              &lt;/div&gt;
+            }
+          &lt;/div&gt;
+        }
+        @if (autoplayCompleted() &amp;&amp; !isAnalyzing()) {
+          &lt;div class&#x3D;&quot;reevaluate-section&quot;&gt;
+            &lt;button type&#x3D;&quot;button&quot;
+              (click)&#x3D;&quot;reevaluate.emit()&quot;
+              class&#x3D;&quot;primary-button small&quot;
+              title&#x3D;&quot;Analyze the current board position&quot;
+            &gt;
+              &lt;svg width&#x3D;&quot;14&quot; height&#x3D;&quot;14&quot; viewBox&#x3D;&quot;0 0 24 24&quot; fill&#x3D;&quot;none&quot; stroke&#x3D;&quot;currentColor&quot; stroke-width&#x3D;&quot;2&quot; stroke-linecap&#x3D;&quot;round&quot; stroke-linejoin&#x3D;&quot;round&quot; aria-hidden&#x3D;&quot;true&quot;&gt;
+                &lt;circle cx&#x3D;&quot;11&quot; cy&#x3D;&quot;11&quot; r&#x3D;&quot;8&quot;/&gt;
+                &lt;path d&#x3D;&quot;m21 21-4.3-4.3&quot;/&gt;
+              &lt;/svg&gt;
+              Re-evaluate
+            &lt;/button&gt;
+          &lt;/div&gt;
+        }
+      &lt;/div&gt;
+    }
+  &lt;/div&gt;
+}
+
+&lt;!-- Move Navigation --&gt;
+&lt;div class&#x3D;&quot;move-navigation&quot;&gt;
+  &lt;button type&#x3D;&quot;button&quot; 
+    (click)&#x3D;&quot;goToStart.emit()&quot;
+    [disabled]&#x3D;&quot;!canGoFirst()&quot;
+    class&#x3D;&quot;nav-btn&quot;
+    aria-label&#x3D;&quot;First Move&quot;
+  &gt;
+    |&amp;lt;
+  &lt;/button&gt;
+  &lt;button type&#x3D;&quot;button&quot; 
+    (click)&#x3D;&quot;prev.emit()&quot;
+    [disabled]&#x3D;&quot;!canGoPrev()&quot;
+    class&#x3D;&quot;nav-btn&quot;
+    aria-label&#x3D;&quot;Previous Move&quot;
+  &gt;
+    &amp;lt;
+  &lt;/button&gt;
+  &lt;span class&#x3D;&quot;move-status&quot; aria-live&#x3D;&quot;polite&quot;&gt;
+    {{ currentMoveIndex() + 1 }} / {{ movesCount() }}
+  &lt;/span&gt;
+  &lt;button type&#x3D;&quot;button&quot; 
+    (click)&#x3D;&quot;next.emit()&quot;
+    [disabled]&#x3D;&quot;!canGoNext()&quot;
+    class&#x3D;&quot;nav-btn&quot;
+    aria-label&#x3D;&quot;Next Move&quot;
+  &gt;
+    &amp;gt;
+  &lt;/button&gt;
+  &lt;button type&#x3D;&quot;button&quot; 
+    (click)&#x3D;&quot;end.emit()&quot;
+    [disabled]&#x3D;&quot;!canGoLast()&quot;
+    class&#x3D;&quot;nav-btn&quot;
+    aria-label&#x3D;&quot;Last Move&quot;
+  &gt;
+    &amp;gt;|
+  &lt;/button&gt;
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="board-wrapper" [class.in3d]="in3d()" [class.staunton]="in3d()" [class.end-of-replay]="isEndOfReplay()">  <!-- Top Player Info -->  <div class="player-info top">    <div class="player-name-group">      <span class="name">{{ topPlayerName() }}</span>      <span        class="turn-indicator"        [class]="topPlayerTurnClass()"        [class.active]="activeColor() === topPlayerActiveColor()"        [title]="topPlayerTitle()"      ></span>      <span class="clock inset">{{ topTimeRemaining() || \'--:--\' }}</span>    </div>  </div>  <!-- Board + Evaluation Bar -->  <div class="board-container">    <ngx-chessground      [runFunction]="runFunction()"      [config]="config()"    ></ngx-chessground>    <evaluation-bar [evaluation]="evaluation()" [flipped]="flipped()" />  </div>  <!-- Bottom Player Info -->  <div class="player-info bottom">    <div class="player-name-group">      <span class="name">{{ bottomPlayerName() }}</span>      <span        class="turn-indicator"        [class]="bottomPlayerTurnClass()"        [class.active]="activeColor() === bottomPlayerActiveColor()"        [title]="bottomPlayerTitle()"      ></span>      <span class="clock inset">{{ bottomTimeRemaining() || \'--:--\' }}</span>    </div>  </div></div><!-- Game Result --><div class="game-result-display" [class.end-of-replay]="isEndOfReplay()">{{ gameResult() }}</div><!-- Board Controls --><div class="board-controls">  <button type="button"     (click)="flipBoard.emit()"    class="board-ctrl-btn"    title="Flip board orientation"    aria-label="Flip board">    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">      <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>      <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>    </svg>    Flip  </button>  <button type="button"     (click)="toggle3d.emit()"    class="board-ctrl-btn"    [class.active]="in3d()"    title="Toggle 3D board appearance"    aria-label="Toggle 3D">    @if (in3d()) {      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">        <rect x="3" y="3" width="18" height="18" rx="2"/>        <path d="M3 9h18"/><path d="M9 3v18"/>      </svg>      2D    } @else {      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">        <path d="M12 2L3 7.5v9L12 22l9-4.5v-9L12 2z"/>        <path d="M12 2v20"/><path d="M3 7.5l9 4.5 9-4.5"/>      </svg>      3D    }  </button>  @if (practiceAvailable()) {    <button type="button"       (click)="startPractice.emit()"      class="board-ctrl-btn practice-btn"      [class.active]="practiceActive()"      [disabled]="practiceActive()"      title="Turn-based practice with continuous Stockfish analysis"      aria-label="Analyze practice">      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">        <circle cx="11" cy="11" r="7"/>        <path d="m21 21-4.3-4.3"/>        <path d="M8 11h6"/>      </svg>      Analyze Practice    </button>  }</div><!-- Stockfish Analysis -->@if (showBetterMoveBtn()) {  <div class="analysis-container">    <div class="analysis-controls">      @if (!analysisVisible()) {        <label class="depth-label">          Depth:          <input            type="number"            [value]="stockfishDepth()"            (input)="onStockfishDepthChange($event)"            min="1"            max="50"            class="small-input depth-input"          />        </label>        <button type="button"           (click)="toggleAnalysis.emit()"          class="primary-button small"        >          Show Better Move        </button>      }    </div>    @if (analysisVisible()) {      <div class="analysis-result">        @if (isAnalyzing()) {          <span class="analyzing-text">Thinking...</span>        } @else if (bestMoveInfo(); as info) {          <div class="best-move">            <div class="best-move-header">              <strong>                Best: {{ info.move }}                @if (info.score) {                  <span class="eval-score">({{ info.score }})</span>                }                @if (alternativeLabel()) {                  <span class="alt-label">{{ alternativeLabel() }}</span>                }              </strong>              <button type="button"                 (click)="autoplayBestLine.emit()"                class="primary-button xsmall"                title="Play Best Line"              >                ▶ Play              </button>            </div>            <div class="pv-line">              @for (pvMove of info.pv; track $index) {                <button type="button"                   class="pv-move-btn"                  (click)="previewPvMove.emit(pvMove.fen)"                >                  {{ pvMove.san }}                </button>              }            </div>            @if (hasPrevAlternative() || hasNextAlternative()) {              <div class="alt-nav">                <button type="button"                  (click)="prevBestMove.emit()"                  [disabled]="!hasPrevAlternative()"                  class="alt-nav-btn"                  title="Previous best move"                  aria-label="Previous best move"                >← Prev</button>                <button type="button"                  (click)="nextBestMove.emit()"                  [disabled]="!hasNextAlternative()"                  class="alt-nav-btn"                  title="Next best move"                  aria-label="Next best move"                >Next →</button>              </div>            }          </div>        }        @if (autoplayCompleted() && !isAnalyzing()) {          <div class="reevaluate-section">            <button type="button"              (click)="reevaluate.emit()"              class="primary-button small"              title="Analyze the current board position"            >              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">                <circle cx="11" cy="11" r="8"/>                <path d="m21 21-4.3-4.3"/>              </svg>              Re-evaluate            </button>          </div>        }      </div>    }  </div>}<!-- Move Navigation --><div class="move-navigation">  <button type="button"     (click)="goToStart.emit()"    [disabled]="!canGoFirst()"    class="nav-btn"    aria-label="First Move"  >    |&lt;  </button>  <button type="button"     (click)="prev.emit()"    [disabled]="!canGoPrev()"    class="nav-btn"    aria-label="Previous Move"  >    &lt;  </button>  <span class="move-status" aria-live="polite">    {{ currentMoveIndex() + 1 }} / {{ movesCount() }}  </span>  <button type="button"     (click)="next.emit()"    [disabled]="!canGoNext()"    class="nav-btn"    aria-label="Next Move"  >    &gt;  </button>  <button type="button"     (click)="end.emit()"    [disabled]="!canGoLast()"    class="nav-btn"    aria-label="Last Move"  >    &gt;|  </button></div></div>'
+    var COMPONENTS = [{'name': 'BoardDisplayComponent', 'selector': 'board-display'},{'name': 'EvaluationBarComponent', 'selector': 'evaluation-bar'},{'name': 'GameFilterPanelComponent', 'selector': 'game-filter-panel'},{'name': 'LoadCachePanelComponent', 'selector': 'load-cache-panel'},{'name': 'MoveListComponent', 'selector': 'move-list'},{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'},{'name': 'NgxPgnViewerComponent', 'selector': 'ngx-pgn-viewer'},{'name': 'PlayerTypeaheadComponent', 'selector': 'player-typeahead'},{'name': 'PracticePanelComponent', 'selector': 'practice-panel'},{'name': 'PromotionDialogComponent', 'selector': 'ngx-promotion-dialog'},{'name': 'ReplayPanelComponent', 'selector': 'replay-panel'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'BoardDisplayComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'BoardDisplayComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

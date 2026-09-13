@@ -1,4 +1,11 @@
-import { Component, computed, input, model, output } from '@angular/core';
+import {
+	booleanAttribute,
+	Component,
+	computed,
+	input,
+	model,
+	output,
+} from '@angular/core';
 import type { BestMoveInfo, PracticeMove } from '../pgn-viewer.types';
 
 /**
@@ -19,7 +26,7 @@ import type { BestMoveInfo, PracticeMove } from '../pgn-viewer.types';
 export class PracticePanelComponent {
 	// ---- Engine state ----
 	/** Whether Stockfish is currently analyzing the position. */
-	readonly isAnalyzing = input<boolean>(false);
+	readonly isAnalyzing = input(false, { transform: booleanAttribute });
 	/** Stockfish evaluation of the current position (White's perspective). */
 	readonly evaluation = input<string | null>(null);
 	/** Engine best move and principal variation. */
@@ -36,17 +43,25 @@ export class PracticePanelComponent {
 	readonly result = input<string | null>(null);
 
 	// ---- Events ----
+	/** The user asked to leave practice mode. */
 	readonly exit = output<void>();
+	/** The user asked to take back the last practice move. */
 	readonly undoMove = output<void>();
+	/** The user asked to restart the session from its start position. */
 	readonly restart = output<void>();
+	/** The user asked to re-run Stockfish on the current position. */
 	readonly reanalyze = output<void>();
+	/** The user asked to copy the current FEN. */
 	readonly copyFen = output<void>();
+	/** The user asked to copy the move list. */
 	readonly copyMoves = output<void>();
+	/** The user asked to copy the session PGN. */
 	readonly copyPgn = output<void>();
+	/** The user asked to download the session as a PGN file. */
 	readonly downloadPgn = output<void>();
 
 	// ---- Computed ----
-	readonly canUndo = computed(() => this.moves().length > 0);
+	/** Whether the session has at least one move, i.e. undo/export are meaningful. */
 	readonly hasMoves = computed(() => this.moves().length > 0);
 
 	/** Moves grouped into full-move pairs for display: `1. e4 e5`. */
@@ -68,6 +83,7 @@ export class PracticePanelComponent {
 	});
 
 	// ---- Handlers ----
+	/** Applies the Stockfish depth chosen in the number input. */
 	onDepthChange(event: Event): void {
 		const value = Number((event.target as HTMLInputElement).value);
 		this.depth.set(Number.isFinite(value) ? value : 1);

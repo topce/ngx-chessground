@@ -1,0 +1,1443 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  PracticePanelComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts</code>
+</p>
+
+
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>Practice mode panel for the PGN viewer — shown under the board.</p>
+<p>Displays live Stockfish analysis of the current practice position
+(evaluation, best move and principal variation), the session move list
+with per-move evaluations, and export controls (FEN, moves, PGN).</p>
+<p>All state is owned by the parent container and passed via inputs.
+The component emits events for user interactions.</p>
+
+    </p>
+
+
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>practice-panel</code></td>
+            </tr>
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./practice-panel.component.html</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrl</td>
+                <td class="col-md-9"><code>./practice-panel.component.css</code></td>
+            </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#hasMoves" >hasMoves</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#movePairs" >movePairs</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#onDepthChange" >onDepthChange</a>
+                            </li>
+                            <li>
+                                <a href="#selectFen" >selectFen</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#bestMoveInfo" >bestMoveInfo</a>
+                            </li>
+                            <li>
+                                <a href="#depth" >depth</a>
+                            </li>
+                            <li>
+                                <a href="#evaluation" >evaluation</a>
+                            </li>
+                            <li>
+                                <a href="#fen" >fen</a>
+                            </li>
+                            <li>
+                                <a href="#isAnalyzing" >isAnalyzing</a>
+                            </li>
+                            <li>
+                                <a href="#moves" >moves</a>
+                            </li>
+                            <li>
+                                <a href="#result" >result</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#copyFen" >copyFen</a>
+                            </li>
+                            <li>
+                                <a href="#copyMoves" >copyMoves</a>
+                            </li>
+                            <li>
+                                <a href="#copyPgn" >copyPgn</a>
+                            </li>
+                            <li>
+                                <a href="#depth" >depth</a>
+                            </li>
+                            <li>
+                                <a href="#downloadPgn" >downloadPgn</a>
+                            </li>
+                            <li>
+                                <a href="#exit" >exit</a>
+                            </li>
+                            <li>
+                                <a href="#reanalyze" >reanalyze</a>
+                            </li>
+                            <li>
+                                <a href="#restart" >restart</a>
+                            </li>
+                            <li>
+                                <a href="#undoMove" >undoMove</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+
+    <section data-compodoc="block-inputs">
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bestMoveInfo"></a>
+                        <b>bestMoveInfo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/BestMoveInfo.html" target="_self" >BestMoveInfo | null</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:33</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Engine best move and principal variation.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="depth"></a>
+                        <b>depth</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>18</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:35</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Stockfish search depth.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="evaluation"></a>
+                        <b>evaluation</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:31</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Stockfish evaluation of the current position (White&#39;s perspective).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="fen"></a>
+                        <b>fen</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:41</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>FEN of the current practice position.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="isAnalyzing"></a>
+                        <b>isAnalyzing</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:29</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether Stockfish is currently analyzing the position.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="moves"></a>
+                        <b>moves</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/PracticeMove.html" target="_self" >PracticeMove[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:39</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Moves played during the practice session.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="result"></a>
+                        <b>result</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:43</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Game result (&#39;1-0&#39;, &#39;0-1&#39;, &#39;1/2-1/2&#39;) or null while ongoing.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+    <section data-compodoc="block-outputs">
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="copyFen"></a>
+                        <b>copyFen</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:55</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to copy the current FEN.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="copyMoves"></a>
+                        <b>copyMoves</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:57</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to copy the move list.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="copyPgn"></a>
+                        <b>copyPgn</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:59</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to copy the session PGN.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="depth"></a>
+                        <b>depth</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:35</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Stockfish search depth.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="downloadPgn"></a>
+                        <b>downloadPgn</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:61</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to download the session as a PGN file.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="exit"></a>
+                        <b>exit</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:47</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to leave practice mode.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="reanalyze"></a>
+                        <b>reanalyze</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:53</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to re-run Stockfish on the current position.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="restart"></a>
+                        <b>restart</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:51</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to restart the session from its start position.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="undoMove"></a>
+                        <b>undoMove</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:49</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to take back the last practice move.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onDepthChange"></a>
+                    <span class="name">
+                        <span ><b>onDepthChange</b></span>
+                        <a href="#onDepthChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onDepthChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:87</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the Stockfish depth chosen in the number input.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="selectFen"></a>
+                    <span class="name">
+                        <span ><b>selectFen</b></span>
+                        <a href="#selectFen"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>selectFen(event: FocusEvent)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:93</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Select the whole FEN when the readonly input is focused for easy copying.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>FocusEvent</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="hasMoves"></a>
+                    <span class="name">
+                            <span class="modifier">Readonly</span>
+                        <span ><b>hasMoves</b></span>
+                        <a href="#hasMoves"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>computed(() &#x3D;&gt; this.moves().length &gt; 0)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:65</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Whether the session has at least one move, i.e. undo/export are meaningful.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="movePairs"></a>
+                    <span class="name">
+                            <span class="modifier">Readonly</span>
+                        <span ><b>movePairs</b></span>
+                        <a href="#movePairs"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>computed(() &#x3D;&gt; {
+		const pairs: {
+			number: number;
+			white: PracticeMove;
+			black: PracticeMove | null;
+		}[] &#x3D; [];
+		const moves &#x3D; this.moves();
+		for (let i &#x3D; 0; i &lt; moves.length; i +&#x3D; 2) {
+			pairs.push({
+				number: i / 2 + 1,
+				white: moves[i],
+				black: i + 1 &lt; moves.length ? moves[i + 1] : null,
+			});
+		}
+		return pairs;
+	})</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts:68</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Moves grouped into full-move pairs for display: <code>1. e4 e5</code>.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+	booleanAttribute,
+	Component,
+	computed,
+	input,
+	model,
+	output,
+} from &#x27;@angular/core&#x27;;
+import type { BestMoveInfo, PracticeMove } from &#x27;../pgn-viewer.types&#x27;;
+
+/**
+ * Practice mode panel for the PGN viewer — shown under the board.
+ *
+ * Displays live Stockfish analysis of the current practice position
+ * (evaluation, best move and principal variation), the session move list
+ * with per-move evaluations, and export controls (FEN, moves, PGN).
+ *
+ * All state is owned by the parent container and passed via inputs.
+ * The component emits events for user interactions.
+ */
+@Component({
+	selector: &#x27;practice-panel&#x27;,
+	templateUrl: &#x27;./practice-panel.component.html&#x27;,
+	styleUrl: &#x27;./practice-panel.component.css&#x27;,
+})
+export class PracticePanelComponent {
+	// ---- Engine state ----
+	/** Whether Stockfish is currently analyzing the position. */
+	readonly isAnalyzing &#x3D; input(false, { transform: booleanAttribute });
+	/** Stockfish evaluation of the current position (White&#x27;s perspective). */
+	readonly evaluation &#x3D; input&lt;string | null&gt;(null);
+	/** Engine best move and principal variation. */
+	readonly bestMoveInfo &#x3D; input&lt;BestMoveInfo | null&gt;(null);
+	/** Stockfish search depth. */
+	readonly depth &#x3D; model&lt;number&gt;(18);
+
+	// ---- Session state ----
+	/** Moves played during the practice session. */
+	readonly moves &#x3D; input&lt;PracticeMove[]&gt;([]);
+	/** FEN of the current practice position. */
+	readonly fen &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+	/** Game result (&#x27;1-0&#x27;, &#x27;0-1&#x27;, &#x27;1/2-1/2&#x27;) or null while ongoing. */
+	readonly result &#x3D; input&lt;string | null&gt;(null);
+
+	// ---- Events ----
+	/** The user asked to leave practice mode. */
+	readonly exit &#x3D; output&lt;void&gt;();
+	/** The user asked to take back the last practice move. */
+	readonly undoMove &#x3D; output&lt;void&gt;();
+	/** The user asked to restart the session from its start position. */
+	readonly restart &#x3D; output&lt;void&gt;();
+	/** The user asked to re-run Stockfish on the current position. */
+	readonly reanalyze &#x3D; output&lt;void&gt;();
+	/** The user asked to copy the current FEN. */
+	readonly copyFen &#x3D; output&lt;void&gt;();
+	/** The user asked to copy the move list. */
+	readonly copyMoves &#x3D; output&lt;void&gt;();
+	/** The user asked to copy the session PGN. */
+	readonly copyPgn &#x3D; output&lt;void&gt;();
+	/** The user asked to download the session as a PGN file. */
+	readonly downloadPgn &#x3D; output&lt;void&gt;();
+
+	// ---- Computed ----
+	/** Whether the session has at least one move, i.e. undo/export are meaningful. */
+	readonly hasMoves &#x3D; computed(() &#x3D;&gt; this.moves().length &gt; 0);
+
+	/** Moves grouped into full-move pairs for display: &#x60;1. e4 e5&#x60;. */
+	readonly movePairs &#x3D; computed(() &#x3D;&gt; {
+		const pairs: {
+			number: number;
+			white: PracticeMove;
+			black: PracticeMove | null;
+		}[] &#x3D; [];
+		const moves &#x3D; this.moves();
+		for (let i &#x3D; 0; i &lt; moves.length; i +&#x3D; 2) {
+			pairs.push({
+				number: i / 2 + 1,
+				white: moves[i],
+				black: i + 1 &lt; moves.length ? moves[i + 1] : null,
+			});
+		}
+		return pairs;
+	});
+
+	// ---- Handlers ----
+	/** Applies the Stockfish depth chosen in the number input. */
+	onDepthChange(event: Event): void {
+		const value &#x3D; Number((event.target as HTMLInputElement).value);
+		this.depth.set(Number.isFinite(value) ? value : 1);
+	}
+
+	/** Select the whole FEN when the readonly input is focused for easy copying. */
+	selectFen(event: FocusEvent): void {
+		(event.target as HTMLInputElement).select();
+	}
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;practice-panel&quot; role&#x3D;&quot;region&quot; aria-label&#x3D;&quot;Practice mode&quot;&gt;
+  &lt;!-- Header --&gt;
+  &lt;div class&#x3D;&quot;practice-header&quot;&gt;
+    &lt;div class&#x3D;&quot;practice-title&quot;&gt;
+      &lt;span class&#x3D;&quot;practice-badge&quot;&gt;
+        &lt;svg width&#x3D;&quot;13&quot; height&#x3D;&quot;13&quot; viewBox&#x3D;&quot;0 0 24 24&quot; fill&#x3D;&quot;none&quot; stroke&#x3D;&quot;currentColor&quot; stroke-width&#x3D;&quot;2&quot; stroke-linecap&#x3D;&quot;round&quot; stroke-linejoin&#x3D;&quot;round&quot; aria-hidden&#x3D;&quot;true&quot;&gt;
+          &lt;circle cx&#x3D;&quot;11&quot; cy&#x3D;&quot;11&quot; r&#x3D;&quot;7&quot;/&gt;&lt;path d&#x3D;&quot;m21 21-4.3-4.3&quot;/&gt;&lt;path d&#x3D;&quot;M8 11h6&quot;/&gt;
+        &lt;/svg&gt;
+        Practice
+      &lt;/span&gt;
+      &lt;span class&#x3D;&quot;status-text&quot; [class.analyzing]&#x3D;&quot;isAnalyzing()&quot; aria-live&#x3D;&quot;polite&quot;&gt;
+        @if (isAnalyzing()) {
+          &lt;span class&#x3D;&quot;analyzing-dot&quot; aria-hidden&#x3D;&quot;true&quot;&gt;&lt;/span&gt;
+          Analyzing…
+        } @else if (evaluation()) {
+          Eval &lt;strong&gt;{{ evaluation() }}&lt;/strong&gt;
+        } @else {
+          Stockfish idle
+        }
+      &lt;/span&gt;
+    &lt;/div&gt;
+    &lt;button
+      type&#x3D;&quot;button&quot;
+      class&#x3D;&quot;exit-btn&quot;
+      (click)&#x3D;&quot;exit.emit()&quot;
+      title&#x3D;&quot;Leave practice mode and return to the loaded game&quot;
+      aria-label&#x3D;&quot;Exit practice mode&quot;
+    &gt;
+      ✕ Exit
+    &lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Game over --&gt;
+  @if (result(); as gameResult) {
+    &lt;div class&#x3D;&quot;practice-result&quot;&gt;Game over: {{ gameResult }}&lt;/div&gt;
+  }
+
+  &lt;!-- Engine line --&gt;
+  &lt;div class&#x3D;&quot;engine-line&quot;&gt;
+    @if (bestMoveInfo(); as info) {
+      &lt;span class&#x3D;&quot;engine-best&quot;&gt;
+        &lt;span class&#x3D;&quot;engine-best-label&quot;&gt;Best&lt;/span&gt;
+        &lt;strong&gt;{{ info.move }}&lt;/strong&gt;
+        @if (info.score) {
+          &lt;span class&#x3D;&quot;eval-score&quot;&gt;({{ info.score }})&lt;/span&gt;
+        }
+      &lt;/span&gt;
+      &lt;span class&#x3D;&quot;pv-line&quot;&gt;
+        @for (pvMove of info.pv; track $index) {
+          &lt;span class&#x3D;&quot;pv-san&quot;&gt;{{ pvMove.san }}&lt;/span&gt;
+        }
+      &lt;/span&gt;
+    } @else if (!isAnalyzing()) {
+      &lt;span class&#x3D;&quot;engine-idle&quot;&gt;No analysis yet&lt;/span&gt;
+    }
+    &lt;label class&#x3D;&quot;depth-label&quot;&gt;
+      Depth
+      &lt;input
+        type&#x3D;&quot;number&quot;
+        [value]&#x3D;&quot;depth()&quot;
+        (input)&#x3D;&quot;onDepthChange($event)&quot;
+        min&#x3D;&quot;1&quot;
+        max&#x3D;&quot;50&quot;
+        class&#x3D;&quot;depth-input&quot;
+        aria-label&#x3D;&quot;Stockfish search depth&quot;
+      /&gt;
+    &lt;/label&gt;
+    &lt;button
+      type&#x3D;&quot;button&quot;
+      class&#x3D;&quot;action-btn&quot;
+      (click)&#x3D;&quot;reanalyze.emit()&quot;
+      title&#x3D;&quot;Re-analyze the current position&quot;
+    &gt;
+      Analyze
+    &lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Session controls --&gt;
+  &lt;div class&#x3D;&quot;session-controls&quot;&gt;
+    &lt;button
+      type&#x3D;&quot;button&quot;
+      class&#x3D;&quot;action-btn&quot;
+      (click)&#x3D;&quot;undoMove.emit()&quot;
+      [disabled]&#x3D;&quot;!hasMoves()&quot;
+      title&#x3D;&quot;Take back the last practice move&quot;
+    &gt;
+      ↶ Undo
+    &lt;/button&gt;
+    &lt;button
+      type&#x3D;&quot;button&quot;
+      class&#x3D;&quot;action-btn&quot;
+      (click)&#x3D;&quot;restart.emit()&quot;
+      [disabled]&#x3D;&quot;!hasMoves()&quot;
+      title&#x3D;&quot;Restart the practice session from its starting position&quot;
+    &gt;
+      ↺ Restart
+    &lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Move list --&gt;
+  &lt;div class&#x3D;&quot;practice-moves&quot;&gt;
+    @if (moves().length &gt; 0) {
+      &lt;div class&#x3D;&quot;moves-list&quot;&gt;
+        @for (pair of movePairs(); track pair.number) {
+          &lt;div class&#x3D;&quot;move-pair&quot;&gt;
+            &lt;span class&#x3D;&quot;move-number&quot;&gt;{{ pair.number }}.&lt;/span&gt;
+            &lt;span class&#x3D;&quot;move-san&quot;&gt;
+              {{ pair.white.san }}
+              @if (pair.white.evaluation) {
+                &lt;span class&#x3D;&quot;move-eval&quot;&gt;{{ pair.white.evaluation }}&lt;/span&gt;
+              }
+            &lt;/span&gt;
+            @if (pair.black; as blackMove) {
+              &lt;span class&#x3D;&quot;move-san&quot;&gt;
+                {{ blackMove.san }}
+                @if (blackMove.evaluation) {
+                  &lt;span class&#x3D;&quot;move-eval&quot;&gt;{{ blackMove.evaluation }}&lt;/span&gt;
+                }
+              &lt;/span&gt;
+            }
+          &lt;/div&gt;
+        }
+      &lt;/div&gt;
+    } @else {
+      &lt;div class&#x3D;&quot;empty-hint&quot;&gt;
+        Take turns — move the side to move on the board (legal moves only).
+      &lt;/div&gt;
+    }
+  &lt;/div&gt;
+
+  &lt;!-- Export --&gt;
+  &lt;div class&#x3D;&quot;export-section&quot;&gt;
+    &lt;div class&#x3D;&quot;fen-row&quot;&gt;
+      &lt;input
+        class&#x3D;&quot;fen-input&quot;
+        type&#x3D;&quot;text&quot;
+        readonly
+        [value]&#x3D;&quot;fen()&quot;
+        (focus)&#x3D;&quot;selectFen($event)&quot;
+        aria-label&#x3D;&quot;Current position FEN&quot;
+        spellcheck&#x3D;&quot;false&quot;
+      /&gt;
+      &lt;button
+        type&#x3D;&quot;button&quot;
+        class&#x3D;&quot;action-btn&quot;
+        (click)&#x3D;&quot;copyFen.emit()&quot;
+        title&#x3D;&quot;Copy the current FEN to the clipboard&quot;
+      &gt;
+        Copy FEN
+      &lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class&#x3D;&quot;export-buttons&quot;&gt;
+      &lt;button
+        type&#x3D;&quot;button&quot;
+        class&#x3D;&quot;action-btn&quot;
+        (click)&#x3D;&quot;copyMoves.emit()&quot;
+        [disabled]&#x3D;&quot;!hasMoves()&quot;
+        title&#x3D;&quot;Copy the move list to the clipboard&quot;
+      &gt;
+        Copy moves
+      &lt;/button&gt;
+      &lt;button
+        type&#x3D;&quot;button&quot;
+        class&#x3D;&quot;action-btn&quot;
+        (click)&#x3D;&quot;copyPgn.emit()&quot;
+        [disabled]&#x3D;&quot;!hasMoves()&quot;
+        title&#x3D;&quot;Copy the full PGN (with evaluations) to the clipboard&quot;
+      &gt;
+        Copy PGN
+      &lt;/button&gt;
+      &lt;button
+        type&#x3D;&quot;button&quot;
+        class&#x3D;&quot;action-btn&quot;
+        (click)&#x3D;&quot;downloadPgn.emit()&quot;
+        [disabled]&#x3D;&quot;!hasMoves()&quot;
+        title&#x3D;&quot;Download the analysis as a PGN file&quot;
+      &gt;
+        Download PGN
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="practice-panel" role="region" aria-label="Practice mode">  <!-- Header -->  <div class="practice-header">    <div class="practice-title">      <span class="practice-badge">        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/>        </svg>        Practice      </span>      <span class="status-text" [class.analyzing]="isAnalyzing()" aria-live="polite">        @if (isAnalyzing()) {          <span class="analyzing-dot" aria-hidden="true"></span>          Analyzing…        } @else if (evaluation()) {          Eval <strong>{{ evaluation() }}</strong>        } @else {          Stockfish idle        }      </span>    </div>    <button      type="button"      class="exit-btn"      (click)="exit.emit()"      title="Leave practice mode and return to the loaded game"      aria-label="Exit practice mode"    >      ✕ Exit    </button>  </div>  <!-- Game over -->  @if (result(); as gameResult) {    <div class="practice-result">Game over: {{ gameResult }}</div>  }  <!-- Engine line -->  <div class="engine-line">    @if (bestMoveInfo(); as info) {      <span class="engine-best">        <span class="engine-best-label">Best</span>        <strong>{{ info.move }}</strong>        @if (info.score) {          <span class="eval-score">({{ info.score }})</span>        }      </span>      <span class="pv-line">        @for (pvMove of info.pv; track $index) {          <span class="pv-san">{{ pvMove.san }}</span>        }      </span>    } @else if (!isAnalyzing()) {      <span class="engine-idle">No analysis yet</span>    }    <label class="depth-label">      Depth      <input        type="number"        [value]="depth()"        (input)="onDepthChange($event)"        min="1"        max="50"        class="depth-input"        aria-label="Stockfish search depth"      />    </label>    <button      type="button"      class="action-btn"      (click)="reanalyze.emit()"      title="Re-analyze the current position"    >      Analyze    </button>  </div>  <!-- Session controls -->  <div class="session-controls">    <button      type="button"      class="action-btn"      (click)="undoMove.emit()"      [disabled]="!hasMoves()"      title="Take back the last practice move"    >      ↶ Undo    </button>    <button      type="button"      class="action-btn"      (click)="restart.emit()"      [disabled]="!hasMoves()"      title="Restart the practice session from its starting position"    >      ↺ Restart    </button>  </div>  <!-- Move list -->  <div class="practice-moves">    @if (moves().length > 0) {      <div class="moves-list">        @for (pair of movePairs(); track pair.number) {          <div class="move-pair">            <span class="move-number">{{ pair.number }}.</span>            <span class="move-san">              {{ pair.white.san }}              @if (pair.white.evaluation) {                <span class="move-eval">{{ pair.white.evaluation }}</span>              }            </span>            @if (pair.black; as blackMove) {              <span class="move-san">                {{ blackMove.san }}                @if (blackMove.evaluation) {                  <span class="move-eval">{{ blackMove.evaluation }}</span>                }              </span>            }          </div>        }      </div>    } @else {      <div class="empty-hint">        Take turns — move the side to move on the board (legal moves only).      </div>    }  </div>  <!-- Export -->  <div class="export-section">    <div class="fen-row">      <input        class="fen-input"        type="text"        readonly        [value]="fen()"        (focus)="selectFen($event)"        aria-label="Current position FEN"        spellcheck="false"      />      <button        type="button"        class="action-btn"        (click)="copyFen.emit()"        title="Copy the current FEN to the clipboard"      >        Copy FEN      </button>    </div>    <div class="export-buttons">      <button        type="button"        class="action-btn"        (click)="copyMoves.emit()"        [disabled]="!hasMoves()"        title="Copy the move list to the clipboard"      >        Copy moves      </button>      <button        type="button"        class="action-btn"        (click)="copyPgn.emit()"        [disabled]="!hasMoves()"        title="Copy the full PGN (with evaluations) to the clipboard"      >        Copy PGN      </button>      <button        type="button"        class="action-btn"        (click)="downloadPgn.emit()"        [disabled]="!hasMoves()"        title="Download the analysis as a PGN file"      >        Download PGN      </button>    </div>  </div></div></div>'
+    var COMPONENTS = [{'name': 'BoardDisplayComponent', 'selector': 'board-display'},{'name': 'EvaluationBarComponent', 'selector': 'evaluation-bar'},{'name': 'GameFilterPanelComponent', 'selector': 'game-filter-panel'},{'name': 'LoadCachePanelComponent', 'selector': 'load-cache-panel'},{'name': 'MoveListComponent', 'selector': 'move-list'},{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'},{'name': 'NgxPgnViewerComponent', 'selector': 'ngx-pgn-viewer'},{'name': 'PlayerTypeaheadComponent', 'selector': 'player-typeahead'},{'name': 'PracticePanelComponent', 'selector': 'practice-panel'},{'name': 'PromotionDialogComponent', 'selector': 'ngx-promotion-dialog'},{'name': 'ReplayPanelComponent', 'selector': 'replay-panel'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'PracticePanelComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'PracticePanelComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

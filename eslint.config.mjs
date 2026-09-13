@@ -79,7 +79,9 @@ export default ts.config(
 			],
 			'@typescript-eslint/no-empty-object-type': 'off',
 			'no-useless-escape': 'off',
-			'no-console': ['error', { allow: ['error'] }],
+			// `info`/`warn` are permitted for the library's default notification
+			// sink and for deliberate diagnostics; `log`/`debug` stay banned.
+			'no-console': ['error', { allow: ['error', 'warn', 'info'] }],
 		},
 	},
 	// HTML template files

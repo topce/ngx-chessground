@@ -39,7 +39,7 @@
     <!-- Center: Board -->
     <div class="board-area">
       <div class="board-frame">
-        <ngx-chessground #chess></ngx-chessground>
+        <ngx-chessground #chess [runFunction]="runFunction()" />
       </div>
       <div class="board-hint">Select a unit from either panel to execute</div>
     </div>

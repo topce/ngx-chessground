@@ -9,26 +9,47 @@ import { PgnViewerStoreService } from './pgn-viewer-store.service';
  * migrated in future versions.
  */
 export interface PersistedFilterState {
+	/** White-player name filter; `''` means unset. */
 	white: string;
+	/** Black-player name filter; `''` means unset. */
 	black: string;
+	/** Selected results, any of `'1-0'`, `'0-1'`, `'draw'`, `'*'`; empty means no result filter. */
 	result: string[];
+	/** Whether the opening-move prefix filter was active. */
 	moves: boolean;
+	/** Whether player names were matched against either colour. */
 	ignoreColor: boolean;
+	/** Whether upset filtering was enabled. */
 	upsetEnabled: boolean;
+	/** Whether upsets won by the lower-rated player were included. */
 	upsetWin: boolean;
+	/** Whether upsets drawn by the lower-rated player were included. */
 	upsetDraw: boolean;
+	/** Minimum Elo gap for a game to count as an upset, as entered (string form field). */
 	upsetMinDiff: string;
+	/** Whether rating-range filtering was enabled. */
 	ratingEnabled: boolean;
+	/** Lower bound of the White rating range, as entered. */
 	whiteRating: string;
+	/** Lower bound of the Black rating range, as entered. */
 	blackRating: string;
+	/** Upper bound of the White rating range, as entered. */
 	whiteRatingMax: string;
+	/** Upper bound of the Black rating range, as entered. */
 	blackRatingMax: string;
+	/** Selected ECO code, or `''` for none. */
 	eco: string;
+	/** Selected time-control keys, e.g. `['180+2', '300+0']`; empty means no filter. */
 	timeControl: string[];
+	/** Selected event name, or `''` for none. */
 	event: string;
+	/** Selected broadcast name, or `''` for none. */
 	broadcastName: string;
+	/** Position (FEN) filter value, or `''` for none. */
 	fen: string;
+	/** Whether position filtering was enabled. */
 	byFenEnabled: boolean;
+	/** Whether the game list was sorted ascending. */
 	sortAscending: boolean;
 }
 
@@ -48,6 +69,7 @@ export interface PersistedViewerState {
 	lichessYear: number;
 	/** Last selected Lichess archive month (1-12). */
 	lichessMonth: number;
+	/** Filter selection carried over from the previous session. */
 	filters: PersistedFilterState;
 }
 
@@ -82,24 +104,60 @@ export const DEFAULT_PERSISTED_FILTER_STATE: PersistedFilterState = {
 	sortAscending: false,
 };
 
+/**
+ * Coerces a persisted value to a string.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @param fallback — Returned when `value` is not a string.
+ */
 function asString(value: unknown, fallback: string): string {
 	return typeof value === 'string' ? value : fallback;
 }
 
+/**
+ * Coerces a persisted value to a boolean.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @param fallback — Returned when `value` is not a boolean.
+ */
 function asBoolean(value: unknown, fallback: boolean): boolean {
 	return typeof value === 'boolean' ? value : fallback;
 }
 
+/**
+ * Coerces a persisted value to a finite number.
+ *
+ * `NaN` and `Infinity` count as invalid, so a corrupt payload cannot turn a
+ * picker bound to this value into a permanently broken state.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @param fallback — Returned when `value` is not a finite number.
+ */
 function asNumber(value: unknown, fallback: number): number {
 	return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
 
+/**
+ * Coerces a persisted value to an array of strings.
+ *
+ * Non-string entries are dropped rather than stringified, so a hand-edited
+ * payload cannot inject objects into a filter list.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @param fallback — Copied and returned when `value` is not an array.
+ */
 function asStringArray(value: unknown, fallback: string[]): string[] {
 	return Array.isArray(value)
 		? value.filter((entry): entry is string => typeof entry === 'string')
 		: [...fallback];
 }
 
+/**
+ * Coerces a persisted value to a plain record.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @returns The value when it is a non-null object, otherwise `{}`.
+ */
 function asRecord(value: unknown): Record<string, unknown> {
 	return value !== null && typeof value === 'object'
 		? (value as Record<string, unknown>)
@@ -123,6 +181,7 @@ function asRecord(value: unknown): Record<string, unknown> {
  */
 @Injectable({ providedIn: 'root' })
 export class PgnViewerSettingsService {
+	/** Durable key/value store backing {@link load} and {@link save}. */
 	private readonly store = inject(PgnViewerStoreService);
 
 	/**

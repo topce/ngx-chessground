@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { PromotionService } from './promotion.service';
 
@@ -30,5 +30,20 @@ describe('PromotionService', () => {
 
 		const service = TestBed.inject(PromotionService);
 		await expect(service.showPromotionDialog('black')).resolves.toBe('q');
+	});
+
+	it('resolves to a queen instead of rejecting when the dialog stream errors', async () => {
+		const open = vi.fn().mockReturnValue({
+			afterClosed: () => throwError(() => new Error('dialog torn down')),
+		});
+
+		TestBed.configureTestingModule({
+			providers: [{ provide: MatDialog, useValue: { open } }],
+		});
+
+		const service = TestBed.inject(PromotionService);
+		// A rejection here would strand the caller's promise chain and leave the
+		// board stuck mid-promotion, so the error must be absorbed.
+		await expect(service.showPromotionDialog('white')).resolves.toBe('q');
 	});
 });

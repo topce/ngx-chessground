@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { booleanAttribute, Component, computed, input } from '@angular/core';
 
 /**
  * Vertical evaluation bar showing the current position evaluation.
@@ -25,7 +25,7 @@ export class EvaluationBarComponent {
 	readonly evaluation = input<string | null>(null);
 
 	/** Whether the board is flipped (black at bottom). Flips the bar. */
-	readonly flipped = input<boolean>(false);
+	readonly flipped = input(false, { transform: booleanAttribute });
 
 	/** Height percentage for the fill (0 = all black, 100 = all white, 50 = equal). */
 	readonly barHeight = computed(() => {

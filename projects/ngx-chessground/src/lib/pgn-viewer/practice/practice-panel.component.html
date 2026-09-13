@@ -81,7 +81,7 @@
       type="button"
       class="action-btn"
       (click)="undoMove.emit()"
-      [disabled]="!canUndo()"
+      [disabled]="!hasMoves()"
       title="Take back the last practice move"
     >
       ↶ Undo

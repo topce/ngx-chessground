@@ -39,22 +39,33 @@ Live demo with a full PGN viewer: [https://topce.github.io/ngx-chessground/](htt
 ## Installation
 
 ```bash
-npm install ngx-chessground chess.js chessground snabbdom
+npm install ngx-chessground chess.js chessground snabbdom chessops
 ```
 
 **Peer dependencies** (must be installed alongside):
 
-| Package | Version |
-|---------|---------|
-| `@angular/common` | `^21.0.0` |
-| `@angular/core` | `^21.0.0` |
-| `chess.js` | `1.4.0` |
-| `chessground` | `9.2.1` |
-| `snabbdom` | `3.6.3` |
-| `fzstd` | `^0.1.1` |
-| `jszip` | `^3.10.1` |
+| Package | Version | Required for |
+|---------|---------|--------------|
+| `@angular/common` | `^22.0.0` | all components |
+| `@angular/core` | `^22.0.0` | all components |
+| `chess.js` | `1.4.0` | all components |
+| `chessground` | `9.2.1` | all components |
+| `snabbdom` | `3.6.3` | `NgxChessgroundComponent` |
+| `chessops` | `^0.15.0` | `NgxPgnViewerComponent` (PGN parsing fallback) |
+| `fzstd` | `^0.1.1` | `NgxPgnViewerComponent` (`.zst` archives) — optional |
+| `jszip` | `^3.10.1` | `NgxPgnViewerComponent` (ZIP input) — optional |
+| `@angular/material` | `^22.0.0` | `PromotionDialogComponent` only — optional |
+| `@angular/cdk` | `^22.0.0` | `PromotionDialogComponent` only — optional |
 
-> **Note**: `fzstd` and `jszip` are only required when using the `NgxPgnViewerComponent` (for compressed PGN/ZIP support).
+> **Optional peers.** `fzstd`, `jszip`, `@angular/material` and `@angular/cdk`
+> are declared optional: the board components install and run without them.
+> npm skips optional peers that are missing, so a board-only consumer
+> (`NgxChessgroundComponent`, `NgxChessgroundTableComponent`) needs only the
+> first five. Install Material + CDK only if you use the promotion dialog, and
+> `fzstd`/`jszip` only if you load compressed archives.
+>
+> The `NgxPgnViewerComponent` itself has **no** Material dependency — messages
+> default to the console and can be routed anywhere via `PGN_VIEWER_NOTIFIER`.
 
 ---
 
@@ -105,7 +116,7 @@ The fundamental chessboard component. It manages the DOM element and delegates c
 
 | Input | Type | Description |
 |-------|------|-------------|
-| `runFunction` | `(el: HTMLElement) => Api` | **Required (signal-based model).** Function called with the board container element. Must create a chessground instance and return its `Api`. |
+| `runFunction` | `(el: HTMLElement) => Api` | **Required** (`input.required`). Function called with the board container element. Must create a chessground instance and return its `Api`. Omitting it is a compile-time error. |
 | `config` | `Partial<Config>` | **Optional.** When its identity changes, the config is applied to the *existing* instance in place via `Api.set()` — preserving animations and drag & drop state, without the cost of recreating the instance. Preferred for position/move updates. |
 
 #### Properties / Methods
@@ -160,8 +171,10 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `activeColor` | `Signal<'white' \| 'black'>` | Current turn color (computed from FEN). |
 | `isReplaying` | `Signal<boolean>` | Whether auto-replay is active. |
 | `replayMode` | `Signal<'fixed' \| 'realtime' \| 'proportional'>` | Replay timing mode. |
-| `minSeconds` | `Signal<number>` | Minimum seconds between moves (default: 2). |
-| `replaySpeed` | `Signal<number>` | Scaled speed factor for proportional replay. |
+| `minSecondsBetweenMoves` | `Signal<number>` | Minimum seconds between moves (default: 1). |
+| `proportionalDuration` | `Signal<number>` | Target duration in seconds for proportional replay (default: 1). |
+| `fixedTime` | `Signal<number>` | Seconds per move in `fixed` mode (default: 1). |
+| `fastTime` | `Signal<number>` | Seconds per move in `fast` mode (default: 0.3). |
 | `stopOnError` | `Signal<boolean>` | When true, auto-replay halts on significant evaluation drops. |
 | `stopOnErrorThreshold` | `Signal<number>` | Evaluation drop threshold (in pawns) for stop-on-error. |
 | `stopOnErrorSide` | `Signal<'both' | 'white' | 'black'>` | Which side's errors trigger stop-on-error: both, White only, or Black only (default: `'both'`). |
@@ -172,7 +185,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `stockfishDepth` | `Signal<number>` | Stockfish search depth (default: 18). |
 | `evaluations` | `Signal<(string \| null)[]>` | Array of evaluation strings per move. |
 | `currentEvaluation` | `Signal<string \| null>` | Evaluation at the current move (computed). |
-| `evaluationBarHeight` | `Signal<number>` | Evaluation bar height as percentage (computed). |
+| `filterResult` | `Signal<string[]>` | Result filter — any of `'1-0'`, `'0-1'`, `'draw'`, `'*'`. An empty array means no result filter. |
 | `currentGameIndex` | `Signal<number>` | Index of the currently loaded game in a multi-game PGN. |
 | `gamesMetadata` | `Signal<GameMetadata[]>` | Parsed game metadata list from the loaded PGN. |
 | `filteredGamesIndices` | `Signal<number[]>` | Indices of games matching current filters. |
@@ -183,7 +196,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `loadingStatus` | `Signal<string>` | Loading status message. |
 | `filterWhite` / `filterBlack` | `Signal<string>` | Player name filter strings. |
 | `filterEco` | `Signal<string>` | ECO code filter string. |
-| `includeDraws` | `Signal<boolean>` | Whether to include drawn games in filtered results (default: `true`). |
+| `indexStartPositions` | `WritableSignal<boolean>` | Build a starting-position FEN index. Defaults to `true` in the packaged desktop app, `false` on the web. |
 | `filterMoves` | `Signal<boolean>` | Whether opening-move filtering is active. |
 | `selectedGames` | `Signal<Set<number>>` | Set of selected game indices for batch operations. |
 | `practiceMode` | `Signal<boolean>` | Whether practice mode (turn-based play with continuous Stockfish analysis) is active. |
@@ -192,33 +205,93 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `practiceEvaluation` | `Signal<string \| null>` | Stockfish evaluation of the current practice position (White's perspective). |
 | `practiceResult` | `Signal<string \| null>` | Game result of the practice position (`'1-0'`, `'0-1'`, `'1/2-1/2'`) or null while ongoing. |
 | `boardEvaluation` | `Signal<string \| null>` | Evaluation shown on the evaluation bar (practice eval while practicing). |
+| `maxFenPlies` | `WritableSignal<number>` | Max half-moves replayed per game when indexing (default: 30). |
+
+#### Outputs
+
+| Output | Payload | Description |
+|--------|---------|-------------|
+| `stateRestored` | `void` | Fires once when durable state (persisted filters, source URL, cache bookmarks) has been restored. Reactive alternative to `await whenStateReady()`. |
+| `loadStarted` | `{ status: string }` | A load has begun. |
+| `loadProgress` | `{ percent: number; status: string }` | Load progress advanced. |
+| `loadFailed` | `PgnViewerError` | A load failed. The single place to handle load errors programmatically. |
 
 #### Methods
 
+These are the supported entry points. Everything the template needs (move
+navigation, replay controls, practice controls, panel resizing) is `protected`
+and intentionally **not** part of the public API.
+
 | Method | Description |
 |--------|-------------|
-| `next()` | Advance to the next move. |
-| `prev()` | Go back one move. |
-| `start()` | Jump to the start position of the current game. |
-| `end()` | Jump to the end of the current game. |
-| `replayGame()` | Begin auto-replay from the start using the current `replayMode`. |
-| `continueReplay()` | Resume replay from the current position. |
-| `stopReplay(resolvePromise = true)` | Stop the active replay. |
-| `stopSequence()` | Stop batch replay across multiple games. |
-| `loadGame(index: number)` | Load a specific game by index from the parsed game list. |
-| `startPractice()` | Enter practice mode from the currently displayed position and start Stockfish analysis. |
-| `exitPractice()` | Leave practice mode and restore the loaded game position. |
-| `undoPracticeMove()` | Take back the last practice move and re-analyze the resulting position. |
-| `restartPractice()` | Restart the practice session from the position where it started. |
-| `reanalyzePracticePosition()` | Re-analyze the current practice position (e.g. after a depth change). |
-| `copyPracticeFen()` | Copy the current practice FEN to the clipboard. |
-| `copyPracticeMoves()` | Copy the practice move list (SAN) to the clipboard. |
-| `copyPracticePgn()` | Copy the full practice PGN (with evaluation comments) to the clipboard. |
-| `downloadPracticePgn()` | Download the practice session as a PGN file. |
+| `load(source, options?)` | Load a PGN source. The single entry point for getting data in; awaits state hydration internally. See below. |
+| `loadFromUrl()` | Reload the URL currently shown in the URL field. Prefer `load({ kind: 'url', url })`. |
+| `whenStateReady()` | Resolves once durable state has been restored. `load()` awaits this for you. |
+| `canLoadFromCache(url)` | Whether a source is already parsed and cached, so a load needs no network round trip. |
+| `clearPgnCache()` | Clear parsed-game caches (IndexedDB, or the desktop on-disk cache). |
+| `flipBoard()` / `toggle3d()` | Toggle board orientation / 3D pieces. |
+| `restoredStateFromStorage` | `true` when a previous session's state was restored on startup. |
+
+##### Loading a source
+
+`PgnSource` is a discriminated union, so an ambiguous load is a type error
+rather than a silent no-op:
+
+```typescript
+await viewer.load({ kind: 'url', url: 'lichess/broadcast/lichess_db_broadcast_2026-08.pgn.zst' });
+await viewer.load({ kind: 'pgn', text: pgnString });
+await viewer.load({ kind: 'file', file: input.files[0] });
+```
+
+Per-call overrides are available without touching component state:
+
+```typescript
+await viewer.load({ kind: 'url', url }, { indexStartPositions: true, maxFenPlies: 40 });
+```
+
+Failures never reject. Handle them through the output:
+
+```html
+<ngx-pgn-viewer (loadFailed)="onLoadFailed($event)" />
+```
+
+```typescript
+onLoadFailed(error: PgnViewerError) {
+  // error.code is 'DOWNLOAD_FAILED' | 'PARSE_FAILED' | 'CACHE_FAILED'
+  //            | 'ENGINE_FAILED'   | 'INVALID_SOURCE'
+  console.error(error.code, error.message, error.cause);
+}
+```
+
+##### Notifications
+
+The viewer does not depend on a UI toolkit. Messages default to the console;
+route them into your own notification system with `PGN_VIEWER_NOTIFIER`:
+
+```typescript
+import { inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { PGN_VIEWER_NOTIFIER, type PgnViewerNotice } from 'ngx-chessground';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    {
+      provide: PGN_VIEWER_NOTIFIER,
+      useFactory: () => {
+        const snackBar = inject(MatSnackBar);
+        return {
+          notify: (notice: PgnViewerNotice) =>
+            void snackBar.open(notice.message, 'Dismiss', { duration: notice.durationMs }),
+        };
+      },
+    },
+  ],
+};
+```
 
 #### Replay Modes
 
-- **`fixed`** — Each move is played at `minSeconds` intervals.
+- **`fixed`** — Each move is played at `minSecondsBetweenMoves` intervals.
 - **`realtime`** — Replays at the original game time (requires clock data in the PGN).
 - **`proportional`** — Scales the game duration to fit a target speed, respecting relative move timings.
 
@@ -226,7 +299,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 
 When `stopOnError` is enabled, the viewer spawns a Stockfish web worker. During auto-replay, it compares successive position evaluations. If the evaluation drops more than `stopOnErrorThreshold` pawns (default: 1.0) for the side configured by `stopOnErrorSide`, the replay halts and the UI displays Stockfish's suggested best move and principal variation. An "error" is attributed to the player who just moved: White errors when the evaluation (from White's perspective) drops after a White move, Black errors when it rises after a Black move. `stopOnErrorSide` accepts `'both'` (default), `'white'` (only White's errors), or `'black'` (only Black's errors).
 
-**Requirements**: Stockfish 18 single-threaded from [nmrugg/stockfish.js](https://github.com/nmrugg/stockfish.js) (`stockfish-18-single.js` + `stockfish-18-single.wasm`) must be served at `assets/stockfish/stockfish.js` and `assets/stockfish/stockfish.wasm`. The library ships these files (renamed) in its assets directory.
+**Requirements**: Stockfish single-threaded from [nmrugg/stockfish.js](https://github.com/nmrugg/stockfish.js) must be served at `assets/stockfish/stockfish.js` and `assets/stockfish/stockfish.wasm`. The library ships these files (renamed) in its assets directory.
 
 **Credits**: Stockfish © T. Romstad, M. Costalba, J. Kiiski, G. Linscott & contributors. JS/WASM build by [nmrugg](https://github.com/nmrugg/stockfish.js) (© Chess.com, LLC). Licensed under GPLv3.
 

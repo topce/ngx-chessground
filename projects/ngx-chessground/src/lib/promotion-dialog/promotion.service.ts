@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { firstValueFrom } from 'rxjs';
 import {
 	PromotionDialogComponent,
 	type PromotionDialogData,
@@ -47,7 +46,14 @@ export class PromotionService {
 			data: { color } as PromotionDialogData,
 		});
 
-		const result = await firstValueFrom(dialogRef.afterClosed());
+		// `afterClosed()` emits exactly once and completes, so the first value
+		// can be unwrapped straight into a Promise — no `rxjs` import needed.
+		const result = await new Promise<PromotionPiece | undefined>((resolve) => {
+			dialogRef.afterClosed().subscribe({
+				next: (value: PromotionPiece | undefined) => resolve(value),
+				error: () => resolve(undefined),
+			});
+		});
 		return result ?? 'q'; // Default to queen if dialog is closed without selection
 	}
 }

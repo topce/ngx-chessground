@@ -54,12 +54,17 @@ export interface PgnSourceCacheEntry {
  * Cache entry stored in IndexedDB, keyed by PGN content hash.
  */
 interface CacheEntry {
+	/** SHA-256 hash of the PGN content; also the object-store key. */
 	pgnHash: string;
+	/** The parsed games, metadata and FEN index. */
 	data: CachedPgnData;
 }
 
+/** IndexedDB database holding parsed PGN collections. */
 const DB_NAME = 'NgxChessgroundPgnCache';
+/** Schema version; bump together with an `onupgradeneeded` migration. */
 const DB_VERSION = 1;
+/** Object store (and `createdAt` index) holding {@link CacheEntry} records. */
 const STORE_NAME = 'pgn_cache';
 /** Maximum age for cache entries: 7 days. */
 const DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -80,7 +85,9 @@ const MAX_SOURCE_ENTRIES = 20;
  */
 @Injectable({ providedIn: 'root' })
 export class PgnCacheService {
+	/** Durable store used for the URL → content-hash bookmark map. */
 	private readonly store = inject(PgnViewerStoreService);
+	/** Cached open handle, so the database is opened at most once. */
 	private dbPromise: Promise<IDBDatabase> | null = null;
 
 	/**

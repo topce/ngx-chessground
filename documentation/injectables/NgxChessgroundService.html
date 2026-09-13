@@ -12,10 +12,75 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-        <div class="navbar navbar-default navbar-fixed-top visible-xs">
-            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -24,7 +89,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="hidden-xs menu">
+               <div class="d-none d-md-block menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -37,22 +102,33 @@
 
 
 
+
+
+
+
+
 <ol class="breadcrumb">
-  <li>Injectables</li>
-  <li >NgxChessgroundService</li>
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >NgxChessgroundService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
         </li>
-        <li >
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="c-info">
+    <div class="tab-pane fade active in" id="info">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -67,15 +143,22 @@
             <p class="comment">
                 <p>Service to manage the Chessground instance and its rendering.</p>
 <p>Wraps snabbdom patching and chessground lifecycle. Each <a href="../components/NgxChessgroundComponent.html">NgxChessgroundComponent</a>
-instance creates its own service instance (provided at component level).
-Public methods (<code>redraw</code>, <code>toggleOrientation</code>) are called by the component;
-private helpers manage the virtual DOM tree and the chessground <code>Api</code> handle.</p>
+instance creates its own service instance (provided at component level).</p>
+<p>On the first <a href="redraw">redraw</a> call, the service creates the virtual DOM tree
+and patches it into the real DOM via snabbdom. The <code>insert</code> hook initializes
+the Chessground instance by invoking the provided run function. On subsequent
+calls with a <em>different</em> run function, the previous Chessground instance is
+destroyed first (unbinding its document listeners) before the new one is
+created — a stale instance is never left behind, which keeps drag &amp; drop
+responsive. Position updates should flow through <a href="setConfig">setConfig</a>, which
+reconfigures the live instance in place via <a href="Api.set">Api.set</a> instead of
+recreating it.</p>
 
             </p>
 
 
 
-            <section>
+            <section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -89,12 +172,20 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Private</span>
+                                <a href="#boardEl" >boardEl</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                 <a href="#cg" >cg</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Readonly</span>
                                 <a href="#patch" >patch</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#pendingConfig" >pendingConfig</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -123,11 +214,19 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Public</span>
+                                <a href="#ngOnDestroy" >ngOnDestroy</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
                                 <a href="#redraw" >redraw</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
                                 <a href="#render" >render</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#setConfig" >setConfig</a>
                             </li>
                             <li>
                                     <span class="modifier">Public</span>
@@ -146,7 +245,7 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
 </section>
 
 
-            <section>
+            <section data-compodoc="block-methods">
     
     <h3 id="methods">
         Methods
@@ -155,9 +254,52 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="ngOnDestroy"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>ngOnDestroy</b></span>
+                        <a href="#ngOnDestroy"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>ngOnDestroy()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="144"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:144</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Destroys the Chessground instance and releases resources.</p>
+<p>Called by Angular when the owning component is destroyed. Unbinds the
+instance&#39;s document listeners so no orphaned drag handlers remain.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="redraw"></a>
                     <span class="name">
-                        <span class="modifier">Public</span>
+                            <span class="modifier">Public</span>
                         <span ><b>redraw</b></span>
                         <a href="#redraw"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -165,86 +307,89 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <span class="modifier-icon icon ion-ios-reset"></span>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
                     <code>redraw(element: HTMLElement, runFn: (el: HTMLElement) => void)</code>
                 </td>
             </tr>
 
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="56"
-                            class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:56</a></div>
-                </td>
-            </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:88</a></div>
+                        </td>
+                    </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Redraws the Chessground board on the given element.</p>
+                        <div class="io-description"><p>Redraws the Chessground board on the given element.</p>
+<p>On the first call, creates the vnode tree, patches into the DOM, and
+initializes the Chessground instance via snabbdom hooks. On subsequent
+calls with a different run function, the previous instance is destroyed
+and recreated in place so no orphaned instance keeps its document
+listeners bound. Calls with the same run function are no-ops.</p>
 </div>
 
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                    <td>Description</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>element</td>
-                                    <td>
-                                            <code>HTMLElement</code>
-                                    </td>
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>element</td>
+                                            <td>
+                                                        <code>HTMLElement</code>
+                                            </td>
 
-                                    <td>
-                                        No
-                                    </td>
+                                            <td>
+                                                    No
+                                            </td>
 
 
-                                    <td>
-                                        <ul>
+                                            <td>
+                                                    <ul>
 <li>The HTML element to render the Chessground board on.</li>
 </ul>
 
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>runFn</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
-                                    </td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>runFn</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+                                            </td>
 
-                                    <td>
-                                        No
-                                    </td>
+                                            <td>
+                                                    No
+                                            </td>
 
 
-                                    <td>
-                                        <ul>
+                                            <td>
+                                                    <ul>
 <li>The function to run on the HTMLElement.</li>
 </ul>
 
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -255,7 +400,7 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                 <td class="col-md-4">
                     <a name="render"></a>
                     <span class="name">
-                        <span class="modifier">Private</span>
+                            <span class="modifier">Private</span>
                         <span ><b>render</b></span>
                         <a href="#render"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -263,35 +408,115 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <span class="modifier-icon icon ion-ios-reset"></span>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
                     <code>render()</code>
                 </td>
             </tr>
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="158"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:158</a></div>
+                        </td>
+                    </tr>
+
+
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="74"
-                            class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:74</a></div>
+                        <div class="io-description"><p>Renders the virtual node for the Chessground board.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>VNode</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The virtual node representing the Chessground board.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>setConfig</b></span>
+                        <a href="#setConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>setConfig(config: Partial<Config>)</code>
                 </td>
             </tr>
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="116"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:116</a></div>
+                        </td>
+                    </tr>
+
+
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Renders the virtual node for the Chessground board.</p>
+                        <div class="io-description"><p>Reconfigures the live Chessground instance in place via <a href="Api.set">Api.set</a>.</p>
+<p>This is the preferred way to update the position, orientation, movable
+destinations etc. — it keeps animations and drag &amp; drop state intact and
+avoids the cost of recreating the whole instance. If the instance has not
+been created yet, the config is stored and applied right after creation.</p>
 </div>
 
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>    <code>VNode</code>
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                        <code>Partial&lt;Config&gt;</code>
+                                            </td>
 
-                    </div>
-                    <div class="io-description">
-                        <p>The virtual node representing the Chessground board.</p>
+                                            <td>
+                                                    No
+                                            </td>
 
-                    </div>
+
+                                            <td>
+                                                    <ul>
+<li>Partial Chessground config to merge into the instance.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -302,7 +527,7 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                 <td class="col-md-4">
                     <a name="toggleOrientation"></a>
                     <span class="name">
-                        <span class="modifier">Public</span>
+                            <span class="modifier">Public</span>
                         <span ><b>toggleOrientation</b></span>
                         <a href="#toggleOrientation"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -310,39 +535,78 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <span class="modifier-icon icon ion-ios-reset"></span>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
                     <code>toggleOrientation()</code>
                 </td>
             </tr>
 
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="65"
-                            class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:65</a></div>
-                </td>
-            </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:133</a></div>
+                        </td>
+                    </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Toggles the orientation of the Chessground board.</p>
+                        <div class="io-description"><p>Toggles the orientation of the Chessground board.</p>
 </div>
 
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
-                    </div>
+                        </div>
                 </td>
             </tr>
         </tbody>
     </table>
 </section>
-            <section>
+            <section data-compodoc="block-properties">
     
     <h3 id="inputs">
         Properties
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="boardEl"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>boardEl</b></span>
+                        <a href="#boardEl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>HTMLElement | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:61</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Reference to the <code>.cg-wrap</code> DOM element that hosts the chessboard.
+Captured by the snabbdom hook and reused for in-place updates.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -363,13 +627,14 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:54</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Chessground API instance.</p>
+                    <div class="io-description"><p>Chessground API instance.
+Set by the snabbdom <code>insert</code> hook during first render.</p>
 </div>
                 </td>
             </tr>
@@ -391,6 +656,12 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
             </tr>
                 <tr>
                     <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
                         <i>Default value : </i><code>init([
 		classModule,
 		attributesModule,
@@ -400,13 +671,52 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:27</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:35</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Initializes the patch function with the necessary modules.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="pendingConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>pendingConfig</b></span>
+                        <a href="#pendingConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Partial&lt;Config&gt; | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:74</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Config applied via <a href="setConfig">setConfig</a> before the Chessground instance
+existed; flushed once the instance is created.</p>
 </div>
                 </td>
             </tr>
@@ -433,13 +743,13 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:67</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Function to run on the HTMLElement.</p>
+                    <div class="io-description"><p>Function to run on the HTMLElement to configure chessground.</p>
 </div>
                 </td>
             </tr>
@@ -461,18 +771,28 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
             </tr>
                 <tr>
                     <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
                         <i>Default value : </i><code>() &#x3D;&gt; {...}</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="94" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:94</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="184" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:184</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Runs the provided function on the virtual node&#39;s element.</p>
+                    <div class="io-description"><p>Snabbdom hook called on both <code>insert</code> and <code>postpatch</code>.</p>
+<p>On insert (first render): initializes the Chessground instance by running
+the configured run function and stores a reference to it (and the board
+element) for later in-place updates. On postpatch: the instance already
+exists, so nothing is re-created.</p>
 </div>
                 </td>
             </tr>
@@ -499,10 +819,10 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                                                     </td>
                                             </tr>
                                             <tr>
-                                                    <td>_ignore</td>
+                                                    <td>oldVnode</td>
                                                     <td>
                                                             <code><ul>
-<li>An optional parameter to ignore.</li>
+<li>The previous virtual node (only present on postpatch).</li>
 </ul>
 </code>
                                                     </td>
@@ -534,13 +854,14 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/ngx-chessground.service.ts:47</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Virtual node representing the current state of the DOM.</p>
+                    <div class="io-description"><p>Virtual node representing the current state of the DOM.
+Set after the first <a href="redraw">redraw</a>. Read by the patch lifecycle.</p>
 </div>
                 </td>
             </tr>
@@ -552,10 +873,10 @@ private helpers manage the virtual DOM tree and the chessground <code>Api</code>
     </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@angular/core&#x27;;
-import { Chessground } from &#x27;chessground&#x27;;
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, type OnDestroy } from &#x27;@angular/core&#x27;;
 import type { Api } from &#x27;chessground/api&#x27;;
+import type { Config } from &#x27;chessground/config&#x27;;
 import type { VNode } from &#x27;snabbdom&#x27;;
 import {
 	attributesModule,
@@ -570,11 +891,19 @@ import {
  *
  * Wraps snabbdom patching and chessground lifecycle. Each {@link NgxChessgroundComponent}
  * instance creates its own service instance (provided at component level).
- * Public methods (&#x60;redraw&#x60;, &#x60;toggleOrientation&#x60;) are called by the component;
- * private helpers manage the virtual DOM tree and the chessground &#x60;Api&#x60; handle.
+ *
+ * On the first {@link redraw} call, the service creates the virtual DOM tree
+ * and patches it into the real DOM via snabbdom. The &#x60;insert&#x60; hook initializes
+ * the Chessground instance by invoking the provided run function. On subsequent
+ * calls with a *different* run function, the previous Chessground instance is
+ * destroyed first (unbinding its document listeners) before the new one is
+ * created — a stale instance is never left behind, which keeps drag &amp; drop
+ * responsive. Position updates should flow through {@link setConfig}, which
+ * reconfigures the live instance in place via {@link Api.set} instead of
+ * recreating it.
  */
-@Injectable()
-export class NgxChessgroundService {
+@Injectable({ providedIn: &#x27;root&#x27; })
+export class NgxChessgroundService implements OnDestroy {
 	/**
 	 * Initializes the patch function with the necessary modules.
 	 * @private
@@ -587,38 +916,114 @@ export class NgxChessgroundService {
 
 	/**
 	 * Virtual node representing the current state of the DOM.
+	 * Set after the first {@link redraw}. Read by the patch lifecycle.
 	 * @private
 	 */
+	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: stored by patch, used via snabbdom internals
 	private vnode!: VNode;
 
 	/**
 	 * Chessground API instance.
+	 * Set by the snabbdom &#x60;insert&#x60; hook during first render.
 	 * @private
 	 */
 	private cg!: Api;
 
 	/**
-	 * Function to run on the HTMLElement.
+	 * Reference to the &#x60;.cg-wrap&#x60; DOM element that hosts the chessboard.
+	 * Captured by the snabbdom hook and reused for in-place updates.
+	 * @private
+	 */
+	private boardEl: HTMLElement | null &#x3D; null;
+
+	/**
+	 * Function to run on the HTMLElement to configure chessground.
 	 * @private
 	 */
 	private runFn!: (el: HTMLElement) &#x3D;&gt; Api;
 
 	/**
+	 * Config applied via {@link setConfig} before the Chessground instance
+	 * existed; flushed once the instance is created.
+	 * @private
+	 */
+	private pendingConfig: Partial&lt;Config&gt; | null &#x3D; null;
+
+	/**
 	 * Redraws the Chessground board on the given element.
+	 *
+	 * On the first call, creates the vnode tree, patches into the DOM, and
+	 * initializes the Chessground instance via snabbdom hooks. On subsequent
+	 * calls with a different run function, the previous instance is destroyed
+	 * and recreated in place so no orphaned instance keeps its document
+	 * listeners bound. Calls with the same run function are no-ops.
+	 *
 	 * @param element - The HTML element to render the Chessground board on.
 	 * @param runFn - The function to run on the HTMLElement.
 	 */
 	public redraw(element: HTMLElement, runFn: (el: HTMLElement) &#x3D;&gt; Api) {
-		this.cg &#x3D; Chessground(element);
+		if (this.runFn &#x3D;&#x3D;&#x3D; runFn) return;
 		this.runFn &#x3D; runFn;
-		this.vnode &#x3D; this.patch(this.vnode || element, this.render());
+		if (!this.cg) {
+			// First render: create vnode tree, patch DOM, insert hook inits Chessground
+			this.vnode &#x3D; this.patch(element, this.render());
+		} else if (this.boardEl) {
+			// New run function: dispose the old instance (unbinds its document
+			// listeners) and create a fresh one in place.
+			this.cg.destroy();
+			this.cg &#x3D; runFn(this.boardEl);
+		}
+		if (this.pendingConfig) {
+			this.cg.set(this.pendingConfig as Config);
+			this.pendingConfig &#x3D; null;
+		}
+	}
+
+	/**
+	 * Reconfigures the live Chessground instance in place via {@link Api.set}.
+	 *
+	 * This is the preferred way to update the position, orientation, movable
+	 * destinations etc. — it keeps animations and drag &amp; drop state intact and
+	 * avoids the cost of recreating the whole instance. If the instance has not
+	 * been created yet, the config is stored and applied right after creation.
+	 *
+	 * @param config - Partial Chessground config to merge into the instance.
+	 */
+	public setConfig(config: Partial&lt;Config&gt;): void {
+		if (this.cg) {
+			// The board may have moved since chessground last measured it —
+			// e.g. a layout shift that fires no scroll/resize event (a panel
+			// growing below the board). Invalidate the cached bounds so the
+			// next mouse event maps to the correct square instead of failing
+			// silently and making drag &amp; drop appear broken.
+			this.cg.state.dom.bounds.clear();
+			this.cg.set(config as Config);
+		} else {
+			this.pendingConfig &#x3D; config;
+		}
 	}
 
 	/**
 	 * Toggles the orientation of the Chessground board.
 	 */
 	public toggleOrientation() {
+		if (!this.cg) return;
 		this.cg.toggleOrientation();
+	}
+
+	/**
+	 * Destroys the Chessground instance and releases resources.
+	 *
+	 * Called by Angular when the owning component is destroyed. Unbinds the
+	 * instance&#x27;s document listeners so no orphaned drag handlers remain.
+	 */
+	public ngOnDestroy(): void {
+		if (this.cg) {
+			this.cg.destroy();
+			this.cg &#x3D; null as unknown as Api;
+		}
+		this.boardEl &#x3D; null;
+		this.pendingConfig &#x3D; null;
 	}
 
 	/**
@@ -640,23 +1045,34 @@ export class NgxChessgroundService {
 	}
 
 	/**
-	 * Runs the provided function on the virtual node&#x27;s element.
+	 * Snabbdom hook called on both &#x60;insert&#x60; and &#x60;postpatch&#x60;.
+	 *
+	 * On insert (first render): initializes the Chessground instance by running
+	 * the configured run function and stores a reference to it (and the board
+	 * element) for later in-place updates. On postpatch: the instance already
+	 * exists, so nothing is re-created.
+	 *
 	 * @param vnode - The virtual node.
-	 * @param _ignore - An optional parameter to ignore.
-	 * @returns The result of the run function.
+	 * @param oldVnode - The previous virtual node (only present on postpatch).
+	 * @returns The chessground Api.
 	 * @private
 	 */
-	private readonly runUnit &#x3D; (vnode: VNode, _ignore?: VNode) &#x3D;&gt; {
+	private readonly runUnit &#x3D; (vnode: VNode, oldVnode?: VNode) &#x3D;&gt; {
 		const el &#x3D; vnode.elm as HTMLElement;
 		el.className &#x3D; &#x27;cg-wrap&#x27;;
-		this.cg &#x3D; Chessground(el);
-		return this.runFn(el);
+		this.boardEl &#x3D; el;
+		if (!oldVnode) {
+			// Insert hook: first time this element hits the DOM
+			this.cg &#x3D; this.runFn(el);
+		}
+		return this.cg;
 	};
 }
 </code></pre>
     </div>
 
 </div>
+
 
 
 
@@ -699,6 +1115,19 @@ export class NgxChessgroundService {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -710,7 +1139,6 @@ export class NgxChessgroundService {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
-       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

@@ -4,7 +4,6 @@ import {
 	type ElementRef,
 	inject,
 	input,
-	model,
 	viewChild,
 } from '@angular/core';
 import type { Api } from 'chessground/api';
@@ -59,15 +58,20 @@ export class NgxChessgroundComponent {
 	readonly elementView = viewChild.required<ElementRef>('chessboard');
 
 	/**
-	 * Signal-model function that constructs the chessground instance on a given element.
+	 * Function that constructs the chessground instance on a given element.
 	 *
-	 * This is the primary input mechanism of the component. Changes to this signal
-	 * trigger a board redraw via `afterRenderEffect()`.
+	 * This is the primary input mechanism of the component, and it is
+	 * **required** — omitting it is a compile-time error rather than a silently
+	 * blank board. Changes to the function's identity trigger a board redraw
+	 * via `afterRenderEffect()`; the previous instance is destroyed first.
+	 *
+	 * A plain `input()` (not a `model()`) because a callback is never written
+	 * back to by the component — there is no two-way binding to expose.
 	 *
 	 * @param el — The board container `HTMLElement` mounted in the DOM.
 	 * @returns A chessground `Api` instance configured as desired.
 	 */
-	runFunction = model<(el: HTMLElement) => Api>();
+	readonly runFunction = input.required<(el: HTMLElement) => Api>();
 
 	/**
 	 * Optional partial Chessground config applied to the live instance via

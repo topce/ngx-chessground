@@ -77,15 +77,16 @@ document.addEventListener('DOMContentLoaded', function () {
     processMenuLinks(entityLinks);
     var indexLinks = document.querySelectorAll('[data-type="index-link"]');
     processMenuLinks(indexLinks, true);
-    var entityLogos = document.querySelectorAll('[data-type="compodoc-logo"]');
-    var processLogos = function (entityLogo) {
+    var compodocLogos = document.querySelectorAll('[data-type="compodoc-logo"]');
+    var customLogo = document.querySelectorAll('[data-type="custom-logo"]');
+    var processLogos = function (entityLogos) {
         for (var i = 0; i < entityLogos.length; i++) {
             var entityLogo = entityLogos[i];
             if (entityLogo) {
                 var url = entityLogo.getAttribute('data-src');
                 // Dark mode + logo
                 let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (isDarkMode) {
+                if (isDarkMode && url.indexOf('compodoc') !== -1) {
                     url = 'images/compodoc-vectorise-inverted.png';
                 }
                 if (url.charAt(0) !== '.') {
@@ -115,7 +116,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     };
-    processLogos(entityLogos);
+    processLogos(compodocLogos);
+    processLogos(customLogo);
 
     setTimeout(function () {
         document.getElementById('btn-menu').addEventListener('click', function () {
@@ -131,12 +133,16 @@ document.addEventListener('DOMContentLoaded', function () {
         /**
          * Native bootstrap doesn't wait DOMContentLoaded event to start his job, re do it here
          */
-        var Collapses = document.querySelectorAll('[data-toggle="collapse"]');
+        var Collapses = document.querySelectorAll('[data-bs-toggle="collapse"]');
         for (var o = 0, cll = Collapses.length; o < cll; o++) {
             var collapse = Collapses[o],
                 options = {};
             options.duration = collapse.getAttribute('data-duration');
-            var c = new Collapse(collapse, options);
+            const targetId = collapse.getAttribute('data-bs-target');
+            if (targetId !== '') {
+                options.parent = collapse;
+                const c = new BSN.Collapse(targetId, options);
+            }
         }
 
         // collapse menu
@@ -144,17 +150,17 @@ document.addEventListener('DOMContentLoaded', function () {
             faAngleUpClass = 'ion-ios-arrow-up',
             faAngleDownClass = 'ion-ios-arrow-down',
             toggleItemMenu = function (e) {
-                var element = $(e.target),
-                    parent = element[0].parentNode,
+                var element = e.target,
+                    parent = element.parentNode,
                     parentLink,
                     elementIconChild;
                 if (parent) {
-                    if (!$(parent).hasClass('linked')) {
+                    if (!parent.classList.contains('linked')) {
                         e.preventDefault();
                     } else {
                         parentLink = parent.parentNode;
-                        if (parentLink && element.hasClass('link-name')) {
-                            $(parentLink).trigger('click');
+                        if (parentLink && element.classList.contains('link-name')) {
+                            parentLink.trigger('click');
                         }
                     }
                     elementIconChild = parent.getElementsByClassName(faAngleUpClass)[0];
@@ -162,13 +168,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         elementIconChild = parent.getElementsByClassName(faAngleDownClass)[0];
                     }
                     if (elementIconChild) {
-                        elementIconChild = $(elementIconChild);
-                        if (elementIconChild.hasClass(faAngleUpClass)) {
-                            elementIconChild.addClass(faAngleDownClass);
-                            elementIconChild.removeClass(faAngleUpClass);
+                        if (elementIconChild.classList.contains(faAngleUpClass)) {
+                            elementIconChild.classList.add(faAngleDownClass);
+                            elementIconChild.classList.remove(faAngleUpClass);
                         } else {
-                            elementIconChild.addClass(faAngleUpClass);
-                            elementIconChild.removeClass(faAngleDownClass);
+                            elementIconChild.classList.add(faAngleUpClass);
+                            elementIconChild.classList.remove(faAngleDownClass);
                         }
                     }
                 }
@@ -258,53 +263,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         activeMenu.scrollTop = 0;
                     }
                 }, 300);
-            }
-        }
-        // Dark mode toggle button
-        var useDark = window.matchMedia('(prefers-color-scheme: dark)');
-        var darkModeState = useDark.matches;
-        var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
-        var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
-
-        function checkToggle(check) {
-            for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                $darkModeToggleSwitchers[i].checked = check;
-            }
-        }
-
-        function toggleDarkMode(state) {
-            checkToggle(state);
-
-            const hasClass = document.body.classList.contains('dark');
-
-            if (state) {
-                for (var i = 0; i < $darkModeToggles.length; i++) {
-                    $darkModeToggles[i].classList.add('dark');
-                }
-                if (!hasClass) {
-                    document.body.classList.add('dark');
-                }
-            } else {
-                for (var i = 0; i < $darkModeToggles.length; i++) {
-                    $darkModeToggles[i].classList.remove('dark');
-                }
-                if (hasClass) {
-                    document.body.classList.remove('dark');
-                }
-            }
-        }
-
-        useDark.addEventListener('change', function (evt) {
-            toggleDarkMode(evt.matches);
-        });
-        toggleDarkMode(darkModeState);
-
-        if ($darkModeToggles.length > 0) {
-            for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
-                $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
-                    darkModeState = !darkModeState;
-                    toggleDarkMode(darkModeState);
-                });
             }
         }
     }, 0);

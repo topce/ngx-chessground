@@ -1,0 +1,2423 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  LoadCachePanelComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts</code>
+</p>
+
+
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>Load &amp; Cache panel for the PGN viewer — right sidebar bottom section.</p>
+<p>Provides:</p>
+<ul>
+<li>PGN text input textarea with clipboard buttons</li>
+<li>FEN indexing options (start positions, max plies)</li>
+<li>Cache management (clear, info)</li>
+<li>File-based loading (ZIP, PGN file picker)</li>
+<li>Lichess database date picker (year/month)</li>
+<li>URL-based loading with support for .zst compressed files</li>
+<li>Loading progress bar with status message</li>
+</ul>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">&lt;load-cache-panel
+  [isLoading]=&quot;isLoading()&quot;
+  [loadingProgress]=&quot;loadingProgress()&quot;
+  [loadingStatus]=&quot;loadingStatus()&quot;
+  [cacheInfo]=&quot;cacheInfo()&quot;
+  (loadPgnString)=&quot;loadPgnString($event)&quot;
+  (clearPgnCache)=&quot;clearPgnCache()&quot;
+/&gt;</code></pre></div>
+    </p>
+
+
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>load-cache-panel</code></td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-3">imports</td>
+                <td class="col-md-9">
+                                <code><a href="https://angular.io/api/common/DecimalPipe" target="_blank" >DecimalPipe</a></code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./load-cache-panel.component.html</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrl</td>
+                <td class="col-md-9"><code>./load-cache-panel.component.css</code></td>
+            </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#handleFileRead" >handleFileRead</a>
+                            </li>
+                            <li>
+                                <a href="#onIndexStartPositionsChange" >onIndexStartPositionsChange</a>
+                            </li>
+                            <li>
+                                <a href="#onLichessMonthChange" >onLichessMonthChange</a>
+                            </li>
+                            <li>
+                                <a href="#onLichessYearChange" >onLichessYearChange</a>
+                            </li>
+                            <li>
+                                <a href="#onMaxFenPliesChange" >onMaxFenPliesChange</a>
+                            </li>
+                            <li>
+                                <a href="#onPgnFileSelected" >onPgnFileSelected</a>
+                            </li>
+                            <li>
+                                <a href="#onPgnInputChange" >onPgnInputChange</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#onPgnZipSelected" >onPgnZipSelected</a>
+                            </li>
+                            <li>
+                                <a href="#onUrlInputChange" >onUrlInputChange</a>
+                            </li>
+                            <li>
+                                <a href="#toggleExpanded" >toggleExpanded</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#cacheInfo" >cacheInfo</a>
+                            </li>
+                            <li>
+                                <a href="#expanded" >expanded</a>
+                            </li>
+                            <li>
+                                <a href="#indexStartPositions" >indexStartPositions</a>
+                            </li>
+                            <li>
+                                <a href="#isLoading" >isLoading</a>
+                            </li>
+                            <li>
+                                <a href="#lichessMonth" >lichessMonth</a>
+                            </li>
+                            <li>
+                                <a href="#lichessYear" >lichessYear</a>
+                            </li>
+                            <li>
+                                <a href="#loadingProgress" >loadingProgress</a>
+                            </li>
+                            <li>
+                                <a href="#loadingStatus" >loadingStatus</a>
+                            </li>
+                            <li>
+                                <a href="#maxFenPlies" >maxFenPlies</a>
+                            </li>
+                            <li>
+                                <a href="#pgnInput" >pgnInput</a>
+                            </li>
+                            <li>
+                                <a href="#urlInput" >urlInput</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#clearPgnCache" >clearPgnCache</a>
+                            </li>
+                            <li>
+                                <a href="#copyToClipboardEvent" >copyToClipboardEvent</a>
+                            </li>
+                            <li>
+                                <a href="#expanded" >expanded</a>
+                            </li>
+                            <li>
+                                <a href="#fileLoadFailed" >fileLoadFailed</a>
+                            </li>
+                            <li>
+                                <a href="#indexStartPositions" >indexStartPositions</a>
+                            </li>
+                            <li>
+                                <a href="#lichessMonth" >lichessMonth</a>
+                            </li>
+                            <li>
+                                <a href="#lichessYear" >lichessYear</a>
+                            </li>
+                            <li>
+                                <a href="#loadFromClipboardEvent" >loadFromClipboardEvent</a>
+                            </li>
+                            <li>
+                                <a href="#loadFromLichess" >loadFromLichess</a>
+                            </li>
+                            <li>
+                                <a href="#loadFromUrl" >loadFromUrl</a>
+                            </li>
+                            <li>
+                                <a href="#loadPgnString" >loadPgnString</a>
+                            </li>
+                            <li>
+                                <a href="#maxFenPlies" >maxFenPlies</a>
+                            </li>
+                            <li>
+                                <a href="#pgnInput" >pgnInput</a>
+                            </li>
+                            <li>
+                                <a href="#refreshCacheInfo" >refreshCacheInfo</a>
+                            </li>
+                            <li>
+                                <a href="#urlInput" >urlInput</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Accessors</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                    <a href="#years" >years</a>
+                                </li>
+                                <li>
+                                    <a href="#months" >months</a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+        </tbody>
+    </table>
+</section>
+
+
+    <section data-compodoc="block-inputs">
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="cacheInfo"></a>
+                        <b>cacheInfo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>{ count: number; estimatedBytes: number } | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>		null,	</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:50</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Cached-entry count and estimated size, or <code>null</code> while unknown.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="expanded"></a>
+                        <b>expanded</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>true</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="213" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:213</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the load &amp; cache panel is expanded (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="indexStartPositions"></a>
+                        <b>indexStartPositions</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:59</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether to build a starting-position FEN index (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="isLoading"></a>
+                        <b>isLoading</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:44</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether a load is in progress.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="lichessMonth"></a>
+                        <b>lichessMonth</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>1</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:67</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Selected Lichess archive month, 1-12 (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="lichessYear"></a>
+                        <b>lichessYear</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Date().getFullYear()</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:65</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Selected Lichess archive year (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="loadingProgress"></a>
+                        <b>loadingProgress</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:46</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Load progress, 0-100.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="loadingStatus"></a>
+                        <b>loadingStatus</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:48</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Human-readable description of the current load step.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="maxFenPlies"></a>
+                        <b>maxFenPlies</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>30</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:61</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Max half-moves replayed per game when indexing (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="pgnInput"></a>
+                        <b>pgnInput</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:55</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>PGN text typed or pasted into the panel (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="urlInput"></a>
+                        <b>urlInput</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:57</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>PGN source URL typed into the panel (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+    <section data-compodoc="block-outputs">
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="clearPgnCache"></a>
+                        <b>clearPgnCache</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:73</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to clear the PGN cache.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="copyToClipboardEvent"></a>
+                        <b>copyToClipboardEvent</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="83" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:83</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to copy the PGN text to the clipboard.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="expanded"></a>
+                        <b>expanded</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="213" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:213</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the load &amp; cache panel is expanded (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="fileLoadFailed"></a>
+                        <b>fileLoadFailed</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:90</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>A local file could not be read or contained no PGN entry.</p>
+<p>The panel is presentational and has no access to user-facing
+notification, so the container turns this into a message.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="indexStartPositions"></a>
+                        <b>indexStartPositions</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:59</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether to build a starting-position FEN index (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="lichessMonth"></a>
+                        <b>lichessMonth</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:67</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Selected Lichess archive month, 1-12 (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="lichessYear"></a>
+                        <b>lichessYear</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:65</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Selected Lichess archive year (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="loadFromClipboardEvent"></a>
+                        <b>loadFromClipboardEvent</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="81" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:81</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to load PGN text from the clipboard.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="loadFromLichess"></a>
+                        <b>loadFromLichess</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:77</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to load the selected Lichess month.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="loadFromUrl"></a>
+                        <b>loadFromUrl</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="79" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:79</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to load the URL in the input.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="loadPgnString"></a>
+                        <b>loadPgnString</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:71</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>PGN text is ready to be parsed; emits the text.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="maxFenPlies"></a>
+                        <b>maxFenPlies</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:61</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Max half-moves replayed per game when indexing (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="pgnInput"></a>
+                        <b>pgnInput</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:55</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>PGN text typed or pasted into the panel (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="refreshCacheInfo"></a>
+                        <b>refreshCacheInfo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:75</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>The user asked to refresh the cache statistics.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="urlInput"></a>
+                        <b>urlInput</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:57</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>PGN source URL typed into the panel (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleFileRead"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>handleFileRead</b></span>
+                        <a href="#handleFileRead"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleFileRead(file: File)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="202"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:202</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Reads a file as UTF-8 text and emits it, or reports the failure.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>file</td>
+                                            <td>
+                                                        <code>File</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onIndexStartPositionsChange"></a>
+                    <span class="name">
+                        <span ><b>onIndexStartPositionsChange</b></span>
+                        <a href="#onIndexStartPositionsChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onIndexStartPositionsChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="162"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:162</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the starting-position indexing checkbox.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onLichessMonthChange"></a>
+                    <span class="name">
+                        <span ><b>onLichessMonthChange</b></span>
+                        <a href="#onLichessMonthChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onLichessMonthChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="144"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:144</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the selected month.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onLichessYearChange"></a>
+                    <span class="name">
+                        <span ><b>onLichessYearChange</b></span>
+                        <a href="#onLichessYearChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onLichessYearChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:134</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the selected year and clamps the month to an available one.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onMaxFenPliesChange"></a>
+                    <span class="name">
+                        <span ><b>onMaxFenPliesChange</b></span>
+                        <a href="#onMaxFenPliesChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onMaxFenPliesChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="167"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:167</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the indexing replay window, ignoring values below 1.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPgnFileSelected"></a>
+                    <span class="name">
+                        <span ><b>onPgnFileSelected</b></span>
+                        <a href="#onPgnFileSelected"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onPgnFileSelected(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="195"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:195</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Emits the text of a chosen <code>.pgn</code> file.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPgnInputChange"></a>
+                    <span class="name">
+                        <span ><b>onPgnInputChange</b></span>
+                        <a href="#onPgnInputChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onPgnInputChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:150</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the edited PGN text.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPgnZipSelected"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onPgnZipSelected</b></span>
+                        <a href="#onPgnZipSelected"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onPgnZipSelected(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="175"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:175</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Extracts the first <code>.pgn</code> entry from a chosen zip archive and emits it.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onUrlInputChange"></a>
+                    <span class="name">
+                        <span ><b>onUrlInputChange</b></span>
+                        <a href="#onUrlInputChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onUrlInputChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="156"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:156</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the edited source URL.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toggleExpanded"></a>
+                    <span class="name">
+                        <span ><b>toggleExpanded</b></span>
+                        <a href="#toggleExpanded"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>toggleExpanded()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="216"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:216</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Expands or collapses the load &amp; cache panel.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-accessors">
+    <h3 id="accessors">
+        Accessors
+    </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="years"></a>
+                        <span class="name"><b>years</b><a href="#years"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>years()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:99</a></div>
+                                </td>
+                            </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Selectable archive years, oldest first.</p>
+<p>The lower bound matches the earliest Lichess monthly broadcast archive;
+the upper bound is the current year.</p>
+</div>
+
+                                <div class="io-description">
+                                    <b>Returns : </b>    <code>number[]</code>
+
+                                </div>
+                        </td>
+                    </tr>
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="months"></a>
+                        <span class="name"><b>months</b><a href="#months"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>months()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="115" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts:115</a></div>
+                                </td>
+                            </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Selectable months for the selected year.</p>
+<p>A past year offers all twelve; the current year offers only the months
+that have already ended, because a broadcast archive is published after
+the month closes.</p>
+</div>
+
+                                <div class="io-description">
+                                    <b>Returns : </b>    <code>number[]</code>
+
+                                </div>
+                        </td>
+                    </tr>
+
+            </tbody>
+        </table>
+</section>
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { DecimalPipe } from &#x27;@angular/common&#x27;;
+import {
+	booleanAttribute,
+	Component,
+	input,
+	model,
+	output,
+} from &#x27;@angular/core&#x27;;
+import { loadAsync as loadZipAsync } from &#x27;jszip&#x27;;
+
+/**
+ * Load &amp; Cache panel for the PGN viewer — right sidebar bottom section.
+ *
+ * Provides:
+ * - PGN text input textarea with clipboard buttons
+ * - FEN indexing options (start positions, max plies)
+ * - Cache management (clear, info)
+ * - File-based loading (ZIP, PGN file picker)
+ * - Lichess database date picker (year/month)
+ * - URL-based loading with support for .zst compressed files
+ * - Loading progress bar with status message
+ *
+ * @example
+ * &#x60;&#x60;&#x60;html
+ * &lt;load-cache-panel
+ *   [isLoading]&#x3D;&quot;isLoading()&quot;
+ *   [loadingProgress]&#x3D;&quot;loadingProgress()&quot;
+ *   [loadingStatus]&#x3D;&quot;loadingStatus()&quot;
+ *   [cacheInfo]&#x3D;&quot;cacheInfo()&quot;
+ *   (loadPgnString)&#x3D;&quot;loadPgnString($event)&quot;
+ *   (clearPgnCache)&#x3D;&quot;clearPgnCache()&quot;
+ * /&gt;
+ * &#x60;&#x60;&#x60;
+ */
+@Component({
+	selector: &#x27;load-cache-panel&#x27;,
+	imports: [DecimalPipe],
+	templateUrl: &#x27;./load-cache-panel.component.html&#x27;,
+	styleUrl: &#x27;./load-cache-panel.component.css&#x27;,
+})
+export class LoadCachePanelComponent {
+	// ---- Input State ----
+	/** Whether a load is in progress. */
+	readonly isLoading &#x3D; input(false, { transform: booleanAttribute });
+	/** Load progress, 0-100. */
+	readonly loadingProgress &#x3D; input&lt;number&gt;(0);
+	/** Human-readable description of the current load step. */
+	readonly loadingStatus &#x3D; input&lt;string&gt;(&#x27;&#x27;);
+	/** Cached-entry count and estimated size, or &#x60;null&#x60; while unknown. */
+	readonly cacheInfo &#x3D; input&lt;{ count: number; estimatedBytes: number } | null&gt;(
+		null,
+	);
+
+	/** PGN text typed or pasted into the panel (two-way). */
+	readonly pgnInput &#x3D; model&lt;string&gt;(&#x27;&#x27;);
+	/** PGN source URL typed into the panel (two-way). */
+	readonly urlInput &#x3D; model&lt;string&gt;(&#x27;&#x27;);
+	/** Whether to build a starting-position FEN index (two-way). */
+	readonly indexStartPositions &#x3D; model&lt;boolean&gt;(false);
+	/** Max half-moves replayed per game when indexing (two-way). */
+	readonly maxFenPlies &#x3D; model&lt;number&gt;(30);
+
+	// ---- Lichess Date Picker ----
+	/** Selected Lichess archive year (two-way). */
+	readonly lichessYear &#x3D; model&lt;number&gt;(new Date().getFullYear());
+	/** Selected Lichess archive month, 1-12 (two-way). */
+	readonly lichessMonth &#x3D; model&lt;number&gt;(1);
+
+	// ---- Events ----
+	/** PGN text is ready to be parsed; emits the text. */
+	readonly loadPgnString &#x3D; output&lt;string&gt;();
+	/** The user asked to clear the PGN cache. */
+	readonly clearPgnCache &#x3D; output&lt;void&gt;();
+	/** The user asked to refresh the cache statistics. */
+	readonly refreshCacheInfo &#x3D; output&lt;void&gt;();
+	/** The user asked to load the selected Lichess month. */
+	readonly loadFromLichess &#x3D; output&lt;void&gt;();
+	/** The user asked to load the URL in the input. */
+	readonly loadFromUrl &#x3D; output&lt;void&gt;();
+	/** The user asked to load PGN text from the clipboard. */
+	readonly loadFromClipboardEvent &#x3D; output&lt;void&gt;();
+	/** The user asked to copy the PGN text to the clipboard. */
+	readonly copyToClipboardEvent &#x3D; output&lt;void&gt;();
+	/**
+	 * A local file could not be read or contained no PGN entry.
+	 *
+	 * The panel is presentational and has no access to user-facing
+	 * notification, so the container turns this into a message.
+	 */
+	readonly fileLoadFailed &#x3D; output&lt;string&gt;();
+
+	// ---- Lichess helpers ----
+	/**
+	 * Selectable archive years, oldest first.
+	 *
+	 * The lower bound matches the earliest Lichess monthly broadcast archive;
+	 * the upper bound is the current year.
+	 */
+	get years(): number[] {
+		const currentYear &#x3D; new Date().getFullYear();
+		const years: number[] &#x3D; [];
+		for (let y &#x3D; 2020; y &lt;&#x3D; currentYear; y++) {
+			years.push(y);
+		}
+		return years;
+	}
+
+	/**
+	 * Selectable months for the selected year.
+	 *
+	 * A past year offers all twelve; the current year offers only the months
+	 * that have already ended, because a broadcast archive is published after
+	 * the month closes.
+	 */
+	get months(): number[] {
+		const selectedYear &#x3D; this.lichessYear();
+		const now &#x3D; new Date();
+		const currentYear &#x3D; now.getFullYear();
+		const currentMonth &#x3D; now.getMonth(); // 0-indexed
+
+		if (selectedYear &lt; currentYear) {
+			return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+		} else if (selectedYear &#x3D;&#x3D;&#x3D; currentYear) {
+			const months: number[] &#x3D; [];
+			for (let m &#x3D; 1; m &lt;&#x3D; currentMonth; m++) {
+				months.push(m);
+			}
+			return months;
+		}
+		return [];
+	}
+
+	/** Applies the selected year and clamps the month to an available one. */
+	onLichessYearChange(event: Event): void {
+		const value &#x3D; parseInt((event.target as HTMLSelectElement).value, 10);
+		this.lichessYear.set(value);
+		const availableMonths &#x3D; this.months;
+		if (!availableMonths.includes(this.lichessMonth())) {
+			this.lichessMonth.set(availableMonths[availableMonths.length - 1] || 1);
+		}
+	}
+
+	/** Applies the selected month. */
+	onLichessMonthChange(event: Event): void {
+		const value &#x3D; parseInt((event.target as HTMLSelectElement).value, 10);
+		this.lichessMonth.set(value);
+	}
+
+	/** Applies the edited PGN text. */
+	onPgnInputChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLTextAreaElement).value;
+		this.pgnInput.set(value);
+	}
+
+	/** Applies the edited source URL. */
+	onUrlInputChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.urlInput.set(value);
+	}
+
+	/** Applies the starting-position indexing checkbox. */
+	onIndexStartPositionsChange(event: Event): void {
+		this.indexStartPositions.set((event.target as HTMLInputElement).checked);
+	}
+
+	/** Applies the indexing replay window, ignoring values below 1. */
+	onMaxFenPliesChange(event: Event): void {
+		const value &#x3D; parseInt((event.target as HTMLInputElement).value, 10);
+		if (!Number.isNaN(value) &amp;&amp; value &gt;&#x3D; 1) {
+			this.maxFenPlies.set(value);
+		}
+	}
+
+	/** Extracts the first &#x60;.pgn&#x60; entry from a chosen zip archive and emits it. */
+	async onPgnZipSelected(event: Event): Promise&lt;void&gt; {
+		const input &#x3D; event.target as HTMLInputElement;
+		const file &#x3D; input.files?.[0];
+		if (!file) return;
+		try {
+			const zip &#x3D; await loadZipAsync(file);
+			const pgnFile &#x3D; Object.values(zip.files).find((f) &#x3D;&gt;
+				f.name.toLowerCase().endsWith(&#x27;.pgn&#x27;),
+			);
+			if (!pgnFile) {
+				this.fileLoadFailed.emit(&#x60;No PGN file found in &quot;${file.name}&quot;.&#x60;);
+				return;
+			}
+			this.loadPgnString.emit(await pgnFile.async(&#x27;string&#x27;));
+		} catch {
+			this.fileLoadFailed.emit(&#x60;Could not read &quot;${file.name}&quot;.&#x60;);
+		}
+	}
+
+	/** Emits the text of a chosen &#x60;.pgn&#x60; file. */
+	onPgnFileSelected(event: Event): void {
+		const input &#x3D; event.target as HTMLInputElement;
+		if (!input.files || input.files.length &#x3D;&#x3D;&#x3D; 0) return;
+		this.handleFileRead(input.files[0]);
+	}
+
+	/** Reads a file as UTF-8 text and emits it, or reports the failure. */
+	private handleFileRead(file: File): void {
+		file
+			.text()
+			.then((content) &#x3D;&gt; {
+				if (content) this.loadPgnString.emit(content);
+				else this.fileLoadFailed.emit(&#x60;&quot;${file.name}&quot; is empty.&#x60;);
+			})
+			.catch(() &#x3D;&gt; this.fileLoadFailed.emit(&#x60;Could not read &quot;${file.name}&quot;.&#x60;));
+	}
+
+	/** Whether the load &amp; cache panel is expanded (two-way). */
+	readonly expanded &#x3D; model&lt;boolean&gt;(true);
+
+	/** Expands or collapses the load &amp; cache panel. */
+	toggleExpanded(): void {
+		this.expanded.update((v) &#x3D;&gt; !v);
+	}
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;load-cache-section&quot;&gt;
+  &lt;h3
+    class&#x3D;&quot;section-header&quot;
+    tabindex&#x3D;&quot;0&quot;
+    role&#x3D;&quot;button&quot;
+    [attr.aria-expanded]&#x3D;&quot;expanded()&quot;
+    [attr.aria-controls]&#x3D;&quot;&#x27;load-cache-section-content&#x27;&quot;
+    (click)&#x3D;&quot;toggleExpanded()&quot;
+    (keydown.enter)&#x3D;&quot;toggleExpanded(); $event.preventDefault()&quot;
+    (keydown.space)&#x3D;&quot;toggleExpanded(); $event.preventDefault()&quot;
+  &gt;
+    &lt;span class&#x3D;&quot;chevron&quot; [class.expanded]&#x3D;&quot;expanded()&quot; aria-hidden&#x3D;&quot;true&quot;&gt;&lt;/span&gt;
+    Load &amp;amp; Cache
+  &lt;/h3&gt;
+
+  &lt;div class&#x3D;&quot;section-content&quot; [class.expanded]&#x3D;&quot;expanded()&quot; id&#x3D;&quot;load-cache-section-content&quot;&gt;
+    &lt;!-- PGN Input --&gt;
+    &lt;div class&#x3D;&quot;pgn-input-section&quot;&gt;
+      &lt;textarea
+        [value]&#x3D;&quot;pgnInput()&quot;
+        (input)&#x3D;&quot;onPgnInputChange($event)&quot;
+        rows&#x3D;&quot;3&quot;
+        placeholder&#x3D;&quot;Paste PGN...&quot;
+        aria-label&#x3D;&quot;PGN Input&quot;
+      &gt;&lt;/textarea&gt;
+      &lt;div class&#x3D;&quot;clipboard-buttons&quot;&gt;
+        &lt;button type&#x3D;&quot;button&quot; (click)&#x3D;&quot;loadFromClipboardEvent.emit()&quot; class&#x3D;&quot;small-btn&quot;&gt;Load from Clipboard&lt;/button&gt;
+        &lt;button type&#x3D;&quot;button&quot; (click)&#x3D;&quot;copyToClipboardEvent.emit()&quot; class&#x3D;&quot;small-btn&quot;&gt;Copy to Clipboard&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- FEN Indexing Options --&gt;
+    &lt;div class&#x3D;&quot;index-options&quot;&gt;
+      &lt;label class&#x3D;&quot;checkbox-label&quot;&gt;
+        &lt;input
+          type&#x3D;&quot;checkbox&quot;
+          [checked]&#x3D;&quot;indexStartPositions()&quot;
+          (change)&#x3D;&quot;onIndexStartPositionsChange($event)&quot;
+        /&gt;
+        Index starting positions
+      &lt;/label&gt;
+      &lt;div class&#x3D;&quot;option-input&quot;&gt;
+        &lt;label&gt;
+          Max plies:
+          &lt;input
+            type&#x3D;&quot;number&quot;
+            [value]&#x3D;&quot;maxFenPlies()&quot;
+            (input)&#x3D;&quot;onMaxFenPliesChange($event)&quot;
+            min&#x3D;&quot;1&quot;
+            max&#x3D;&quot;500&quot;
+            class&#x3D;&quot;small-input&quot;
+            aria-label&#x3D;&quot;Max plies to index&quot;
+          /&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Cache Management --&gt;
+    &lt;div class&#x3D;&quot;cache-section&quot;&gt;
+      &lt;div class&#x3D;&quot;cache-actions&quot;&gt;
+        &lt;button type&#x3D;&quot;button&quot; (click)&#x3D;&quot;clearPgnCache.emit()&quot; class&#x3D;&quot;small-btn&quot; title&#x3D;&quot;Clear all cached PGN data from IndexedDB&quot;&gt;
+          Clear Cache
+        &lt;/button&gt;
+        &lt;button type&#x3D;&quot;button&quot; (click)&#x3D;&quot;refreshCacheInfo.emit()&quot; class&#x3D;&quot;small-btn&quot; title&#x3D;&quot;Show cache statistics&quot;&gt;
+          Cache Info
+        &lt;/button&gt;
+      &lt;/div&gt;
+      @if (cacheInfo(); as info) {
+        &lt;div class&#x3D;&quot;cache-info&quot;&gt;
+          &lt;small&gt;
+            Entries: {{ info.count }}
+            @if (info.estimatedBytes &gt; 0) {
+              | Size: {{ (info.estimatedBytes / 1024) | number:&#x27;1.0-0&#x27; }} KB
+            }
+          &lt;/small&gt;
+        &lt;/div&gt;
+      }
+    &lt;/div&gt;
+
+    &lt;!-- Load Section --&gt;
+    &lt;div class&#x3D;&quot;load-section&quot;&gt;
+      &lt;div class&#x3D;&quot;file-inputs&quot;&gt;
+        &lt;label class&#x3D;&quot;file-input-label&quot;&gt;
+          Zip
+          &lt;input
+            type&#x3D;&quot;file&quot;
+            accept&#x3D;&quot;.zip&quot;
+            (change)&#x3D;&quot;onPgnZipSelected($event)&quot;
+            [disabled]&#x3D;&quot;isLoading()&quot;
+          /&gt;
+        &lt;/label&gt;
+        &lt;label class&#x3D;&quot;file-input-label&quot;&gt;
+          PGN
+          &lt;input
+            type&#x3D;&quot;file&quot;
+            accept&#x3D;&quot;.pgn&quot;
+            (change)&#x3D;&quot;onPgnFileSelected($event)&quot;
+            [disabled]&#x3D;&quot;isLoading()&quot;
+          /&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;div class&#x3D;&quot;lichess-date-picker&quot;&gt;
+        &lt;label&gt;Lichess Database:&lt;/label&gt;
+        &lt;div class&#x3D;&quot;date-selectors&quot;&gt;
+          &lt;select
+            (change)&#x3D;&quot;onLichessYearChange($event)&quot;
+            aria-label&#x3D;&quot;Select Year&quot;
+          &gt;
+            @for (year of years; track year) {
+              &lt;option [value]&#x3D;&quot;year&quot; [selected]&#x3D;&quot;year &#x3D;&#x3D;&#x3D; lichessYear()&quot;&gt;{{ year }}&lt;/option&gt;
+            }
+          &lt;/select&gt;
+          &lt;select
+            (change)&#x3D;&quot;onLichessMonthChange($event)&quot;
+            aria-label&#x3D;&quot;Select Month&quot;
+          &gt;
+            @for (month of months; track month) {
+              &lt;option [value]&#x3D;&quot;month&quot; [selected]&#x3D;&quot;month &#x3D;&#x3D;&#x3D; lichessMonth()&quot;&gt;
+                {{ month.toString().padStart(2, &#x27;0&#x27;) }}
+              &lt;/option&gt;
+            }
+          &lt;/select&gt;
+          &lt;button type&#x3D;&quot;button&quot; 
+            (click)&#x3D;&quot;loadFromLichess.emit()&quot;
+            [disabled]&#x3D;&quot;isLoading()&quot;
+            class&#x3D;&quot;action-btn&quot;&gt;
+            Load
+          &lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;license-info&quot;&gt;
+          &lt;small&gt;
+            Licensed under
+            &lt;a href&#x3D;&quot;https://tldrlegal.com/license/creative-commons-cc0-1.0-universal&quot; target&#x3D;&quot;_blank&quot; rel&#x3D;&quot;noopener noreferrer&quot;&gt;CC0&lt;/a&gt;
+            by
+            &lt;a href&#x3D;&quot;https://database.lichess.org&quot; target&#x3D;&quot;_blank&quot; rel&#x3D;&quot;noopener noreferrer&quot;&gt;Lichess&lt;/a&gt;
+          &lt;/small&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class&#x3D;&quot;url-input-section&quot;&gt;
+        &lt;input
+          type&#x3D;&quot;text&quot;
+          [value]&#x3D;&quot;urlInput()&quot;
+          (input)&#x3D;&quot;onUrlInputChange($event)&quot;
+          placeholder&#x3D;&quot;Enter PGN URL (supports .zst)&quot;
+          class&#x3D;&quot;url-input&quot;
+          aria-label&#x3D;&quot;PGN URL&quot;
+        /&gt;
+        &lt;button type&#x3D;&quot;button&quot; 
+          (click)&#x3D;&quot;loadFromUrl.emit()&quot;
+          [disabled]&#x3D;&quot;isLoading() || !urlInput()&quot;
+          class&#x3D;&quot;action-btn&quot;
+        &gt;
+          Load URL
+        &lt;/button&gt;
+      &lt;/div&gt;
+
+      @if (isLoading()) {
+        &lt;div class&#x3D;&quot;loading-indicator&quot; role&#x3D;&quot;status&quot; aria-live&#x3D;&quot;polite&quot;&gt;
+          &lt;div class&#x3D;&quot;progress-bar-container&quot;&gt;
+            &lt;div class&#x3D;&quot;progress-bar&quot; [style.width.%]&#x3D;&quot;loadingProgress()&quot;&gt;&lt;/div&gt;
+            &lt;span class&#x3D;&quot;progress-text&quot;&gt;{{ loadingProgress() }}%&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class&#x3D;&quot;loading-status&quot;&gt;{{ loadingStatus() || &#x27;Loading...&#x27; }}&lt;/div&gt;
+        &lt;/div&gt;
+      }
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="load-cache-section">  <h3    class="section-header"    tabindex="0"    role="button"    [attr.aria-expanded]="expanded()"    [attr.aria-controls]="\'load-cache-section-content\'"    (click)="toggleExpanded()"    (keydown.enter)="toggleExpanded(); $event.preventDefault()"    (keydown.space)="toggleExpanded(); $event.preventDefault()"  >    <span class="chevron" [class.expanded]="expanded()" aria-hidden="true"></span>    Load &amp; Cache  </h3>  <div class="section-content" [class.expanded]="expanded()" id="load-cache-section-content">    <!-- PGN Input -->    <div class="pgn-input-section">      <textarea        [value]="pgnInput()"        (input)="onPgnInputChange($event)"        rows="3"        placeholder="Paste PGN..."        aria-label="PGN Input"      ></textarea>      <div class="clipboard-buttons">        <button type="button" (click)="loadFromClipboardEvent.emit()" class="small-btn">Load from Clipboard</button>        <button type="button" (click)="copyToClipboardEvent.emit()" class="small-btn">Copy to Clipboard</button>      </div>    </div>    <!-- FEN Indexing Options -->    <div class="index-options">      <label class="checkbox-label">        <input          type="checkbox"          [checked]="indexStartPositions()"          (change)="onIndexStartPositionsChange($event)"        />        Index starting positions      </label>      <div class="option-input">        <label>          Max plies:          <input            type="number"            [value]="maxFenPlies()"            (input)="onMaxFenPliesChange($event)"            min="1"            max="500"            class="small-input"            aria-label="Max plies to index"          />        </label>      </div>    </div>    <!-- Cache Management -->    <div class="cache-section">      <div class="cache-actions">        <button type="button" (click)="clearPgnCache.emit()" class="small-btn" title="Clear all cached PGN data from IndexedDB">          Clear Cache        </button>        <button type="button" (click)="refreshCacheInfo.emit()" class="small-btn" title="Show cache statistics">          Cache Info        </button>      </div>      @if (cacheInfo(); as info) {        <div class="cache-info">          <small>            Entries: {{ info.count }}            @if (info.estimatedBytes > 0) {              | Size: {{ (info.estimatedBytes / 1024) | number:\'1.0-0\' }} KB            }          </small>        </div>      }    </div>    <!-- Load Section -->    <div class="load-section">      <div class="file-inputs">        <label class="file-input-label">          Zip          <input            type="file"            accept=".zip"            (change)="onPgnZipSelected($event)"            [disabled]="isLoading()"          />        </label>        <label class="file-input-label">          PGN          <input            type="file"            accept=".pgn"            (change)="onPgnFileSelected($event)"            [disabled]="isLoading()"          />        </label>      </div>      <div class="lichess-date-picker">        <label>Lichess Database:</label>        <div class="date-selectors">          <select            (change)="onLichessYearChange($event)"            aria-label="Select Year"          >            @for (year of years; track year) {              <option [value]="year" [selected]="year === lichessYear()">{{ year }}</option>            }          </select>          <select            (change)="onLichessMonthChange($event)"            aria-label="Select Month"          >            @for (month of months; track month) {              <option [value]="month" [selected]="month === lichessMonth()">                {{ month.toString().padStart(2, \'0\') }}              </option>            }          </select>          <button type="button"             (click)="loadFromLichess.emit()"            [disabled]="isLoading()"            class="action-btn">            Load          </button>        </div>        <div class="license-info">          <small>            Licensed under            <a href="https://tldrlegal.com/license/creative-commons-cc0-1.0-universal" target="_blank" rel="noopener noreferrer">CC0</a>            by            <a href="https://database.lichess.org" target="_blank" rel="noopener noreferrer">Lichess</a>          </small>        </div>      </div>      <div class="url-input-section">        <input          type="text"          [value]="urlInput()"          (input)="onUrlInputChange($event)"          placeholder="Enter PGN URL (supports .zst)"          class="url-input"          aria-label="PGN URL"        />        <button type="button"           (click)="loadFromUrl.emit()"          [disabled]="isLoading() || !urlInput()"          class="action-btn"        >          Load URL        </button>      </div>      @if (isLoading()) {        <div class="loading-indicator" role="status" aria-live="polite">          <div class="progress-bar-container">            <div class="progress-bar" [style.width.%]="loadingProgress()"></div>            <span class="progress-text">{{ loadingProgress() }}%</span>          </div>          <div class="loading-status">{{ loadingStatus() || \'Loading...\' }}</div>        </div>      }    </div>  </div></div></div>'
+    var COMPONENTS = [{'name': 'BoardDisplayComponent', 'selector': 'board-display'},{'name': 'EvaluationBarComponent', 'selector': 'evaluation-bar'},{'name': 'GameFilterPanelComponent', 'selector': 'game-filter-panel'},{'name': 'LoadCachePanelComponent', 'selector': 'load-cache-panel'},{'name': 'MoveListComponent', 'selector': 'move-list'},{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'},{'name': 'NgxPgnViewerComponent', 'selector': 'ngx-pgn-viewer'},{'name': 'PlayerTypeaheadComponent', 'selector': 'player-typeahead'},{'name': 'PracticePanelComponent', 'selector': 'practice-panel'},{'name': 'PromotionDialogComponent', 'selector': 'ngx-promotion-dialog'},{'name': 'ReplayPanelComponent', 'selector': 'replay-panel'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'LoadCachePanelComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'LoadCachePanelComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

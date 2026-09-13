@@ -15,11 +15,17 @@ import { highlightMatch, type TextSegment } from '../text-highlight';
 
 /** Inline styles applied to the dropdown when anchored to the viewer container. */
 interface DropdownPosition {
+	/** Always `fixed`: the dropdown is anchored to the viewer, not the panel. */
 	position: 'fixed';
+	/** Viewport x-offset, as a CSS length. */
 	left: string;
+	/** Viewport y-offset, as a CSS length. */
 	top: string;
+	/** Dropdown width, matched to the input element. */
 	width: string;
+	/** Max height before the list scrolls internally. */
 	maxHeight: string;
+	/** Set to `hidden` while measuring, so the pre-position paint is skipped. */
 	visibility?: 'hidden';
 }
 
@@ -76,7 +82,9 @@ export class PlayerTypeaheadComponent implements AfterViewInit, OnDestroy {
 	/** Close timeout handle for delayed blur. */
 	private closeTimeout: ReturnType<typeof setTimeout> | null = null;
 
+	/** The text input element. */
 	readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
+	/** The suggestion list element. */
 	readonly dropdownEl = viewChild<ElementRef<HTMLDivElement>>('dropdown');
 
 	/** Inline styles anchoring the dropdown; null keeps the CSS fallback. */
@@ -91,8 +99,11 @@ export class PlayerTypeaheadComponent implements AfterViewInit, OnDestroy {
 	 * left panel's scroll/clip context entirely.
 	 */
 	private containerEl: HTMLElement | null = null;
+	/** Watches the viewer container so the dropdown follows panel resizes. */
 	private resizeObserver: ResizeObserver | null = null;
+	/** Detaches the capture-phase scroll listener added in `ngAfterViewInit`. */
 	private scrollCleanup: (() => void) | null = null;
+	/** Coalesces reposition work into one animation frame. */
 	private rafId: number | null = null;
 
 	/** Filtered suggestions based on current input value. */
@@ -102,6 +113,10 @@ export class PlayerTypeaheadComponent implements AfterViewInit, OnDestroy {
 		return this.suggestions().filter((p) => p.toLowerCase().includes(query));
 	});
 
+	/**
+	 * Resets the highlighted suggestion whenever the dropdown (re)opens, so a
+	 * stale index from a previous query can never point past the new list.
+	 */
 	constructor() {
 		effect(() => {
 			// Reset active index when suggestions change
@@ -207,6 +222,11 @@ export class PlayerTypeaheadComponent implements AfterViewInit, OnDestroy {
 		}
 	}
 
+	/**
+	 * Finds the viewer container to anchor the dropdown against and starts
+	 * observing the layout, so the fixed-position dropdown tracks the input
+	 * while ancestor scroll or panel-resize changes the input's position.
+	 */
 	ngAfterViewInit(): void {
 		const input = this.inputEl()?.nativeElement;
 		if (!input) return;
@@ -228,6 +248,7 @@ export class PlayerTypeaheadComponent implements AfterViewInit, OnDestroy {
 		this.resizeObserver.observe(this.containerEl);
 	}
 
+	/** Detaches the scroll and resize listeners set up in `ngAfterViewInit`. */
 	ngOnDestroy(): void {
 		this.scrollCleanup?.();
 		this.resizeObserver?.disconnect();

@@ -1,0 +1,888 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  DropdownPosition</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>projects/ngx-chessground/src/lib/pgn-viewer/filter/player-typeahead.component.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Inline styles applied to the dropdown when anchored to the viewer container.</p>
+
+            </p>
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#left" 
+>
+                                            left
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#maxHeight" 
+>
+                                            maxHeight
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#position" 
+>
+                                            position
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#top" 
+>
+                                            top
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#visibility" 
+>
+                                            visibility
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#width" 
+>
+                                            width
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="left"></a>
+                                        <span class="name "><b>left</b>
+                                            <a href="#left">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>left:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Viewport x-offset, as a CSS length.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="maxHeight"></a>
+                                        <span class="name "><b>maxHeight</b>
+                                            <a href="#maxHeight">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>maxHeight:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Max height before the list scrolls internally.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="position"></a>
+                                        <span class="name "><b>position</b>
+                                            <a href="#position">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>position:     <code>unknown</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>unknown</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Always <code>fixed</code>: the dropdown is anchored to the viewer, not the panel.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="top"></a>
+                                        <span class="name "><b>top</b>
+                                            <a href="#top">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>top:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Viewport y-offset, as a CSS length.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="visibility"></a>
+                                        <span class="name "><b>visibility</b>
+                                            <a href="#visibility">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>visibility:     <code>unknown</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>unknown</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Set to <code>hidden</code> while measuring, so the pre-position paint is skipped.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="width"></a>
+                                        <span class="name "><b>width</b>
+                                            <a href="#width">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>width:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Dropdown width, matched to the input element.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+	AfterViewInit,
+	Component,
+	computed,
+	ElementRef,
+	effect,
+	input,
+	model,
+	OnDestroy,
+	output,
+	signal,
+	viewChild,
+} from &#x27;@angular/core&#x27;;
+import { highlightMatch, type TextSegment } from &#x27;../text-highlight&#x27;;
+
+/** Inline styles applied to the dropdown when anchored to the viewer container. */
+interface DropdownPosition {
+	/** Always &#x60;fixed&#x60;: the dropdown is anchored to the viewer, not the panel. */
+	position: &#x27;fixed&#x27;;
+	/** Viewport x-offset, as a CSS length. */
+	left: string;
+	/** Viewport y-offset, as a CSS length. */
+	top: string;
+	/** Dropdown width, matched to the input element. */
+	width: string;
+	/** Max height before the list scrolls internally. */
+	maxHeight: string;
+	/** Set to &#x60;hidden&#x60; while measuring, so the pre-position paint is skipped. */
+	visibility?: &#x27;hidden&#x27;;
+}
+
+/** Vertical gap between the input and the open dropdown. */
+const DROPDOWN_GAP &#x3D; 4;
+/** Maximum height of the dropdown before it scrolls internally. */
+const DROPDOWN_MAX_HEIGHT &#x3D; 440;
+/** Minimum height the dropdown is allowed to shrink to. */
+const DROPDOWN_MIN_HEIGHT &#x3D; 160;
+/** Below this much free space the dropdown flips to open upward. */
+const OPEN_UP_THRESHOLD &#x3D; 360;
+
+/**
+ * Reusable typeahead input for filtering by player name.
+ *
+ * Provides an autocomplete dropdown with keyboard navigation,
+ * text highlighting of matched portions, and support for
+ * closing via blur (with configurable delay) or Escape.
+ *
+ * @example
+ * &#x60;&#x60;&#x60;html
+ * &lt;player-typeahead
+ *   [label]&#x3D;&quot;&#x27;White&#x27;&quot;
+ *   [suggestions]&#x3D;&quot;uniqueWhitePlayers()&quot;
+ *   [(value)]&#x3D;&quot;filterWhite&quot;
+ *   (optionSelected)&#x3D;&quot;onWhiteSelected($event)&quot;
+ * /&gt;
+ * &#x60;&#x60;&#x60;
+ */
+@Component({
+	selector: &#x27;player-typeahead&#x27;,
+	templateUrl: &#x27;./player-typeahead.component.html&#x27;,
+	styleUrl: &#x27;./player-typeahead.component.css&#x27;,
+})
+export class PlayerTypeaheadComponent implements AfterViewInit, OnDestroy {
+	/** Placeholder text for the input field. */
+	readonly label &#x3D; input.required&lt;string&gt;();
+
+	/** Full list of player name suggestions. */
+	readonly suggestions &#x3D; input.required&lt;string[]&gt;();
+
+	/** Two-way bound current filter value. */
+	readonly value &#x3D; model&lt;string&gt;(&#x27;&#x27;);
+
+	/** Emitted when a suggestion is selected from the dropdown. */
+	readonly optionSelected &#x3D; output&lt;string&gt;();
+
+	/** Whether the dropdown is open. */
+	readonly isOpen &#x3D; signal(false);
+
+	/** Currently highlighted index in the dropdown. */
+	readonly activeIndex &#x3D; signal(0);
+
+	/** Close timeout handle for delayed blur. */
+	private closeTimeout: ReturnType&lt;typeof setTimeout&gt; | null &#x3D; null;
+
+	/** The text input element. */
+	readonly inputEl &#x3D; viewChild&lt;ElementRef&lt;HTMLInputElement&gt;&gt;(&#x27;input&#x27;);
+	/** The suggestion list element. */
+	readonly dropdownEl &#x3D; viewChild&lt;ElementRef&lt;HTMLDivElement&gt;&gt;(&#x27;dropdown&#x27;);
+
+	/** Inline styles anchoring the dropdown; null keeps the CSS fallback. */
+	readonly dropdownPosition &#x3D; signal&lt;DropdownPosition | null&gt;(null);
+	/** Whether the dropdown opens above the input. */
+	readonly openUp &#x3D; signal(false);
+
+	/**
+	 * The viewer container that anchors the fixed-position dropdown.
+	 * It establishes the containing block via layout containment
+	 * (&#x60;container-type: inline-size&#x60;), letting the dropdown escape the
+	 * left panel&#x27;s scroll/clip context entirely.
+	 */
+	private containerEl: HTMLElement | null &#x3D; null;
+	/** Watches the viewer container so the dropdown follows panel resizes. */
+	private resizeObserver: ResizeObserver | null &#x3D; null;
+	/** Detaches the capture-phase scroll listener added in &#x60;ngAfterViewInit&#x60;. */
+	private scrollCleanup: (() &#x3D;&gt; void) | null &#x3D; null;
+	/** Coalesces reposition work into one animation frame. */
+	private rafId: number | null &#x3D; null;
+
+	/** Filtered suggestions based on current input value. */
+	readonly filteredSuggestions &#x3D; computed(() &#x3D;&gt; {
+		const query &#x3D; this.value().toLowerCase().trim();
+		if (!query) return this.suggestions();
+		return this.suggestions().filter((p) &#x3D;&gt; p.toLowerCase().includes(query));
+	});
+
+	/**
+	 * Resets the highlighted suggestion whenever the dropdown (re)opens, so a
+	 * stale index from a previous query can never point past the new list.
+	 */
+	constructor() {
+		effect(() &#x3D;&gt; {
+			// Reset active index when suggestions change
+			if (this.isOpen()) {
+				this.activeIndex.set(0);
+			}
+		});
+	}
+
+	/**
+	 * Handles input events, updating the value and keeping the dropdown open.
+	 */
+	onInput(event: Event): void {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.value.set(value);
+		this.cancelClose();
+		this.isOpen.set(true);
+		this.activeIndex.set(0);
+		this.schedulePosition();
+	}
+
+	/** Opens the dropdown and resets selection index. */
+	open(): void {
+		this.isOpen.set(true);
+		this.activeIndex.set(0);
+		this.schedulePosition();
+	}
+
+	/**
+	 * Closes the dropdown after a delay to allow mousedown on items to fire first.
+	 */
+	close(): void {
+		this.cancelClose();
+		this.closeTimeout &#x3D; setTimeout(() &#x3D;&gt; {
+			this.isOpen.set(false);
+			this.resetPosition();
+			this.closeTimeout &#x3D; null;
+		}, 200);
+	}
+
+	/** Selects a player suggestion, updates the value, and closes the dropdown. */
+	select(player: string): void {
+		this.cancelClose();
+		this.value.set(player);
+		this.isOpen.set(false);
+		this.activeIndex.set(0);
+		this.resetPosition();
+		this.optionSelected.emit(player);
+	}
+
+	/**
+	 * Handles keyboard navigation in the dropdown.
+	 * Arrow keys navigate, Enter selects, Escape closes.
+	 */
+	onKeydown(event: KeyboardEvent): void {
+		const items &#x3D; this.filteredSuggestions();
+		if (!this.isOpen() || items.length &#x3D;&#x3D;&#x3D; 0) {
+			if (event.key &#x3D;&#x3D;&#x3D; &#x27;ArrowDown&#x27; || event.key &#x3D;&#x3D;&#x3D; &#x27;ArrowUp&#x27;) {
+				this.isOpen.set(true);
+				event.preventDefault();
+				return;
+			}
+			return;
+		}
+
+		switch (event.key) {
+			case &#x27;ArrowDown&#x27;:
+				event.preventDefault();
+				this.activeIndex.update((i) &#x3D;&gt; (i &lt; items.length - 1 ? i + 1 : 0));
+				break;
+			case &#x27;ArrowUp&#x27;:
+				event.preventDefault();
+				this.activeIndex.update((i) &#x3D;&gt; (i &gt; 0 ? i - 1 : items.length - 1));
+				break;
+			case &#x27;Enter&#x27;: {
+				event.preventDefault();
+				const selected &#x3D; items[this.activeIndex()];
+				if (selected) {
+					this.select(selected);
+				}
+				break;
+			}
+			case &#x27;Escape&#x27;:
+				this.isOpen.set(false);
+				this.resetPosition();
+				break;
+		}
+	}
+
+	/**
+	 * Splits text into match/non-match segments for highlighting.
+	 * Delegates to the standalone {@link highlightMatch} utility.
+	 */
+	highlightText(text: string, query: string): TextSegment[] {
+		return highlightMatch(text, query);
+	}
+
+	/** Cancels any pending close timeout. */
+	private cancelClose(): void {
+		if (this.closeTimeout) {
+			clearTimeout(this.closeTimeout);
+			this.closeTimeout &#x3D; null;
+		}
+	}
+
+	/**
+	 * Finds the viewer container to anchor the dropdown against and starts
+	 * observing the layout, so the fixed-position dropdown tracks the input
+	 * while ancestor scroll or panel-resize changes the input&#x27;s position.
+	 */
+	ngAfterViewInit(): void {
+		const input &#x3D; this.inputEl()?.nativeElement;
+		if (!input) return;
+
+		// Only anchor when the component is inside the PGN viewer.
+		this.containerEl &#x3D; input.closest(
+			&#x27;.pgn-viewer-container&#x27;,
+		) as HTMLElement | null;
+		if (!this.containerEl) return;
+
+		// Reposition while any ancestor (left panel, main content, window) scrolls.
+		const onScroll &#x3D; () &#x3D;&gt; this.schedulePosition();
+		window.addEventListener(&#x27;scroll&#x27;, onScroll, true);
+		this.scrollCleanup &#x3D; () &#x3D;&gt;
+			window.removeEventListener(&#x27;scroll&#x27;, onScroll, true);
+
+		// Reposition when the viewer is resized (window, panel drag handles, media queries).
+		this.resizeObserver &#x3D; new ResizeObserver(() &#x3D;&gt; this.schedulePosition());
+		this.resizeObserver.observe(this.containerEl);
+	}
+
+	/** Detaches the scroll and resize listeners set up in &#x60;ngAfterViewInit&#x60;. */
+	ngOnDestroy(): void {
+		this.scrollCleanup?.();
+		this.resizeObserver?.disconnect();
+		if (this.rafId !&#x3D;&#x3D; null) {
+			cancelAnimationFrame(this.rafId);
+		}
+	}
+
+	/**
+	 * Clears the anchored dropdown styles, restoring the CSS fallback
+	 * (only relevant when the dropdown is closed).
+	 */
+	private resetPosition(): void {
+		this.dropdownPosition.set(null);
+		this.openUp.set(false);
+	}
+
+	/** Coalesces repositioning work into a single animation frame. */
+	private schedulePosition(): void {
+		if (this.rafId !&#x3D;&#x3D; null) {
+			cancelAnimationFrame(this.rafId);
+		}
+		this.rafId &#x3D; requestAnimationFrame(() &#x3D;&gt; {
+			this.rafId &#x3D; null;
+			this.positionDropdown();
+		});
+	}
+
+	/**
+	 * Anchors the dropdown to the input using fixed positioning relative to the
+	 * viewer container, so it escapes the left panel&#x27;s scroll/clip context.
+	 * Opens upward when there is not enough room below the input.
+	 */
+	private positionDropdown(): void {
+		if (!this.isOpen()) return;
+		const input &#x3D; this.inputEl()?.nativeElement;
+		const container &#x3D; this.containerEl;
+		if (!input || !container) return;
+
+		const inputRect &#x3D; input.getBoundingClientRect();
+		const containerRect &#x3D; container.getBoundingClientRect();
+		const gap &#x3D; DROPDOWN_GAP;
+
+		const spaceBelow &#x3D; containerRect.bottom - inputRect.bottom - gap;
+		const spaceAbove &#x3D; inputRect.top - containerRect.top - gap;
+		const openUp &#x3D; spaceBelow &lt; OPEN_UP_THRESHOLD &amp;&amp; spaceAbove &gt; spaceBelow;
+
+		const maxHeight &#x3D; Math.max(
+			Math.min(DROPDOWN_MAX_HEIGHT, openUp ? spaceAbove : spaceBelow),
+			DROPDOWN_MIN_HEIGHT,
+		);
+
+		const width &#x3D; inputRect.width;
+		const maxLeft &#x3D; Math.max(containerRect.width - width, 0);
+		const left &#x3D; Math.min(
+			Math.max(inputRect.left - containerRect.left, 0),
+			maxLeft,
+		);
+
+		if (!openUp) {
+			// Opening down: the top offset is exact regardless of dropdown height.
+			this.openUp.set(false);
+			this.dropdownPosition.set({
+				position: &#x27;fixed&#x27;,
+				left: &#x60;${left}px&#x60;,
+				top: &#x60;${inputRect.bottom - containerRect.top + gap}px&#x60;,
+				width: &#x60;${width}px&#x60;,
+				maxHeight: &#x60;${maxHeight}px&#x60;,
+			});
+			return;
+		}
+
+		// Opening up: measure the rendered height first, then anchor the bottom
+		// edge to the input. The first paint is hidden to avoid a visible jump.
+		this.openUp.set(true);
+		this.dropdownPosition.set({
+			position: &#x27;fixed&#x27;,
+			left: &#x60;${left}px&#x60;,
+			top: &#x27;0&#x27;,
+			width: &#x60;${width}px&#x60;,
+			maxHeight: &#x60;${maxHeight}px&#x60;,
+			visibility: &#x27;hidden&#x27;,
+		});
+		requestAnimationFrame(() &#x3D;&gt; {
+			const dropdown &#x3D; this.dropdownEl()?.nativeElement;
+			const height &#x3D; dropdown?.offsetHeight ?? maxHeight;
+			this.dropdownPosition.set({
+				position: &#x27;fixed&#x27;,
+				left: &#x60;${left}px&#x60;,
+				top: &#x60;${Math.max(inputRect.top - containerRect.top - height - gap, 0)}px&#x60;,
+				width: &#x60;${width}px&#x60;,
+				maxHeight: &#x60;${maxHeight}px&#x60;,
+			});
+		});
+	}
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'DropdownPosition.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

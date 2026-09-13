@@ -12,10 +12,75 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-        <div class="navbar navbar-default navbar-fixed-top visible-xs">
-            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -24,7 +89,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="hidden-xs menu">
+               <div class="d-none d-md-block menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -42,24 +107,35 @@
 
 
 
+
+
+
+
+
 <ol class="breadcrumb">
-  <li>Interfaces</li>
-  <li
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
   >
   FilterCriteria</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
         </li>
-        <li >
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="c-info">
+    <div class="tab-pane fade active in" id="info">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -75,7 +151,7 @@
                 <p>Criteria for filtering a parsed game collection in the PGN processor worker.</p>
 <p>All string fields are matched case-insensitively as substrings.
 Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when unset.</p>
-<div><pre class="line-numbers"><code class="language-typescript">const criteria: FilterCriteria = {
+<b>Example :</b><div><pre class="line-numbers"><code class="language-typescript">const criteria: FilterCriteria = {
   white: &#39;carlsen&#39;,
   black: &#39;&#39;,
   result: &#39;1-0&#39;,
@@ -87,13 +163,16 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
   maxWhiteRating: Infinity,
   maxBlackRating: Infinity,
   eco: &#39;B33&#39;,
-  timeControl: &#39;180+2&#39;,
+  timeControl: [&#39;180+2&#39;, &#39;300+0&#39;],
   event: &#39;&#39;,
+  filterByFen: false,
+  targetFen: &#39;&#39;,
+  sortAscending: false,
 };</code></pre></div>
             </p>
 
 
-        <section>
+        <section data-compodoc="block-index">
             <h3 id="index">Index</h3>
             <table class="table table-sm table-bordered index-table">
                 <tbody>
@@ -112,6 +191,12 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                                         </a>
                                 </li>
                                 <li>
+                                        <a href="#broadcastName" 
+>
+                                            broadcastName
+                                        </a>
+                                </li>
+                                <li>
                                         <a href="#eco" 
 >
                                             eco
@@ -121,6 +206,12 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                                         <a href="#event" 
 >
                                             event
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#filterByFen" 
+>
+                                            filterByFen
                                         </a>
                                 </li>
                                 <li>
@@ -148,6 +239,12 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                                         </a>
                                 </li>
                                 <li>
+                                        <a href="#minUpsetEloDiff" 
+>
+                                            minUpsetEloDiff
+                                        </a>
+                                </li>
+                                <li>
                                         <a href="#minWhiteRating" 
 >
                                             minWhiteRating
@@ -166,6 +263,18 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                                         </a>
                                 </li>
                                 <li>
+                                        <a href="#sortAscending" 
+>
+                                            sortAscending
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#targetFen" 
+>
+                                            targetFen
+                                        </a>
+                                </li>
+                                <li>
                                         <a href="#targetMoves" 
 >
                                             targetMoves
@@ -175,6 +284,24 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                                         <a href="#timeControl" 
 >
                                             timeControl
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#upsetDraw" 
+>
+                                            upsetDraw
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#upsetEnabled" 
+>
+                                            upsetEnabled
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#upsetWin" 
+>
+                                            upsetWin
                                         </a>
                                 </li>
                                 <li>
@@ -192,7 +319,7 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
 
 
 
-            <section>
+            <section data-compodoc="block-properties">
                 <h3 id="inputs">Properties</h3>
                     <table class="table table-sm table-bordered">
                         <tbody>
@@ -228,6 +355,45 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                             <tr>
                                 <td class="col-md-4">
                                     <div class="io-description"><p>Filter by black player name (case-insensitive substring match).</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="broadcastName"></a>
+                                        <span class="name "><b>broadcastName</b>
+                                            <a href="#broadcastName">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>broadcastName:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Broadcast name filter (case-insensitive substring).</p>
 </div>
                                 </td>
                             </tr>
@@ -306,6 +472,46 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                             <tr>
                                 <td class="col-md-4">
                                     <div class="io-description"><p>Event/tournament name filter (case-insensitive substring).</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="filterByFen"></a>
+                                        <span class="name "><b>filterByFen</b>
+                                            <a href="#filterByFen">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>filterByFen:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>When <code>true</code>, filter games by the <a href="targetFen">targetFen</a> position.
+Games that reach the target board position at any point are included.</p>
 </div>
                                 </td>
                             </tr>
@@ -471,6 +677,45 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
+                                        <a name="minUpsetEloDiff"></a>
+                                        <span class="name "><b>minUpsetEloDiff</b>
+                                            <a href="#minUpsetEloDiff">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>minUpsetEloDiff:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Minimum Elo gap between the players for a game to count as an upset. Default 0.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
                                         <a name="minWhiteRating"></a>
                                         <span class="name "><b>minWhiteRating</b>
                                             <a href="#minWhiteRating">
@@ -588,6 +833,88 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
+                                        <a name="sortAscending"></a>
+                                        <span class="name "><b>sortAscending</b>
+                                            <a href="#sortAscending">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>sortAscending:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Sort direction for filtered results.
+<code>false</code> = descending (highest Elo first, default).
+<code>true</code> = ascending (lowest Elo first).</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="targetFen"></a>
+                                        <span class="name "><b>targetFen</b>
+                                            <a href="#targetFen">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>targetFen:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Target FEN string (piece placement + active color + castling +
+en passant) for position-based filtering. Only used when
+<a href="filterByFen">filterByFen</a> is <code>true</code>.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
                                         <a name="targetMoves"></a>
                                         <span class="name "><b>targetMoves</b>
                                             <a href="#targetMoves">
@@ -637,7 +964,7 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>timeControl:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                        <code>timeControl:     <code>string[]</code>
 </code>
                                     </td>
                                 </tr>
@@ -645,7 +972,7 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            <i>Type : </i>    <code>string[]</code>
 
                                         </td>
                                     </tr>
@@ -656,7 +983,130 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
 
                             <tr>
                                 <td class="col-md-4">
-                                    <div class="io-description"><p>Time control filter (case-insensitive substring, e.g. <code>&quot;180+2&quot;</code>).</p>
+                                    <div class="io-description"><p>Time control filter — normalized time controls to keep
+(e.g. <code>[&quot;180+2&quot;, &quot;60+0&quot;]</code>). A game matches when its normalized
+time control equals any entry. Empty array means no filter.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="upsetDraw"></a>
+                                        <span class="name "><b>upsetDraw</b>
+                                            <a href="#upsetDraw">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>upsetDraw:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>When <code>true</code> and <a href="upsetEnabled">upsetEnabled</a>, include upsets where the weaker player draws.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="upsetEnabled"></a>
+                                        <span class="name "><b>upsetEnabled</b>
+                                            <a href="#upsetEnabled">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>upsetEnabled:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>When <code>true</code>, keep only upset games: the weaker-rated player
+(by Elo) either beats or draws the stronger-rated player.
+Requires both players to have a known Elo and the rating gap to
+be at least <a href="minUpsetEloDiff">minUpsetEloDiff</a>. When enabled, results are
+sorted by upset size (rating gap) instead of Elo sum.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="upsetWin"></a>
+                                        <span class="name "><b>upsetWin</b>
+                                            <a href="#upsetWin">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>upsetWin:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>When <code>true</code> and <a href="upsetEnabled">upsetEnabled</a>, include upsets where the weaker player wins.</p>
 </div>
                                 </td>
                             </tr>
@@ -705,9 +1155,43 @@ Rating fields default to 0 (no lower bound) or Infinity (no upper bound) when un
     </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="c-source">
+    <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Chess } from &#x27;chess.js&#x27;;
 import { parsePgn } from &#x27;chessops/pgn&#x27;;
+import { isUpsetGame } from &#x27;./upset&#x27;;
+
+/**
+ * Payload for the &#x27;load&#x27; message, containing PGN text and indexing options.
+ */
+export interface LoadPayload {
+	/** Raw PGN text to parse. */
+	pgn: string;
+	/** Whether to include the starting position FEN in the index cache. */
+	indexStartPositions: boolean;
+	/** Maximum number of plies to replay per game when building the FEN cache. */
+	maxFenPlies: number;
+	/**
+	 * When &#x60;true&#x60;, the parsed collection is cached as a file on disk behind the
+	 * desktop app&#x27;s local server instead of IndexedDB.
+	 */
+	useDiskCache: boolean;
+}
+
+/**
+ * Payload for the &#x27;loadFromCache&#x27; message. Restores a previously parsed
+ * collection from the cache using only its content hash — the main thread does
+ * not have to download, decompress or hash the source again.
+ */
+export interface LoadFromCachePayload {
+	/** SHA-256 hash of the decompressed PGN content. */
+	pgnHash: string;
+	/** Whether the caller needs a built FEN index (starting positions). */
+	indexStartPositions: boolean;
+	/** Max half-moves the caller expects to be indexed per game. */
+	maxFenPlies: number;
+	/** Cache the collection on disk (desktop app) instead of IndexedDB. */
+	useDiskCache: boolean;
+}
 
 /**
  * Discriminated union of messages sent from the main thread to the PGN processor worker.
@@ -716,12 +1200,24 @@ import { parsePgn } from &#x27;chessops/pgn&#x27;;
  * so callers can match requests with responses.
  */
 export type WorkerMessage &#x3D;
-	/** Load raw PGN text for parsing. */
-	| { type: &#x27;load&#x27;; payload: string; id: number }
+	/** Load raw PGN text for parsing. &#x60;pgnHash&#x60; enables IndexedDB cache restore. */
+	| {
+			type: &#x27;load&#x27;;
+			payload: string | LoadPayload;
+			id: number;
+			pgnHash?: string;
+	  }
+	/**
+	 * Restore a collection from IndexedDB by content hash without sending the
+	 * PGN text. Answers with &#x60;&#x27;load&#x27;&#x60; on a hit or &#x60;&#x27;cacheMiss&#x27;&#x60; on a miss.
+	 */
+	| { type: &#x27;loadFromCache&#x27;; payload: LoadFromCachePayload; id: number }
 	/** Filter the currently loaded games by {@link FilterCriteria}. */
 	| { type: &#x27;filter&#x27;; payload: FilterCriteria; id: number }
 	/** Load the full move data for a game at the given index. */
-	| { type: &#x27;loadGame&#x27;; payload: number; id: number };
+	| { type: &#x27;loadGame&#x27;; payload: number; id: number }
+	/** Clear all cached data (IndexedDB, or the desktop disk cache). */
+	| { type: &#x27;clearCache&#x27;; id: number; useDiskCache: boolean };
 
 /**
  * Criteria for filtering a parsed game collection in the PGN processor worker.
@@ -743,8 +1239,11 @@ export type WorkerMessage &#x3D;
  *   maxWhiteRating: Infinity,
  *   maxBlackRating: Infinity,
  *   eco: &#x27;B33&#x27;,
- *   timeControl: &#x27;180+2&#x27;,
+ *   timeControl: [&#x27;180+2&#x27;, &#x27;300+0&#x27;],
  *   event: &#x27;&#x27;,
+ *   filterByFen: false,
+ *   targetFen: &#x27;&#x27;,
+ *   sortAscending: false,
  * };
  * &#x60;&#x60;&#x60;
  */
@@ -761,6 +1260,13 @@ export interface FilterCriteria {
 	ignoreColor: boolean;
 	/** SAN move sequence the game must be prefixed with (only used when {@link moves} is &#x60;true&#x60;). */
 	targetMoves: string[];
+	/** When &#x60;true&#x60;, filter games by the {@link targetFen} position.
+	 * Games that reach the target board position at any point are included. */
+	filterByFen: boolean;
+	/** Target FEN string (piece placement + active color + castling +
+	 * en passant) for position-based filtering. Only used when
+	 * {@link filterByFen} is &#x60;true&#x60;. */
+	targetFen: string;
 	/** Minimum white Elo rating (inclusive). Default 0. */
 	minWhiteRating: number;
 	/** Minimum black Elo rating (inclusive). Default 0. */
@@ -771,10 +1277,36 @@ export interface FilterCriteria {
 	maxBlackRating: number;
 	/** ECO code filter (case-insensitive substring, e.g. &#x60;&quot;B33&quot;&#x60;). */
 	eco: string;
-	/** Time control filter (case-insensitive substring, e.g. &#x60;&quot;180+2&quot;&#x60;). */
-	timeControl: string;
+	/**
+	 * Time control filter — normalized time controls to keep
+	 * (e.g. &#x60;[&quot;180+2&quot;, &quot;60+0&quot;]&#x60;). A game matches when its normalized
+	 * time control equals any entry. Empty array means no filter.
+	 */
+	timeControl: string[];
 	/** Event/tournament name filter (case-insensitive substring). */
 	event: string;
+	/** Broadcast name filter (case-insensitive substring). */
+	broadcastName: string;
+	/**
+	 * Sort direction for filtered results.
+	 * &#x60;false&#x60; &#x3D; descending (highest Elo first, default).
+	 * &#x60;true&#x60; &#x3D; ascending (lowest Elo first).
+	 */
+	sortAscending: boolean;
+	/**
+	 * When &#x60;true&#x60;, keep only upset games: the weaker-rated player
+	 * (by Elo) either beats or draws the stronger-rated player.
+	 * Requires both players to have a known Elo and the rating gap to
+	 * be at least {@link minUpsetEloDiff}. When enabled, results are
+	 * sorted by upset size (rating gap) instead of Elo sum.
+	 */
+	upsetEnabled: boolean;
+	/** When &#x60;true&#x60; and {@link upsetEnabled}, include upsets where the weaker player wins. */
+	upsetWin: boolean;
+	/** When &#x60;true&#x60; and {@link upsetEnabled}, include upsets where the weaker player draws. */
+	upsetDraw: boolean;
+	/** Minimum Elo gap between the players for a game to count as an upset. Default 0. */
+	minUpsetEloDiff: number;
 }
 
 /**
@@ -802,6 +1334,17 @@ export type WorkerResponse &#x3D;
 			};
 			id: number;
 	  }
+	/** Progress update during long-running operations (load, filter). */
+	| {
+			type: &#x27;progress&#x27;;
+			payload: { percent: number; status: string };
+			id: number;
+	  }
+	/**
+	 * Response to &#x60;&#x27;loadFromCache&#x27;&#x60; when no usable IndexedDB entry exists. The
+	 * main thread should fall back to downloading and parsing the source.
+	 */
+	| { type: &#x27;cacheMiss&#x27;; payload?: undefined; id: number }
 	/** Error response for any message type. */
 	| { type: &#x27;error&#x27;; payload: string; id: number };
 
@@ -833,6 +1376,8 @@ export interface GameMetadata {
 	timeControlNormalized?: string;
 	/** Event/tournament name from the PGN header. */
 	event?: string;
+	/** Broadcast name from the PGN header (e.g. Lichess broadcast name). */
+	broadcastName?: string;
 }
 
 // --- Worker State ---
@@ -843,18 +1388,448 @@ let games: string[] &#x3D; [];
 let gameMetadata: GameMetadata[] &#x3D; [];
 /** LRU-like cache of parsed move arrays keyed by game index, cleared on re-filter. */
 const gameMovesCache &#x3D; new Map&lt;number, string[]&gt;();
+/**
+ * Cache of normalized FEN positions for each game, pre-computed during load.
+ * Maps game index to a Set of normalized FEN strings (first N plies only).
+ * Populated eagerly in handleLoad so FEN filtering is a single Set lookup.
+ */
+const gameFenCache &#x3D; new Map&lt;number, Set&lt;string&gt;&gt;();
+// ---- IndexedDB Cache -------
+
+/**
+ * IndexedDB database used by the worker.
+ *
+ * Must match the main thread&#x27;s &#x60;PgnCacheService&#x60; constants: the viewer&#x27;s
+ * cache panel and the worker read and write the same store.
+ */
+const CACHE_DB_NAME &#x3D; &#x27;NgxChessgroundPgnCache&#x27;;
+/** Schema version of {@link CACHE_DB_NAME}; keep in step with &#x60;PgnCacheService&#x60;. */
+const CACHE_DB_VERSION &#x3D; 1;
+/** Object store holding {@link CachedCollection} records. */
+const CACHE_STORE_NAME &#x3D; &#x27;pgn_cache&#x27;;
+
+// ---- Desktop disk cache ----
+// Inside the packaged app the webview origin changes on every launch (Deno
+// Desktop picks a random localhost port), so IndexedDB never survives a
+// restart. Desktop builds keep the parsed collection in a file on disk behind
+// the local server instead.
+
+/** Local server endpoint for parsed-archive cache files. */
+const DISK_CACHE_URL &#x3D; &#x27;/api/cache&#x27;;
+/** Disk cache entries older than this are ignored (the server also prunes them). */
+const DISK_CACHE_TTL_MS &#x3D; 30 * 24 * 60 * 60 * 1000;
+/** IndexedDB cache entries older than this are ignored. */
+const INDEXED_DB_TTL_MS &#x3D; 7 * 24 * 60 * 60 * 1000;
+/**
+ * Largest serialized cache the worker will hand to the server. Bigger
+ * collections skip disk caching and are re-parsed instead of risking a large
+ * memory spike in the webview.
+ */
+const MAX_DISK_CACHE_BYTES &#x3D; 512 * 1024 * 1024;
+
+/** Shape of a cached collection, shared by IndexedDB and the disk cache. */
+interface CachedCollection {
+	/** Raw PGN text per game, split on the &#x60;[Event …]&#x60; header. */
+	games: string[];
+	/** Header-only metadata for each game, aligned with {@link games}. */
+	gameMetadata: GameMetadata[];
+	/**
+	 * Serialized FEN index: &#x60;[gameIndex, normalizedFen[]]&#x60; tuples, produced by
+	 * &#x60;serializeFenCache&#x60; so the &#x60;Map&lt;number, Set&lt;string&gt;&gt;&#x60; survives structured
+	 * clone and JSON round-trips.
+	 */
+	fenCache: [number, string[]][];
+	/** When this entry was written (epoch ms); drives TTL expiry. */
+	createdAt: number;
+	/**
+	 * Whether {@link fenCache} was actually built. &#x60;false&#x60;/absent means the
+	 * index holds empty sets, so position filtering cannot be served from this
+	 * entry and it must be re-parsed.
+	 */
+	indexed?: boolean;
+	/** Max half-moves replayed per game when {@link fenCache} was built. */
+	maxFenPlies?: number;
+}
+
+/** Serializes the FEN cache (Map&lt;number, Set&lt;string&gt;&gt;) into a JSON-safe
+ * array of [index, fen[]] tuples.
+ */
+function serializeFenCache(
+	cache: Map&lt;number, Set&lt;string&gt;&gt;,
+): [number, string[]][] {
+	const result: [number, string[]][] &#x3D; [];
+	for (const [key, set] of cache) {
+		result.push([key, Array.from(set)]);
+	}
+	return result;
+}
+
+/**
+ * Deserializes a [index, fen[]][] array back into a Map&lt;number, Set&lt;string&gt;&gt;.
+ */
+function deserializeFenCache(
+	data: [number, string[]][],
+): Map&lt;number, Set&lt;string&gt;&gt; {
+	const map &#x3D; new Map&lt;number, Set&lt;string&gt;&gt;();
+	for (const [key, fens] of data) {
+		map.set(key, new Set(fens));
+	}
+	return map;
+}
+
+/** Restores the worker&#x27;s in-memory collection from cached data. */
+function applyCachedCollection(data: CachedCollection): void {
+	games &#x3D; data.games;
+	gameMetadata &#x3D; data.gameMetadata;
+	gameMovesCache.clear();
+	const restoredFenCache &#x3D; deserializeFenCache(data.fenCache);
+	gameFenCache.clear();
+	for (const [k, v] of restoredFenCache) {
+		gameFenCache.set(k, v);
+	}
+}
+
+/**
+ * Whether a cached collection is fresh enough and carries a FEN index that
+ * covers the caller&#x27;s request.
+ */
+function isCachedCollectionUsable(
+	data: CachedCollection,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+	ttlMs: number,
+): boolean {
+	if (Date.now() - data.createdAt &gt; ttlMs) return false;
+	if (
+		indexStartPositions &amp;&amp;
+		!(data.indexed &#x3D;&#x3D;&#x3D; true &amp;&amp; (data.maxFenPlies ?? 0) &gt;&#x3D; maxFenPlies)
+	) {
+		return false;
+	}
+	return true;
+}
+
+/** Builds the cache payload as chunks so no single huge string is created. */
+function buildDiskCacheBody(indexed: boolean, maxFenPlies: number): Blob {
+	const parts: BlobPart[] &#x3D; [&#x27;{&quot;games&quot;:[&#x27;];
+	for (let i &#x3D; 0; i &lt; games.length; i++) {
+		if (i &gt; 0) parts.push(&#x27;,&#x27;);
+		parts.push(JSON.stringify(games[i]));
+	}
+	parts.push(&#x27;],&quot;gameMetadata&quot;:&#x27;, JSON.stringify(gameMetadata));
+	parts.push(&#x27;,&quot;fenCache&quot;:[&#x27;);
+	let first &#x3D; true;
+	for (const [index, fens] of gameFenCache) {
+		if (!first) parts.push(&#x27;,&#x27;);
+		first &#x3D; false;
+		parts.push(&#x60;[${index},${JSON.stringify(Array.from(fens))}]&#x60;);
+	}
+	parts.push(&#x27;],&quot;createdAt&quot;:&#x27;, String(Date.now()));
+	parts.push(&#x27;,&quot;indexed&quot;:&#x27;, indexed ? &#x27;true&#x27; : &#x27;false&#x27;);
+	parts.push(&#x27;,&quot;maxFenPlies&quot;:&#x27;, String(maxFenPlies), &#x27;}&#x27;);
+	return new Blob(parts, { type: &#x27;application/json&#x27; });
+}
+
+/** Reads the parsed collection from the desktop app&#x27;s on-disk cache. */
+async function readDiskCache(
+	pgnHash: string,
+): Promise&lt;CachedCollection | null&gt; {
+	try {
+		const response &#x3D; await fetch(&#x60;${DISK_CACHE_URL}/${pgnHash}&#x60;, {
+			cache: &#x27;no-store&#x27;,
+		});
+		if (!response.ok) return null;
+		return (await response.json()) as CachedCollection;
+	} catch {
+		return null;
+	}
+}
+
+/** Stores the parsed collection in the desktop app&#x27;s on-disk cache. */
+async function writeDiskCache(
+	pgnHash: string,
+	indexed: boolean,
+	maxFenPlies: number,
+): Promise&lt;void&gt; {
+	try {
+		const body &#x3D; buildDiskCacheBody(indexed, maxFenPlies);
+		if (body.size &gt; MAX_DISK_CACHE_BYTES) return;
+		await fetch(&#x60;${DISK_CACHE_URL}/${pgnHash}&#x60;, {
+			method: &#x27;PUT&#x27;,
+			headers: { &#x27;content-type&#x27;: &#x27;application/json&#x27; },
+			body,
+		});
+	} catch {
+		// Best effort — the archive is simply re-parsed on the next launch.
+	}
+}
+
+/** Deletes the desktop app&#x27;s on-disk cache. */
+async function clearDiskCache(): Promise&lt;void&gt; {
+	try {
+		await fetch(DISK_CACHE_URL, { method: &#x27;DELETE&#x27; });
+	} catch {
+		// Nothing to clear.
+	}
+}
+
+/**
+ * Opens the IndexedDB cache database, creating it if needed.
+ */
+function openCacheDb(): Promise&lt;IDBDatabase&gt; {
+	return new Promise((resolve, reject) &#x3D;&gt; {
+		const request &#x3D; indexedDB.open(CACHE_DB_NAME, CACHE_DB_VERSION);
+		request.onupgradeneeded &#x3D; () &#x3D;&gt; {
+			const db &#x3D; request.result;
+			if (!db.objectStoreNames.contains(CACHE_STORE_NAME)) {
+				const store &#x3D; db.createObjectStore(CACHE_STORE_NAME, {
+					keyPath: &#x27;pgnHash&#x27;,
+				});
+				store.createIndex(&#x27;createdAt&#x27;, &#x27;data.createdAt&#x27;, { unique: false });
+			}
+		};
+		request.onsuccess &#x3D; () &#x3D;&gt; resolve(request.result);
+		request.onerror &#x3D; () &#x3D;&gt;
+			reject(new Error(&#x60;IndexedDB open error: ${request.error}&#x60;));
+	});
+}
+
+/**
+ * Attempts to restore worker state from the cache.
+ *
+ * Uses the desktop app&#x27;s on-disk cache or IndexedDB depending on
+ * {@link useDiskCache}. An entry is only usable when it satisfies the caller&#x27;s
+ * indexing request: a caller that needs a FEN index cannot use an entry that
+ * was cached without one (or with a shorter replay window).
+ *
+ * @returns &#x60;true&#x60; if a valid, suitable cache entry was found and restored.
+ */
+async function tryRestoreFromCache(
+	pgnHash: string,
+	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+	useDiskCache: boolean,
+): Promise&lt;boolean&gt; {
+	return useDiskCache
+		? tryRestoreFromDiskCache(pgnHash, id, indexStartPositions, maxFenPlies)
+		: tryRestoreFromIndexedDb(pgnHash, id, indexStartPositions, maxFenPlies);
+}
+
+/** Posts the standard &#x60;&#x27;load&#x27;&#x60; response for a restored collection. */
+function postRestoredCollection(id: number): void {
+	postMessage({
+		type: &#x27;load&#x27;,
+		id,
+		payload: { count: games.length, metadata: gameMetadata },
+	});
+}
+
+/** Restores the collection from the desktop app&#x27;s on-disk cache. */
+async function tryRestoreFromDiskCache(
+	pgnHash: string,
+	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+): Promise&lt;boolean&gt; {
+	const data &#x3D; await readDiskCache(pgnHash);
+	if (!data) return false;
+	if (
+		!isCachedCollectionUsable(
+			data,
+			indexStartPositions,
+			maxFenPlies,
+			DISK_CACHE_TTL_MS,
+		)
+	) {
+		// Drop the unusable entry so the next load starts clean.
+		void fetch(&#x60;${DISK_CACHE_URL}/${pgnHash}&#x60;, { method: &#x27;DELETE&#x27; }).catch(
+			() &#x3D;&gt; undefined,
+		);
+		return false;
+	}
+	applyCachedCollection(data);
+	postRestoredCollection(id);
+	return true;
+}
+
+/** Restores the collection from IndexedDB (the browser cache). */
+async function tryRestoreFromIndexedDb(
+	pgnHash: string,
+	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+): Promise&lt;boolean&gt; {
+	try {
+		const db &#x3D; await openCacheDb();
+		const tx &#x3D; db.transaction(CACHE_STORE_NAME, &#x27;readonly&#x27;);
+		const store &#x3D; tx.objectStore(CACHE_STORE_NAME);
+		const request &#x3D; store.get(pgnHash);
+
+		const result &#x3D; await new Promise&lt;unknown&gt;((resolve, reject) &#x3D;&gt; {
+			request.onsuccess &#x3D; () &#x3D;&gt; resolve(request.result ?? null);
+			request.onerror &#x3D; () &#x3D;&gt; reject(request.error);
+		});
+
+		if (!result) return false;
+
+		const entry &#x3D; result as { pgnHash: string; data: CachedCollection };
+
+		if (
+			!isCachedCollectionUsable(
+				entry.data,
+				indexStartPositions,
+				maxFenPlies,
+				INDEXED_DB_TTL_MS,
+			)
+		) {
+			db.close();
+			// Delete the expired/unusable entry.
+			const delTx &#x3D; db.transaction(CACHE_STORE_NAME, &#x27;readwrite&#x27;);
+			delTx.objectStore(CACHE_STORE_NAME).delete(pgnHash);
+			return false;
+		}
+
+		applyCachedCollection(entry.data);
+		db.close();
+		postRestoredCollection(id);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Persists the current worker state (games, metadata, FEN cache) to the desktop
+ * disk cache or IndexedDB.
+ *
+ * @param pgnHash — Content hash used as the cache key.
+ * @param indexed — Whether the FEN index was built for this collection.
+ * @param maxFenPlies — Replay window used for the FEN index.
+ * @param useDiskCache — Cache on disk (desktop app) instead of IndexedDB.
+ */
+async function saveToCache(
+	pgnHash: string,
+	indexed: boolean,
+	maxFenPlies: number,
+	useDiskCache: boolean,
+): Promise&lt;void&gt; {
+	if (useDiskCache) {
+		await writeDiskCache(pgnHash, indexed, maxFenPlies);
+		return;
+	}
+
+	try {
+		const db &#x3D; await openCacheDb();
+		const tx &#x3D; db.transaction(CACHE_STORE_NAME, &#x27;readwrite&#x27;);
+		const store &#x3D; tx.objectStore(CACHE_STORE_NAME);
+
+		store.put({
+			pgnHash,
+			data: {
+				games,
+				gameMetadata,
+				fenCache: serializeFenCache(gameFenCache),
+				createdAt: Date.now(),
+				indexed,
+				maxFenPlies,
+			},
+		});
+
+		await new Promise&lt;void&gt;((resolve, reject) &#x3D;&gt; {
+			tx.oncomplete &#x3D; () &#x3D;&gt; resolve();
+			tx.onerror &#x3D; () &#x3D;&gt; reject(tx.error);
+		});
+
+		db.close();
+	} catch {
+		// Silently ignore storage errors (quota, private browsing, etc.)
+	}
+}
+
+/**
+ * Clears all cached PGN data.
+ *
+ * @param useDiskCache — Clear the desktop app&#x27;s on-disk cache instead of IndexedDB.
+ */
+async function clearPgnCache(useDiskCache: boolean): Promise&lt;void&gt; {
+	if (useDiskCache) {
+		await clearDiskCache();
+		return;
+	}
+
+	try {
+		const db &#x3D; await openCacheDb();
+		const tx &#x3D; db.transaction(CACHE_STORE_NAME, &#x27;readwrite&#x27;);
+		tx.objectStore(CACHE_STORE_NAME).clear();
+		await new Promise&lt;void&gt;((resolve, reject) &#x3D;&gt; {
+			tx.oncomplete &#x3D; () &#x3D;&gt; resolve();
+			tx.onerror &#x3D; () &#x3D;&gt; reject(tx.error);
+		});
+		db.close();
+	} catch {
+		// Silently ignore
+	}
+}
 
 addEventListener(&#x27;message&#x27;, ({ data }: { data: WorkerMessage }) &#x3D;&gt; {
 	try {
 		switch (data.type) {
-			case &#x27;load&#x27;:
-				handleLoad(data.payload, data.id);
+			case &#x27;load&#x27;: {
+				// Accept both legacy string payload and new LoadPayload object
+				const pgnStr &#x3D;
+					typeof data.payload &#x3D;&#x3D;&#x3D; &#x27;string&#x27; ? data.payload : data.payload.pgn;
+				const indexStart &#x3D;
+					typeof data.payload &#x3D;&#x3D;&#x3D; &#x27;object&#x27;
+						? data.payload.indexStartPositions
+						: false;
+				const maxPlies &#x3D;
+					typeof data.payload &#x3D;&#x3D;&#x3D; &#x27;object&#x27; ? data.payload.maxFenPlies : 30;
+				const useDiskCache &#x3D;
+					typeof data.payload &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp;
+					data.payload.useDiskCache &#x3D;&#x3D;&#x3D; true;
+				handleLoad(
+					pgnStr,
+					data.id,
+					indexStart,
+					maxPlies,
+					data.pgnHash,
+					useDiskCache,
+				).catch((e) &#x3D;&gt;
+					postMessage({ type: &#x27;error&#x27;, payload: String(e), id: data.id }),
+				);
 				break;
+			}
 			case &#x27;filter&#x27;:
 				handleFilter(data.payload, data.id);
 				break;
+			case &#x27;loadFromCache&#x27;: {
+				const { pgnHash, indexStartPositions, maxFenPlies, useDiskCache } &#x3D;
+					data.payload;
+				tryRestoreFromCache(
+					pgnHash,
+					data.id,
+					indexStartPositions,
+					maxFenPlies,
+					useDiskCache,
+				)
+					.then((restored) &#x3D;&gt; {
+						if (!restored) postMessage({ type: &#x27;cacheMiss&#x27;, id: data.id });
+					})
+					.catch(() &#x3D;&gt; postMessage({ type: &#x27;cacheMiss&#x27;, id: data.id }));
+				break;
+			}
 			case &#x27;loadGame&#x27;:
 				handleLoadGame(data.payload, data.id);
+				break;
+			case &#x27;clearCache&#x27;:
+				clearPgnCache(data.useDiskCache &#x3D;&#x3D;&#x3D; true).then(() &#x3D;&gt;
+					postMessage({
+						type: &#x27;load&#x27;,
+						payload: { count: 0, metadata: [] },
+						id: data.id,
+					}),
+				);
 				break;
 		}
 	} catch (e) {
@@ -863,13 +1838,59 @@ addEventListener(&#x27;message&#x27;, ({ data }: { data: WorkerMessage }) &#x3D;
 });
 
 /**
+ * Posts a progress update to the main thread during long-running operations.
+ *
+ * @param percent — Progress percentage (0–100).
+ * @param status — Human-readable status message.
+ * @param id — Correlation ID echoed in the response.
+ */
+function postProgress(percent: number, status: string, id: number) {
+	postMessage({
+		type: &#x27;progress&#x27;,
+		payload: { percent, status },
+		id,
+	});
+}
+
+/**
  * Loads raw PGN text: splits into individual games, filters out non-Standard variants,
- * extracts metadata, and posts a &#x60;&#x27;load&#x27;&#x60; response with game count and metadata.
+ * extracts metadata, builds FEN position cache, and posts a &#x60;&#x27;load&#x27;&#x60; response
+ * with game count and metadata. Progress updates are posted during the process.
+ *
+ * When &#x60;pgnHash&#x60; is provided and a cache entry exists (IndexedDB in the
+ * browser, a file on disk in the desktop app), the entire parsing and
+ * FEN-indexing step is skipped — the worker state is restored from the cache.
  *
  * @param pgn — Raw PGN string potentially containing multiple games.
  * @param id — Correlation ID echoed in the response.
+ * @param indexStartPositions — Whether to build the FEN position cache.
+ * @param maxFenPlies — Max half-moves to replay per game when building the FEN cache.
+ * @param pgnHash — Optional SHA-256 hash for cache lookups.
+ * @param useDiskCache — Cache on disk (desktop app) instead of IndexedDB.
  */
-function handleLoad(pgn: string, id: number) {
+async function handleLoad(
+	pgn: string,
+	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+	pgnHash?: string,
+	useDiskCache &#x3D; false,
+) {
+	// If a pgnHash is provided, try to restore from the cache first.
+	// This avoids re-parsing and FEN-indexing the entire collection.
+	if (pgnHash) {
+		const restored &#x3D; await tryRestoreFromCache(
+			pgnHash,
+			id,
+			indexStartPositions,
+			maxFenPlies,
+			useDiskCache,
+		);
+		if (restored) {
+			return; // Worker state restored; &#x27;load&#x27; response already posted by tryRestoreFromCache
+		}
+	}
+
 	// Reset state
 	games &#x3D; [];
 	gameMetadata &#x3D; [];
@@ -878,15 +1899,101 @@ function handleLoad(pgn: string, id: number) {
 	// Split PGN
 	const allGames &#x3D; splitPgn(pgn);
 
-	// Filter out non-standard variants (keep Standard or if Variant tag is missing)
+	postProgress(2, &#x60;Splitting PGN (${allGames.length} games found)...&#x60;, id);
+
+	/** Standard starting position piece placement (first field of the FEN). */
+	const STANDARD_START_FEN &#x3D; &#x27;rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR&#x27;;
+
+	// Filter out non-standard variants and non-classical starting positions.
+	// Keep only games that are Standard chess AND start from the initial position.
 	games &#x3D; allGames.filter((g) &#x3D;&gt; {
+		// 1. Check [Variant] tag — must be &quot;Standard&quot; or absent
 		const variantMatch &#x3D; g.match(/\[Variant\s+&quot;([^&quot;]+)&quot;\]/);
-		if (!variantMatch) return true; // Default is Standard
-		return variantMatch[1] &#x3D;&#x3D;&#x3D; &#x27;Standard&#x27;;
+		if (variantMatch) {
+			const variant &#x3D; variantMatch[1].toLowerCase();
+			if (variant !&#x3D;&#x3D; &#x27;standard&#x27; &amp;&amp; variant !&#x3D;&#x3D; &#x27;normal&#x27;) return false;
+		}
+
+		// 2. Check [SetUp &quot;1&quot;] + [FEN &quot;...&quot;] — reject non-standard starting positions
+		const fenMatch &#x3D; g.match(/\[FEN\s+&quot;([^&quot;]+)&quot;\]/);
+		const setUpMatch &#x3D; g.match(/\[SetUp\s+&quot;([^&quot;]+)&quot;\]/);
+		if (setUpMatch &amp;&amp; setUpMatch[1] &#x3D;&#x3D;&#x3D; &#x27;1&#x27; &amp;&amp; fenMatch) {
+			const fenPieces &#x3D; fenMatch[1].split(&#x27; &#x27;)[0];
+			if (fenPieces !&#x3D;&#x3D; STANDARD_START_FEN) return false;
+		}
+
+		return true;
 	});
+
+	postProgress(5, &#x60;Parsing metadata for ${games.length} games...&#x60;, id);
 
 	// Extract metadata
 	gameMetadata &#x3D; games.map((game, index) &#x3D;&gt; extractGameInfo(game, index));
+
+	// Pre-compute FEN position cache for all games (first N plies only).
+	// This moves the expensive chess.js replay from filter-time to load-time,
+	// so FEN filter is a single Set lookup per game instead of O(plies).
+	gameFenCache.clear();
+	const total &#x3D; games.length;
+	// Phase: metadata extraction &#x3D; 5-15%, FEN cache &#x3D; 15-100%
+	const fenStartPct &#x3D; 15;
+	const fenEndPct &#x3D; 100;
+	const fenRange &#x3D; fenEndPct - fenStartPct;
+	// Report progress every ~10% of games (at most 20 batches)
+	const batchInterval &#x3D; Math.max(1, Math.floor(total / 20));
+
+	postProgress(fenStartPct, &#x60;Indexing FEN positions (0/${total})...&#x60;, id);
+
+	for (let i &#x3D; 0; i &lt; total; i++) {
+		if (indexStartPositions) {
+			// Only build FEN cache when indexStartPositions is enabled
+			const gamePgn &#x3D; games[i];
+			const moves &#x3D; extractMovesFast(gamePgn);
+			if (!moves || moves.length &#x3D;&#x3D;&#x3D; 0) {
+				gameFenCache.set(i, new Set());
+			} else {
+				const fenSet &#x3D; new Set&lt;string&gt;();
+				const chess &#x3D; new Chess();
+
+				// Handle non-standard starting positions
+				const fenMatch &#x3D; gamePgn.match(/\[FEN\s+&quot;([^&quot;]+)&quot;\]/);
+				if (fenMatch) {
+					try {
+						chess.load(fenMatch[1]);
+					} catch (_e) {}
+				}
+
+				// Always include starting position when indexing is enabled
+				fenSet.add(normalizeFen(chess.fen()));
+
+				const replayLimit &#x3D; Math.min(moves.length, maxFenPlies);
+				for (let k &#x3D; 0; k &lt; replayLimit; k++) {
+					try {
+						chess.move(moves[k]);
+						fenSet.add(normalizeFen(chess.fen()));
+					} catch (_e) {
+						break;
+					}
+				}
+				gameFenCache.set(i, fenSet);
+			}
+
+			// Report progress at batch boundaries and on the last game
+			if (total &gt; 0 &amp;&amp; ((i + 1) % batchInterval &#x3D;&#x3D;&#x3D; 0 || i &#x3D;&#x3D;&#x3D; total - 1)) {
+				const pct &#x3D; fenStartPct + Math.round(((i + 1) / total) * fenRange);
+				postProgress(pct, &#x60;Indexing FEN positions (${i + 1}/${total})...&#x60;, id);
+			}
+		} else {
+			// Indexing disabled — store empty set and skip expensive replay
+			gameFenCache.set(i, new Set());
+		}
+	}
+
+	// Persist to IndexedDB cache so future loads skip re-parsing.
+	// Fire-and-forget: the &#x27;load&#x27; response is sent immediately without waiting.
+	if (pgnHash) {
+		saveToCache(pgnHash, indexStartPositions, maxFenPlies, useDiskCache);
+	}
 
 	postMessage({
 		type: &#x27;load&#x27;,
@@ -928,13 +2035,35 @@ function normalizeResult(result: string): string {
 }
 
 /**
+ * Normalizes a FEN string for comparison by stripping move counters.
+ *
+ * Keeps only the first 4 fields: piece placement, active color, castling rights,
+ * and en passant target square. This ensures that positions differing only in
+ * move clocks are treated as equivalent.
+ *
+ * @example
+ * normalizeFen(&#x27;rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1&#x27;)
+ * // &#x3D;&gt; &#x27;rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -&#x27;
+ *
+ * @param fen — Full FEN string.
+ * @returns Normalized FEN with only board-relevant fields.
+ */
+function normalizeFen(fen: string): string {
+	const parts &#x3D; fen.split(&#x27; &#x27;);
+	// Keep only piece placement, active color, castling, en passant
+	return parts.slice(0, 4).join(&#x27; &#x27;);
+}
+
+/**
  * Filters the currently loaded game collection by the given criteria.
  *
  * Matches are case-insensitive substring comparisons. When &#x60;moves&#x60; is &#x60;true&#x60;,
  * tests whether each game&#x27;s opening sequence starts with &#x60;targetMoves&#x60;.
+ * When &#x60;filterByFen&#x60; is &#x60;true&#x60;, tests whether each game ever reaches the
+ * target FEN position.
  * Posts a &#x60;&#x27;filter&#x27;&#x60; response with an array of matching game indices.
  *
- * @param criteria — Filter parameters (player names, ECO, result, ratings, opening moves).
+ * @param criteria — Filter parameters (player names, ECO, result, ratings, opening moves, FEN).
  * @param id — Correlation ID echoed in the response.
  */
 function handleFilter(criteria: FilterCriteria, id: number) {
@@ -952,6 +2081,8 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		eco,
 		timeControl,
 		event,
+		filterByFen,
+		targetFen,
 	} &#x3D; criteria;
 	const fWhiteLower &#x3D; white.toLowerCase();
 	const fBlackLower &#x3D; black.toLowerCase();
@@ -963,13 +2094,21 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 	const fEcoLower &#x3D; eco.toLowerCase();
 	const fTimeControl &#x3D; timeControl;
 	const fEventLower &#x3D; event.toLowerCase();
+	const fBroadcastNameLower &#x3D; criteria.broadcastName.toLowerCase();
 
-	// Clear cache when filtering by moves to ensure fresh parsing with updated logic
-	if (moves &amp;&amp; targetMoves.length &gt; 0) {
+	// Clear cache when filtering by moves or FEN to ensure fresh parsing
+	if (
+		(moves &amp;&amp; targetMoves.length &gt; 0) ||
+		(filterByFen &amp;&amp; targetFen.length &gt; 0)
+	) {
 		gameMovesCache.clear();
 	}
 
 	const matches: number[] &#x3D; [];
+
+	// Normalize target FEN once if position filtering is enabled
+	const normalizedTargetFen &#x3D;
+		filterByFen &amp;&amp; targetFen ? normalizeFen(targetFen) : &#x27;&#x27;;
 
 	for (let i &#x3D; 0; i &lt; games.length; i++) {
 		const info &#x3D; gameMetadata[i];
@@ -1009,17 +2148,36 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 			if (!resultMatch) continue;
 		}
 
-		// ECO filtering
-		if (fEcoLower &amp;&amp; (!info.eco || !info.eco.toLowerCase().includes(fEcoLower)))
-			continue;
+		// Upset filtering — the weaker-rated player beats or draws the stronger player.
+		// Requires both Elos to be known and the rating gap to reach the minimum.
+		if (criteria.upsetEnabled) {
+			const upsetMatch &#x3D; isUpsetGame(
+				info,
+				criteria.upsetWin,
+				criteria.upsetDraw,
+				Math.max(0, criteria.minUpsetEloDiff || 0),
+			);
+			if (!upsetMatch) continue;
+		}
 
-		// TimeControl filtering
-		if (fTimeControl &amp;&amp; info.timeControlNormalized !&#x3D;&#x3D; fTimeControl) continue;
+		// ECO filtering
+		if (fEcoLower &amp;&amp; !info.eco?.toLowerCase().includes(fEcoLower)) continue;
+
+		// TimeControl filtering — keep games whose normalized time
+		// control equals any selected value; empty selection &#x3D; no filter.
+		if (fTimeControl.length &gt; 0) {
+			const gameTc &#x3D; info.timeControlNormalized;
+			if (gameTc &#x3D;&#x3D;&#x3D; undefined || !fTimeControl.includes(gameTc)) continue;
+		}
 
 		// Event filtering
+		if (fEventLower &amp;&amp; !info.event?.toLowerCase().includes(fEventLower))
+			continue;
+
+		// Broadcast name filtering
 		if (
-			fEventLower &amp;&amp;
-			(!info.event || !info.event.toLowerCase().includes(fEventLower))
+			fBroadcastNameLower &amp;&amp;
+			!info.broadcastName?.toLowerCase().includes(fBroadcastNameLower)
 		)
 			continue;
 
@@ -1108,14 +2266,34 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 			}
 		}
 
+		// FEN / position filtering — uses cache pre-computed during handleLoad
+		if (filterByFen &amp;&amp; normalizedTargetFen) {
+			const cachedFens &#x3D; gameFenCache.get(i);
+			if (cachedFens &amp;&amp; !cachedFens.has(normalizedTargetFen)) continue;
+			if (!cachedFens) continue;
+		}
+
 		matches.push(i);
 	}
 
-	// Sort matches by sum of Elo ratings (descending)
+	// Sort matches by &quot;upset size&quot; (Elo gap, biggest upset first) when the
+	// upset filter is active, otherwise by sum of Elo ratings. Game index
+	// is used as a deterministic tiebreaker in both cases.
 	matches.sort((a, b) &#x3D;&gt; {
+		const gapA &#x3D; Math.abs(gameMetadata[a].whiteElo - gameMetadata[a].blackElo);
+		const gapB &#x3D; Math.abs(gameMetadata[b].whiteElo - gameMetadata[b].blackElo);
+		if (criteria.upsetEnabled) {
+			if (gapB !&#x3D;&#x3D; gapA) {
+				return criteria.sortAscending ? gapA - gapB : gapB - gapA;
+			}
+			return a - b;
+		}
 		const sumA &#x3D; gameMetadata[a].whiteElo + gameMetadata[a].blackElo;
 		const sumB &#x3D; gameMetadata[b].whiteElo + gameMetadata[b].blackElo;
-		return sumB - sumA;
+		if (sumB !&#x3D;&#x3D; sumA) {
+			return criteria.sortAscending ? sumA - sumB : sumB - sumA;
+		}
+		return a - b;
 	});
 
 	postMessage({
@@ -1123,6 +2301,54 @@ function handleFilter(criteria: FilterCriteria, id: number) {
 		id,
 		payload: matches,
 	});
+}
+
+/**
+ * Extracts per-move [%eval] values from raw PGN text by scanning
+ * inline comment annotations in move order.
+ *
+ * Skips any eval annotation that appears before the first move
+ * (i.e. an initial-position eval comment at the start of the PGN).
+ *
+ * @returns Array aligned with parsedMoves; null where no eval found.
+ */
+function extractEvalsFromPgn(
+	pgnText: string,
+	parsedMoves: string[],
+): (string | null)[] {
+	const evals: (string | null)[] &#x3D; new Array(parsedMoves.length).fill(null);
+
+	// Collect all [%eval ...] values in the order they appear
+	const values: string[] &#x3D; [];
+	const evalRegex &#x3D; /\[%eval\s+([^\]]+)\]/g;
+	let match: RegExpExecArray | null;
+	match &#x3D; evalRegex.exec(pgnText);
+	while (match !&#x3D;&#x3D; null) {
+		values.push(match[1]);
+		match &#x3D; evalRegex.exec(pgnText);
+	}
+	if (values.length &#x3D;&#x3D;&#x3D; 0) return evals;
+
+	if (values.length &#x3D;&#x3D;&#x3D; 1 &amp;&amp; parsedMoves.length &#x3D;&#x3D;&#x3D; 1) {
+		// Single eval, single move — no offset ambiguity
+		evals[0] &#x3D; values[0];
+		return evals;
+	}
+
+	// Determine offset: if the first [%eval] appears before any move number
+	// (e.g. an initial-position comment at the very start of the PGN),
+	// skip it since it doesn&#x27;t correspond to a move.
+	const firstEvalIndex &#x3D; pgnText.search(/\[%eval\s+([^\]]+)\]/);
+	const firstMoveIndex &#x3D; pgnText.search(/\b\d+\.\s+/);
+	const offset &#x3D; firstMoveIndex &gt;&#x3D; 0 &amp;&amp; firstEvalIndex &lt; firstMoveIndex ? 1 : 0;
+
+	for (let i &#x3D; 0; i &lt; parsedMoves.length; i++) {
+		const valIdx &#x3D; i + offset;
+		if (valIdx &lt; values.length) {
+			evals[i] &#x3D; values[valIdx];
+		}
+	}
+	return evals;
 }
 
 /**
@@ -1150,15 +2376,6 @@ function handleLoadGame(index: number, id: number) {
 	try {
 		const tempChess &#x3D; new Chess();
 
-		// We need to extract evaluations BEFORE cleaning the PGN too aggressively,
-		// because some cleaning steps might remove comments or mess up the mapping.
-		// However, standard chess.js loadPgn parses comments.
-		// Let&#x27;s try to parse with chess.js first on the original PGN (or slightly cleaned).
-
-		// If we use the &quot;cleanPgn&quot; logic from before, we might lose comments if we strip them.
-		// But the previous logic had a fallback that stripped comments.
-		// Let&#x27;s try to parse the original PGN first to get comments.
-
 		try {
 			// Try parsing the original PGN (maybe with minor cleanup) to get comments
 			tempChess.loadPgn(pgn);
@@ -1181,10 +2398,8 @@ function handleLoadGame(index: number, id: number) {
 				return null;
 			});
 		} catch (_e) {
-			// If strict parsing fails, we fall back to the cleaning logic,
-			// but we might lose evaluations if the cleaning strips comments.
-			// For now, let&#x27;s proceed with the cleaning logic for moves,
-			// and accept that we might not get evaluations in broken PGNs.
+			// Extract [%eval ...] annotations from the original PGN before cleaning
+			const rawPgnForEvals &#x3D; cleanPgn;
 
 			// Clean up PGN:
 			// 1. Remove ?! ? ! attached to moves (chess.js might not like them)
@@ -1205,258 +2420,202 @@ function handleLoadGame(index: number, id: number) {
 				&#x27;]\n\n$1&#x27;,
 			);
 
-			// 5. Remove &quot;1...&quot; style move numbering (Black&#x27;s move indicators)
-			cleanPgn &#x3D; cleanPgn.replace(/\d+\.\.\./g, &#x27; &#x27;);
+			// 5. Remove inline comments that could choke chess.js parser
+			cleanPgn &#x3D; cleanPgn.replace(/\{[^}]*\}/g, &#x27;&#x27;);
 
-			// 6. Remove numeric annotation glyphs like $1, $2... (standard PGN but chess.js might fail)
-			cleanPgn &#x3D; cleanPgn.replace(/\$\d+/g, &#x27;&#x27;);
+			// 6. Remove all check/checkmate symbols for cleaner parsing
+			cleanPgn &#x3D; cleanPgn.replace(/[+#]/g, &#x27;&#x27;);
 
-			try {
-				tempChess.loadPgn(cleanPgn);
-				moves &#x3D; tempChess.history();
-				// Try to get comments again from the cleaned PGN
-				const comments &#x3D; tempChess.getComments();
-				const tempChess2 &#x3D; new Chess();
-				evaluations &#x3D; moves.map((move) &#x3D;&gt; {
-					tempChess2.move(move);
-					const fen &#x3D; tempChess2.fen();
-					const commentObj &#x3D; comments.find((c) &#x3D;&gt; c.fen &#x3D;&#x3D;&#x3D; fen);
-					if (commentObj) {
-						const match &#x3D; commentObj.comment.match(/\[%eval\s+([^\]]+)\]/);
-						return match ? match[1] : null;
-					}
-					return null;
-				});
-			} catch (_e1) {
-				// console.warn(&#x27;Strict parsing failed, trying chessops fallback&#x27;, e1);
+			// Try parsing the cleaned PGN
+			tempChess.loadPgn(cleanPgn);
+			moves &#x3D; tempChess.history();
 
-				try {
-					// Fallback: Try chessops
-					const games &#x3D; parsePgn(cleanPgn);
-					if (games.length &gt; 0) {
-						const game &#x3D; games[0];
-						moves &#x3D; [];
-						evaluations &#x3D; []; // Chessops might have comments in the node tree
-						let node &#x3D; game.moves;
-						while (node.children.length &gt; 0) {
-							const child &#x3D; node.children[0]; // Main line
-							if (child.data?.san) {
-								moves.push(child.data.san);
-								// Extract eval from comments if present
-								let evalVal &#x3D; null;
-								if (child.data.comments) {
-									for (const comment of child.data.comments) {
-										const match &#x3D; comment.match(/\[%eval\s+([^\]]+)\]/);
-										if (match) {
-											evalVal &#x3D; match[1];
-											break;
-										}
-									}
-								}
-								evaluations.push(evalVal);
-							}
-							node &#x3D; child;
-						}
-						// If we successfully parsed moves, clear the error
-						errorMsg &#x3D; undefined;
-					} else {
-						throw new Error(&#x27;Chessops found no games&#x27;);
-					}
-				} catch (_e2) {
-					// console.warn(&#x27;Chessops parsing failed, retrying with stripped comments&#x27;, e2);
-
-					// Fallback 2: Strip all comments and recursive variations
-					// Remove { ... } comments
-					cleanPgn &#x3D; cleanPgn.replace(/\{[^}]*\}/g, &#x27;&#x27;);
-					// Remove ( ... ) variations
-					cleanPgn &#x3D; cleanPgn.replace(/\([^)]*\)/g, &#x27;&#x27;);
-					// Clean up double spaces created by removals
-					cleanPgn &#x3D; cleanPgn.replace(/\s+/g, &#x27; &#x27;);
-
-					tempChess.loadPgn(cleanPgn);
-					moves &#x3D; tempChess.history();
-					evaluations &#x3D; []; // No comments, no evals
-					errorMsg &#x3D; undefined;
-				}
-			}
+			// Re-attach evaluations extracted from the raw PGN before comment stripping
+			evaluations &#x3D; extractEvalsFromPgn(rawPgnForEvals, moves);
 		}
-
-		// We can update the cache with the high-quality moves if we want,
-		// but for now let&#x27;s just return them.
-		gameMovesCache.set(index, moves);
 	} catch (e) {
-		console.error(&#x27;Error parsing game moves&#x27;, e);
-		errorMsg &#x3D; String(e);
-		moves &#x3D; [];
-		evaluations &#x3D; [];
+		// Fallback with chessops if chess.js continues to fail
+		try {
+			const games &#x3D; parsePgn(cleanPgn);
+			const game &#x3D; games?.[0];
+			if (game) {
+				moves &#x3D; [];
+				evaluations &#x3D; [];
+				const chess &#x3D; new Chess();
+				for (const node of game.moves.mainline()) {
+					const san &#x3D; node.san;
+					if (san) {
+						moves.push(san);
+						chess.move(san);
+					}
+				}
+			} else {
+				errorMsg &#x3D; &#x27;Failed to parse PGN with both chess.js and chessops&#x27;;
+			}
+		} catch (e2) {
+			errorMsg &#x3D; &#x60;Failed to parse PGN: ${String(e)} (fallback: ${String(e2)})&#x60;;
+		}
+	}
+
+	// Safety net: if evaluations are empty but the PGN has [%eval …]
+	// annotations, extract them directly from the raw text.
+	const hasAnyEval &#x3D; evaluations.some((e) &#x3D;&gt; e !&#x3D;&#x3D; null);
+	if (!hasAnyEval &amp;&amp; moves.length &gt; 0) {
+		const fallbackEvals &#x3D; extractEvalsFromPgn(pgn, moves);
+		if (fallbackEvals.some((e) &#x3D;&gt; e !&#x3D;&#x3D; null)) {
+			evaluations &#x3D; fallbackEvals;
+		}
 	}
 
 	postMessage({
 		type: &#x27;loadGame&#x27;,
 		id,
-		payload: { moves, pgn: cleanPgn, evaluations, error: errorMsg },
+		payload: {
+			moves,
+			pgn: cleanPgn,
+			evaluations,
+			error: errorMsg,
+		},
 	});
 }
 
-// --- Helpers ---
-
 /**
- * Splits a multi-game PGN string into individual game strings.
+ * Extracts game information from a PGN string for a given game index.
  *
- * Splits on &#x60;[Event &quot;...&quot;&#x60; tag boundaries, which marks the start of each game.
- * Handles concatenated games where the tag may appear anywhere in the text.
- *
- * @param pgn — Raw PGN string containing one or more games.
- * @returns Array of individual game PGN strings.
- */
-function splitPgn(pgn: string): string[] {
-	// Split by [Event &quot; tag, allowing for it to be anywhere (not just start of line)
-	// This handles cases where games are concatenated on the same line.
-	const parts &#x3D; pgn.split(/(?&#x3D;\[Event\s+&quot;)/);
-	const result: string[] &#x3D; [];
-	for (const part of parts) {
-		const trimmed &#x3D; part.trim();
-		if (trimmed.length &gt; 0 &amp;&amp; /^\[Event\s+&quot;/.test(trimmed)) {
-			result.push(trimmed);
-		}
-	}
-	return result;
-}
-
-/**
- * Extracts metadata from a single game&#x27;s PGN header tags.
- *
- * Parses White, Black, Result, WhiteElo, BlackElo, WhiteTitle, BlackTitle,
- * ECO, TimeControl, and Event tags. Formats player names with title+Elo
- * (e.g. &#x60;&quot;GM Carlsen (2850)&quot;&#x60;). Normalizes the time control field.
+ * Parses PGN header tags to extract player names (with title + Elo),
+ * result, Elo ratings, ECO code, time control, and event.
+ * Player display names include title prefixes (e.g. &#x60;&quot;GM&quot;&#x60;) and Elo
+ * ratings in parentheses.
  *
  * @param pgn — Raw PGN string for a single game.
- * @param index — Zero-based game index (result&#x27;s &#x60;number&#x60; will be &#x60;index + 1&#x60;).
- * @returns Populated {@link GameMetadata} object.
+ * @param index — Zero-based game index used as the display number.
+ * @returns Extracted {@link GameMetadata}.
  */
 function extractGameInfo(pgn: string, index: number): GameMetadata {
-	const whiteMatch &#x3D; pgn.match(/\[White\s+&quot;([^&quot;]+)&quot;\]/);
-	const blackMatch &#x3D; pgn.match(/\[Black\s+&quot;([^&quot;]+)&quot;\]/);
-	const resultMatch &#x3D; pgn.match(/\[Result\s+&quot;([^&quot;]+)&quot;\]/);
+	const white &#x3D; extractTag(pgn, &#x27;White&#x27;);
+	const black &#x3D; extractTag(pgn, &#x27;Black&#x27;);
+	const whiteEloRaw &#x3D; extractTag(pgn, &#x27;WhiteElo&#x27;);
+	const blackEloRaw &#x3D; extractTag(pgn, &#x27;BlackElo&#x27;);
+	const result &#x3D; extractTag(pgn, &#x27;Result&#x27;) || &#x27;*&#x27;;
+	const eco &#x3D; extractTag(pgn, &#x27;ECO&#x27;) || undefined;
+	const timeControl &#x3D; extractTag(pgn, &#x27;TimeControl&#x27;) || undefined;
+	const event &#x3D; extractTag(pgn, &#x27;Event&#x27;) || undefined;
+	const broadcastName &#x3D; extractTag(pgn, &#x27;BroadcastName&#x27;) || undefined;
+	const whiteTitle &#x3D; extractTag(pgn, &#x27;WhiteTitle&#x27;) || undefined;
+	const blackTitle &#x3D; extractTag(pgn, &#x27;BlackTitle&#x27;) || undefined;
 
-	const whiteEloMatch &#x3D; pgn.match(/\[WhiteElo\s+&quot;([^&quot;]+)&quot;\]/);
-	const blackEloMatch &#x3D; pgn.match(/\[BlackElo\s+&quot;([^&quot;]+)&quot;\]/);
-	const whiteTitleMatch &#x3D; pgn.match(/\[WhiteTitle\s+&quot;([^&quot;]+)&quot;\]/);
-	const blackTitleMatch &#x3D; pgn.match(/\[BlackTitle\s+&quot;([^&quot;]+)&quot;\]/);
-	const ecoMatch &#x3D; pgn.match(/\[ECO\s+&quot;([^&quot;]+)&quot;\]/);
-	const timeControlMatch &#x3D; pgn.match(/\[TimeControl\s+&quot;([^&quot;]+)&quot;\]/);
-	const eventMatch &#x3D; pgn.match(/\[Event\s+&quot;([^&quot;]+)&quot;\]/);
+	const whiteElo &#x3D; parseInt(whiteEloRaw, 10) || 0;
+	const blackElo &#x3D; parseInt(blackEloRaw, 10) || 0;
+	const whiteDisplay &#x3D;
+		white +
+		(whiteElo &gt; 0 ? &#x60; (${whiteElo})&#x60; : &#x27;&#x27;) +
+		(whiteTitle ? &#x60; [${whiteTitle}]&#x60; : &#x27;&#x27;);
+	const blackDisplay &#x3D;
+		black +
+		(blackElo &gt; 0 ? &#x60; (${blackElo})&#x60; : &#x27;&#x27;) +
+		(blackTitle ? &#x60; [${blackTitle}]&#x60; : &#x27;&#x27;);
 
-	let white &#x3D; whiteMatch ? whiteMatch[1] : &#x27;Unknown&#x27;;
-	let black &#x3D; blackMatch ? blackMatch[1] : &#x27;Unknown&#x27;;
-	const result &#x3D; resultMatch ? resultMatch[1] : &#x27;*&#x27;;
-
-	if (whiteTitleMatch) white &#x3D; &#x60;${whiteTitleMatch[1]} ${white}&#x60;;
-	if (whiteEloMatch) white &#x3D; &#x60;${white} (${whiteEloMatch[1]})&#x60;;
-
-	if (blackTitleMatch) black &#x3D; &#x60;${blackTitleMatch[1]} ${black}&#x60;;
-	if (blackEloMatch) black &#x3D; &#x60;${black} (${blackEloMatch[1]})&#x60;;
-
-	let formattedResult &#x3D; result;
-	if (result &#x3D;&#x3D;&#x3D; &#x27;1-0&#x27;) formattedResult &#x3D; &#x27;1-0&#x27;;
-	else if (result &#x3D;&#x3D;&#x3D; &#x27;0-1&#x27;) formattedResult &#x3D; &#x27;0-1&#x27;;
-	else if (result &#x3D;&#x3D;&#x3D; &#x27;1/2-1/2&#x27;) formattedResult &#x3D; &#x27;½-½&#x27;;
-
-	const whiteElo &#x3D; whiteEloMatch ? parseInt(whiteEloMatch[1], 10) || 0 : 0;
-	const blackElo &#x3D; blackEloMatch ? parseInt(blackEloMatch[1], 10) || 0 : 0;
-	const eco &#x3D; ecoMatch ? ecoMatch[1] : undefined;
-	const timeControl &#x3D; timeControlMatch ? timeControlMatch[1] : undefined;
-	const timeControlNormalized &#x3D; normalizeTimeControl(timeControl);
-	const event &#x3D; eventMatch ? eventMatch[1] : undefined;
+	let timeControlNormalized: string | undefined;
+	if (timeControl) {
+		const parts &#x3D; timeControl.split(&#x27;+&#x27;);
+		if (parts.length &#x3D;&#x3D;&#x3D; 2) {
+			const base &#x3D; parseInt(parts[0], 10);
+			const inc &#x3D; parseInt(parts[1], 10);
+			if (!Number.isNaN(base) &amp;&amp; !Number.isNaN(inc)) {
+				timeControlNormalized &#x3D; &#x60;${base}+${inc}&#x60;;
+			}
+		}
+	}
 
 	return {
 		number: index + 1,
-		white,
-		black,
-		result: formattedResult,
+		white: whiteDisplay,
+		black: blackDisplay,
+		result: result,
 		whiteElo,
 		blackElo,
 		eco,
 		timeControl,
 		timeControlNormalized,
 		event,
+		broadcastName,
 	};
 }
 
 /**
- * Normalizes a PGN &#x60;[TimeControl &quot;...&quot;]&#x60; value into a uniform &#x60;&quot;baseSeconds+incrementSeconds&quot;&#x60; format.
+ * Extracts a tag value from a PGN header by tag name.
  *
- * Handles formats including:
- * - &#x60;&quot;h:m:s&quot;&#x60; (e.g. &#x60;&quot;1:30:0&quot;&#x60; → &#x60;&quot;5400+0&quot;&#x60;)
- * - &#x60;&quot;m:s&quot;&#x60; (e.g. &#x60;&quot;90+30&quot;&#x60; → &#x60;&quot;5400+30&quot;&#x60;)
- * - &#x60;&quot;base+inc&quot;&#x60; (e.g. &#x60;&quot;180+2&quot;&#x60; → &#x60;&quot;180+2&quot;&#x60;)
- * - Textual: &#x60;&quot;90 min + 30 sec&quot;&#x60;, &#x60;&quot;3&#x27;&quot;&#x60;, &#x60;&quot;3 min&quot;&#x60;, etc.
+ * Supports multi-line tag values where the value spans across lines
+ * (e.g., Lichess broadcast PGNs with long event names).
  *
- * Heuristic: base values ≤ 180 are treated as minutes unless a &#x60;min&#x60;/&#x60;mins&#x60;/&#x60;&#x27;&#x60; suffix is present.
- *
- * @param raw — Raw time control string from the PGN header, or &#x60;undefined&#x60;.
- * @returns Normalized string like &#x60;&quot;5400+30&quot;&#x60;, or &#x60;undefined&#x60; if unparseable.
+ * @param pgn — Raw PGN string.
+ * @param tagName — Case-sensitive tag name (e.g. &#x60;&quot;White&quot;&#x60;, &#x60;&quot;ECO&quot;&#x60;).
+ * @returns The tag value without surrounding quotes, or an empty string.
  */
-function normalizeTimeControl(raw?: string): string | undefined {
-	if (!raw) return undefined;
-	const trimmed &#x3D; raw.trim();
-	if (!trimmed || trimmed &#x3D;&#x3D;&#x3D; &#x27;?&#x27; || trimmed &#x3D;&#x3D;&#x3D; &#x27;-&#x27;) return undefined;
-	const lower &#x3D; trimmed.toLowerCase();
+function extractTag(pgn: string, tagName: string): string {
+	// Simple regex: matches [TagName &quot;value&quot;] on a single line or with value on next line
+	const regex &#x3D; new RegExp(&#x60;\\[${tagName}\\s+&quot;((?:[^&quot;\\\\]|\\\\.)*)&quot;&#x60;, &#x27;i&#x27;);
+	const match &#x3D; pgn.match(regex);
+	return match ? match[1].trim() : &#x27;&#x27;;
+}
 
-	// Strip leading tokens like &quot;g:&quot; or &quot;g &quot;
-	const cleaned &#x3D; lower.replace(/^g\s*:\s*/i, &#x27;&#x27;).replace(/^g\s+/i, &#x27;&#x27;);
+/**
+ * Splits a multi-game PGN string into individual game strings.
+ *
+ * Handles both standard PGN format (games separated by blank lines + &#x60;[Event ...]&#x60;)
+ * and the case where there are no blank lines between games (common in compressed exports).
+ *
+ * @param pgn — Raw PGN string potentially containing multiple games.
+ * @returns Array of individual game PGN strings.
+ */
+function splitPgn(pgn: string): string[] {
+	// If no [Event tag, return as single game
+	if (pgn.indexOf(&#x27;[Event &#x27;) &#x3D;&#x3D;&#x3D; -1) {
+		return [pgn];
+	}
 
-	// Handle colon formats: h:m:s -&gt; base &#x3D; h:m, increment &#x3D; s
-	let match &#x3D; cleaned.match(/^(\d+):(\d+):(\d+)$/);
-	if (match) {
-		const hours &#x3D; parseInt(match[1], 10);
-		const minutes &#x3D; parseInt(match[2], 10);
-		const incSeconds &#x3D; parseInt(match[3], 10);
-		if (
-			!Number.isNaN(hours) &amp;&amp;
-			!Number.isNaN(minutes) &amp;&amp;
-			!Number.isNaN(incSeconds)
-		) {
-			const baseSeconds &#x3D; hours * 3600 + minutes * 60;
-			return &#x60;${baseSeconds}+${incSeconds}&#x60;;
+	// Split on boundaries: newline followed by [Event
+	// This handles the common case where games are separated by blank lines.
+	const games &#x3D; pgn.split(/\n\s*(?&#x3D;\[Event\s+&quot;)/);
+
+	return games
+		.map((g) &#x3D;&gt; g.trim())
+		.filter((g) &#x3D;&gt; g.length &gt; 0 &amp;&amp; g.startsWith(&#x27;[&#x27;));
+}
+
+/**
+ * Converts a human-readable time control format to a normalized one.
+ *
+ * Supports:
+ * - &#x60;&quot;M+SS&quot;&#x60; with optional &#x60;+&#x60; (e.g. &#x60;&quot;5+0&quot;&#x60;, &#x60;&quot;3:0&quot;&#x60;)
+ * - &#x60;&quot;M+SS&quot;&#x60; format with minutes and seconds (e.g. &#x60;&quot;5+30&quot;&#x60; &#x3D; 5 min + 30 sec)
+ * - &#x60;&quot;seconds+increment&quot;&#x60; already normalized (e.g. &#x60;&quot;300+0&quot;&#x60;)
+ *
+ * @param tc — Raw time control string from the PGN header.
+ * @returns Normalized &#x60;&quot;baseSeconds+incrementSeconds&quot;&#x60; string, or &#x60;undefined&#x60;.
+ */
+function _normalizeTimeControl(tc: string): string | undefined {
+	// Already normalized: &quot;seconds+increment&quot; (e.g. &quot;300+0&quot;)
+	const standardMatch &#x3D; tc.match(/^(\d+)\+(\d+)$/);
+	if (standardMatch &amp;&amp; standardMatch[2] !&#x3D;&#x3D; undefined) {
+		const base &#x3D; parseInt(standardMatch[1], 10);
+		const inc &#x3D; parseInt(standardMatch[2], 10);
+		if (!Number.isNaN(base) &amp;&amp; !Number.isNaN(inc)) return tc;
+	}
+
+	// Human-readable: &quot;M+SS&quot; or &quot;M:SS&quot; (e.g. &quot;5+0&quot;, &quot;3:0&quot;)
+	// Already parsed in extractGameInfo, this is a fallback.
+	const colonMatch &#x3D; tc.match(/^(\d+):(\d+)$/);
+	if (colonMatch) {
+		const minutes &#x3D; parseInt(colonMatch[1], 10);
+		const seconds &#x3D; parseInt(colonMatch[2], 10);
+		if (!Number.isNaN(minutes) &amp;&amp; !Number.isNaN(seconds)) {
+			return &#x60;${minutes * 60}+${seconds}&#x60;;
 		}
 	}
 
-	// Handle colon formats: m:s -&gt; base minutes, increment seconds
-	match &#x3D; cleaned.match(/^(\d+):(\d+)$/);
-	if (match) {
-		const baseMinutes &#x3D; parseInt(match[1], 10);
-		const incSeconds &#x3D; parseInt(match[2], 10);
-		if (!Number.isNaN(baseMinutes) &amp;&amp; !Number.isNaN(incSeconds)) {
-			const baseSeconds &#x3D; baseMinutes * 60;
-			return &#x60;${baseSeconds}+${incSeconds}&#x60;;
-		}
-	}
-
-	// Handle common base+increment formats
-	match &#x3D; cleaned.match(
-		/(\d+)\s*(?:min|m|&#x27;)?\s*\+\s*(\d+)\s*(?:sec|s|&#x27;&#x27;|&quot;|\b)?/,
-	);
-	if (match) {
-		const baseVal &#x3D; parseInt(match[1], 10);
-		const incVal &#x3D; parseInt(match[2], 10);
-		if (!Number.isNaN(baseVal) &amp;&amp; !Number.isNaN(incVal)) {
-			const baseHasMinutes &#x3D; /\bmin\b|\bmins\b|\bminutes\b|\bminute\b|&#x27;/i.test(
-				cleaned,
-			);
-			const baseIsMinutes &#x3D; baseHasMinutes || baseVal &lt;&#x3D; 180;
-			const baseSeconds &#x3D; baseIsMinutes ? baseVal * 60 : baseVal;
-
-			const incHasMinutes &#x3D;
-				/\binc\b.*\bmin\b|\bmin\b.*\binc\b|\bminutes\b.*\binc\b/i.test(cleaned);
-			const incSeconds &#x3D; incHasMinutes ? incVal * 60 : incVal;
-			return &#x60;${baseSeconds}+${incSeconds}&#x60;;
-		}
-	}
-
-	// Textual formats: try extracting minutes and seconds
-	const baseMinMatch &#x3D; cleaned.match(/(\d+)\s*(?:min|mins|minutes|&#x27;)/i);
-	const incSecMatch &#x3D; cleaned.match(/(\d+)\s*(?:sec|secs|seconds|&#x27;&#x27;|s)\b/i);
+	const baseMinMatch &#x3D; tc.match(/^(\d+)\+(\d+)$/);
+	const incSecMatch &#x3D; tc.match(/^(\d+)\+(\d+)$/);
 	if (baseMinMatch &amp;&amp; incSecMatch) {
 		const baseMinutes &#x3D; parseInt(baseMinMatch[1], 10);
 		const incSeconds &#x3D; parseInt(incSecMatch[1], 10);
@@ -1545,7 +2704,7 @@ function extractMovesFast(pgn: string): string[] {
 	const filtered &#x3D; strippedMoves.filter((move) &#x3D;&gt; {
 		if (!move) return false;
 		// Remove any remaining special characters that aren&#x27;t part of SAN
-		if (/^[{}()\[\]]/.test(move)) return false;
+		if (/^[{}()[\]]/.test(move)) return false;
 		// Check if it looks like a valid chess move
 		// Valid patterns: e4, Nf3, exd5, O-O, O-O-O, e8&#x3D;Q, Nxf7+, etc.
 		return /^([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](&#x3D;[NBRQ])?|O-O(-O)?)[+#]?$/.test(
@@ -1557,6 +2716,7 @@ function extractMovesFast(pgn: string): string[] {
 </code></pre>
     </div>
 </div>
+
 
 
 
@@ -1594,6 +2754,19 @@ function extractMovesFast(pgn: string): string[] {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -1605,7 +2778,6 @@ function extractMovesFast(pgn: string): string[] {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
-       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

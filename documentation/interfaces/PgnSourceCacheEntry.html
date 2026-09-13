@@ -1,0 +1,865 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  PgnSourceCacheEntry</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Maps a PGN source (URL) to the content hash under which its parsed games and
+FEN index are stored in IndexedDB.</p>
+<p>The content hash alone cannot be computed without first downloading and
+decompressing the archive, so this bookmark lets the application detect a
+usable cache entry at startup and skip the download entirely.</p>
+
+            </p>
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#createdAt" 
+>
+                                            createdAt
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#indexed" 
+>
+                                            indexed
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#maxFenPlies" 
+>
+                                            maxFenPlies
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#pgnHash" 
+>
+                                            pgnHash
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="createdAt"></a>
+                                        <span class="name "><b>createdAt</b>
+                                            <a href="#createdAt">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>createdAt:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>When this mapping was recorded (epoch ms).</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="indexed"></a>
+                                        <span class="name "><b>indexed</b>
+                                            <a href="#indexed">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>indexed:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Whether the cached entry contains a built FEN index.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="maxFenPlies"></a>
+                                        <span class="name "><b>maxFenPlies</b>
+                                            <a href="#maxFenPlies">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>maxFenPlies:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Max half-moves replayed per game for the cached FEN index.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="pgnHash"></a>
+                                        <span class="name "><b>pgnHash</b>
+                                            <a href="#pgnHash">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>pgnHash:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>SHA-256 hash of the decompressed PGN content.</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, inject } from &#x27;@angular/core&#x27;;
+import { PgnViewerStoreService } from &#x27;./pgn-viewer-store.service&#x27;;
+
+/**
+ * Serialized form of the worker&#x27;s cached state for IndexedDB persistence.
+ *
+ * The FEN cache is stored as &#x60;[gameIndex, normalizedFen[]][]&#x60; (serialized
+ * from &#x60;Map&lt;number, Set&lt;string&gt;&gt;&#x60;) so it survives structured clone.
+ */
+export interface CachedPgnData {
+	/** Raw PGN text for each game, split by &#x60;[Event ...]&#x60; header. */
+	games: string[];
+	/** Parsed metadata for each game (headers only, no move data). */
+	gameMetadata: import(&#x27;./pgn-processor.worker&#x27;).GameMetadata[];
+	/**
+	 * Serialized FEN position cache.
+	 * Each entry: &#x60;[gameIndex, normalizedFenString[]]&#x60;.
+	 * The FEN strings are normalized (4-field: piece placement, active color,
+	 * castling, en passant) and deduplicated per game.
+	 */
+	fenCache: [number, string[]][];
+	/** When this cache entry was created (epoch ms). */
+	createdAt: number;
+	/**
+	 * Whether the FEN index was actually built for this entry. &#x60;false&#x60;/absent
+	 * means {@link fenCache} holds empty sets (indexing was disabled), so
+	 * position filters cannot be served from this entry.
+	 */
+	indexed?: boolean;
+	/** Max half-moves replayed per game when the FEN index was built. */
+	maxFenPlies?: number;
+}
+
+/**
+ * Maps a PGN source (URL) to the content hash under which its parsed games and
+ * FEN index are stored in IndexedDB.
+ *
+ * The content hash alone cannot be computed without first downloading and
+ * decompressing the archive, so this bookmark lets the application detect a
+ * usable cache entry at startup and skip the download entirely.
+ */
+export interface PgnSourceCacheEntry {
+	/** SHA-256 hash of the decompressed PGN content. */
+	pgnHash: string;
+	/** Whether the cached entry contains a built FEN index. */
+	indexed: boolean;
+	/** Max half-moves replayed per game for the cached FEN index. */
+	maxFenPlies: number;
+	/** When this mapping was recorded (epoch ms). */
+	createdAt: number;
+}
+
+/**
+ * Cache entry stored in IndexedDB, keyed by PGN content hash.
+ */
+interface CacheEntry {
+	/** SHA-256 hash of the PGN content; also the object-store key. */
+	pgnHash: string;
+	/** The parsed games, metadata and FEN index. */
+	data: CachedPgnData;
+}
+
+/** IndexedDB database holding parsed PGN collections. */
+const DB_NAME &#x3D; &#x27;NgxChessgroundPgnCache&#x27;;
+/** Schema version; bump together with an &#x60;onupgradeneeded&#x60; migration. */
+const DB_VERSION &#x3D; 1;
+/** Object store (and &#x60;createdAt&#x60; index) holding {@link CacheEntry} records. */
+const STORE_NAME &#x3D; &#x27;pgn_cache&#x27;;
+/** Maximum age for cache entries: 7 days. */
+const DEFAULT_TTL_MS &#x3D; 7 * 24 * 60 * 60 * 1000;
+/** Maximum number of cache entries. Oldest are evicted first. */
+const MAX_ENTRIES &#x3D; 10;
+/** &#x60;localStorage&#x60; key holding the URL → content-hash bookmark map. */
+const SOURCE_MAP_STORAGE_KEY &#x3D; &#x27;ngx-chessground-pgn-sources&#x27;;
+/** Maximum number of remembered sources (oldest pruned first). */
+const MAX_SOURCE_ENTRIES &#x3D; 20;
+
+/**
+ * Service for caching parsed PGN data (games, metadata, FEN positions) in
+ * IndexedDB. Allows re-opening a previously loaded PGN without re-parsing
+ * the entire file.
+ *
+ * Uses raw IndexedDB (no external dependency). Provided at root level so a
+ * single database connection is shared across the application.
+ */
+@Injectable({ providedIn: &#x27;root&#x27; })
+export class PgnCacheService {
+	/** Durable store used for the URL → content-hash bookmark map. */
+	private readonly store &#x3D; inject(PgnViewerStoreService);
+	/** Cached open handle, so the database is opened at most once. */
+	private dbPromise: Promise&lt;IDBDatabase&gt; | null &#x3D; null;
+
+	/**
+	 * Opens (or creates) the IndexedDB database and returns a handle.
+	 */
+	private async getDb(): Promise&lt;IDBDatabase&gt; {
+		if (this.dbPromise) return this.dbPromise;
+
+		this.dbPromise &#x3D; new Promise&lt;IDBDatabase&gt;((resolve, reject) &#x3D;&gt; {
+			const request &#x3D; indexedDB.open(DB_NAME, DB_VERSION);
+
+			request.onupgradeneeded &#x3D; () &#x3D;&gt; {
+				const db &#x3D; request.result;
+				if (!db.objectStoreNames.contains(STORE_NAME)) {
+					const store &#x3D; db.createObjectStore(STORE_NAME, {
+						keyPath: &#x27;pgnHash&#x27;,
+					});
+					store.createIndex(&#x27;createdAt&#x27;, &#x27;data.createdAt&#x27;, {
+						unique: false,
+					});
+				}
+			};
+
+			request.onsuccess &#x3D; () &#x3D;&gt; resolve(request.result);
+			request.onerror &#x3D; () &#x3D;&gt;
+				reject(new Error(&#x60;IndexedDB open error: ${request.error}&#x60;));
+		});
+
+		return this.dbPromise;
+	}
+
+	/**
+	 * Computes a SHA-256 hex digest of the given string using the
+	 * SubtleCrypto API.
+	 */
+	async hashPgn(pgn: string): Promise&lt;string&gt; {
+		const encoder &#x3D; new TextEncoder();
+		const data &#x3D; encoder.encode(pgn);
+		const hashBuffer &#x3D; await crypto.subtle.digest(&#x27;SHA-256&#x27;, data);
+		const hashArray &#x3D; Array.from(new Uint8Array(hashBuffer));
+		return hashArray.map((b) &#x3D;&gt; b.toString(16).padStart(2, &#x27;0&#x27;)).join(&#x27;&#x27;);
+	}
+
+	/**
+	 * Retrieves cached PGN data by hash, or &#x60;null&#x60; if not found or expired.
+	 *
+	 * @param pgnHash — SHA-256 hash of the original PGN string.
+	 * @param ttlMs — Time-to-live in milliseconds (default 7 days).
+	 */
+	async getCached(
+		pgnHash: string,
+		ttlMs &#x3D; DEFAULT_TTL_MS,
+	): Promise&lt;CachedPgnData | null&gt; {
+		try {
+			const db &#x3D; await this.getDb();
+			const tx &#x3D; db.transaction(STORE_NAME, &#x27;readonly&#x27;);
+			const store &#x3D; tx.objectStore(STORE_NAME);
+			const request &#x3D; store.get(pgnHash);
+
+			const result &#x3D; await new Promise&lt;CacheEntry | undefined&gt;(
+				(resolve, reject) &#x3D;&gt; {
+					request.onsuccess &#x3D; () &#x3D;&gt; resolve(request.result ?? undefined);
+					request.onerror &#x3D; () &#x3D;&gt; reject(request.error);
+				},
+			);
+
+			if (!result) return null;
+
+			// Check TTL
+			const age &#x3D; Date.now() - result.data.createdAt;
+			if (age &gt; ttlMs) {
+				// Expired — remove it
+				this.deleteEntry(pgnHash);
+				return null;
+			}
+
+			return result.data;
+		} catch {
+			return null;
+		}
+	}
+
+	/**
+	 * Stores parsed PGN data in the cache, keyed by the PGN content hash.
+	 *
+	 * Automatically evicts the oldest entries when the cache exceeds
+	 * {@link MAX_ENTRIES}.
+	 */
+	async setCache(pgnHash: string, data: CachedPgnData): Promise&lt;void&gt; {
+		try {
+			const db &#x3D; await this.getDb();
+
+			// Evict old entries if over limit
+			await this.evictIfNeeded(db);
+
+			const tx &#x3D; db.transaction(STORE_NAME, &#x27;readwrite&#x27;);
+			const store &#x3D; tx.objectStore(STORE_NAME);
+			store.put({ pgnHash, data } as CacheEntry);
+
+			await new Promise&lt;void&gt;((resolve, reject) &#x3D;&gt; {
+				tx.oncomplete &#x3D; () &#x3D;&gt; resolve();
+				tx.onerror &#x3D; () &#x3D;&gt; reject(tx.error);
+			});
+		} catch {
+			// Silently ignore storage errors (e.g. quota exceeded)
+		}
+	}
+
+	/**
+	 * Deletes a single cache entry by hash.
+	 */
+	private async deleteEntry(pgnHash: string): Promise&lt;void&gt; {
+		try {
+			const db &#x3D; await this.getDb();
+			const tx &#x3D; db.transaction(STORE_NAME, &#x27;readwrite&#x27;);
+			const store &#x3D; tx.objectStore(STORE_NAME);
+			store.delete(pgnHash);
+		} catch {
+			// Silently ignore
+		}
+	}
+
+	/**
+	 * Evicts the oldest entries when the store exceeds {@link MAX_ENTRIES}.
+	 */
+	private async evictIfNeeded(db: IDBDatabase): Promise&lt;void&gt; {
+		const tx &#x3D; db.transaction(STORE_NAME, &#x27;readonly&#x27;);
+		const store &#x3D; tx.objectStore(STORE_NAME);
+		const countRequest &#x3D; store.count();
+
+		const count &#x3D; await new Promise&lt;number&gt;((resolve, reject) &#x3D;&gt; {
+			countRequest.onsuccess &#x3D; () &#x3D;&gt; resolve(countRequest.result);
+			countRequest.onerror &#x3D; () &#x3D;&gt; reject(countRequest.error);
+		});
+
+		if (count &lt; MAX_ENTRIES) return;
+
+		// Need to evict oldest entries
+		const index &#x3D; store.index(&#x27;createdAt&#x27;);
+		const range &#x3D; IDBKeyRange.lowerBound(0);
+		const cursorRequest &#x3D; index.openCursor(range, &#x27;next&#x27;);
+
+		const toDelete: string[] &#x3D; [];
+		await new Promise&lt;void&gt;((resolve, reject) &#x3D;&gt; {
+			cursorRequest.onsuccess &#x3D; () &#x3D;&gt; {
+				const cursor &#x3D; cursorRequest.result;
+				if (cursor) {
+					toDelete.push((cursor.value as CacheEntry).pgnHash);
+					if (toDelete.length &lt; count - MAX_ENTRIES + 1) {
+						cursor.continue();
+					} else {
+						resolve();
+					}
+				} else {
+					resolve();
+				}
+			};
+			cursorRequest.onerror &#x3D; () &#x3D;&gt; reject(cursorRequest.error);
+		});
+
+		if (toDelete.length &#x3D;&#x3D;&#x3D; 0) return;
+
+		// Delete in a separate write transaction
+		const deleteTx &#x3D; db.transaction(STORE_NAME, &#x27;readwrite&#x27;);
+		const deleteStore &#x3D; deleteTx.objectStore(STORE_NAME);
+		for (const hash of toDelete) {
+			deleteStore.delete(hash);
+		}
+	}
+
+	/**
+	 * Removes all cached PGN data from IndexedDB.
+	 */
+	async clearCache(): Promise&lt;void&gt; {
+		try {
+			const db &#x3D; await this.getDb();
+			const tx &#x3D; db.transaction(STORE_NAME, &#x27;readwrite&#x27;);
+			const store &#x3D; tx.objectStore(STORE_NAME);
+			store.clear();
+			await new Promise&lt;void&gt;((resolve, reject) &#x3D;&gt; {
+				tx.oncomplete &#x3D; () &#x3D;&gt; resolve();
+				tx.onerror &#x3D; () &#x3D;&gt; reject(tx.error);
+			});
+		} catch {
+			// Silently ignore
+		}
+	}
+
+	/**
+	 * Returns the number of cached entries and their total estimated size.
+	 *
+	 * On desktop the parsed archives live on disk behind the local server, so
+	 * the figures come from &#x60;/api/cache-info&#x60; instead of IndexedDB.
+	 */
+	async getCacheInfo(): Promise&lt;{ count: number; estimatedBytes: number }&gt; {
+		if (this.store.isDesktop) {
+			try {
+				const response &#x3D; await fetch(&#x27;/api/cache-info&#x27;, { cache: &#x27;no-store&#x27; });
+				if (response.ok) {
+					const info: unknown &#x3D; await response.json();
+					const record &#x3D; info as { count?: unknown; estimatedBytes?: unknown };
+					return {
+						count: typeof record.count &#x3D;&#x3D;&#x3D; &#x27;number&#x27; ? record.count : 0,
+						estimatedBytes:
+							typeof record.estimatedBytes &#x3D;&#x3D;&#x3D; &#x27;number&#x27;
+								? record.estimatedBytes
+								: 0,
+					};
+				}
+			} catch {
+				// Server unavailable — report an empty cache.
+			}
+			return { count: 0, estimatedBytes: 0 };
+		}
+
+		try {
+			const db &#x3D; await this.getDb();
+			const tx &#x3D; db.transaction(STORE_NAME, &#x27;readonly&#x27;);
+			const store &#x3D; tx.objectStore(STORE_NAME);
+			const countRequest &#x3D; store.count();
+
+			const count &#x3D; await new Promise&lt;number&gt;((resolve, reject) &#x3D;&gt; {
+				countRequest.onsuccess &#x3D; () &#x3D;&gt; resolve(countRequest.result);
+				countRequest.onerror &#x3D; () &#x3D;&gt; reject(countRequest.error);
+			});
+
+			// Estimate size by serializing all entries
+			let estimatedBytes &#x3D; 0;
+			const cursorRequest &#x3D; store.openCursor();
+			await new Promise&lt;void&gt;((resolve, reject) &#x3D;&gt; {
+				cursorRequest.onsuccess &#x3D; () &#x3D;&gt; {
+					const cursor &#x3D; cursorRequest.result;
+					if (cursor) {
+						const json &#x3D; JSON.stringify(cursor.value);
+						estimatedBytes +&#x3D; new TextEncoder().encode(json).length;
+						cursor.continue();
+					} else {
+						resolve();
+					}
+				};
+				cursorRequest.onerror &#x3D; () &#x3D;&gt; reject(cursorRequest.error);
+			});
+
+			return { count, estimatedBytes };
+		} catch {
+			return { count: 0, estimatedBytes: 0 };
+		}
+	}
+
+	/**
+	 * Looks up the cached content hash for a PGN source without touching the
+	 * content. Used to detect a cache hit before downloading the archive.
+	 *
+	 * @param source — Source identifier (typically the PGN URL).
+	 * @returns The bookmark entry, or &#x60;null&#x60; when the source is not remembered.
+	 */
+	getSourceEntry(source: string): PgnSourceCacheEntry | null {
+		const record &#x3D; this.readSourceMap()[source];
+		if (record &#x3D;&#x3D;&#x3D; null || typeof record !&#x3D;&#x3D; &#x27;object&#x27;) return null;
+		const entry &#x3D; record as Partial&lt;PgnSourceCacheEntry&gt;;
+		if (typeof entry.pgnHash !&#x3D;&#x3D; &#x27;string&#x27; || entry.pgnHash.length &#x3D;&#x3D;&#x3D; 0) {
+			return null;
+		}
+		return {
+			pgnHash: entry.pgnHash,
+			indexed: entry.indexed &#x3D;&#x3D;&#x3D; true,
+			maxFenPlies:
+				typeof entry.maxFenPlies &#x3D;&#x3D;&#x3D; &#x27;number&#x27; &amp;&amp;
+				Number.isFinite(entry.maxFenPlies)
+					? entry.maxFenPlies
+					: 0,
+			createdAt:
+				typeof entry.createdAt &#x3D;&#x3D;&#x3D; &#x27;number&#x27; &amp;&amp; Number.isFinite(entry.createdAt)
+					? entry.createdAt
+					: 0,
+		};
+	}
+
+	/**
+	 * Remembers which content hash backs a PGN source, so a later session can
+	 * restore it from the cache without downloading and decompressing it again.
+	 */
+	setSourceEntry(source: string, entry: PgnSourceCacheEntry): void {
+		const map &#x3D; this.readSourceMap();
+		map[source] &#x3D; entry;
+		this.store.set(SOURCE_MAP_STORAGE_KEY, this.pruneSourceMap(map));
+	}
+
+	/** Removes all source bookmarks (used when the PGN cache is cleared). */
+	clearSourceEntries(): void {
+		this.store.remove(SOURCE_MAP_STORAGE_KEY);
+	}
+
+	/**
+	 * Fills the desktop snapshot with the source bookmarks from disk.
+	 *
+	 * A no-op in the browser. Hosts should await this before reading
+	 * {@link getSourceEntry} at startup on desktop.
+	 */
+	hydrateSourceEntries(): Promise&lt;void&gt; {
+		return this.store.hydrate([SOURCE_MAP_STORAGE_KEY]);
+	}
+
+	/** Reads the URL → hash map, tolerating absent or corrupt payloads. */
+	private readSourceMap(): Record&lt;string, unknown&gt; {
+		const stored &#x3D; this.store.get&lt;unknown&gt;(SOURCE_MAP_STORAGE_KEY);
+		return stored !&#x3D;&#x3D; null &amp;&amp; typeof stored &#x3D;&#x3D;&#x3D; &#x27;object&#x27;
+			? (stored as Record&lt;string, unknown&gt;)
+			: {};
+	}
+
+	/** Keeps only the {@link MAX_SOURCE_ENTRIES} most recently recorded sources. */
+	private pruneSourceMap(
+		map: Record&lt;string, unknown&gt;,
+	): Record&lt;string, unknown&gt; {
+		const entries &#x3D; Object.entries(map);
+		if (entries.length &lt;&#x3D; MAX_SOURCE_ENTRIES) return map;
+
+		const sorted &#x3D; entries.sort(([, a], [, b]) &#x3D;&gt; {
+			const aDate &#x3D; (a as Partial&lt;PgnSourceCacheEntry&gt;)?.createdAt ?? 0;
+			const bDate &#x3D; (b as Partial&lt;PgnSourceCacheEntry&gt;)?.createdAt ?? 0;
+			return bDate - aDate;
+		});
+		return Object.fromEntries(sorted.slice(0, MAX_SOURCE_ENTRIES));
+	}
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'PgnSourceCacheEntry.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

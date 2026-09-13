@@ -15,6 +15,12 @@
 
 /** Shape of the marker object injected by the desktop adapter. */
 export interface DesktopMarker {
+	/**
+	 * Opens the host's native file picker.
+	 *
+	 * @param extensions — Allowed file extensions, e.g. `['.pgn', '.zip']`.
+	 * @returns The chosen path, or `null` when the user cancelled.
+	 */
 	openFileDialog?(extensions: string[]): Promise<string | null>;
 }
 

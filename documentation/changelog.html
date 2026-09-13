@@ -1,0 +1,348 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="./" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content changelog">
+                   <div class="content-data">
+
+
+
+<h1>Changelog</h1>
+<h2>[Unreleased]</h2>
+<h3>Added</h3>
+<ul>
+<li>The PGN viewer gained a single, typed loading entry point: <code>NgxPgnViewerComponent.load(source, options?)</code> accepts a discriminated <code>PgnSource</code> (<code>{kind: &#39;url&#39; | &#39;pgn&#39; | &#39;file&#39;}</code>) and awaits durable-state hydration internally, so hosts no longer have to write to <code>urlInput</code>/<code>pgnInput</code> and then call a no-argument loader. <code>LoadOptions</code> (<code>indexStartPositions</code>, <code>maxFenPlies</code>) overrides indexing for one call without touching component state</li>
+<li>New viewer outputs: <code>loadFailed</code> (a <code>PgnViewerError</code> with a stable <code>code</code> — <code>DOWNLOAD_FAILED</code>, <code>PARSE_FAILED</code>, <code>CACHE_FAILED</code>, <code>ENGINE_FAILED</code>, <code>INVALID_SOURCE</code>), <code>loadStarted</code>, <code>loadProgress</code> and <code>stateRestored</code>. Load errors previously reached only the console and a transient notice, so a host could not react to them programmatically</li>
+<li><code>PGN_VIEWER_NOTIFIER</code> injection token (<code>PgnViewerNotifier</code>) decouples user-facing viewer messages from Angular Material. Without a provider they go to the console; hosts bridge them to their own snackbar/toast/live region</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>The PGN viewer no longer depends on Angular Material.</strong> <code>MatSnackBar</code> was its only Material usage, yet every consumer of the component was forced to install Material + CDK + a theme for it. Messages now flow through <code>PGN_VIEWER_NOTIFIER</code>; <code>@angular/material</code> and <code>@angular/cdk</code> are declared as <strong>optional</strong> peer dependencies, required only by <code>PromotionDialogComponent</code></li>
+<li><code>NgxPgnViewerComponent</code>&#39;s public surface is now only its inputs, outputs, models and documented methods. The ~39 members that exist purely for the template (move navigation, replay and practice controls, panel resizing, file inputs, cache actions) are <code>protected</code> — reachable from the template but no longer part of the contract</li>
+<li><code>NgxChessgroundComponent.runFunction</code> is an <code>input.required&lt;(el: HTMLElement) =&gt; Api&gt;()</code> instead of a <code>model()</code>. A callback is never written back to by the component, and the README already documented it as required — omitting it is now a compile-time error instead of a silently blank board. <strong>Breaking for anyone calling <code>runFunction.set(...)</code></strong>: bind <code>[runFunction]</code> in the template instead (see the updated README)</li>
+<li><code>NgxPgnViewerComponent.urlInput</code> is a <code>linkedSignal</code> derived from the Lichess year/month picker rather than a plain signal kept in sync by an <code>effect()</code>. The derivation rule moved to the exported, unit-tested <code>resolveBroadcastUrl</code> helper; a hand-entered or restored custom URL is still preserved across picker changes</li>
+<li>Boolean inputs use <code>booleanAttribute</code> transforms, so <code>&lt;ngx-pgn-viewer highlightLastMove&gt;</code> yields a boolean rather than the string <code>&#39;&#39;</code>. (<code>model()</code> inputs cannot transform and are unchanged.)</li>
+<li><code>indexStartPositions</code> now defaults to <code>true</code> in the packaged desktop app and <code>false</code> on the web, decided by the library through <code>isDesktopRuntime()</code> instead of requiring every host to replicate that policy</li>
+<li>The RxJS <code>firstValueFrom</code> import was dropped from <code>PromotionService</code>; <code>afterClosed()</code> emits once, so the first value is unwrapped directly</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><code>@angular/material</code> and RxJS were imported by library source but absent from <code>peerDependencies</code>, so the published manifest did not describe the package&#39;s real requirements. <code>jszip</code> was simultaneously listed in <code>peerDependencies</code> and in ng-packagr&#39;s <code>allowedNonPeerDependencies</code></li>
+<li><code>requestIdleCallback</code> in the viewer (<code>buildFilterLists</code> deferral) referenced <code>window</code> unguarded, which throws under SSR, and the handle was never cancelled — a pending callback could fire after the component was destroyed and write to its signals. It is now tracked and cancelled in <code>ngOnDestroy</code>, with the feature test done via <code>typeof requestIdleCallback</code></li>
+<li>The viewer&#39;s file/zip loading duplicated error handling across two paths and used <code>FileReader</code>; it now shares one <code>loadFile(file)</code> implementation built on <code>File.text()</code>, so both inputs report identical failures</li>
+<li>The example app&#39;s <code>in3dDefaults</code> import reached past the public API into <code>../../../../ngx-chessground/src/units/in3d</code>; it is exported from <code>ngx-chessground</code> and now imported from there</li>
+</ul>
+<h2>[22.7.0] - 2026-09-13</h2>
+<h3>Added</h3>
+<ul>
+<li>PGN viewer filter selection and data source are now persisted and restored on the next launch: the applied filters (players, result, ECO, time control, event, broadcast, ratings, upsets, FEN, sort order) plus the last Lichess year/month and PGN URL are re-applied automatically after the games finish loading — for the restored archive and for any archive loaded later — instead of being reset by the load. The new <code>PgnViewerSettingsService</code> (exported from the public API) owns the storage, and <code>NgxPgnViewerComponent.restoredStateFromStorage</code> lets a host reload the same archive before the filters are applied</li>
+<li>The PGN viewer&#39;s <strong>Index start positions</strong> option is enabled automatically in the packaged desktop app (detected through the <code>window.__desktop__</code> marker injected by <code>desktop/desktop-adapter.js</code>); in the browser it stays off unless the user checks it manually</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Startup is much faster when a previously loaded PGN is still cached: <code>PgnCacheService</code> now remembers a URL → content-hash bookmark (with the indexed game count / FEN replay window) and the viewer asks the worker to restore the parsed games and FEN index straight from the cache (<code>loadFromCache</code>), so the archive is no longer downloaded, decompressed and hashed again. On a cache miss the worker answers <code>cacheMiss</code> and the normal download path runs; a FEN-index request only accepts an entry that has the index built for the requested replay window. Hosts can check <code>NgxPgnViewerComponent.canLoadFromCache(url)</code> to skip network probes at startup</li>
+<li>The desktop app now opens <strong>maximized</strong>: <code>Deno.BrowserWindow</code> has no maximize/fullscreen option in Deno 2.9, so <code>desktop/server.ts</code> reads the webview&#39;s work area (<code>screen.availLeft/Top/Width/Height</code>) and applies it with <code>setPosition</code>/<code>setSize</code> — filling the screen while staying resizable and keeping the title bar</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Desktop builds now persist viewer state and the parsed-game cache on disk.</strong> Deno Desktop serves the webview from a random localhost port on every launch, so the webview origin — and therefore <code>localStorage</code> and <code>IndexedDB</code> — was new each time; saved filters and the cache were silently lost on every restart, which is why the desktop app re-downloaded and re-indexed the archive every time. <code>desktop/server.ts</code> gained <code>/api/state/&lt;key&gt;</code> and <code>/api/cache/&lt;hash&gt;</code> endpoints backed by a per-user data directory, the new <code>PgnViewerStoreService</code> routes persistence there <strong>only when <code>window.__desktop__</code> is present</strong>, and the worker reads/writes its cache through <code>/api/cache</code> in desktop mode while the browser keeps using <code>localStorage</code>/<code>IndexedDB</code> unchanged. Cache files are capped (1 GiB each, 3 most recently used, 30-day TTL) and <code>clearPgnCache()</code> deletes them. Hosts should <code>await NgxPgnViewerComponent.whenStateReady()</code> before loading data so the restored archive URL is known</li>
+</ul>
+<h2>[22.6.0] - 2026-09-10</h2>
+<h3>Changed</h3>
+<ul>
+<li>Desktop builds now ship <strong>Stockfish 19</strong> WASM instead of Stockfish 18 (locally built from the latest <code>nmrugg/stockfish.js</code> + <code>official-stockfish/Stockfish</code> sources), giving the packaged macOS and Windows apps a stronger analysis engine</li>
+</ul>
+<h2>[22.5.1] - 2026-09-05</h2>
+<h3>Added</h3>
+<ul>
+<li>Windows desktop builds now embed the real app icon: <code>desktop/icon.ico</code> is declared per-platform in <code>deno.json</code> and passed to the bundler. <code>scripts/set-exe-icon.js</code> additionally patches the launcher <code>.exe</code> with it when the toolchain allows (Windows host or wine) — Windows reads the taskbar icon from the launcher executable, so cross-compiled builds without wine keep the stock launcher icon</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>The packaged Windows desktop app (broken since 22.5.0) could not load its web UI / Stockfish from a compiled <code>deno desktop</code> bundle: paths built from <code>new URL(&quot;.&quot;, import.meta.url).pathname</code> produced an invalid <code>/C:/...</code> path on Windows. <code>desktop/server.ts</code> now derives its module directory from <code>import.meta.dirname</code> and joins paths with native separators</li>
+<li>Closing the app window no longer leaves a background process running — the embedded server now exits when the startup window closes</li>
+</ul>
+<h2>[22.5.0] - 2026-09-05</h2>
+<h3>Added</h3>
+<ul>
+<li>The app now boots into the <strong>newest available Lichess monthly broadcast</strong> instead
+of a bundled demo game: it probes the most recent archive (the month before the
+current one), falls back to the previous month when the newest isn&#39;t available
+yet, and only shows the demo game when no archive exists at all</li>
+<li>Practice mode in the PGN viewer (&quot;Analyze Practice&quot;): free/turn-based play from
+any position with continuous Stockfish analysis, undo/restart controls, and
+export of the session (copy FEN, copy SAN moves, copy/download PGN with
+<code>[%eval]</code> comments)</li>
+<li>Optional <code>config</code> input on <code>NgxChessgroundComponent</code>: applies a partial
+Chessground config to the live instance in place via <code>Api.set()</code></li>
+<li>Desktop release automation: <code>scripts/release-desktop.sh</code> builds, packages and
+publishes macOS/Linux/Windows bundles and installers to GitHub Releases in one
+command (<code>npm run release:desktop -- &lt;version&gt;</code>)</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Board position updates (navigation, replay, practice moves, PV previews) now
+reconfigure the existing Chessground instance in place instead of recreating
+it — preserving move animations and reducing per-update cost</li>
+<li>Practice mode is now <strong>turn-based</strong>: only the side to move may move (legal moves
+only), so flipping the board no longer locks out one side</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Chessground instance leak: every board update created a new Chessground
+instance without destroying the previous one, accumulating drag &amp; drop
+listeners and causing stuck piece dragging (most visible in practice mode).
+Old instances are now destroyed before recreation and on component teardown</li>
+</ul>
+<h2>[22.4.0] - 2026-08-14</h2>
+<h3>Added</h3>
+<ul>
+<li>Upset game filter in the PGN viewer: keep only games where the weaker-rated player (by Elo) beats or draws the stronger-rated player, with configurable outcome flags (win/draw) and minimum Elo gap (default 300). When enabled, results sort by upset size (largest gap first by default)</li>
+<li><code>stopOnErrorSide</code> signal on the PGN viewer (<code>&#39;both&#39; | &#39;white&#39; | &#39;black&#39;</code>) — stop-on-error replay now halts only on errors made by the configured side</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Stop-on-error now attributes evaluation drops to the player who just moved (previously any absolute swing beyond the threshold triggered a stop, including moves that <em>gained</em> evaluation)</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><code>isUpsetGame</code> no longer counts equal-rating games as upsets when the minimum Elo gap is 0</li>
+</ul>
+<h2>[22.3.0] - 2026-08-03</h2>
+<h3>Changed</h3>
+<ul>
+<li>Updated Angular to 22.1 (core 22.1.0, CLI 22.1.2) across library and example app</li>
+<li>Library peer dependencies now declare <code>@angular/core</code>/<code>@angular/common</code> ^22.0.0 (previously ^21.0.0), matching the Angular version the library is built with</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Removed unused <code>RouterLink</code> import in privacy policy component</li>
+</ul>
+<h2>[22.2.0] - 2026-07-05</h2>
+<h3>Added</h3>
+<ul>
+<li>Privacy Policy page (Angular route + footer link) for Windows Store compliance</li>
+<li>Native MSI installer with proper <code>ngx-chessground.exe</code> launcher (no .bat wrapper)</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Updated Deno to 2.9.1 canary (laufey v0.5.0) — fixes WebView2 runtime detection on Windows</li>
+<li>Windows portable build now uses <code>ngx-chessground.exe</code> entry point</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>MSI installer no longer fails with &quot;Failed to find the app exe path&quot; WebView2 error</li>
+<li>Windows Store submission requirements met (privacy policy, x64 architecture, MSI installer)</li>
+</ul>
+<h3>Removed</h3>
+<ul>
+<li>Broken GitHub Actions cross-compile release workflow</li>
+</ul>
+<h2>[22.1.0] - 2026-07-05</h2>
+<h3>Added</h3>
+<ul>
+<li>Desktop app support via Deno Desktop (Linux x64, Linux ARM64, Windows x64, macOS)</li>
+<li>Fast replay mode with configurable time controls</li>
+<li>Meta tags for SEO with route-based title and description handling</li>
+<li>End-of-replay animations and visual enhancements</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Refactored heading elements for consistency and improved accessibility</li>
+<li>Upgraded to Angular 22 dependencies</li>
+<li>Refactored PGN viewer and mini player components for accessibility and performance</li>
+<li>Enhanced board display styles and timeout handling in PGN viewer</li>
+<li>Improved scroll handling in HomePageComponent</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Improved DOM rendering and lifecycle management in NgxChessgroundComponent</li>
+<li>Optimized resize handling in PGN viewer with debounced logic</li>
+</ul>
+<hr>
+<h2>[22.0.0] - Initial Angular 22 release</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'changelog';
+            var COMPODOC_CURRENT_PAGE_URL = 'changelog.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+
+       <script src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

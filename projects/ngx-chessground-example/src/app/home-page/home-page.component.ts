@@ -1,4 +1,11 @@
-import { Component, effect, inject, model, viewChild } from '@angular/core';
+import {
+	Component,
+	effect,
+	inject,
+	model,
+	signal,
+	viewChild,
+} from '@angular/core';
 import {
 	MatButtonToggle,
 	MatButtonToggleGroup,
@@ -17,6 +24,7 @@ import {
 	enabledFalse,
 	fromFen,
 	fullRandom,
+	in3dDefaults,
 	lastMoveCrazyhouse,
 	lastMoveDrop,
 	loadPgnOneSecondPerMove,
@@ -35,7 +43,6 @@ import {
 	whileHolding,
 	withSameRole,
 } from 'ngx-chessground';
-import { in3dDefaults } from '../../../../ngx-chessground/src/units/in3d';
 
 @Component({
 	selector: 'app-home-page',
@@ -44,13 +51,26 @@ import { in3dDefaults } from '../../../../ngx-chessground/src/units/in3d';
 	styleUrl: './home-page.component.scss',
 })
 export class HomePageComponent {
-	readonly ngxChessgroundComponent =
-		viewChild.required<NgxChessgroundComponent>('chess');
-
 	lefMenu = viewChild.required<MatButtonToggleGroup>('leftMenu');
 	rightMenu = viewChild.required<MatButtonToggleGroup>('rightMenu');
 
 	private readonly promotionService = inject(PromotionService);
+
+	/**
+	 * Board factory currently shown in the centre board.
+	 *
+	 * Held as a signal and bound through the board's required `runFunction`
+	 * input, rather than pushed imperatively into a view-child. Changing it
+	 * re-creates the chessground instance — which is exactly what switching
+	 * example units means.
+	 */
+	readonly runFunction = signal<(el: HTMLElement) => Api>(
+		loadPgnProportionalTime.run,
+	);
+
+	/**
+	 * Initialised-once guard for the right-hand menu default.
+	 */
 	private initialized = false;
 
 	// Create enhanced units with promotion dialog support
@@ -101,13 +121,12 @@ export class HomePageComponent {
 	title = 'Chessground Examples';
 
 	constructor() {
-		// Reactively initialize the board when the view child is available
+		// Reflect the initially selected unit in the right-hand menu. The board
+		// itself already renders `runFunction` through its template binding.
 		effect(() => {
-			const chessComponent = this.ngxChessgroundComponent();
 			const menu = this.rightMenu();
-			if (chessComponent && menu && !this.initialized) {
+			if (menu && !this.initialized) {
 				this.initialized = true;
-				chessComponent.runFunction.set(loadPgnProportionalTime.run);
 				menu.value = loadPgnProportionalTime.name;
 			}
 		});
@@ -122,6 +141,6 @@ export class HomePageComponent {
 		} else {
 			this.rightValue.set(null);
 		}
-		this.ngxChessgroundComponent().runFunction.set(runFn);
+		this.runFunction.set(runFn);
 	}
 }

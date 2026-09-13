@@ -15,10 +15,13 @@ import { isDesktopRuntime } from './desktop-runtime';
  */
 @Injectable({ providedIn: 'root' })
 export class PgnViewerStoreService {
+	/** Whether the durable backend is the desktop app's on-disk API. */
 	private readonly desktop = isDesktopRuntime();
+	/** Synchronous snapshot of every key read or written this session. */
 	private readonly memory = new Map<string, unknown>();
 	/** Serializes writes per key so an earlier value can never land last. */
 	private readonly writeQueue = new Map<string, Promise<void>>();
+	/** In-flight (or completed) {@link hydrate} call; `null` until first use. */
 	private hydration: Promise<void> | null = null;
 
 	/** `true` when this store is backed by the desktop app's on-disk API. */
@@ -134,10 +137,12 @@ export class PgnViewerStoreService {
 		this.writeQueue.set(key, next);
 	}
 
+	/** Builds the desktop endpoint URL for one state key. */
 	private serverUrl(key: string): string {
 		return `/api/state/${encodeURIComponent(key)}`;
 	}
 
+	/** Reads and parses one key from `localStorage`, tolerating corruption. */
 	private readLocal(key: string): unknown | null {
 		try {
 			const raw = localStorage.getItem(key);
@@ -147,6 +152,7 @@ export class PgnViewerStoreService {
 		}
 	}
 
+	/** Serializes and writes one key to `localStorage`; failures are ignored. */
 	private writeLocal(key: string, value: unknown): void {
 		try {
 			localStorage.setItem(key, JSON.stringify(value));

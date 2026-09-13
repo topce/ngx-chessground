@@ -7,7 +7,12 @@ import {
 	viewChild,
 } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { isDesktopRuntime, NgxPgnViewerComponent } from 'ngx-chessground';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+	NgxPgnViewerComponent,
+	PGN_VIEWER_NOTIFIER,
+	type PgnViewerNotice,
+} from 'ngx-chessground';
 import { SponsorDialogComponent } from './sponsor-dialog.component';
 
 @Component({
@@ -15,6 +20,25 @@ import { SponsorDialogComponent } from './sponsor-dialog.component';
 	imports: [CommonModule, NgxPgnViewerComponent, MatDialogModule],
 	templateUrl: './pgn-viewer.component.html',
 	styleUrl: './pgn-viewer.component.css',
+	providers: [
+		// Bridge the viewer's toolkit-agnostic notifications onto the app's
+		// existing Material snackbar, so library messages keep their familiar
+		// presentation without the library itself depending on Material.
+		{
+			provide: PGN_VIEWER_NOTIFIER,
+			useFactory: () => {
+				const snackBar = inject(MatSnackBar);
+				return {
+					notify: (notice: PgnViewerNotice) =>
+						void snackBar.open(notice.message, 'Dismiss', {
+							duration: notice.durationMs,
+							horizontalPosition: 'end' as const,
+							verticalPosition: 'top' as const,
+						}),
+				};
+			},
+		},
+	],
 })
 export class PgnViewerComponent {
 	readonly headerId = 'pgn-viewer-header';
@@ -97,14 +121,10 @@ export class PgnViewerComponent {
 	private async loadInitialSource(): Promise<void> {
 		const viewer = this.pgnViewer();
 		if (!viewer) return;
-		// Wait for the durable state: in the packaged desktop app the filter
-		// selection, last archive URL and cache bookmarks are fetched from the
-		// local server on startup, so they are not known synchronously.
-		await viewer.whenStateReady();
-		// The packaged desktop app has the resources to index the starting
-		// position of every game, so enable it unconditionally there. On the
-		// web the option stays off unless the user checks it manually.
-		if (isDesktopRuntime()) viewer.indexStartPositions.set(true);
+		// `load()` awaits durable-state hydration internally, so the persisted
+		// archive URL and cache bookmarks are known by the time we read them.
+		// (In the packaged desktop app that state is fetched from the local
+		// server, so it is not available synchronously.)
 		const savedUrl = viewer.urlInput();
 		if (viewer.restoredStateFromStorage && savedUrl) {
 			// A cached source is restored from IndexedDB without any network
@@ -113,7 +133,7 @@ export class PgnViewerComponent {
 				viewer.canLoadFromCache(savedUrl) ||
 				(await this.monthFileExists(savedUrl))
 			) {
-				await viewer.loadFromUrl();
+				await viewer.load({ kind: 'url', url: savedUrl });
 				return;
 			}
 		}
@@ -138,8 +158,7 @@ export class PgnViewerComponent {
 				// Keep the viewer's Lichess date picker in sync with the load.
 				viewer.lichessYear.set(year);
 				viewer.lichessMonth.set(month);
-				viewer.urlInput.set(url);
-				await viewer.loadFromUrl();
+				await viewer.load({ kind: 'url', url });
 				return;
 			}
 		}

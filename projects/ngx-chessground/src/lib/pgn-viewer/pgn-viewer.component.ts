@@ -1,16 +1,18 @@
 import {
+	booleanAttribute,
 	Component,
 	computed,
 	type ElementRef,
 	effect,
 	inject,
 	input,
+	linkedSignal,
 	model,
 	type OnDestroy,
+	output,
 	signal,
 	viewChild,
 } from '@angular/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Chess, type Move, type Piece, type Square } from 'chess.js';
 import { Chessground } from 'chessground';
 import { Api } from 'chessground/api';
@@ -22,9 +24,13 @@ import { loadAsync as loadZipAsync } from 'jszip';
 
 import { PromotionService } from '../promotion-dialog/promotion.service';
 import { BoardDisplayComponent } from './board/board-display.component';
+import { isDesktopRuntime } from './desktop-runtime';
 import { ECO_MOVES } from './eco-moves';
-// Sub-components
 import { GameFilterPanelComponent } from './filter/game-filter-panel.component';
+import {
+	lichessBroadcastUrl,
+	resolveBroadcastUrl,
+} from './lichess-broadcast-url'; // Sub-components
 import { LoadCachePanelComponent } from './load-cache/load-cache-panel.component';
 import { MoveListComponent } from './moves/move-list.component';
 import { PgnCacheService, type PgnSourceCacheEntry } from './pgn-cache.service';
@@ -35,10 +41,18 @@ import type {
 } from './pgn-processor.worker';
 import type {
 	BestMoveInfo,
+	LoadOptions,
+	PgnSource,
+	PgnViewerError,
+	PgnViewerErrorCode,
 	PracticeMove,
 	StopOnErrorSide,
 } from './pgn-viewer.types';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
+import {
+	PGN_VIEWER_NOTIFIER,
+	type PgnViewerNoticeLevel,
+} from './pgn-viewer-notifier';
 import {
 	type PersistedFilterState,
 	type PersistedViewerState,
@@ -68,7 +82,6 @@ import { highlightMatch, type TextSegment } from './text-highlight';
 @Component({
 	selector: 'ngx-pgn-viewer',
 	imports: [
-		MatSnackBarModule,
 		GameFilterPanelComponent,
 		BoardDisplayComponent,
 		MoveListComponent,
@@ -80,86 +93,180 @@ import { highlightMatch, type TextSegment } from './text-highlight';
 	styleUrl: './pgn-viewer.component.css',
 })
 export class NgxPgnViewerComponent implements OnDestroy {
+	/** Owns the PGN worker and the Stockfish worker. */
 	private readonly pgnViewerEngine = inject(PgnViewerEngineService);
-	private readonly snackBar = inject(MatSnackBar);
+	/** Sink for user-facing messages; defaults to the console. */
+	private readonly notifier = inject(PGN_VIEWER_NOTIFIER);
+	/** Parsed-game cache and URL → hash bookmarks. */
 	private readonly pgnCacheService = inject(PgnCacheService);
+	/** Opens the pawn-promotion dialog during interactive play. */
 	private readonly promotionService = inject(PromotionService);
+	/** Persists and restores the filter selection and data source. */
 	private readonly pgnViewerSettings = inject(PgnViewerSettingsService);
 
 	// ======================================================================
 	// Inputs
 	// ======================================================================
 
+	/** PGN text to load. Changing it (non-empty) starts a load. */
 	pgn = input<string>('');
-	highlightLastMove = input<boolean>(true);
+	/** Whether to highlight the origin and destination of the last move. */
+	highlightLastMove = input(true, { transform: booleanAttribute });
+	/** Board orientation; `true` puts Black at the bottom (two-way). */
 	flipped = model<boolean>(false);
+	/** Whether to render 3D Staunton pieces (two-way). */
 	in3d = model<boolean>(false);
+	/** Width of the left filter panel in pixels (two-way). */
 	leftPanelWidth = model<number>(340);
+	/** Width of the right panel in pixels (two-way). */
 	rightPanelWidth = model<number>(340);
+	/** Whether the move-list panel is expanded (two-way). */
 	movesExpanded = model<boolean>(true);
+
+	// ======================================================================
+	// Outputs
+	// ======================================================================
+
+	/**
+	 * Emitted once when durable state has been restored.
+	 *
+	 * Hosts that need to read `urlInput`/`restoredStateFromStorage` at startup
+	 * can `await whenStateReady()` instead; this output exists for hosts that
+	 * prefer the reactive form.
+	 */
+	readonly stateRestored = output<void>();
+
+	/**
+	 * Emitted when a load starts, carrying the initial status text.
+	 *
+	 * Load progress afterwards is reported through `loadProgress`.
+	 */
+	readonly loadStarted = output<{ status: string }>();
+
+	/** Emitted whenever load progress advances. */
+	readonly loadProgress = output<{
+		percent: number;
+		status: string;
+	}>();
+
+	/**
+	 * Emitted for every load failure, in addition to the user-facing notice.
+	 *
+	 * This is the single place a host needs to handle to surface load errors
+	 * programmatically (telemetry, retry UI, a custom banner).
+	 */
+	readonly loadFailed = output<PgnViewerError>();
 
 	// ======================================================================
 	// State Signals
 	// ======================================================================
 
+	/** Parsed metadata for every game in the loaded collection. */
 	gamesMetadata = signal<GameMetadata[]>([]);
+	/** Index of the game currently loaded into the board. */
 	currentGameIndex = signal<number>(0);
+	/** SAN moves of the loaded game. */
 	moves = signal<string[]>([]);
+	/** Zero-based index of the displayed move; `-1` is the start position. */
 	currentMoveIndex = signal<number>(-1);
+	/** FEN of the position currently displayed on the board. */
 	currentFen = signal<string>(
 		'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 	);
+	/** Whether a load or parse is in progress. */
 	isLoading = signal<boolean>(false);
+	/** Load progress, 0-100. */
 	loadingProgress = signal<number>(0);
+	/** Human-readable description of the current load step. */
 	loadingStatus = signal<string>('');
+	/** Content hash of the PGN being loaded, used for cache bookkeeping. */
 	lastPgnHash: string | null = null;
+	/** Indices of the games selected for batch operations. */
 	selectedGames = signal<Set<number>>(new Set());
 
 	// ---- Filter Signals ----
+	/** White-player name filter. */
 	filterWhite = signal<string>('');
+	/** Black-player name filter. */
 	filterBlack = signal<string>('');
+	/** Selected results; empty means no result filter. */
 	filterResult = signal<string[]>([]);
+	/** Whether the opening-move prefix filter is active. */
 	filterMoves = signal<boolean>(false);
+	/** Whether player names match either colour. */
 	ignoreColor = signal<boolean>(false);
+	/** Whether upset filtering is enabled. */
 	filterUpsetEnabled = signal<boolean>(false);
+	/** Include upsets won by the lower-rated player. */
 	filterUpsetWin = signal<boolean>(false);
+	/** Include upsets drawn by the lower-rated player. */
 	filterUpsetDraw = signal<boolean>(false);
 	/** Minimum Elo gap between players for a game to count as an upset. */
 	filterUpsetMinDiff = signal<string>('300');
+	/** Whether rating-range filtering is enabled. */
 	filterRatingEnabled = signal<boolean>(false);
+	/** Lower bound of the White rating range, as entered. */
 	filterWhiteRating = signal<string>('2000');
+	/** Lower bound of the Black rating range, as entered. */
 	filterBlackRating = signal<string>('2000');
+	/** Upper bound of the White rating range, as entered. */
 	filterWhiteRatingMax = signal<string>('2900');
+	/** Upper bound of the Black rating range, as entered. */
 	filterBlackRatingMax = signal<string>('2900');
+	/** Selected ECO code, or `''`. */
 	filterEco = signal<string>('');
+	/** Selected time-control keys; empty means no filter. */
 	filterTimeControl = signal<string[]>([]);
+	/** Selected event name, or `''`. */
 	filterEvent = signal<string>('');
+	/** Selected broadcast name, or `''`. */
 	filterBroadcastName = signal<string>('');
+	/** Target position for FEN filtering. */
 	filterFen = signal<string>('');
+	/** Whether position (FEN) filtering is active. */
 	filterByFenEnabled = signal<boolean>(false);
-	indexStartPositions = signal<boolean>(false);
+	/**
+	 * Whether to build a starting-position FEN index.
+	 *
+	 * Defaults to `true` in the packaged desktop app, which has the resources
+	 * to index every game, and `false` on the web unless the user opts in.
+	 */
+	indexStartPositions = signal<boolean>(isDesktopRuntime());
+	/** Max half-moves replayed per game when building the FEN index. */
 	maxFenPlies = signal<number>(30);
+	/** Whether the game list is sorted oldest-first. */
 	sortAscending = signal<boolean>(false);
 
+	/** Distinct White player names in the loaded collection. */
 	uniqueWhitePlayers = signal<string[]>([]);
+	/** Distinct Black player names in the loaded collection. */
 	uniqueBlackPlayers = signal<string[]>([]);
+	/** ECO code → game count, for the ECO dropdown. */
 	uniqueEcoCodes = signal<Map<string, number>>(new Map());
+	/** Time-control key → game count and original time-control strings. */
 	uniqueTimeControls = signal<
 		Map<string, { count: number; originals: Map<string, number> }>
 	>(new Map());
+	/** Event name → game count. */
 	uniqueEvents = signal<Map<string, number>>(new Map());
+	/** Broadcast name → game count. */
 	uniqueBroadcastNames = signal<Map<string, number>>(new Map());
 
+	/** Indices of the games matching the active filters. */
 	filteredGamesIndices = signal<number[]>([]);
+	/** Whether a filter request is in flight. */
 	isFiltering = signal<boolean>(false);
+	/** Whether the full filtered list is shown instead of the limited page. */
 	showAllGames = signal<boolean>(false);
 
+	/** ECO codes with counts, most frequent first. */
 	sortedEcoCodes = computed(() =>
 		Array.from(this.uniqueEcoCodes().entries())
 			.sort((a, b) => b[1] - a[1])
 			.map(([code, count]) => ({ code, count })),
 	);
 
+	/** Time controls with counts and display labels, most frequent first. */
 	sortedTimeControls = computed(() =>
 		Array.from(this.uniqueTimeControls().entries())
 			.sort((a, b) => b[1].count - a[1].count)
@@ -171,18 +278,27 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			})),
 	);
 
+	/** Event names with counts, most frequent first. */
 	sortedEvents = computed(() =>
 		Array.from(this.uniqueEvents().entries())
 			.sort((a, b) => b[1] - a[1])
 			.map(([event, count]) => ({ event, count })),
 	);
 
+	/** Broadcast names with counts, most frequent first. */
 	sortedBroadcastNames = computed(() =>
 		Array.from(this.uniqueBroadcastNames().entries())
 			.sort((a, b) => b[1] - a[1])
 			.map(([broadcastName, count]) => ({ broadcastName, count })),
 	);
 
+	/**
+	 * Metadata rows the filter panel's game list should show.
+	 *
+	 * While games are explicitly selected the list collapses to the current
+	 * game only, so the selection stays stable; otherwise it shows the first
+	 * match, or every match once `showAllGames` is set.
+	 */
 	filteredGameInfos = computed(() => {
 		const metadata = this.gamesMetadata();
 		const allIndices = this.filteredGamesIndices();
@@ -197,17 +313,22 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return allIndices.slice(0, limit).map((i) => metadata[i]);
 	});
 
+	/** Number of games matching the active filters. */
 	totalFilteredCount = computed(() => this.filteredGamesIndices().length);
+	/** Number of games explicitly selected. */
 	selectedGamesCount = computed(() => this.selectedGames().size);
+	/** Whether batch replay should be offered: several games, some selected. */
 	canShowReplayAll = computed(
 		() => this.gamesMetadata().length > 1 && this.selectedGamesCount() > 0,
 	);
 
+	/** Position of the loaded game within the collection, e.g. `"Game 2 of 40"`. */
 	currentGameInfo = computed(
 		() =>
 			`Game ${this.currentGameIndex() + 1} of ${this.gamesMetadata().length} `,
 	);
 
+	/** White player of the loaded game, or `'Unknown'` when unavailable. */
 	currentWhitePlayer = computed(() => {
 		const metadata = this.gamesMetadata();
 		const i = this.currentGameIndex();
@@ -216,6 +337,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			: 'Unknown';
 	});
 
+	/** Black player of the loaded game, or `'Unknown'` when unavailable. */
 	currentBlackPlayer = computed(() => {
 		const metadata = this.gamesMetadata();
 		const i = this.currentGameIndex();
@@ -224,6 +346,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			: 'Unknown';
 	});
 
+	/** Result of the loaded game, or `'*'` when unavailable. */
 	currentGameResult = computed(() => {
 		const metadata = this.gamesMetadata();
 		const i = this.currentGameIndex();
@@ -233,33 +356,49 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	});
 
 	// ---- Flipped board helpers ----
+	/** Player name for the row above the board, honouring orientation. */
 	topPlayerName = computed(() =>
 		this.flipped() ? this.currentWhitePlayer() : this.currentBlackPlayer(),
 	);
+	/** Player name for the row below the board, honouring orientation. */
 	bottomPlayerName = computed(() =>
 		this.flipped() ? this.currentBlackPlayer() : this.currentWhitePlayer(),
 	);
+	/** Turn-indicator CSS class for the top row. */
 	topPlayerTurnClass = computed(() =>
 		this.flipped() ? 'white-turn' : 'black-turn',
 	);
+	/** Turn-indicator CSS class for the bottom row. */
 	bottomPlayerTurnClass = computed(() =>
 		this.flipped() ? 'black-turn' : 'white-turn',
 	);
+	/** Piece colour for the top row, honouring orientation. */
 	topPlayerActiveColor = computed(() => (this.flipped() ? 'w' : 'b'));
+	/** Piece colour for the bottom row, honouring orientation. */
 	bottomPlayerActiveColor = computed(() => (this.flipped() ? 'b' : 'w'));
+	/** Tooltip for the top row, naming the side that moves next. */
 	topPlayerTitle = computed(() =>
 		this.flipped() ? 'White to move' : 'Black to move',
 	);
+	/** Tooltip for the bottom row, naming the side that moves next. */
 	bottomPlayerTitle = computed(() =>
 		this.flipped() ? 'Black to move' : 'White to move',
 	);
+	/** Remaining time shown beside the top player. */
 	topTimeRemaining = computed(() =>
 		this.flipped() ? this.whiteTimeRemaining() : this.blackTimeRemaining(),
 	);
+	/** Remaining time shown beside the bottom player. */
 	bottomTimeRemaining = computed(() =>
 		this.flipped() ? this.blackTimeRemaining() : this.whiteTimeRemaining(),
 	);
 
+	/**
+	 * Origin and destination of the move to highlight, or `undefined`.
+	 *
+	 * Reads `currentMoveIndex`/`currentFen` so the highlight is recomputed on
+	 * every position change even though it is derived from chess.js history.
+	 */
 	lastMoveSquares = computed<[Key, Key] | undefined>(() => {
 		if (!this.highlightLastMove()) return undefined;
 		this.currentMoveIndex();
@@ -270,26 +409,37 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return [lastMove.from as Key, lastMove.to as Key];
 	});
 
+	/** Side to move, parsed from the displayed FEN. */
 	activeColor = computed(() => {
 		const parts = this.currentFen().split(' ');
 		return parts.length > 1 ? parts[1] : 'w';
 	});
 
 	// ---- Replay signals ----
+	/** Active replay timing mode. */
 	replayMode = signal<'realtime' | 'proportional' | 'fixed' | 'fast'>('fixed');
+	/** Target duration in seconds for `proportional` replay. */
 	proportionalDuration = signal<number>(1);
+	/** Minimum seconds between moves in `realtime` replay. */
 	minSecondsBetweenMoves = signal<number>(1);
+	/** Seconds per move in `fixed` replay. */
 	fixedTime = signal<number>(1);
+	/** Seconds per move in `fast` replay. */
 	fastTime = signal<number>(0.3);
+	/** Whether replay halts on a significant evaluation drop. */
 	stopOnError = signal<boolean>(false);
+	/** Evaluation drop, in pawns, that counts as an error. */
 	stopOnErrorThreshold = signal<number>(1.0);
 	/** Which side's errors trigger "stop on error": 'both' | 'white' | 'black'. */
 	stopOnErrorSide = signal<StopOnErrorSide>('both');
+	/** Whether an auto-replay is currently running. */
 	isReplaying = signal<boolean>(false);
+	/** Whether a paused replay can be resumed from the current position. */
 	canContinueReplay = computed(
 		() =>
 			!this.isReplaying() && this.currentMoveIndex() < this.moves().length - 1,
 	);
+	/** Whether the replay has reached the final move of the game. */
 	isEndOfReplay = computed(
 		() =>
 			this.isReplaying() &&
@@ -299,14 +449,19 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	);
 
 	// ---- Clock signals ----
+	/** Formatted remaining time for White, or `''` when the PGN has no clocks. */
 	whiteTimeRemaining = signal<string>('');
+	/** Formatted remaining time for Black, or `''` when the PGN has no clocks. */
 	blackTimeRemaining = signal<string>('');
+	/** Clock string per half-move, aligned with `moves`. */
 	moveClocks = signal<string[]>([]);
+	/** Whether the PGN carried clock data, so clock UI should be shown. */
 	showClocks = computed(
 		() => this.whiteTimeRemaining() !== '' || this.blackTimeRemaining() !== '',
 	);
 
 	// ---- Stockfish signals ----
+	/** Whether Stockfish is analyzing the displayed position. */
 	isAnalyzing = signal<boolean>(false);
 	/** All PV lines collected from the current analysis (sorted by MultiPV rank). */
 	allAlternatives = signal<BestMoveInfo[]>([]);
@@ -318,10 +473,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		const idx = this.currentAlternativeIndex();
 		return idx >= 0 && idx < alts.length ? alts[idx] : null;
 	});
+	/** Whether the "show better move" button should be offered. */
 	showBetterMoveBtn = signal<boolean>(false);
+	/** Whether the analysis panel is expanded. */
 	analysisVisible = signal<boolean>(false);
+	/** Stockfish search depth requested for the next analysis. */
 	stockfishDepth = signal<number>(18);
-	analysisVisibleChanged = signal<boolean>(false);
 	/** True after autoplayBestLine completes — enables the re-evaluate button. */
 	autoplayCompleted = signal<boolean>(false);
 
@@ -376,49 +533,82 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			: this.currentGameResult(),
 	);
 
+	/** Evaluation string per half-move, aligned with `moves`; `null` when unknown. */
 	evaluations = signal<(string | null)[]>([]);
+	/** Evaluation of the displayed move, or `null` before the first move. */
 	currentEvaluation = computed(() => {
 		const evals = this.evaluations();
 		const index = this.currentMoveIndex();
 		return index >= 0 && index < evals.length ? evals[index] : null;
 	});
 
+	/** Cached-entry count and estimated size, or `null` while unknown. */
 	cacheInfo = signal<{ count: number; estimatedBytes: number } | null>(null);
+	/** PGN text shown in the load panel's textarea. */
 	pgnInput = signal<string>('');
-	urlInput = signal<string>('');
+	/** Lichess archive year selected in the load panel (two-way). */
 	lichessYear = model<number>(new Date().getFullYear());
+	/** Lichess archive month selected in the load panel (two-way). */
 	lichessMonth = model<number>(1);
+	/**
+	 * PGN source URL shown in the load panel.
+	 *
+	 * Derived from the Lichess year/month picker, but writable so a user can
+	 * type or restore a custom URL — which is then preserved across later
+	 * picker changes. A `linkedSignal` (rather than an `effect` + flag) keeps
+	 * the derivation declarative and drops the mutable "already synced"
+	 * bookkeeping.
+	 */
+	urlInput = linkedSignal<{ year: number; month: number }, string>({
+		source: () => ({ year: this.lichessYear(), month: this.lichessMonth() }),
+		computation: (next, previous) => resolveBroadcastUrl(next, previous?.value),
+	});
 
 	// Panel resize state
+	/** Panel currently being dragged, or `null` when no drag is in progress. */
 	private resizing: 'left' | 'right' | null = null;
+	/** Pending animation frame for a panel drag, so moves are coalesced. */
 	private resizeRafId: number | null = null;
+	/** The element that establishes the panel widths; used to clamp resizing. */
 	private readonly mainContentRef =
 		viewChild<ElementRef<HTMLElement>>('mainContent');
-	readonly moveList = viewChild<ElementRef<HTMLElement>>('moveList');
 
 	// ---- Internal state ----
+	/** Authoritative game state; the board is rendered from this instance. */
 	private chess = new Chess();
+	/** Timers scheduled for the current replay sequence, cleared on stop. */
 	private replayTimeouts: ReturnType<typeof setTimeout>[] = [];
+	/** Resolver of the promise a batch replay is awaiting, or `null`. */
 	private replayResolve: (() => void) | null = null;
+	/** Whether a multi-game (batch) replay is in progress. */
 	private isReplayingSequence = false;
+	/** Correlation id of the newest filter request; stale replies are dropped. */
 	private currentFilterId = 0;
+	/** Correlation id of the newest `loadGame` request; stale replies are dropped. */
 	private currentLoadGameId = 0;
+	/** Whether the next filter result should replace the game selection. */
 	private autoSelectOnFinish = false;
+	/** Move prefix the active filter was applied with, replayed after a load. */
 	private activeFilterMoves: string[] = [];
+	/** Move index to restore when a position filter is cleared, or `null`. */
 	private savedGameMoveIndex: number | null = null;
+	/** Moves the user played on the board while composing a position filter. */
 	private interactiveMoves = signal<string[]>([]);
+	/** Pending request to turn off the opening-move filter after a load. */
 	private shouldUncheckFilterMoves = false;
+	/** Clock readings parsed from the PGN, one entry per half-move. */
 	private clockHistory: { white: number; black: number }[] = [];
+	/** Every timer this component owns, drained on destroy. */
 	private readonly pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
+	/**
+	 * Handle of an in-flight `requestIdleCallback` (filter-list aggregation),
+	 * cancelled on destroy so it cannot write to signals of a dead component.
+	 */
+	private pendingIdleCallback: number | null = null;
 
 	// ---- Persisted state ----
 	/** State restored from a previous session, or `null` for a fresh session. */
 	private persistedState: PersistedViewerState | null = null;
-	/**
-	 * Guards the first run of the Lichess date → URL sync effect so a URL
-	 * restored from storage (which may be a custom one) is not overwritten.
-	 */
-	private urlSyncInitialized = false;
 	/**
 	 * `false` until the durable state has been read. While it is `false` the
 	 * persist effect stays quiet, so the defaults cannot overwrite the saved
@@ -554,11 +744,16 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// Construction
 	// ======================================================================
 
+	/**
+	 * Wires the engine callbacks, restores the persisted session, and keeps the
+	 * URL field and durable state in sync with the filters.
+	 */
 	constructor() {
 		this.pgnViewerEngine.initialize({
 			onPgnMessage: (data) => this.handleWorkerMessage(data),
 			onStockfishMessage: (event) => this.handleStockfishMessage(event),
-			onError: (message, error) => console.error(message, error),
+			onError: (message, error) =>
+				this.reportLoadFailure('ENGINE_FAILED', message, error),
 		});
 
 		// Restore the previous session (filter selection + Lichess data source)
@@ -578,21 +773,6 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.stateReady = this.hydratePersistedState(defaults);
 
 		effect(() => {
-			const year = this.lichessYear();
-			const month = this.lichessMonth();
-			if (!year || !month) return;
-			const m = month.toString().padStart(2, '0');
-			const broadcastUrl = `lichess/broadcast/lichess_db_broadcast_${year}-${m}.pgn.zst`;
-			if (!this.urlSyncInitialized) {
-				this.urlSyncInitialized = true;
-				// Keep a URL restored from storage — it may be a custom one that
-				// is unrelated to the Lichess year/month picker.
-				if (this.persistedState?.url) return;
-			}
-			this.urlInput.set(broadcastUrl);
-		});
-
-		effect(() => {
 			// Persist the selection on every change so exiting the application
 			// never loses the applied filters or the loaded database. On desktop
 			// the durable store is fetched asynchronously, so wait for hydration
@@ -606,38 +786,42 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			const pgn = this.pgn();
 			if (pgn) this.loadPgnString(pgn);
 		});
-
-		effect(() => {
-			this.currentMoveIndex();
-			this.setDeferredTimeout(() => this.scrollToActiveMove());
-		});
 	}
 
+	/** Releases timers, workers and DOM state owned by the viewer. */
 	ngOnDestroy(): void {
 		this.stopReplay();
 		this.stopResize();
 		this.pgnViewerEngine.dispose();
 		for (const t of this.pendingTimeouts) clearTimeout(t);
 		this.pendingTimeouts.clear();
+		if (this.pendingIdleCallback !== null) {
+			cancelIdleCallback(this.pendingIdleCallback);
+			this.pendingIdleCallback = null;
+		}
 	}
 
 	// ======================================================================
 	// Public methods used by template
 	// ======================================================================
 
-	flipBoard(): void {
+	/** Flips the board orientation. */
+	protected flipBoard(): void {
 		this.flipped.update((v) => !v);
 	}
-	toggle3d(): void {
+	/** Toggles between flat SVG pieces and 3D Staunton pieces. */
+	protected toggle3d(): void {
 		this.in3d.update((v) => !v);
 	}
-	startResize(side: 'left' | 'right', event: MouseEvent): void {
+	/** Begins a panel drag, locking the cursor for its duration. */
+	protected startResize(side: 'left' | 'right', event: MouseEvent): void {
 		event.preventDefault();
 		this.resizing = side;
 		document.body.style.cursor = 'col-resize';
 		document.body.style.userSelect = 'none';
 	}
-	onResizeMove(event: MouseEvent): void {
+	/** Applies a panel drag, clamped to 200px minimum and 45% of the container. */
+	protected onResizeMove(event: MouseEvent): void {
 		if (!this.resizing || this.resizeRafId !== null) return;
 		const container = this.mainContentRef()?.nativeElement;
 		if (!container) return;
@@ -661,7 +845,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			}
 		});
 	}
-	stopResize(): void {
+	/** Ends a panel drag and restores the cursor and text selection. */
+	protected stopResize(): void {
 		this.resizing = null;
 		if (this.resizeRafId !== null) {
 			cancelAnimationFrame(this.resizeRafId);
@@ -672,7 +857,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	// ---- Game navigation ----
-	loadGame(index: number): void {
+	/** Requests the full move data for the game at `index` from the worker. */
+	protected loadGame(index: number): void {
 		const count = this.gamesMetadata().length;
 		if (index >= 0 && index < count) {
 			this.clearPracticeState();
@@ -686,26 +872,31 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.pgnViewerEngine.loadGame(index, this.currentLoadGameId);
 		}
 	}
-	nextGame(): void {
+	/** Moves to the next game in the current navigation order. */
+	protected nextGame(): void {
 		const nav = this.navigationIndices();
 		const pos = nav.indexOf(this.currentGameIndex());
 		if (pos >= 0 && pos < nav.length - 1) this.loadGame(nav[pos + 1]);
 	}
-	prevGame(): void {
+	/** Moves to the previous game in the current navigation order. */
+	protected prevGame(): void {
 		const nav = this.navigationIndices();
 		const pos = nav.indexOf(this.currentGameIndex());
 		if (pos > 0) this.loadGame(nav[pos - 1]);
 	}
+	/** Game indices the prev/next controls step through (selection-aware). */
 	private navigationIndices = computed(() => {
 		const indices = this.filteredGamesIndices();
 		const selected = this.selectedGames();
 		return selected.size > 0 ? indices.filter((i) => selected.has(i)) : indices;
 	});
+	/** Whether a previous game exists in the current navigation order. */
 	canGoPrev = computed(() => {
 		const nav = this.navigationIndices();
 		const pos = nav.indexOf(this.currentGameIndex());
 		return pos > 0;
 	});
+	/** Whether a next game exists in the current navigation order. */
 	canGoNext = computed(() => {
 		const nav = this.navigationIndices();
 		const pos = nav.indexOf(this.currentGameIndex());
@@ -713,7 +904,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	});
 
 	// ---- Move navigation ----
-	jumpToMove(index: number): void {
+	/** Replays the game from the start up to `index`; `-1` is the start position. */
+	protected jumpToMove(index: number): void {
 		this.exitPractice();
 		const moves = this.moves();
 		if (index >= -1 && index < moves.length) {
@@ -729,7 +921,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			}
 		}
 	}
-	next(): void {
+	/** Advances one move, no-op in practice mode. */
+	protected next(): void {
 		if (this.practiceMode()) return;
 		const moves = this.moves();
 		const idx = this.currentMoveIndex();
@@ -746,7 +939,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			}
 		}
 	}
-	prev(): void {
+	/** Steps back one move, no-op in practice mode. */
+	protected prev(): void {
 		if (this.practiceMode()) return;
 		if (this.currentMoveIndex() >= 0) {
 			this.chess.undo();
@@ -760,7 +954,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			}
 		}
 	}
-	start(): void {
+	/** Jumps to the start position of the loaded game. */
+	protected start(): void {
 		if (this.practiceMode()) return;
 		this.chess.reset();
 		this.currentMoveIndex.set(-1);
@@ -771,7 +966,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.blackTimeRemaining.set(this.formatTime(c.black));
 		}
 	}
-	end(): void {
+	/** Jumps to the final position of the loaded game. */
+	protected end(): void {
 		if (this.practiceMode()) return;
 		this.chess.reset();
 		for (const m of this.moves()) this.chess.move(m);
@@ -785,7 +981,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	// ---- Filter actions ----
-	applyFilter(): void {
+	/** Sends the current filter selection to the worker. */
+	protected applyFilter(): void {
 		this.stopReplay();
 		this.exitPractice();
 		this.isReplayingSequence = false;
@@ -842,7 +1039,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		if (fMoves) this.shouldUncheckFilterMoves = true;
 	}
 
-	clearFilters(): void {
+	/** Resets every filter to its default and re-applies them. */
+	protected clearFilters(): void {
 		this.stopReplay();
 		this.isReplayingSequence = false;
 		this.showBetterMoveBtn.set(false);
@@ -879,10 +1077,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.applyFilter();
 	}
 
-	toggleSortDirection(): void {
+	/** Reverses the game-list sort direction. */
+	protected toggleSortDirection(): void {
 		this.sortAscending.update((v) => !v);
 	}
-	toggleGameSelection(index: number): void {
+	/** Adds or removes one game from the batch-operation selection. */
+	protected toggleGameSelection(index: number): void {
 		const s = new Set(this.selectedGames());
 		if (s.has(index)) {
 			s.delete(index);
@@ -893,21 +1093,30 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	// ---- Replay ----
-	replayGame(): void {
+	/** Starts auto-replay of the loaded game from its first move. */
+	protected replayGame(): void {
 		this.exitPractice();
 		this.stopReplay();
 		this.start();
 		this.runReplayLogic();
 	}
-	continueReplay(): void {
+	/** Resumes a paused replay from the displayed position. */
+	protected continueReplay(): void {
 		this.exitPractice();
 		this.stopReplay(false);
 		this.runReplayLogic();
 	}
-	stopSequence(): void {
+	/** Cancels a batch replay across multiple games. */
+	protected stopSequence(): void {
 		this.isReplayingSequence = false;
 		this.stopReplay();
 	}
+	/**
+	 * Stops the active replay and cancels its pending move timers.
+	 *
+	 * @param resolvePromise — When `true`, resolves the promise a caller may be
+	 *   awaiting from `replayAllSelectedGames`.
+	 */
 	stopReplay(resolvePromise = true): void {
 		this.isReplaying.set(false);
 		this.replayTimeouts.forEach((t) => {
@@ -920,6 +1129,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.replayResolve = null;
 		}
 	}
+	/** Replays each selected game in turn, stopping early if the user cancels. */
 	async replayAllSelectedGames(): Promise<void> {
 		this.stopReplay();
 		this.isReplayingSequence = true;
@@ -942,7 +1152,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	// ---- Stockfish analysis ----
-	analyzePosition(fen: string): void {
+	/** Sends `fen` to Stockfish at the configured depth. */
+	protected analyzePosition(fen: string): void {
 		if (!this.pgnViewerEngine.analyzePosition(fen, this.stockfishDepth()))
 			return;
 		this.isAnalyzing.set(true);
@@ -954,7 +1165,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.autoplayCompleted.set(false);
 		this.analysisVisible.set(true);
 	}
-	autoplayBestLine(): void {
+	/** Plays out the engine's principal variation on the board. */
+	protected autoplayBestLine(): void {
 		const info = this.bestMoveInfo();
 		if (!info?.pv?.length) return;
 		this.autoplayCompleted.set(false);
@@ -967,7 +1179,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		})();
 	}
 	/** Cycle to the next-best engine move in the current analysis. */
-	nextBestMove(): void {
+	protected nextBestMove(): void {
 		const alts = this.allAlternatives();
 		const idx = this.currentAlternativeIndex();
 		if (idx < alts.length - 1) {
@@ -975,19 +1187,21 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 	/** Cycle to the previous engine move in the current analysis. */
-	prevBestMove(): void {
+	protected prevBestMove(): void {
 		const idx = this.currentAlternativeIndex();
 		if (idx > 0) this.currentAlternativeIndex.set(idx - 1);
 	}
 	/** Re-analyze the board position currently displayed. */
-	reevaluatePosition(): void {
+	protected reevaluatePosition(): void {
 		this.analyzedFen = this.currentFen();
 		this.analyzePosition(this.currentFen());
 	}
-	previewPvMove(fen: string): void {
+	/** Shows a principal-variation position without committing a move. */
+	protected previewPvMove(fen: string): void {
 		this.currentFen.set(fen);
 	}
-	toggleAnalysis(): void {
+	/** Shows or hides the analysis panel, starting analysis on first open. */
+	protected toggleAnalysis(): void {
 		// "Show Better Move" is exclusive with practice mode: opening it shows
 		// the better-move panel and closes the practice panel.
 		this.exitPractice();
@@ -1004,7 +1218,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	 * Enters practice mode: turn-based play starting from the currently
 	 * displayed position, with continuous Stockfish analysis.
 	 */
-	startPractice(): void {
+	protected startPractice(): void {
 		if (this.practiceMode() || this.isReplaying()) return;
 		// Practice mode is exclusive with the "Show Better Move" analysis panel.
 		this.showBetterMoveBtn.set(false);
@@ -1025,14 +1239,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	/** Leaves practice mode and restores the loaded game position. */
-	exitPractice(): void {
+	protected exitPractice(): void {
 		if (!this.practiceMode()) return;
 		this.clearPracticeState();
 		this.restoreGamePosition();
 	}
 
 	/** Takes back the last practice move and re-analyzes the resulting position. */
-	undoPracticeMove(): void {
+	protected undoPracticeMove(): void {
 		if (!this.practiceMode()) return;
 		if (!this.chess.undo()) return;
 		this.practiceMoves.update((moves) => moves.slice(0, -1));
@@ -1042,7 +1256,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	/** Restarts the practice session from the position where it started. */
-	restartPractice(): void {
+	protected restartPractice(): void {
 		if (!this.practiceMode()) return;
 		try {
 			this.chess = new Chess(this.practiceStartFen());
@@ -1056,23 +1270,26 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	/** Re-analyzes the current practice position (e.g. after a depth change). */
-	reanalyzePracticePosition(): void {
+	protected reanalyzePracticePosition(): void {
 		if (this.practiceMode()) this.analyzePracticePosition();
 	}
 
 	// ---- Practice export ----
+	/** Copies the current practice position as a FEN string. */
 	async copyPracticeFen(): Promise<void> {
 		await this.copyTextToClipboard(
 			this.currentFen(),
 			'FEN copied to clipboard.',
 		);
 	}
+	/** Copies the practice move list as SAN text. */
 	async copyPracticeMoves(): Promise<void> {
 		await this.copyTextToClipboard(
 			this.buildPracticeMoveText(),
 			'Moves copied to clipboard.',
 		);
 	}
+	/** Copies the practice session as PGN, including evaluation comments. */
 	async copyPracticePgn(): Promise<void> {
 		await this.copyTextToClipboard(
 			this.buildPracticePgn(),
@@ -1080,7 +1297,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		);
 	}
 	/** Downloads the practice session as a PGN file. */
-	downloadPracticePgn(): void {
+	protected downloadPracticePgn(): void {
 		const pgn = this.buildPracticePgn();
 		const blob = new Blob([pgn], { type: 'application/x-chess-pgn' });
 		const url = URL.createObjectURL(blob);
@@ -1140,7 +1357,9 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.loadingProgress.set(0);
 		this.loadingStatus.set(status);
 		this.lastPgnHash = null;
+		this.loadStarted.emit({ status });
 	}
+	/** Loads PGN text from the system clipboard. */
 	async loadFromClipboard(): Promise<void> {
 		try {
 			const text = await navigator.clipboard.readText();
@@ -1149,16 +1368,18 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				this.loadPgnString(text);
 			}
 		} catch {
-			this.showMessage('Failed to read clipboard.', 5000);
+			this.showMessage('Failed to read clipboard.', 5000, 'error');
 		}
 	}
+	/** Copies the PGN text currently in the load panel. */
 	async copyToClipboard(): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(this.pgnInput());
 		} catch {
-			this.showMessage('Failed to copy to clipboard.', 5000);
+			this.showMessage('Failed to copy to clipboard.', 5000, 'error');
 		}
 	}
+	/** Loads the Lichess broadcast archive for the selected year and month. */
 	async loadFromLichess(): Promise<void> {
 		const year = this.lichessYear();
 		const month = this.lichessMonth();
@@ -1166,24 +1387,88 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			this.showMessage('Please select a valid year and month.');
 			return;
 		}
-		const m = month.toString().padStart(2, '0');
-		this.urlInput.set(
-			`lichess/broadcast/lichess_db_broadcast_${year}-${m}.pgn.zst`,
-		);
+		this.urlInput.set(lichessBroadcastUrl(year, month));
 		await this.loadFromUrl();
 	}
+
+	/**
+	 * Loads a PGN source into the viewer.
+	 *
+	 * The single entry point for getting data in — it replaces the pattern of
+	 * writing to `urlInput`/`pgnInput` and then calling a no-argument loader.
+	 * The source is explicit at the call site, so a misconfigured load is a
+	 * type error rather than a silently ignored click.
+	 *
+	 * Awaits durable-state hydration internally, so hosts do not need to
+	 * sequence `whenStateReady()` before their first load. Failures are
+	 * reported through {@link loadFailed} and a user-facing notice; this method
+	 * does not reject.
+	 *
+	 * @example
+	 * ```typescript
+	 * await viewer.load({ kind: 'url', url: 'lichess/broadcast/…pgn.zst' });
+	 * await viewer.load({ kind: 'pgn', text: pgnString });
+	 * await viewer.load({ kind: 'file', file: input.files[0] });
+	 * ```
+	 */
+	async load(source: PgnSource, options?: LoadOptions): Promise<void> {
+		// A load issued before hydration finishes would apply the persisted
+		// filters to the wrong collection; wait for the state first.
+		await this.stateReady;
+
+		// Apply the per-call overrides to the indexing signals up front. They
+		// are read by every downstream path (cache usability, the worker
+		// payload and the cache bookmark), so resolving them in one place both
+		// honours the override and keeps the UI in sync with what was loaded.
+		if (options?.indexStartPositions !== undefined) {
+			this.indexStartPositions.set(options.indexStartPositions);
+		}
+		if (options?.maxFenPlies !== undefined) {
+			this.maxFenPlies.set(options.maxFenPlies);
+		}
+
+		switch (source.kind) {
+			case 'url': {
+				if (!source.url) {
+					this.reportLoadFailure('INVALID_SOURCE', 'No URL provided.');
+					return;
+				}
+				this.urlInput.set(source.url);
+				await this.loadFromUrl();
+				return;
+			}
+			case 'pgn': {
+				if (!source.text) {
+					this.reportLoadFailure('INVALID_SOURCE', 'No PGN text provided.');
+					return;
+				}
+				this.pgnInput.set(source.text);
+				await this.loadPgnString(source.text, source.sourceUrl);
+				return;
+			}
+			case 'file': {
+				await this.loadFile(source.file);
+				return;
+			}
+		}
+	}
+
 	/**
 	 * Whether a PGN source can be restored from the IndexedDB cache with the
 	 * current indexing options, without downloading it.
 	 *
 	 * Hosts can use this to skip network probes at startup before calling
-	 * {@link loadFromUrl}.
+	 * {@link load}.
 	 */
 	canLoadFromCache(url: string): boolean {
 		const entry = this.pgnCacheService.getSourceEntry(url);
 		return entry !== null && this.isSourceCacheUsable(entry);
 	}
 
+	/**
+	 * Loads the URL currently in the URL field, preferring the parsed-game
+	 * cache over a fresh download. Prefer {@link load} at call sites.
+	 */
 	async loadFromUrl(): Promise<void> {
 		const url = this.urlInput();
 		if (!url) return;
@@ -1264,78 +1549,98 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				this.loadPgnString(content, url);
 			});
 		} catch (e) {
-			console.error('Error loading from URL:', e);
-			this.showMessage(`Error loading from URL: ${String(e)}`, 6000);
-			this.isLoading.set(false);
-			this.loadingProgress.set(0);
-			this.loadingStatus.set('');
+			this.reportLoadFailure(
+				'DOWNLOAD_FAILED',
+				`Error loading from URL: ${String(e)}`,
+				e,
+			);
 		}
 	}
-	clearPgnCache(): void {
+	/** Clears the worker's parsed-game cache and the URL bookmarks. */
+	protected clearPgnCache(): void {
 		this.pgnViewerEngine.clearCache(Date.now());
 		this.pgnCacheService.clearSourceEntries();
 		this.lastPgnHash = null;
 		this.cacheInfo.set(null);
 		this.showMessage('PGN cache cleared.');
 	}
+	/** Refreshes the cached-entry count and size shown in the load panel. */
 	async refreshCacheInfo(): Promise<void> {
 		this.cacheInfo.set(await this.pgnCacheService.getCacheInfo());
 	}
-	onPgnZipSelected(event: Event): void {
+	/** Surfaces a file-read failure reported by the load panel. */
+	protected onFileLoadFailed(message: string): void {
+		this.reportLoadFailure('PARSE_FAILED', message);
+	}
+	/** Handles a `.zip` chosen in the file picker. */
+	protected onPgnZipSelected(event: Event): void {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
-		(async () => {
-			try {
-				const zip = await loadZipAsync(file);
-				const pgnFile = Object.values(zip.files).find((f) =>
-					f.name.endsWith('.pgn'),
-				);
-				if (pgnFile) {
-					const content = await pgnFile.async('string');
-					this.setDeferredTimeout(() => this.loadPgnString(content));
-				} else {
-					this.showMessage('No PGN file found in the zip archive.');
-					this.isLoading.set(false);
-				}
-			} catch (e) {
-				console.error('Error loading zip file:', e);
-				this.showMessage('Error loading zip file.', 5000);
-				this.isLoading.set(false);
-			}
-		})();
+		void this.loadFile(file);
 	}
-	onPgnFileSelected(event: Event): void {
-		const input = event.target as HTMLInputElement;
-		if (!input.files?.length) return;
-		const file = input.files[0];
+
+	/**
+	 * Parses a user-selected `.pgn` or `.zip` file into the viewer.
+	 *
+	 * Shared by the file inputs and by {@link load}, so both paths report
+	 * failures identically instead of one of them silently resetting the
+	 * spinner.
+	 */
+	async loadFile(file: File): Promise<void> {
 		this.isLoading.set(true);
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			const content = e.target?.result as string;
-			if (content) this.setDeferredTimeout(() => this.loadPgnString(content));
-			else this.isLoading.set(false);
-		};
-		reader.onerror = () => {
-			this.isLoading.set(false);
-			this.showMessage('Error reading file.', 5000);
-		};
-		reader.readAsText(file);
+		try {
+			const content = file.name.toLowerCase().endsWith('.zip')
+				? await this.readPgnFromZip(file)
+				: await file.text();
+			if (!content) {
+				this.reportLoadFailure(
+					'PARSE_FAILED',
+					`No PGN content found in "${file.name}".`,
+				);
+				return;
+			}
+			await this.loadPgnString(content);
+		} catch (error) {
+			this.reportLoadFailure(
+				'PARSE_FAILED',
+				`Could not read "${file.name}".`,
+				error,
+			);
+		}
+	}
+
+	/** Extracts the first `.pgn` entry from a zip archive, if any. */
+	private async readPgnFromZip(file: File): Promise<string | null> {
+		const zip = await loadZipAsync(file);
+		const pgnFile = Object.values(zip.files).find((f) =>
+			f.name.toLowerCase().endsWith('.pgn'),
+		);
+		return pgnFile ? pgnFile.async('string') : null;
+	}
+
+	/** Handles a `.pgn` chosen in the file picker. */
+	protected onPgnFileSelected(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+		void this.loadFile(file);
 	}
 
 	// ---- Snapshot position ----
-	snapshotCurrentPosition(): void {
+	/** Copies the displayed position into the FEN filter and enables it. */
+	protected snapshotCurrentPosition(): void {
 		this.filterFen.set(this.currentFen());
 		this.filterByFenEnabled.set(true);
 	}
 
 	/** Safe text highlighting for typeahead. */
-	highlightText(text: string, query: string): TextSegment[] {
+	protected highlightText(text: string, query: string): TextSegment[] {
 		return highlightMatch(text, query);
 	}
 
 	/** Lookup ECO opening moves from the ECO_MOVES map. */
-	getOpeningMoves(code: string): string {
+	protected getOpeningMoves(code: string): string {
 		return ECO_MOVES[code] || '';
 	}
 
@@ -1373,6 +1678,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			// Storage unavailable — continue with the defaults.
 		} finally {
 			this.stateHydrated.set(true);
+			this.stateRestored.emit();
 		}
 	}
 
@@ -1449,6 +1755,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		};
 	}
 
+	/**
+	 * Builds the distinct-value lists behind the filter dropdowns (players,
+	 * ECO, events, time controls, broadcasts) from freshly loaded metadata.
+	 */
 	private buildFilterLists(metadata: GameMetadata[]): void {
 		const whitePlayerElos = new Map<string, number>();
 		const blackPlayerElos = new Map<string, number>();
@@ -1541,6 +1851,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return dests;
 	}
 
+	/**
+	 * Applies a move made on the board while composing a position filter.
+	 *
+	 * Every path ends either committed or with the board re-synchronized to
+	 * chess.js, because chessground renders the drop before the app validates it.
+	 */
 	private handleBoardMove(orig: string, dest: string): void {
 		if (this.practiceMode()) {
 			this.handlePracticeMove(orig, dest);
@@ -1811,24 +2127,31 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			await navigator.clipboard.writeText(text);
 			this.showMessage(message, 2500);
 		} catch {
-			this.showMessage('Failed to copy to clipboard.', 5000);
+			this.showMessage('Failed to copy to clipboard.', 5000, 'error');
 		}
 	}
 
+	/** Routes one PGN-worker response to the matching request handler. */
 	private handleWorkerMessage(data: WorkerResponse): void {
 		const { type, payload, id } = data;
 		if (type === 'load') {
 			this.gamesMetadata.set(payload.metadata);
 			this.isLoading.set(false);
 
-			// Defer expensive aggregation to idle time so the board renders immediately
+			// Defer expensive aggregation to idle time so the board renders
+			// immediately. The handle is tracked so a pending callback cannot
+			// fire after the component is destroyed.
 			const meta = payload.metadata;
-			if ('requestIdleCallback' in window) {
-				requestIdleCallback(() => this.buildFilterLists(meta), {
-					timeout: 2000,
-				});
+			if (typeof requestIdleCallback === 'function') {
+				this.pendingIdleCallback = requestIdleCallback(
+					() => {
+						this.pendingIdleCallback = null;
+						this.buildFilterLists(meta);
+					},
+					{ timeout: 2000 },
+				);
 			} else {
-				setTimeout(() => this.buildFilterLists(meta), 0);
+				this.setDeferredTimeout(() => this.buildFilterLists(meta));
 			}
 			if (payload.count > 0) this.loadGame(0);
 			// Apply the filter selection that is currently active — restored
@@ -1840,6 +2163,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		} else if (type === 'progress') {
 			this.loadingProgress.set(payload.percent);
 			this.loadingStatus.set(payload.status);
+			this.loadProgress.emit({
+				percent: payload.percent,
+				status: payload.status,
+			});
 		} else if (type === 'filter') {
 			if (id === this.currentFilterId) {
 				this.filteredGamesIndices.set(payload);
@@ -1860,13 +2187,17 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			if (id !== this.currentLoadGameId) return;
 			const { moves, pgn, evaluations, error } = payload;
 			if (error) {
-				console.error('Worker error:', error);
 				this.pgnInput.set(
 					`Error parsing game: ${error} \n\nRaw PGN: \n${pgn} `,
 				);
 				this.moves.set([]);
 				this.evaluations.set([]);
 				this.moveClocks.set([]);
+				this.reportLoadFailure(
+					'PARSE_FAILED',
+					`Error parsing game: ${error}`,
+					error,
+				);
 			} else {
 				this.moves.set(moves);
 				let evals = evaluations || [];
@@ -1910,14 +2241,15 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				if (url) void this.downloadFromUrl(url);
 			}
 		} else if (type === 'error') {
-			console.error('Worker error:', payload);
-			this.isLoading.set(false);
+			this.reportLoadFailure('PARSE_FAILED', `Worker error: ${payload}`);
 		}
 	}
 
 	// Temp storage for multi-PV lines during analysis; flushed to allAlternatives on bestmove.
+	/** Multi-PV lines buffered until `bestmove` closes the search. */
 	private readonly pendingAlternatives = new Map<number, BestMoveInfo>();
 
+	/** Parses UCI output from Stockfish into evaluations and PV lines. */
 	private handleStockfishMessage(event: MessageEvent): void {
 		const line = event.data;
 		if (typeof line !== 'string') return;
@@ -1994,8 +2326,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/** Position the in-flight analysis was started for, used to drop stale results. */
 	private analyzedFen: string | null = null;
 
+	/**
+	 * Converts a UCI principal variation into SAN plus the FEN after each move.
+	 *
+	 * @returns One entry per convertible move; returns `[]` for an invalid FEN.
+	 */
 	private uciToSan(
 		fen: string,
 		uciMoves: string[],
@@ -2022,6 +2360,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// Replay internals
 	// ======================================================================
 
+	/** Chooses and runs the replay strategy for the current timing mode. */
 	private runReplayLogic(): void {
 		const gamePgn = this.pgnInput();
 		const onComplete = this.replayResolve
@@ -2052,6 +2391,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/** Replays the loaded game move by move, awaiting each scheduled delay. */
 	private replayGameAsync(): Promise<void> {
 		return new Promise((resolve) => {
 			this.stopReplay();
@@ -2088,6 +2428,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		});
 	}
 
+	/**
+	 * Derives per-move delays from the clock data already parsed by chess.js.
+	 *
+	 * Used for `realtime` replay; falls back to the fixed interval when the PGN
+	 * carries no clock annotations.
+	 */
 	private calculateReplayTimeouts(history: Move[]): number[] {
 		const _timeOuts: number[] = [];
 		this.clockHistory = [];
@@ -2171,6 +2517,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return thinkTimes.map((_, i) => (i + 1) * 1);
 	}
 
+	/**
+	 * Derives per-move delays by parsing clock comments with chessops.
+	 *
+	 * Fallback for PGNs whose clock data chess.js cannot expose.
+	 */
 	private calculateReplayTimeoutsChessops(pgn: string): number[] {
 		const games = parsePgn(pgn);
 		if (games.length === 0) throw new Error('No games found by chessops');
@@ -2240,6 +2591,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return thinkTimes.map((_, i) => (i + 1) * 1);
 	}
 
+	/** Queues one replay step, tracking its timer so it can be cancelled. */
 	private scheduleReplay(
 		timeOuts: number[],
 		totalMoves: number,
@@ -2308,6 +2660,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// Helpers
 	// ======================================================================
 
+	/** Renders a time-control key such as `'180+2'` as a readable label. */
 	private formatTimeControlKey(key: string): string {
 		const m = key.match(/^(\d+)\+(\d+)$/);
 		if (!m) return key;
@@ -2317,6 +2670,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return base % 60 === 0 && base / 60 <= 180 ? `${base / 60}+${inc}` : key;
 	}
 
+	/** Summarizes the distinct original time-control strings behind a key. */
 	private formatOriginalsSummary(
 		originals: Map<string, number>,
 		maxItems = 6,
@@ -2331,6 +2685,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return head ? `Originals: ${head}${rest}` : '';
 	}
 
+	/** Formats a duration in seconds as `H:MM:SS` or `M:SS`. */
 	private formatTime(seconds: number): string {
 		const h = Math.floor(seconds / 3600);
 		const m = Math.floor((seconds % 3600) / 60);
@@ -2340,6 +2695,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			: `${m}:${s.toString().padStart(2, '0')} `;
 	}
 
+	/** Parses an evaluation string into pawns, from White's perspective. */
 	private parseEval(evalStr: string | null): number | null {
 		if (!evalStr) return null;
 		if (evalStr.startsWith('#')) {
@@ -2362,6 +2718,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return parts.length < 2 || parts[1] !== 'w';
 	}
 
+	/**
+	 * Recovers `[%eval …]` annotations from raw PGN when the worker reported none.
+	 *
+	 * @returns One evaluation per move, `null` where the PGN has no annotation.
+	 */
 	private extractEvalsFromPgn(
 		pgnText: string,
 		parsedMoves: string[],
@@ -2386,6 +2747,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return evals;
 	}
 
+	/** Parses `[%clk …]` annotations into {@link clockHistory}. */
 	private extractClockHistory(pgn: string): void {
 		this.clockHistory = [];
 		try {
@@ -2432,6 +2794,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/** Builds the formatted per-move clock strings from `clockHistory`. */
 	private buildMoveClocks(moves: Move[]): void {
 		const clocks: string[] = [];
 		for (let i = 0; i < moves.length; i++) {
@@ -2447,6 +2810,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.moveClocks.set(clocks);
 	}
 
+	/**
+	 * Finds the first move index whose position matches `targetFen`.
+	 *
+	 * @returns The zero-based index, or `-1` when the position never occurs.
+	 */
 	private findMoveIndexForFen(moves: string[], targetFen: string): number {
 		try {
 			const norm = this.normalizeFen(targetFen);
@@ -2462,10 +2830,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
+	/** Trims a FEN to its first four fields for comparison. */
 	private normalizeFen(fen: string): string {
 		return fen.split(' ').slice(0, 4).join(' ');
 	}
 
+	/** FEN of the position immediately before `moveIndex`, or `null`. */
 	private getFenBeforeMove(moveIndex: number): string | null {
 		try {
 			const temp = new Chess();
@@ -2479,20 +2849,11 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
-	private scrollToActiveMove(): void {
-		const el = this.moveList();
-		if (!el) return;
-		const active = el.nativeElement.querySelector(
-			'.move-btn.active',
-		) as HTMLElement;
-		if (active)
-			active.scrollIntoView({
-				behavior: 'smooth',
-				block: 'nearest',
-				inline: 'nearest',
-			});
-	}
-
+	/**
+	 * Schedules a callback and tracks its timer so `ngOnDestroy` can cancel it.
+	 *
+	 * @returns The timer handle, for callers that need to cancel it early.
+	 */
 	private setDeferredTimeout(
 		cb: () => void,
 		delay = 0,
@@ -2505,11 +2866,34 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		return id;
 	}
 
-	private showMessage(msg: string, duration = 4000): void {
-		this.snackBar.open(msg, 'Dismiss', {
-			duration,
-			horizontalPosition: 'end',
-			verticalPosition: 'top',
-		});
+	/** Sends a user-facing message to the configured notifier. */
+	private showMessage(
+		msg: string,
+		duration = 4000,
+		level: PgnViewerNoticeLevel = 'info',
+	): void {
+		this.notifier.notify({ message: msg, level, durationMs: duration });
+	}
+
+	/**
+	 * Reports a load failure on every channel at once.
+	 *
+	 * The three consumers of a failure — the host (`loadFailed`), the user
+	 * (notice) and a developer (console) — are served from one place, so a new
+	 * error path cannot accidentally reach only some of them.
+	 */
+	private reportLoadFailure(
+		code: PgnViewerErrorCode,
+		message: string,
+		cause?: unknown,
+	): void {
+		const error: PgnViewerError = { code, message, cause };
+		this.isLoading.set(false);
+		this.loadingProgress.set(0);
+		this.loadingStatus.set('');
+		this.loadFailed.emit(error);
+		this.showMessage(message, 6000, 'error');
+		if (cause !== undefined)
+			console.error(`[ngx-chessground] ${message}`, cause);
 	}
 }

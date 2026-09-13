@@ -12,10 +12,75 @@
         <link rel="stylesheet" href="../styles/dark.css">
     </head>
     <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-        <div class="navbar navbar-default navbar-fixed-top visible-xs">
-            <a href="../" class="navbar-brand">ngx-chessground documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -24,7 +89,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="hidden-xs menu">
+               <div class="d-none d-md-block menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -42,24 +107,35 @@
 
 
 
+
+
+
+
+
 <ol class="breadcrumb">
-  <li>Interfaces</li>
-  <li
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
   >
   PgnViewerEngineCallbacks</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
         </li>
-        <li >
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
         </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="c-info">
+    <div class="tab-pane fade active in" id="info">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -78,7 +154,7 @@ Consumer components implement these handlers to react to worker messages.</p>
             </p>
 
 
-        <section>
+        <section data-compodoc="block-index">
             <h3 id="index">Index</h3>
             <table class="table table-sm table-bordered index-table">
                 <tbody>
@@ -118,7 +194,7 @@ Consumer components implement these handlers to react to worker messages.</p>
 
 
 
-            <section>
+            <section data-compodoc="block-properties">
                 <h3 id="inputs">Properties</h3>
                     <table class="table table-sm table-bordered">
                         <tbody>
@@ -246,10 +322,14 @@ Consumer components implement these handlers to react to worker messages.</p>
     </div>
 
 
-    <div class="tab-pane fade  tab-source-code" id="c-source">
+    <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@angular/core&#x27;;
+import { isDesktopRuntime } from &#x27;./desktop-runtime&#x27;;
 import type {
 	FilterCriteria,
+	LoadFromCachePayload,
+	LoadPayload,
+	WorkerMessage,
 	WorkerResponse,
 } from &#x27;./pgn-processor.worker&#x27;;
 
@@ -284,6 +364,18 @@ export class PgnViewerEngineService {
 	private pgnWorker: Worker | null &#x3D; null;
 	/** Web Worker running the Stockfish chess engine. */
 	private stockfishWorker: Worker | null &#x3D; null;
+	/** True once Stockfish completes its UCI handshake (uciok → isready → readyok). */
+	private stockfishReady &#x3D; false;
+	/** True while a &#x60;go&#x60; command is running and its &#x60;bestmove&#x60; has not arrived yet. */
+	private searching &#x3D; false;
+	/**
+	 * When true, drop engine output until the next &#x60;bestmove&#x60;. This swallows the
+	 * trailing info + bestmove of a search that was aborted by &#x60;stop&#x60;, so it
+	 * cannot be mistaken for the result of the search that replaced it.
+	 */
+	private ignoreUntilBestmove &#x3D; false;
+	/** Analysis request made while the engine was still booting; flushed once ready. */
+	private pendingAnalysis: { fen: string; depth: number } | null &#x3D; null;
 
 	/**
 	 * Creates and initializes both Web Workers.
@@ -301,31 +393,121 @@ export class PgnViewerEngineService {
 		}
 
 		this.dispose();
+		this.stockfishReady &#x3D; false;
+		this.searching &#x3D; false;
+		this.ignoreUntilBestmove &#x3D; false;
+		this.pendingAnalysis &#x3D; null;
 
-		this.pgnWorker &#x3D; new Worker(new URL(&#x27;./pgn-processor.worker&#x27;, import.meta.url));
+		this.pgnWorker &#x3D; new Worker(
+			new URL(&#x27;./pgn-processor.worker&#x27;, import.meta.url),
+		);
 		this.pgnWorker.onmessage &#x3D; ({ data }: MessageEvent&lt;WorkerResponse&gt;) &#x3D;&gt; {
 			callbacks.onPgnMessage(data);
 		};
 
 		try {
 			this.stockfishWorker &#x3D; new Worker(&#x27;assets/stockfish/stockfish.js&#x27;);
-			this.stockfishWorker.onmessage &#x3D; callbacks.onStockfishMessage;
+			this.stockfishWorker.onmessage &#x3D; (event: MessageEvent) &#x3D;&gt; {
+				const data &#x3D; event.data;
+				if (typeof data !&#x3D;&#x3D; &#x27;string&#x27;) {
+					callbacks.onStockfishMessage(event);
+					return;
+				}
+				// Swallow the trailing output (info + bestmove) of a search that
+				// was aborted by &#x60;stop&#x60;, until its &#x60;bestmove&#x60; closes it out.
+				if (this.ignoreUntilBestmove) {
+					if (data.startsWith(&#x27;bestmove&#x27;)) this.ignoreUntilBestmove &#x3D; false;
+					return;
+				}
+				// Drive the UCI handshake and queue analysis until ready.
+				if (data.startsWith(&#x27;uciok&#x27;)) {
+					this.stockfishWorker?.postMessage(&#x27;setoption name MultiPV value 3&#x27;);
+					this.stockfishWorker?.postMessage(&#x27;isready&#x27;);
+					return;
+				}
+				if (data.startsWith(&#x27;readyok&#x27;)) {
+					this.stockfishReady &#x3D; true;
+					this.flushPendingAnalysis();
+					return;
+				}
+				if (data.startsWith(&#x27;bestmove&#x27;)) {
+					this.searching &#x3D; false;
+				}
+				callbacks.onStockfishMessage(event);
+			};
 			this.stockfishWorker.postMessage(&#x27;uci&#x27;);
 		} catch (error) {
-			callbacks.onError?.(&#x27;Failed to load Stockfish worker.&#x27;, error);
+			callbacks.onError?.(&#x27;Failed to load the Stockfish worker.&#x27;, error);
 		}
 
 		return true;
 	}
 
 	/**
-	 * Sends raw PGN text to the parser worker for processing.
+	 * Sends raw PGN text and indexing options to the parser worker for processing.
+	 *
+	 * Supports caching via &#x60;pgnHash&#x60;. When provided, the worker checks its cache
+	 * first and skips re-parsing if a valid entry exists. In the browser the
+	 * cache is IndexedDB; in the packaged desktop app it is a file on disk behind
+	 * the local server, because the webview origin (and therefore IndexedDB) is
+	 * new on every launch there.
 	 *
 	 * @param pgn — Raw PGN string (supports multi-game, compressed formats).
 	 * @param id — Correlation ID echoed back in the worker response for matching requests.
+	 * @param pgnHash — Optional SHA-256 hash for cache restore.
+	 * @param indexStartPositions — Whether to include the starting position FEN in the index.
+	 * @param maxFenPlies — Max half-moves to replay when building the FEN cache.
 	 */
-	loadPgn(pgn: string, id: number): void {
-		this.pgnWorker?.postMessage({ type: &#x27;load&#x27;, payload: pgn, id });
+	loadPgn(
+		pgn: string,
+		id: number,
+		pgnHash?: string,
+		indexStartPositions: boolean &#x3D; false,
+		maxFenPlies: number &#x3D; 30,
+	): void {
+		const payload: LoadPayload &#x3D; {
+			pgn,
+			indexStartPositions,
+			maxFenPlies,
+			useDiskCache: isDesktopRuntime(),
+		};
+		const msg: WorkerMessage &amp; { pgnHash?: string } &#x3D; {
+			type: &#x27;load&#x27;,
+			payload,
+			id,
+		};
+		if (pgnHash) {
+			msg.pgnHash &#x3D; pgnHash;
+		}
+		this.pgnWorker?.postMessage(msg);
+	}
+
+	/**
+	 * Restores a previously parsed game collection from the cache without
+	 * sending the PGN text again.
+	 *
+	 * The worker answers with a &#x60;&#x27;load&#x27;&#x60; response on a cache hit, or a
+	 * &#x60;&#x27;cacheMiss&#x27;&#x60; response when no usable entry exists (in which case the
+	 * caller must fall back to {@link loadPgn} with the downloaded text).
+	 *
+	 * @param pgnHash — SHA-256 hash of the decompressed PGN content.
+	 * @param id — Correlation ID echoed back in the worker response.
+	 * @param indexStartPositions — Whether a built FEN index is required.
+	 * @param maxFenPlies — Max half-moves the caller expects to be indexed.
+	 */
+	loadFromCache(
+		pgnHash: string,
+		id: number,
+		indexStartPositions: boolean &#x3D; false,
+		maxFenPlies: number &#x3D; 30,
+	): void {
+		const payload: LoadFromCachePayload &#x3D; {
+			pgnHash,
+			indexStartPositions,
+			maxFenPlies,
+			useDiskCache: isDesktopRuntime(),
+		};
+		this.pgnWorker?.postMessage({ type: &#x27;loadFromCache&#x27;, payload, id });
 	}
 
 	/**
@@ -351,7 +533,9 @@ export class PgnViewerEngineService {
 	/**
 	 * Sends a FEN position to Stockfish for analysis at the given search depth.
 	 *
-	 * Stops any in-progress analysis before starting the new one.
+	 * Stops any in-progress analysis before starting the new one. If the engine
+	 * has not finished booting yet, the request is queued and issued once the
+	 * UCI handshake completes.
 	 *
 	 * @param fen — FEN string of the position to analyze.
 	 * @param depth — Search depth in plies.
@@ -361,11 +545,50 @@ export class PgnViewerEngineService {
 		if (!this.stockfishWorker) {
 			return false;
 		}
+		if (!this.stockfishReady) {
+			// Engine still booting: remember the latest request and run it once
+			// &#x60;readyok&#x60; arrives instead of silently dropping it.
+			this.pendingAnalysis &#x3D; { fen, depth };
+			return true;
+		}
+		this.sendAnalysis(fen, depth);
+		return true;
+	}
 
+	/**
+	 * Aborts any in-flight search and starts a new one for &#x60;fen&#x60;.
+	 */
+	private sendAnalysis(fen: string, depth: number): void {
+		if (!this.stockfishWorker) return;
+		// If a search is still running, &#x60;stop&#x60; will make Stockfish emit a final
+		// &#x60;bestmove&#x60; for it. Mark that output as stale so it is swallowed and
+		// cannot be confused with the new search&#x27;s result.
+		if (this.searching) this.ignoreUntilBestmove &#x3D; true;
 		this.stockfishWorker.postMessage(&#x27;stop&#x27;);
+		this.stockfishWorker.postMessage(&#x27;setoption name MultiPV value 3&#x27;);
 		this.stockfishWorker.postMessage(&#x60;position fen ${fen}&#x60;);
 		this.stockfishWorker.postMessage(&#x60;go depth ${depth}&#x60;);
-		return true;
+		this.searching &#x3D; true;
+	}
+
+	/** Runs the queued analysis request once the engine reports ready. */
+	private flushPendingAnalysis(): void {
+		if (!this.pendingAnalysis) return;
+		const { fen, depth } &#x3D; this.pendingAnalysis;
+		this.pendingAnalysis &#x3D; null;
+		this.sendAnalysis(fen, depth);
+	}
+
+	/**
+	 * Sends a message to the PGN worker to clear all cached data — IndexedDB in
+	 * the browser, the on-disk cache files in the desktop app.
+	 */
+	clearCache(id: number): void {
+		this.pgnWorker?.postMessage({
+			type: &#x27;clearCache&#x27;,
+			id,
+			useDiskCache: isDesktopRuntime(),
+		});
 	}
 
 	/**
@@ -383,10 +606,17 @@ export class PgnViewerEngineService {
 			this.stockfishWorker.terminate();
 			this.stockfishWorker &#x3D; null;
 		}
+
+		this.stockfishReady &#x3D; false;
+		this.searching &#x3D; false;
+		this.ignoreUntilBestmove &#x3D; false;
+		this.pendingAnalysis &#x3D; null;
 	}
-}</code></pre>
+}
+</code></pre>
     </div>
 </div>
+
 
 
 
@@ -424,6 +654,19 @@ export class PgnViewerEngineService {
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
        <script src="../js/libs/custom-elements.min.js"></script>
        <script src="../js/libs/lit-html.js"></script>
 
@@ -435,7 +678,6 @@ export class PgnViewerEngineService {
        <script src="../js/libs/es6-shim.min.js"></script>
        <script src="../js/libs/EventDispatcher.js"></script>
        <script src="../js/libs/promise.min.js"></script>
-       <script src="../js/libs/zepto.min.js"></script>
 
        <script src="../js/compodoc.js"></script>
 

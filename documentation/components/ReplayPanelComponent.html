@@ -1,0 +1,2102 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ngx-chessground documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  ReplayPanelComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts</code>
+</p>
+
+
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>Replay control panel for the PGN viewer.</p>
+<p>Provides timing mode selection (realtime, proportional, fixed),
+replay options (stop on error with threshold), and action buttons
+(replay, continue, stop, replay selected games).</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">&lt;replay-panel
+  [replayMode]=&quot;replayMode()&quot;
+  [isReplaying]=&quot;isReplaying()&quot;
+  [canContinueReplay]=&quot;canContinueReplay()&quot;
+  [canShowReplayAll]=&quot;canShowReplayAll()&quot;
+  [selectedGamesCount]=&quot;selectedGamesCount()&quot;
+  (replayGame)=&quot;replayGame()&quot;
+  (continueReplay)=&quot;continueReplay()&quot;
+  (stopSequence)=&quot;stopSequence()&quot;
+/&gt;</code></pre></div>
+    </p>
+
+
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>replay-panel</code></td>
+            </tr>
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./replay-panel.component.html</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrl</td>
+                <td class="col-md-9"><code>./replay-panel.component.css</code></td>
+            </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#onFastTimeChange" >onFastTimeChange</a>
+                            </li>
+                            <li>
+                                <a href="#onFixedTimeChange" >onFixedTimeChange</a>
+                            </li>
+                            <li>
+                                <a href="#onMinSecondsChange" >onMinSecondsChange</a>
+                            </li>
+                            <li>
+                                <a href="#onProportionalDurationChange" >onProportionalDurationChange</a>
+                            </li>
+                            <li>
+                                <a href="#onStopOnErrorChange" >onStopOnErrorChange</a>
+                            </li>
+                            <li>
+                                <a href="#onStopOnErrorSideChange" >onStopOnErrorSideChange</a>
+                            </li>
+                            <li>
+                                <a href="#onStopOnErrorThresholdChange" >onStopOnErrorThresholdChange</a>
+                            </li>
+                            <li>
+                                <a href="#toggleExpanded" >toggleExpanded</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#canContinueReplay" >canContinueReplay</a>
+                            </li>
+                            <li>
+                                <a href="#canShowReplayAll" >canShowReplayAll</a>
+                            </li>
+                            <li>
+                                <a href="#expanded" >expanded</a>
+                            </li>
+                            <li>
+                                <a href="#fastTime" >fastTime</a>
+                            </li>
+                            <li>
+                                <a href="#fixedTime" >fixedTime</a>
+                            </li>
+                            <li>
+                                <a href="#isReplaying" >isReplaying</a>
+                            </li>
+                            <li>
+                                <a href="#minSecondsBetweenMoves" >minSecondsBetweenMoves</a>
+                            </li>
+                            <li>
+                                <a href="#proportionalDuration" >proportionalDuration</a>
+                            </li>
+                            <li>
+                                <a href="#replayMode" >replayMode</a>
+                            </li>
+                            <li>
+                                <a href="#selectedGamesCount" >selectedGamesCount</a>
+                            </li>
+                            <li>
+                                <a href="#stopOnError" >stopOnError</a>
+                            </li>
+                            <li>
+                                <a href="#stopOnErrorSide" >stopOnErrorSide</a>
+                            </li>
+                            <li>
+                                <a href="#stopOnErrorThreshold" >stopOnErrorThreshold</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#continueReplay" >continueReplay</a>
+                            </li>
+                            <li>
+                                <a href="#expanded" >expanded</a>
+                            </li>
+                            <li>
+                                <a href="#fastTime" >fastTime</a>
+                            </li>
+                            <li>
+                                <a href="#fixedTime" >fixedTime</a>
+                            </li>
+                            <li>
+                                <a href="#minSecondsBetweenMoves" >minSecondsBetweenMoves</a>
+                            </li>
+                            <li>
+                                <a href="#proportionalDuration" >proportionalDuration</a>
+                            </li>
+                            <li>
+                                <a href="#replayAllSelectedGames" >replayAllSelectedGames</a>
+                            </li>
+                            <li>
+                                <a href="#replayGame" >replayGame</a>
+                            </li>
+                            <li>
+                                <a href="#replayMode" >replayMode</a>
+                            </li>
+                            <li>
+                                <a href="#stopOnError" >stopOnError</a>
+                            </li>
+                            <li>
+                                <a href="#stopOnErrorSide" >stopOnErrorSide</a>
+                            </li>
+                            <li>
+                                <a href="#stopOnErrorThreshold" >stopOnErrorThreshold</a>
+                            </li>
+                            <li>
+                                <a href="#stopSequence" >stopSequence</a>
+                            </li>
+                            <li>
+                                <a href="#toggleSection" >toggleSection</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+
+    <section data-compodoc="block-inputs">
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="canContinueReplay"></a>
+                        <b>canContinueReplay</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:58</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether a paused replay can be resumed.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="canShowReplayAll"></a>
+                        <b>canShowReplayAll</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:60</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the &quot;replay all selected games&quot; action should be offered.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="expanded"></a>
+                        <b>expanded</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>true</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:78</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the replay panel is expanded (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="fastTime"></a>
+                        <b>fastTime</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0.3</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:47</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Seconds per move in <code>fast</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="fixedTime"></a>
+                        <b>fixedTime</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>1</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:45</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Seconds per move in <code>fixed</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="isReplaying"></a>
+                        <b>isReplaying</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false, { transform: booleanAttribute }</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:56</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether an auto-replay is currently running.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="minSecondsBetweenMoves"></a>
+                        <b>minSecondsBetweenMoves</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>1</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:43</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Minimum seconds between moves in <code>realtime</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="proportionalDuration"></a>
+                        <b>proportionalDuration</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>1</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:41</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Target duration in seconds for <code>proportional</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="replayMode"></a>
+                        <b>replayMode</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#ReplayMode" target="_self" >ReplayMode</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;fixed&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:39</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Active replay timing mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="selectedGamesCount"></a>
+                        <b>selectedGamesCount</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:62</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>How many games are selected for batch replay.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stopOnError"></a>
+                        <b>stopOnError</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:49</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether replay halts on a significant evaluation drop (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stopOnErrorSide"></a>
+                        <b>stopOnErrorSide</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#StopOnErrorSide" target="_self" >StopOnErrorSide</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;both&#x27;</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:53</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Which side&#39;s errors should trigger the stop: &#39;both&#39; | &#39;white&#39; | &#39;black&#39;.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stopOnErrorThreshold"></a>
+                        <b>stopOnErrorThreshold</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>1.0</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:51</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Evaluation drop, in pawns, that counts as an error (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+    <section data-compodoc="block-outputs">
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="continueReplay"></a>
+                        <b>continueReplay</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:68</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Resume the paused replay.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="expanded"></a>
+                        <b>expanded</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:78</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether the replay panel is expanded (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="fastTime"></a>
+                        <b>fastTime</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:47</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Seconds per move in <code>fast</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="fixedTime"></a>
+                        <b>fixedTime</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:45</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Seconds per move in <code>fixed</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="minSecondsBetweenMoves"></a>
+                        <b>minSecondsBetweenMoves</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:43</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Minimum seconds between moves in <code>realtime</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="proportionalDuration"></a>
+                        <b>proportionalDuration</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:41</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Target duration in seconds for <code>proportional</code> mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="replayAllSelectedGames"></a>
+                        <b>replayAllSelectedGames</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:72</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Replay every selected game in turn.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="replayGame"></a>
+                        <b>replayGame</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:66</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Start replaying the loaded game from the beginning.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="replayMode"></a>
+                        <b>replayMode</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#ReplayMode" target="_self" >ReplayMode</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:39</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Active replay timing mode (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stopOnError"></a>
+                        <b>stopOnError</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:49</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Whether replay halts on a significant evaluation drop (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stopOnErrorSide"></a>
+                        <b>stopOnErrorSide</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#StopOnErrorSide" target="_self" >StopOnErrorSide</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:53</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Which side&#39;s errors should trigger the stop: &#39;both&#39; | &#39;white&#39; | &#39;black&#39;.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stopOnErrorThreshold"></a>
+                        <b>stopOnErrorThreshold</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:51</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Evaluation drop, in pawns, that counts as an error (two-way).</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="stopSequence"></a>
+                        <b>stopSequence</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:70</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Stop a batch replay across multiple games.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="toggleSection"></a>
+                        <b>toggleSection</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:74</a></div>
+                            </td>
+                        </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>A collapsible section was toggled; emits the section id.</p>
+</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onFastTimeChange"></a>
+                    <span class="name">
+                        <span ><b>onFastTimeChange</b></span>
+                        <a href="#onFastTimeChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onFastTimeChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:100</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the fast-mode per-move duration.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onFixedTimeChange"></a>
+                    <span class="name">
+                        <span ><b>onFixedTimeChange</b></span>
+                        <a href="#onFixedTimeChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onFixedTimeChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:94</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the fixed per-move duration.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onMinSecondsChange"></a>
+                    <span class="name">
+                        <span ><b>onMinSecondsChange</b></span>
+                        <a href="#onMinSecondsChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onMinSecondsChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:88</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the minimum seconds between moves.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onProportionalDurationChange"></a>
+                    <span class="name">
+                        <span ><b>onProportionalDurationChange</b></span>
+                        <a href="#onProportionalDurationChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onProportionalDurationChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:82</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the proportional-replay target duration.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onStopOnErrorChange"></a>
+                    <span class="name">
+                        <span ><b>onStopOnErrorChange</b></span>
+                        <a href="#onStopOnErrorChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onStopOnErrorChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:106</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Toggles stop-on-error.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onStopOnErrorSideChange"></a>
+                    <span class="name">
+                        <span ><b>onStopOnErrorSideChange</b></span>
+                        <a href="#onStopOnErrorSideChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onStopOnErrorSideChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="118"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:118</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the side whose errors trigger stop-on-error.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onStopOnErrorThresholdChange"></a>
+                    <span class="name">
+                        <span ><b>onStopOnErrorThresholdChange</b></span>
+                        <a href="#onStopOnErrorThresholdChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onStopOnErrorThresholdChange(event: <a href="https://angular.io/api/router/Event" target="_blank">Event</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="112"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:112</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Applies the evaluation-drop threshold for stop-on-error.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://angular.io/api/router/Event" target="_blank" >Event</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toggleExpanded"></a>
+                    <span class="name">
+                        <span ><b>toggleExpanded</b></span>
+                        <a href="#toggleExpanded"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>toggleExpanded()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts:124</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Expands or collapses the replay panel.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+	booleanAttribute,
+	Component,
+	input,
+	model,
+	output,
+} from &#x27;@angular/core&#x27;;
+import type { ReplayMode, StopOnErrorSide } from &#x27;../pgn-viewer.types&#x27;;
+
+/**
+ * Replay control panel for the PGN viewer.
+ *
+ * Provides timing mode selection (realtime, proportional, fixed),
+ * replay options (stop on error with threshold), and action buttons
+ * (replay, continue, stop, replay selected games).
+ *
+ * @example
+ * &#x60;&#x60;&#x60;html
+ * &lt;replay-panel
+ *   [replayMode]&#x3D;&quot;replayMode()&quot;
+ *   [isReplaying]&#x3D;&quot;isReplaying()&quot;
+ *   [canContinueReplay]&#x3D;&quot;canContinueReplay()&quot;
+ *   [canShowReplayAll]&#x3D;&quot;canShowReplayAll()&quot;
+ *   [selectedGamesCount]&#x3D;&quot;selectedGamesCount()&quot;
+ *   (replayGame)&#x3D;&quot;replayGame()&quot;
+ *   (continueReplay)&#x3D;&quot;continueReplay()&quot;
+ *   (stopSequence)&#x3D;&quot;stopSequence()&quot;
+ * /&gt;
+ * &#x60;&#x60;&#x60;
+ */
+@Component({
+	selector: &#x27;replay-panel&#x27;,
+	templateUrl: &#x27;./replay-panel.component.html&#x27;,
+	styleUrl: &#x27;./replay-panel.component.css&#x27;,
+})
+export class ReplayPanelComponent {
+	// ---- Replay State ----
+	/** Active replay timing mode (two-way). */
+	readonly replayMode &#x3D; model&lt;ReplayMode&gt;(&#x27;fixed&#x27;);
+	/** Target duration in seconds for &#x60;proportional&#x60; mode (two-way). */
+	readonly proportionalDuration &#x3D; model&lt;number&gt;(1);
+	/** Minimum seconds between moves in &#x60;realtime&#x60; mode (two-way). */
+	readonly minSecondsBetweenMoves &#x3D; model&lt;number&gt;(1);
+	/** Seconds per move in &#x60;fixed&#x60; mode (two-way). */
+	readonly fixedTime &#x3D; model&lt;number&gt;(1);
+	/** Seconds per move in &#x60;fast&#x60; mode (two-way). */
+	readonly fastTime &#x3D; model&lt;number&gt;(0.3);
+	/** Whether replay halts on a significant evaluation drop (two-way). */
+	readonly stopOnError &#x3D; model&lt;boolean&gt;(false);
+	/** Evaluation drop, in pawns, that counts as an error (two-way). */
+	readonly stopOnErrorThreshold &#x3D; model&lt;number&gt;(1.0);
+	/** Which side&#x27;s errors should trigger the stop: &#x27;both&#x27; | &#x27;white&#x27; | &#x27;black&#x27;. */
+	readonly stopOnErrorSide &#x3D; model&lt;StopOnErrorSide&gt;(&#x27;both&#x27;);
+
+	/** Whether an auto-replay is currently running. */
+	readonly isReplaying &#x3D; input(false, { transform: booleanAttribute });
+	/** Whether a paused replay can be resumed. */
+	readonly canContinueReplay &#x3D; input(false, { transform: booleanAttribute });
+	/** Whether the &quot;replay all selected games&quot; action should be offered. */
+	readonly canShowReplayAll &#x3D; input(false, { transform: booleanAttribute });
+	/** How many games are selected for batch replay. */
+	readonly selectedGamesCount &#x3D; input&lt;number&gt;(0);
+
+	// ---- Events ----
+	/** Start replaying the loaded game from the beginning. */
+	readonly replayGame &#x3D; output&lt;void&gt;();
+	/** Resume the paused replay. */
+	readonly continueReplay &#x3D; output&lt;void&gt;();
+	/** Stop a batch replay across multiple games. */
+	readonly stopSequence &#x3D; output&lt;void&gt;();
+	/** Replay every selected game in turn. */
+	readonly replayAllSelectedGames &#x3D; output&lt;void&gt;();
+	/** A collapsible section was toggled; emits the section id. */
+	readonly toggleSection &#x3D; output&lt;string&gt;();
+
+	// ---- Collapsible ----
+	/** Whether the replay panel is expanded (two-way). */
+	readonly expanded &#x3D; model&lt;boolean&gt;(true);
+
+	// ---- Handlers ----
+	/** Applies the proportional-replay target duration. */
+	onProportionalDurationChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.proportionalDuration.set(parseFloat(value) || 1);
+	}
+
+	/** Applies the minimum seconds between moves. */
+	onMinSecondsChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.minSecondsBetweenMoves.set(parseFloat(value) || 0.1);
+	}
+
+	/** Applies the fixed per-move duration. */
+	onFixedTimeChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.fixedTime.set(parseFloat(value) || 1);
+	}
+
+	/** Applies the fast-mode per-move duration. */
+	onFastTimeChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.fastTime.set(parseFloat(value) || 0.3);
+	}
+
+	/** Toggles stop-on-error. */
+	onStopOnErrorChange(event: Event): void {
+		const checked &#x3D; (event.target as HTMLInputElement).checked;
+		this.stopOnError.set(checked);
+	}
+
+	/** Applies the evaluation-drop threshold for stop-on-error. */
+	onStopOnErrorThresholdChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLInputElement).value;
+		this.stopOnErrorThreshold.set(parseFloat(value) || 1.0);
+	}
+
+	/** Applies the side whose errors trigger stop-on-error. */
+	onStopOnErrorSideChange(event: Event): void {
+		const value &#x3D; (event.target as HTMLSelectElement).value as StopOnErrorSide;
+		this.stopOnErrorSide.set(value);
+	}
+
+	/** Expands or collapses the replay panel. */
+	toggleExpanded(): void {
+		this.expanded.update((v) &#x3D;&gt; !v);
+	}
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;replay-section&quot;&gt;
+  &lt;h3
+    class&#x3D;&quot;section-header&quot;
+    tabindex&#x3D;&quot;0&quot;
+    role&#x3D;&quot;button&quot;
+    [attr.aria-expanded]&#x3D;&quot;expanded()&quot;
+    [attr.aria-controls]&#x3D;&quot;&#x27;replay-section-content&#x27;&quot;
+    (click)&#x3D;&quot;toggleExpanded()&quot;
+    (keydown.enter)&#x3D;&quot;toggleExpanded(); $event.preventDefault()&quot;
+    (keydown.space)&#x3D;&quot;toggleExpanded(); $event.preventDefault()&quot;
+  &gt;
+    &lt;span class&#x3D;&quot;chevron&quot; [class.expanded]&#x3D;&quot;expanded()&quot; aria-hidden&#x3D;&quot;true&quot;&gt;&lt;/span&gt;
+    Replay
+  &lt;/h3&gt;
+
+  &lt;div class&#x3D;&quot;section-content&quot; [class.expanded]&#x3D;&quot;expanded()&quot; id&#x3D;&quot;replay-section-content&quot;&gt;
+    &lt;div class&#x3D;&quot;replay-options&quot;&gt;
+      &lt;label&gt;
+        &lt;input
+          type&#x3D;&quot;radio&quot;
+          name&#x3D;&quot;mode&quot;
+          [value]&#x3D;&quot;&#x27;realtime&#x27;&quot;
+          [checked]&#x3D;&quot;replayMode() &#x3D;&#x3D;&#x3D; &#x27;realtime&#x27;&quot;
+          (change)&#x3D;&quot;replayMode.set(&#x27;realtime&#x27;)&quot;
+        /&gt;
+        Real Time
+      &lt;/label&gt;
+      &lt;label&gt;
+        &lt;input
+          type&#x3D;&quot;radio&quot;
+          name&#x3D;&quot;mode&quot;
+          [value]&#x3D;&quot;&#x27;proportional&#x27;&quot;
+          [checked]&#x3D;&quot;replayMode() &#x3D;&#x3D;&#x3D; &#x27;proportional&#x27;&quot;
+          (change)&#x3D;&quot;replayMode.set(&#x27;proportional&#x27;)&quot;
+        /&gt;
+        Proportional
+      &lt;/label&gt;
+      &lt;label&gt;
+        &lt;input
+          type&#x3D;&quot;radio&quot;
+          name&#x3D;&quot;mode&quot;
+          [value]&#x3D;&quot;&#x27;fixed&#x27;&quot;
+          [checked]&#x3D;&quot;replayMode() &#x3D;&#x3D;&#x3D; &#x27;fixed&#x27;&quot;
+          (change)&#x3D;&quot;replayMode.set(&#x27;fixed&#x27;)&quot;
+        /&gt;
+        Fixed
+      &lt;/label&gt;
+      &lt;label&gt;
+        &lt;input
+          type&#x3D;&quot;radio&quot;
+          name&#x3D;&quot;mode&quot;
+          [value]&#x3D;&quot;&#x27;fast&#x27;&quot;
+          [checked]&#x3D;&quot;replayMode() &#x3D;&#x3D;&#x3D; &#x27;fast&#x27;&quot;
+          (change)&#x3D;&quot;replayMode.set(&#x27;fast&#x27;)&quot;
+        /&gt;
+        Fast
+      &lt;/label&gt;
+    &lt;/div&gt;
+
+    @if (replayMode() &#x3D;&#x3D;&#x3D; &#x27;proportional&#x27;) {
+      &lt;div class&#x3D;&quot;option-input&quot;&gt;
+        &lt;input
+          type&#x3D;&quot;number&quot;
+          [value]&#x3D;&quot;proportionalDuration()&quot;
+          (input)&#x3D;&quot;onProportionalDurationChange($event)&quot;
+          step&#x3D;&quot;0.1&quot;
+          class&#x3D;&quot;small-input&quot;
+          aria-label&#x3D;&quot;Proportional Duration in Minutes&quot;
+        /&gt;
+        min/game
+      &lt;/div&gt;
+      &lt;div class&#x3D;&quot;option-input&quot;&gt;
+        &lt;input
+          type&#x3D;&quot;number&quot;
+          [value]&#x3D;&quot;minSecondsBetweenMoves()&quot;
+          (input)&#x3D;&quot;onMinSecondsChange($event)&quot;
+          step&#x3D;&quot;0.1&quot;
+          class&#x3D;&quot;small-input&quot;
+          aria-label&#x3D;&quot;Min Seconds Between Moves&quot;
+        /&gt;
+        min sec/move
+      &lt;/div&gt;
+    }
+
+    @if (replayMode() &#x3D;&#x3D;&#x3D; &#x27;fixed&#x27;) {
+      &lt;div class&#x3D;&quot;option-input&quot;&gt;
+        &lt;input
+          type&#x3D;&quot;number&quot;
+          [value]&#x3D;&quot;fixedTime()&quot;
+          (input)&#x3D;&quot;onFixedTimeChange($event)&quot;
+          step&#x3D;&quot;0.1&quot;
+          class&#x3D;&quot;small-input&quot;
+          aria-label&#x3D;&quot;Fixed Time per Move in Seconds&quot;
+        /&gt;
+        sec/move
+      &lt;/div&gt;
+    }
+
+    @if (replayMode() &#x3D;&#x3D;&#x3D; &#x27;fast&#x27;) {
+      &lt;div class&#x3D;&quot;option-input&quot;&gt;
+        &lt;input
+          type&#x3D;&quot;number&quot;
+          [value]&#x3D;&quot;fastTime()&quot;
+          (input)&#x3D;&quot;onFastTimeChange($event)&quot;
+          step&#x3D;&quot;0.1&quot;
+          class&#x3D;&quot;small-input&quot;
+          aria-label&#x3D;&quot;Fast Time per Move in Seconds&quot;
+        /&gt;
+        sec/move
+      &lt;/div&gt;
+    }
+
+    &lt;div class&#x3D;&quot;option-row stop-error-row&quot;&gt;
+      &lt;label class&#x3D;&quot;checkbox-label&quot;&gt;
+        &lt;input
+          type&#x3D;&quot;checkbox&quot;
+          [checked]&#x3D;&quot;stopOnError()&quot;
+          (change)&#x3D;&quot;onStopOnErrorChange($event)&quot;
+        /&gt;
+        Stop on Error
+      &lt;/label&gt;
+      &lt;span class&#x3D;&quot;inline-number&quot; [class.disabled]&#x3D;&quot;!stopOnError()&quot;&gt;
+        &amp;gt;
+        &lt;input
+          type&#x3D;&quot;number&quot;
+          [value]&#x3D;&quot;stopOnErrorThreshold()&quot;
+          (input)&#x3D;&quot;onStopOnErrorThresholdChange($event)&quot;
+          step&#x3D;&quot;0.1&quot;
+          class&#x3D;&quot;small-input&quot;
+          [disabled]&#x3D;&quot;!stopOnError()&quot;
+          aria-label&#x3D;&quot;Stop on error threshold in centipawns&quot;
+        /&gt;
+        cp
+      &lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;div class&#x3D;&quot;option-row&quot;&gt;
+      &lt;span class&#x3D;&quot;option-label&quot; id&#x3D;&quot;stop-on-error-side-label&quot;&gt;Errors&lt;/span&gt;
+      &lt;select
+        [value]&#x3D;&quot;stopOnErrorSide()&quot;
+        (change)&#x3D;&quot;onStopOnErrorSideChange($event)&quot;
+        [disabled]&#x3D;&quot;!stopOnError()&quot;
+        class&#x3D;&quot;small-input side-select&quot;
+        aria-labelledby&#x3D;&quot;stop-on-error-side-label&quot;
+      &gt;
+        &lt;option value&#x3D;&quot;both&quot;&gt;Both (Black &amp;amp; White)&lt;/option&gt;
+        &lt;option value&#x3D;&quot;white&quot;&gt;White only&lt;/option&gt;
+        &lt;option value&#x3D;&quot;black&quot;&gt;Black only&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
+
+    &lt;div class&#x3D;&quot;replay-actions&quot;&gt;
+      &lt;button type&#x3D;&quot;button&quot; (click)&#x3D;&quot;replayGame.emit()&quot; class&#x3D;&quot;action-btn&quot;&gt;Replay&lt;/button&gt;
+      @if (canContinueReplay()) {
+        &lt;button type&#x3D;&quot;button&quot; (click)&#x3D;&quot;continueReplay.emit()&quot; class&#x3D;&quot;action-btn&quot;&gt;Continue&lt;/button&gt;
+      }
+      &lt;button type&#x3D;&quot;button&quot; (click)&#x3D;&quot;stopSequence.emit()&quot; class&#x3D;&quot;action-btn stop&quot;&gt;Stop&lt;/button&gt;
+    &lt;/div&gt;
+
+    @if (canShowReplayAll()) {
+      &lt;button type&#x3D;&quot;button&quot; 
+        (click)&#x3D;&quot;replayAllSelectedGames.emit()&quot;
+        class&#x3D;&quot;action-btn full-width&quot;
+      &gt;
+        Replay Selected ({{ selectedGamesCount() }})
+      &lt;/button&gt;
+    }
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="replay-section">  <h3    class="section-header"    tabindex="0"    role="button"    [attr.aria-expanded]="expanded()"    [attr.aria-controls]="\'replay-section-content\'"    (click)="toggleExpanded()"    (keydown.enter)="toggleExpanded(); $event.preventDefault()"    (keydown.space)="toggleExpanded(); $event.preventDefault()"  >    <span class="chevron" [class.expanded]="expanded()" aria-hidden="true"></span>    Replay  </h3>  <div class="section-content" [class.expanded]="expanded()" id="replay-section-content">    <div class="replay-options">      <label>        <input          type="radio"          name="mode"          [value]="\'realtime\'"          [checked]="replayMode() === \'realtime\'"          (change)="replayMode.set(\'realtime\')"        />        Real Time      </label>      <label>        <input          type="radio"          name="mode"          [value]="\'proportional\'"          [checked]="replayMode() === \'proportional\'"          (change)="replayMode.set(\'proportional\')"        />        Proportional      </label>      <label>        <input          type="radio"          name="mode"          [value]="\'fixed\'"          [checked]="replayMode() === \'fixed\'"          (change)="replayMode.set(\'fixed\')"        />        Fixed      </label>      <label>        <input          type="radio"          name="mode"          [value]="\'fast\'"          [checked]="replayMode() === \'fast\'"          (change)="replayMode.set(\'fast\')"        />        Fast      </label>    </div>    @if (replayMode() === \'proportional\') {      <div class="option-input">        <input          type="number"          [value]="proportionalDuration()"          (input)="onProportionalDurationChange($event)"          step="0.1"          class="small-input"          aria-label="Proportional Duration in Minutes"        />        min/game      </div>      <div class="option-input">        <input          type="number"          [value]="minSecondsBetweenMoves()"          (input)="onMinSecondsChange($event)"          step="0.1"          class="small-input"          aria-label="Min Seconds Between Moves"        />        min sec/move      </div>    }    @if (replayMode() === \'fixed\') {      <div class="option-input">        <input          type="number"          [value]="fixedTime()"          (input)="onFixedTimeChange($event)"          step="0.1"          class="small-input"          aria-label="Fixed Time per Move in Seconds"        />        sec/move      </div>    }    @if (replayMode() === \'fast\') {      <div class="option-input">        <input          type="number"          [value]="fastTime()"          (input)="onFastTimeChange($event)"          step="0.1"          class="small-input"          aria-label="Fast Time per Move in Seconds"        />        sec/move      </div>    }    <div class="option-row stop-error-row">      <label class="checkbox-label">        <input          type="checkbox"          [checked]="stopOnError()"          (change)="onStopOnErrorChange($event)"        />        Stop on Error      </label>      <span class="inline-number" [class.disabled]="!stopOnError()">        &gt;        <input          type="number"          [value]="stopOnErrorThreshold()"          (input)="onStopOnErrorThresholdChange($event)"          step="0.1"          class="small-input"          [disabled]="!stopOnError()"          aria-label="Stop on error threshold in centipawns"        />        cp      </span>    </div>    <div class="option-row">      <span class="option-label" id="stop-on-error-side-label">Errors</span>      <select        [value]="stopOnErrorSide()"        (change)="onStopOnErrorSideChange($event)"        [disabled]="!stopOnError()"        class="small-input side-select"        aria-labelledby="stop-on-error-side-label"      >        <option value="both">Both (Black &amp; White)</option>        <option value="white">White only</option>        <option value="black">Black only</option>      </select>    </div>    <div class="replay-actions">      <button type="button" (click)="replayGame.emit()" class="action-btn">Replay</button>      @if (canContinueReplay()) {        <button type="button" (click)="continueReplay.emit()" class="action-btn">Continue</button>      }      <button type="button" (click)="stopSequence.emit()" class="action-btn stop">Stop</button>    </div>    @if (canShowReplayAll()) {      <button type="button"         (click)="replayAllSelectedGames.emit()"        class="action-btn full-width"      >        Replay Selected ({{ selectedGamesCount() }})      </button>    }  </div></div></div>'
+    var COMPONENTS = [{'name': 'BoardDisplayComponent', 'selector': 'board-display'},{'name': 'EvaluationBarComponent', 'selector': 'evaluation-bar'},{'name': 'GameFilterPanelComponent', 'selector': 'game-filter-panel'},{'name': 'LoadCachePanelComponent', 'selector': 'load-cache-panel'},{'name': 'MoveListComponent', 'selector': 'move-list'},{'name': 'NgxChessgroundComponent', 'selector': 'ngx-chessground'},{'name': 'NgxChessgroundTableComponent', 'selector': 'ngx-chessground-table'},{'name': 'NgxPgnViewerComponent', 'selector': 'ngx-pgn-viewer'},{'name': 'PlayerTypeaheadComponent', 'selector': 'player-typeahead'},{'name': 'PracticePanelComponent', 'selector': 'practice-panel'},{'name': 'PromotionDialogComponent', 'selector': 'ngx-promotion-dialog'},{'name': 'ReplayPanelComponent', 'selector': 'replay-panel'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'ReplayPanelComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'ReplayPanelComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

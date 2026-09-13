@@ -12,10 +12,75 @@
         <link rel="stylesheet" href="./styles/dark.css">
     </head>
     <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
 
-        <div class="navbar navbar-default navbar-fixed-top visible-xs">
-            <a href="./" class="navbar-brand">ngx-chessground documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="./" class="navbar-brand">ngx-chessground documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
@@ -24,7 +89,7 @@
 
         <div class="container-fluid main">
            <div class="row main">
-               <div class="hidden-xs menu">
+               <div class="d-none d-md-block menu">
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
@@ -47,8 +112,14 @@
 
 
 
+
+
+
+
+
+
 <ol class="breadcrumb">
-    <li>Documentation coverage</li>
+    <li class="breadcrumb-item">Documentation coverage</li>
 </ol>
 
 <div>
@@ -68,22 +139,34 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./components/NgxChessgroundTableComponent.html">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts</a>
+                        <a href="./components/NgxChessgroundTableComponent.html">projects/ngx-chessground/src/lib/ngx-chessground-table/ngx-chessground-table.component.ts</a>
             </td>
             <td>component</td>
             <td>NgxChessgroundTableComponent</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(4/4)</span>
+                <span class="coverage-count">(3/3)</span>
             </td>
         </tr>
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/NgxChessgroundService.html">projects/ngx-chessground/src/lib/ngx-chessground.service.ts</a>
+                        <a href="./injectables/NgxChessgroundService.html">projects/ngx-chessground/src/lib/ngx-chessground.service.ts</a>
             </td>
             <td>injectable</td>
             <td>NgxChessgroundService</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(13/13)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/NgxChessgroundComponent.html">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>NgxChessgroundComponent</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
                 <span class="coverage-count">(9/9)</span>
@@ -92,19 +175,55 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./components/NgxChessgroundComponent.html">projects/ngx-chessground/src/lib/ngx-chessground/ngx-chessground.component.ts</a>
+                        <a href="./components/BoardDisplayComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/board/board-display.component.ts</a>
             </td>
             <td>component</td>
-            <td>NgxChessgroundComponent</td>
+            <td>BoardDisplayComponent</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(8/8)</span>
+                <span class="coverage-count">(55/55)</span>
             </td>
         </tr>
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#ECO_MOVES">projects/ngx-chessground/src/lib/pgn-viewer/eco-moves.ts</a>
+                        <a href="./components/EvaluationBarComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/board/evaluation-bar.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>EvaluationBarComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(7/7)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/DesktopMarker.html">projects/ngx-chessground/src/lib/pgn-viewer/desktop-runtime.ts</a>
+            </td>
+            <td>interface</td>
+            <td>DesktopMarker</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(2/2)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#isDesktopRuntime">projects/ngx-chessground/src/lib/pgn-viewer/desktop-runtime.ts</a>
+            </td>
+            <td>function</td>
+            <td>isDesktopRuntime</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#ECO_MOVES">projects/ngx-chessground/src/lib/pgn-viewer/eco-moves.ts</a>
             </td>
             <td>variable</td>
             <td>ECO_MOVES</td>
@@ -116,31 +235,439 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/FilterCriteria.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./components/GameFilterPanelComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/filter/game-filter-panel.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>GameFilterPanelComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(101/101)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/PlayerTypeaheadComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/filter/player-typeahead.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>PlayerTypeaheadComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(31/31)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/DropdownPosition.html">projects/ngx-chessground/src/lib/pgn-viewer/filter/player-typeahead.component.ts</a>
+            </td>
+            <td>interface</td>
+            <td>DropdownPosition</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(7/7)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DROPDOWN_GAP">projects/ngx-chessground/src/lib/pgn-viewer/filter/player-typeahead.component.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DROPDOWN_GAP</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DROPDOWN_MAX_HEIGHT">projects/ngx-chessground/src/lib/pgn-viewer/filter/player-typeahead.component.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DROPDOWN_MAX_HEIGHT</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DROPDOWN_MIN_HEIGHT">projects/ngx-chessground/src/lib/pgn-viewer/filter/player-typeahead.component.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DROPDOWN_MIN_HEIGHT</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#OPEN_UP_THRESHOLD">projects/ngx-chessground/src/lib/pgn-viewer/filter/player-typeahead.component.ts</a>
+            </td>
+            <td>variable</td>
+            <td>OPEN_UP_THRESHOLD</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#isLichessBroadcastUrl">projects/ngx-chessground/src/lib/pgn-viewer/lichess-broadcast-url.ts</a>
+            </td>
+            <td>function</td>
+            <td>isLichessBroadcastUrl</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#lichessBroadcastUrl">projects/ngx-chessground/src/lib/pgn-viewer/lichess-broadcast-url.ts</a>
+            </td>
+            <td>function</td>
+            <td>lichessBroadcastUrl</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#resolveBroadcastUrl">projects/ngx-chessground/src/lib/pgn-viewer/lichess-broadcast-url.ts</a>
+            </td>
+            <td>function</td>
+            <td>resolveBroadcastUrl</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#BROADCAST_URL_PATTERN">projects/ngx-chessground/src/lib/pgn-viewer/lichess-broadcast-url.ts</a>
+            </td>
+            <td>variable</td>
+            <td>BROADCAST_URL_PATTERN</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/LoadCachePanelComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/load-cache/load-cache-panel.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>LoadCachePanelComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(37/37)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/MoveListComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/moves/move-list.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>MoveListComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(13/13)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./injectables/PgnCacheService.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>PgnCacheService</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(17/17)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/CachedPgnData.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>CachedPgnData</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(7/7)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/CacheEntry.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>CacheEntry</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PgnSourceCacheEntry.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PgnSourceCacheEntry</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(5/5)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DB_NAME">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DB_NAME</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DB_VERSION">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DB_VERSION</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DEFAULT_TTL_MS">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DEFAULT_TTL_MS</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#MAX_ENTRIES">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>MAX_ENTRIES</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#MAX_SOURCE_ENTRIES">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>MAX_SOURCE_ENTRIES</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#SOURCE_MAP_STORAGE_KEY">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>SOURCE_MAP_STORAGE_KEY</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#STORE_NAME">projects/ngx-chessground/src/lib/pgn-viewer/pgn-cache.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>STORE_NAME</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/CachedCollection.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>interface</td>
+            <td>CachedCollection</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(7/7)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/FilterCriteria.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>interface</td>
             <td>FilterCriteria</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(14/14)</span>
+                <span class="coverage-count">(22/22)</span>
             </td>
         </tr>
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/GameMetadata.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./interfaces/GameMetadata.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>interface</td>
             <td>GameMetadata</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(11/11)</span>
+                <span class="coverage-count">(12/12)</span>
             </td>
         </tr>
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#extractGameInfo">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./interfaces/LoadFromCachePayload.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>interface</td>
+            <td>LoadFromCachePayload</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(5/5)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/LoadPayload.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>interface</td>
+            <td>LoadPayload</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(5/5)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#_normalizeTimeControl">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>_normalizeTimeControl</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#applyCachedCollection">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>applyCachedCollection</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#buildDiskCacheBody">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>buildDiskCacheBody</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#clearDiskCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>clearDiskCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#clearPgnCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>clearPgnCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#deserializeFenCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>deserializeFenCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#extractEvalsFromPgn">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>extractEvalsFromPgn</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#extractGameInfo">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
             <td>extractGameInfo</td>
@@ -152,7 +679,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#extractMovesFast">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#extractMovesFast">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
             <td>extractMovesFast</td>
@@ -164,7 +691,19 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#handleFilter">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#extractTag">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>extractTag</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#handleFilter">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
             <td>handleFilter</td>
@@ -176,7 +715,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#handleLoad">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#handleLoad">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
             <td>handleLoad</td>
@@ -188,7 +727,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#handleLoadGame">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#handleLoadGame">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
             <td>handleLoadGame</td>
@@ -200,7 +739,31 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#normalizeResult">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#isCachedCollectionUsable">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>isCachedCollectionUsable</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#normalizeFen">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>normalizeFen</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#normalizeResult">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
             <td>normalizeResult</td>
@@ -212,10 +775,10 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#normalizeTimeControl">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#openCacheDb">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
-            <td>normalizeTimeControl</td>
+            <td>openCacheDb</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
                 <span class="coverage-count">(1/1)</span>
@@ -224,7 +787,67 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#splitPgn">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#postProgress">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>postProgress</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#postRestoredCollection">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>postRestoredCollection</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#readDiskCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>readDiskCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#saveToCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>saveToCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#serializeFenCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>serializeFenCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#splitPgn">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>function</td>
             <td>splitPgn</td>
@@ -236,7 +859,127 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#gameMetadata">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/functions.html#tryRestoreFromCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>tryRestoreFromCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#tryRestoreFromDiskCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>tryRestoreFromDiskCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#tryRestoreFromIndexedDb">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>tryRestoreFromIndexedDb</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#writeDiskCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>function</td>
+            <td>writeDiskCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#CACHE_DB_NAME">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>variable</td>
+            <td>CACHE_DB_NAME</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#CACHE_DB_VERSION">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>variable</td>
+            <td>CACHE_DB_VERSION</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#CACHE_STORE_NAME">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>variable</td>
+            <td>CACHE_STORE_NAME</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DISK_CACHE_TTL_MS">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DISK_CACHE_TTL_MS</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DISK_CACHE_URL">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DISK_CACHE_URL</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#gameFenCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>variable</td>
+            <td>gameFenCache</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#gameMetadata">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>variable</td>
             <td>gameMetadata</td>
@@ -248,7 +991,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#gameMovesCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/variables.html#gameMovesCache">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>variable</td>
             <td>gameMovesCache</td>
@@ -260,7 +1003,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#games">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+                        <a href="./miscellaneous/variables.html#games">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
             <td>variable</td>
             <td>games</td>
@@ -272,19 +1015,67 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/PgnViewerEngineService.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts</a>
+                        <a href="./miscellaneous/variables.html#INDEXED_DB_TTL_MS">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
             </td>
-            <td>injectable</td>
-            <td>PgnViewerEngineService</td>
+            <td>variable</td>
+            <td>INDEXED_DB_TTL_MS</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(9/9)</span>
+                <span class="coverage-count">(1/1)</span>
             </td>
         </tr>
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/PgnViewerEngineCallbacks.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts</a>
+                        <a href="./miscellaneous/variables.html#MAX_DISK_CACHE_BYTES">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>variable</td>
+            <td>MAX_DISK_CACHE_BYTES</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#WorkerMessage">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>WorkerMessage</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#WorkerResponse">projects/ngx-chessground/src/lib/pgn-viewer/pgn-processor.worker.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>WorkerResponse</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./injectables/PgnViewerEngineService.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>PgnViewerEngineService</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(17/17)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PgnViewerEngineCallbacks.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-engine.service.ts</a>
             </td>
             <td>interface</td>
             <td>PgnViewerEngineCallbacks</td>
@@ -296,19 +1087,499 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./components/NgxPgnViewerComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts</a>
+                        <a href="./interfaces/PgnViewerNotice.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-notifier.ts</a>
             </td>
-            <td>component</td>
-            <td>NgxPgnViewerComponent</td>
+            <td>interface</td>
+            <td>PgnViewerNotice</td>
             <td align="right" data-sort="100">
                 <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(179/179)</span>
+                <span class="coverage-count">(4/4)</span>
             </td>
         </tr>
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./components/PromotionDialogComponent.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
+                        <a href="./interfaces/PgnViewerNotifier.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-notifier.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PgnViewerNotifier</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(2/2)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#consolePgnViewerNotifier">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-notifier.ts</a>
+            </td>
+            <td>variable</td>
+            <td>consolePgnViewerNotifier</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#PGN_VIEWER_NOTIFIER">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-notifier.ts</a>
+            </td>
+            <td>variable</td>
+            <td>PGN_VIEWER_NOTIFIER</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#PgnViewerNoticeLevel">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-notifier.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>PgnViewerNoticeLevel</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./injectables/PgnViewerSettingsService.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>PgnViewerSettingsService</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(7/7)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PersistedFilterState.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PersistedFilterState</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(22/22)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PersistedViewerState.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PersistedViewerState</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(6/6)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#asBoolean">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>function</td>
+            <td>asBoolean</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#asNumber">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>function</td>
+            <td>asNumber</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#asRecord">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>function</td>
+            <td>asRecord</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#asString">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>function</td>
+            <td>asString</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#asStringArray">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>function</td>
+            <td>asStringArray</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DEFAULT_PERSISTED_FILTER_STATE">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DEFAULT_PERSISTED_FILTER_STATE</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#PGN_VIEWER_STATE_STORAGE_KEY">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>PGN_VIEWER_STATE_STORAGE_KEY</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#PGN_VIEWER_STATE_VERSION">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-settings.service.ts</a>
+            </td>
+            <td>variable</td>
+            <td>PGN_VIEWER_STATE_VERSION</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./injectables/PgnViewerStoreService.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer-store.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>PgnViewerStoreService</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(16/16)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/NgxPgnViewerComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>NgxPgnViewerComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(263/263)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/BestMoveInfo.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>BestMoveInfo</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(4/4)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/ClockState.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>ClockState</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/EvaluationChange.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>EvaluationChange</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(5/5)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/FilterGameInfo.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>FilterGameInfo</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(5/5)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/LoadOptions.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>LoadOptions</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PgnViewerError.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PgnViewerError</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(4/4)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PlayerSuggestion.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PlayerSuggestion</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PlayerTypeaheadState.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PlayerTypeaheadState</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(5/5)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PracticeExport.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PracticeExport</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(6/6)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/PracticeMove.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PracticeMove</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/TypeaheadKeyboardEvent.html">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>TypeaheadKeyboardEvent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#LeftPanelSection">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>LeftPanelSection</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#PgnSource">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>PgnSource</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#PgnViewerErrorCode">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>PgnViewerErrorCode</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ReplayMode">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ReplayMode</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RightPanelSection">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RightPanelSection</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#StopOnErrorSide">projects/ngx-chessground/src/lib/pgn-viewer/pgn-viewer.types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>StopOnErrorSide</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/PracticePanelComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/practice/practice-panel.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>PracticePanelComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(21/21)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/ReplayPanelComponent.html">projects/ngx-chessground/src/lib/pgn-viewer/replay/replay-panel.component.ts</a>
+            </td>
+            <td>component</td>
+            <td>ReplayPanelComponent</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(36/36)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./interfaces/TextSegment.html">projects/ngx-chessground/src/lib/pgn-viewer/text-highlight.ts</a>
+            </td>
+            <td>interface</td>
+            <td>TextSegment</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(3/3)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#highlightMatch">projects/ngx-chessground/src/lib/pgn-viewer/text-highlight.ts</a>
+            </td>
+            <td>function</td>
+            <td>highlightMatch</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#isUpsetGame">projects/ngx-chessground/src/lib/pgn-viewer/upset.ts</a>
+            </td>
+            <td>function</td>
+            <td>isUpsetGame</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#normalizeResult">projects/ngx-chessground/src/lib/pgn-viewer/upset.ts</a>
+            </td>
+            <td>function</td>
+            <td>normalizeResult</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./components/PromotionDialogComponent.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
             </td>
             <td>component</td>
             <td>PromotionDialogComponent</td>
@@ -320,7 +1591,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/PromotionDialogData.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
+                        <a href="./interfaces/PromotionDialogData.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
             </td>
             <td>interface</td>
             <td>PromotionDialogData</td>
@@ -332,7 +1603,19 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/PromotionService.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion.service.ts</a>
+                        <a href="./miscellaneous/typealiases.html#PromotionPiece">projects/ngx-chessground/src/lib/promotion-dialog/promotion-dialog.component.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>PromotionPiece</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./injectables/PromotionService.html">projects/ngx-chessground/src/lib/promotion-dialog/promotion.service.ts</a>
             </td>
             <td>injectable</td>
             <td>PromotionService</td>
@@ -344,7 +1627,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#testProviders">projects/ngx-chessground/src/test-providers.ts</a>
+                        <a href="./miscellaneous/variables.html#testProviders">projects/ngx-chessground/src/test-providers.ts</a>
             </td>
             <td>variable</td>
             <td>testProviders</td>
@@ -356,7 +1639,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#conflictingAnim">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#conflictingAnim">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>conflictingAnim</td>
@@ -368,7 +1651,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#notSameRole">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#notSameRole">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>notSameRole</td>
@@ -380,7 +1663,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#whileHolding">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#whileHolding">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>whileHolding</td>
@@ -392,7 +1675,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#withSameRole">projects/ngx-chessground/src/units/anim.ts</a>
+                        <a href="./miscellaneous/variables.html#withSameRole">projects/ngx-chessground/src/units/anim.ts</a>
             </td>
             <td>variable</td>
             <td>withSameRole</td>
@@ -404,7 +1687,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#checkHighlight">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#checkHighlight">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>checkHighlight</td>
@@ -416,7 +1699,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#defaults">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#defaults">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>defaults</td>
@@ -428,7 +1711,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#fromFen">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#fromFen">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>fromFen</td>
@@ -440,7 +1723,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#lastMoveCrazyhouse">projects/ngx-chessground/src/units/basics.ts</a>
+                        <a href="./miscellaneous/variables.html#lastMoveCrazyhouse">projects/ngx-chessground/src/units/basics.ts</a>
             </td>
             <td>variable</td>
             <td>lastMoveCrazyhouse</td>
@@ -452,7 +1735,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#createEnhancedPlayUnits">projects/ngx-chessground/src/units/enhanced-play.ts</a>
+                        <a href="./miscellaneous/functions.html#createEnhancedPlayUnits">projects/ngx-chessground/src/units/enhanced-play.ts</a>
             </td>
             <td>function</td>
             <td>createEnhancedPlayUnits</td>
@@ -464,7 +1747,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#aiPlayWithDialog">projects/ngx-chessground/src/units/enhanced-util.ts</a>
+                        <a href="./miscellaneous/functions.html#aiPlayWithDialog">projects/ngx-chessground/src/units/enhanced-util.ts</a>
             </td>
             <td>function</td>
             <td>aiPlayWithDialog</td>
@@ -476,7 +1759,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#playOtherSideWithDialog">projects/ngx-chessground/src/units/enhanced-util.ts</a>
+                        <a href="./miscellaneous/functions.html#playOtherSideWithDialog">projects/ngx-chessground/src/units/enhanced-util.ts</a>
             </td>
             <td>function</td>
             <td>playOtherSideWithDialog</td>
@@ -488,19 +1771,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#promotionToRole">projects/ngx-chessground/src/units/enhanced-util.ts</a>
-            </td>
-            <td>function</td>
-            <td>promotionToRole</td>
-            <td align="right" data-sort="100">
-                <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(1/1)</span>
-            </td>
-        </tr>
-        <tr class="very-good">
-            <td>
-                <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/enhanced-util.ts</a>
+                        <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/enhanced-util.ts</a>
             </td>
             <td>function</td>
             <td>toDests</td>
@@ -512,7 +1783,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#autoSwitch">projects/ngx-chessground/src/units/fen.ts</a>
+                        <a href="./miscellaneous/variables.html#autoSwitch">projects/ngx-chessground/src/units/fen.ts</a>
             </td>
             <td>variable</td>
             <td>autoSwitch</td>
@@ -524,7 +1795,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#wrapped">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/functions.html#wrapped">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>function</td>
             <td>wrapped</td>
@@ -536,7 +1807,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#fullRandom">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/variables.html#fullRandom">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>variable</td>
             <td>fullRandom</td>
@@ -548,7 +1819,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#in3dDefaults">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/variables.html#in3dDefaults">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>variable</td>
             <td>in3dDefaults</td>
@@ -560,7 +1831,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#vsRandom">projects/ngx-chessground/src/units/in3d.ts</a>
+                        <a href="./miscellaneous/variables.html#vsRandom">projects/ngx-chessground/src/units/in3d.ts</a>
             </td>
             <td>variable</td>
             <td>vsRandom</td>
@@ -572,7 +1843,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#move">projects/ngx-chessground/src/units/perf.ts</a>
+                        <a href="./miscellaneous/variables.html#move">projects/ngx-chessground/src/units/perf.ts</a>
             </td>
             <td>variable</td>
             <td>move</td>
@@ -584,7 +1855,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#select">projects/ngx-chessground/src/units/perf.ts</a>
+                        <a href="./miscellaneous/variables.html#select">projects/ngx-chessground/src/units/perf.ts</a>
             </td>
             <td>variable</td>
             <td>select</td>
@@ -596,7 +1867,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#loadPgnOneSecondPerMove">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#loadPgnOneSecondPerMove">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>loadPgnOneSecondPerMove</td>
@@ -608,7 +1879,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#loadPgnProportionalTime">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#loadPgnProportionalTime">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>loadPgnProportionalTime</td>
@@ -620,7 +1891,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#loadPgnRealTime">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#loadPgnRealTime">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>loadPgnRealTime</td>
@@ -632,7 +1903,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#pgn">projects/ngx-chessground/src/units/pgn.ts</a>
+                        <a href="./miscellaneous/variables.html#pgn">projects/ngx-chessground/src/units/pgn.ts</a>
             </td>
             <td>variable</td>
             <td>pgn</td>
@@ -644,7 +1915,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#createPlayUnitsWithDialog">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/functions.html#createPlayUnitsWithDialog">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>function</td>
             <td>createPlayUnitsWithDialog</td>
@@ -656,7 +1927,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#castling">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#castling">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>castling</td>
@@ -668,7 +1939,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#conflictingHold">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#conflictingHold">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>conflictingHold</td>
@@ -680,7 +1951,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#initial">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#initial">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>initial</td>
@@ -692,7 +1963,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#playFullRandom">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#playFullRandom">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>playFullRandom</td>
@@ -704,7 +1975,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#playVsRandom">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#playVsRandom">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>playVsRandom</td>
@@ -716,7 +1987,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#slowAnim">projects/ngx-chessground/src/units/play.ts</a>
+                        <a href="./miscellaneous/variables.html#slowAnim">projects/ngx-chessground/src/units/play.ts</a>
             </td>
             <td>variable</td>
             <td>slowAnim</td>
@@ -728,7 +1999,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#autoShapes">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#autoShapes">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>autoShapes</td>
@@ -740,7 +2011,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#brushModifiers">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#brushModifiers">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>brushModifiers</td>
@@ -752,7 +2023,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#changingShapesHigh">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#changingShapesHigh">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>changingShapesHigh</td>
@@ -764,7 +2035,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#changingShapesLow">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#changingShapesLow">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>changingShapesLow</td>
@@ -776,7 +2047,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#enabledFalse">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#enabledFalse">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>enabledFalse</td>
@@ -788,7 +2059,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#presetUserShapes">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#presetUserShapes">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>presetUserShapes</td>
@@ -800,7 +2071,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet1">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#shapeSet1">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>shapeSet1</td>
@@ -812,7 +2083,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet2">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#shapeSet2">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>shapeSet2</td>
@@ -824,7 +2095,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#shapeSet3">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#shapeSet3">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>shapeSet3</td>
@@ -836,7 +2107,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#visibleFalse">projects/ngx-chessground/src/units/svg.ts</a>
+                        <a href="./miscellaneous/variables.html#visibleFalse">projects/ngx-chessground/src/units/svg.ts</a>
             </td>
             <td>variable</td>
             <td>visibleFalse</td>
@@ -848,7 +2119,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/Unit.html">projects/ngx-chessground/src/units/unit.ts</a>
+                        <a href="./interfaces/Unit.html">projects/ngx-chessground/src/units/unit.ts</a>
             </td>
             <td>interface</td>
             <td>Unit</td>
@@ -860,7 +2131,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#aiPlay">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#aiPlay">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>aiPlay</td>
@@ -872,7 +2143,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#playOtherSide">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#playOtherSide">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>playOtherSide</td>
@@ -884,7 +2155,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#playOtherSideWithDialog">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#playOtherSideWithDialog">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>playOtherSideWithDialog</td>
@@ -896,7 +2167,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#promotionToRole">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#promotionToRole">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>promotionToRole</td>
@@ -908,7 +2179,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#toColor">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#toColor">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>toColor</td>
@@ -920,7 +2191,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/util.ts</a>
+                        <a href="./miscellaneous/functions.html#toDests">projects/ngx-chessground/src/units/util.ts</a>
             </td>
             <td>function</td>
             <td>toDests</td>
@@ -932,7 +2203,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#viewOnlyFullRandom">projects/ngx-chessground/src/units/viewOnly.ts</a>
+                        <a href="./miscellaneous/variables.html#viewOnlyFullRandom">projects/ngx-chessground/src/units/viewOnly.ts</a>
             </td>
             <td>variable</td>
             <td>viewOnlyFullRandom</td>
@@ -944,7 +2215,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./miscellaneous/variables.html#lastMoveDrop">projects/ngx-chessground/src/units/zh.ts</a>
+                        <a href="./miscellaneous/variables.html#lastMoveDrop">projects/ngx-chessground/src/units/zh.ts</a>
             </td>
             <td>variable</td>
             <td>lastMoveDrop</td>
@@ -992,6 +2263,19 @@
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
        <script src="./js/libs/custom-elements.min.js"></script>
        <script src="./js/libs/lit-html.js"></script>
 
@@ -1003,7 +2287,6 @@
        <script src="./js/libs/es6-shim.min.js"></script>
        <script src="./js/libs/EventDispatcher.js"></script>
        <script src="./js/libs/promise.min.js"></script>
-       <script src="./js/libs/zepto.min.js"></script>
 
        <script src="./js/compodoc.js"></script>
 

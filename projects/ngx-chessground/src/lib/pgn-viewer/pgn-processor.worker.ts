@@ -240,8 +240,16 @@ const gameMovesCache = new Map<number, string[]>();
 const gameFenCache = new Map<number, Set<string>>();
 // ---- IndexedDB Cache -------
 
+/**
+ * IndexedDB database used by the worker.
+ *
+ * Must match the main thread's `PgnCacheService` constants: the viewer's
+ * cache panel and the worker read and write the same store.
+ */
 const CACHE_DB_NAME = 'NgxChessgroundPgnCache';
+/** Schema version of {@link CACHE_DB_NAME}; keep in step with `PgnCacheService`. */
 const CACHE_DB_VERSION = 1;
+/** Object store holding {@link CachedCollection} records. */
 const CACHE_STORE_NAME = 'pgn_cache';
 
 // ---- Desktop disk cache ----
@@ -265,11 +273,25 @@ const MAX_DISK_CACHE_BYTES = 512 * 1024 * 1024;
 
 /** Shape of a cached collection, shared by IndexedDB and the disk cache. */
 interface CachedCollection {
+	/** Raw PGN text per game, split on the `[Event …]` header. */
 	games: string[];
+	/** Header-only metadata for each game, aligned with {@link games}. */
 	gameMetadata: GameMetadata[];
+	/**
+	 * Serialized FEN index: `[gameIndex, normalizedFen[]]` tuples, produced by
+	 * `serializeFenCache` so the `Map<number, Set<string>>` survives structured
+	 * clone and JSON round-trips.
+	 */
 	fenCache: [number, string[]][];
+	/** When this entry was written (epoch ms); drives TTL expiry. */
 	createdAt: number;
+	/**
+	 * Whether {@link fenCache} was actually built. `false`/absent means the
+	 * index holds empty sets, so position filtering cannot be served from this
+	 * entry and it must be re-parsed.
+	 */
 	indexed?: boolean;
+	/** Max half-moves replayed per game when {@link fenCache} was built. */
 	maxFenPlies?: number;
 }
 

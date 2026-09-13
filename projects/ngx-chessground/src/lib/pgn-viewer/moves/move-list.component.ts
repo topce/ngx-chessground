@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	Component,
 	type ElementRef,
 	effect,
@@ -43,7 +44,7 @@ export class MoveListComponent {
 	readonly currentMoveIndex = input<number>(-1);
 
 	/** Whether to highlight the last move in the game. */
-	readonly highlightLastMove = input<boolean>(true);
+	readonly highlightLastMove = input(true, { transform: booleanAttribute });
 
 	/** Whether the moves section is expanded/collapsed. */
 	readonly expanded = model<boolean>(true);
@@ -54,6 +55,10 @@ export class MoveListComponent {
 	/** View query for the move list container (for auto-scroll). */
 	readonly moveListRef = viewChild<ElementRef<HTMLElement>>('moveList');
 
+	/**
+	 * Keeps the active move visible: scrolls it into the nearest edge of the
+	 * list whenever the current move index changes.
+	 */
 	constructor() {
 		// Auto-scroll to active move when index changes
 		effect(() => {
@@ -74,6 +79,7 @@ export class MoveListComponent {
 		});
 	}
 
+	/** Expands or collapses the move-list panel (two-way bound). */
 	toggleExpanded(): void {
 		this.expanded.update((v) => !v);
 	}
