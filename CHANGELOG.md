@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [22.7.0] - 2026-09-13
+
+### Added
+- PGN viewer filter selection and data source are now persisted and restored on the next launch: the applied filters (players, result, ECO, time control, event, broadcast, ratings, upsets, FEN, sort order) plus the last Lichess year/month and PGN URL are re-applied automatically after the games finish loading — for the restored archive and for any archive loaded later — instead of being reset by the load. The new `PgnViewerSettingsService` (exported from the public API) owns the storage, and `NgxPgnViewerComponent.restoredStateFromStorage` lets a host reload the same archive before the filters are applied
+- The PGN viewer's **Index start positions** option is enabled automatically in the packaged desktop app (detected through the `window.__desktop__` marker injected by `desktop/desktop-adapter.js`); in the browser it stays off unless the user checks it manually
+
+### Changed
+- Startup is much faster when a previously loaded PGN is still cached: `PgnCacheService` now remembers a URL → content-hash bookmark (with the indexed game count / FEN replay window) and the viewer asks the worker to restore the parsed games and FEN index straight from the cache (`loadFromCache`), so the archive is no longer downloaded, decompressed and hashed again. On a cache miss the worker answers `cacheMiss` and the normal download path runs; a FEN-index request only accepts an entry that has the index built for the requested replay window. Hosts can check `NgxPgnViewerComponent.canLoadFromCache(url)` to skip network probes at startup
+- The desktop app now opens **maximized**: `Deno.BrowserWindow` has no maximize/fullscreen option in Deno 2.9, so `desktop/server.ts` reads the webview's work area (`screen.availLeft/Top/Width/Height`) and applies it with `setPosition`/`setSize` — filling the screen while staying resizable and keeping the title bar
+
+### Fixed
+- **Desktop builds now persist viewer state and the parsed-game cache on disk.** Deno Desktop serves the webview from a random localhost port on every launch, so the webview origin — and therefore `localStorage` and `IndexedDB` — was new each time; saved filters and the cache were silently lost on every restart, which is why the desktop app re-downloaded and re-indexed the archive every time. `desktop/server.ts` gained `/api/state/<key>` and `/api/cache/<hash>` endpoints backed by a per-user data directory, the new `PgnViewerStoreService` routes persistence there **only when `window.__desktop__` is present**, and the worker reads/writes its cache through `/api/cache` in desktop mode while the browser keeps using `localStorage`/`IndexedDB` unchanged. Cache files are capped (1 GiB each, 3 most recently used, 30-day TTL) and `clearPgnCache()` deletes them. Hosts should `await NgxPgnViewerComponent.whenStateReady()` before loading data so the restored archive URL is known
+
 ## [22.6.0] - 2026-09-10
 
 ### Changed

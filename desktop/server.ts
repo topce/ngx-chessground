@@ -30,13 +30,68 @@ const API_PREFIX = "/api";
 // otherwise survive after the user closes the window. Adopt the implicit
 // startup window and exit the process on its "close" event. (Deno.BrowserWindow
 // is not yet part of the ambient `deno.ns` types, so access it defensively.)
+
+/** Minimal view of `Deno.BrowserWindow` used by this server. */
+interface DesktopWindow {
+  addEventListener(type: string, listener: () => void): void;
+  /** Runs code in the webview and resolves with its JSON-serializable result. */
+  executeJs(code: string): Promise<unknown>;
+  setPosition(x: number, y: number): void;
+  setSize(width: number, height: number): void;
+}
+
 const denoGlobal = Deno as unknown as Record<string, unknown>;
 if (typeof denoGlobal.BrowserWindow === "function") {
-  const BrowserWindow = denoGlobal.BrowserWindow as new (
-    options?: { title?: string },
-  ) => { addEventListener(type: string, listener: () => void): void };
-  const win = new BrowserWindow({ title: "ngx-chessground" });
+  const BrowserWindow = denoGlobal.BrowserWindow as new (options?: {
+    title?: string;
+    width?: number;
+    height?: number;
+  }) => DesktopWindow;
+  const win = new BrowserWindow({
+    title: "ngx-chessground",
+    // A roomy initial size so the first paint is already close to the work
+    // area; `maximizeWindow` then snaps it to the full work area.
+    width: 1280,
+    height: 860,
+  });
   win.addEventListener("close", () => Deno.exit(0));
+  void maximizeWindow(win);
+}
+
+/**
+ * Fills the screen's work area on startup.
+ *
+ * `Deno.BrowserWindow` has no maximize/fullscreen option (the constructor only
+ * accepts title/width/height/x/y/resizable/alwaysOnTop/frameless/noActivate/
+ * transparentTitlebar in Deno 2.9), so the webview reports the available work
+ * area — `screen.availLeft/Top/Width/Height`, which excludes the macOS menu bar
+ * and the Dock/taskbar — and the native window is sized and moved to match.
+ * That is what a maximized window looks like, while staying resizable and
+ * without going fullscreen.
+ *
+ * `executeJs` needs a live document, so this retries briefly while the webview
+ * boots and gives up silently if the page never becomes ready.
+ */
+async function maximizeWindow(win: DesktopWindow): Promise<void> {
+  const script =
+    "[window.screen.availLeft ?? 0, window.screen.availTop ?? 0, window.screen.availWidth, window.screen.availHeight]";
+
+  for (let attempt = 0; attempt < 50; attempt++) {
+    try {
+      const area = await win.executeJs(script);
+      if (Array.isArray(area) && area.length === 4) {
+        const [left, top, width, height] = area.map(Number);
+        if (width > 0 && height > 0) {
+          win.setPosition(left, top);
+          win.setSize(width, height);
+          return;
+        }
+      }
+    } catch {
+      // Webview not ready yet — retry shortly.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
 }
 
 // Remote source for the lichess broadcast database (.pgn.zst monthly dumps).
@@ -44,6 +99,123 @@ if (typeof denoGlobal.BrowserWindow === "function") {
 // (e.g. https://raw.githubusercontent.com/<user>/<repo>/main/lichess) if you
 // prefer to host the files there.
 const LICHESS_BASE = "https://database.lichess.org/broadcast";
+
+// ── Durable app storage ────────────────────────────────────────────────
+// `deno desktop` points the webview at a random 127.0.0.1 port on every
+// launch, so the webview origin — and with it localStorage and IndexedDB —
+// is brand new each time. Anything that has to survive a restart is stored
+// on disk here instead: small JSON state blobs (settings, source bookmarks)
+// and the parsed PGN + FEN index cache.
+
+/** Small JSON blobs written by the app (viewer state, source bookmarks). */
+const STATE_DIR_NAME = "state";
+/** Parsed PGN + FEN index cache files, keyed by content hash. */
+const CACHE_DIR_NAME = "pgn-cache";
+/** Largest accepted state blob. */
+const MAX_STATE_BYTES = 4 * 1024 * 1024;
+/** Largest accepted parsed-PGN cache file. */
+const MAX_CACHE_BYTES = 1024 * 1024 * 1024;
+/** How many parsed archives to keep on disk (least recently used evicted first). */
+const MAX_CACHE_ENTRIES = 3;
+/** Parsed archives older than this are pruned. */
+const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+/**
+ * Stable per-user data directory for the app. Mirrors the platform
+ * conventions so the cache survives rebuilds and app updates.
+ *
+ * `NGX_CHESSGROUND_DATA_DIR` overrides it (portable installs, tests).
+ */
+function appDataDir(): string {
+  const override = Deno.env.get("NGX_CHESSGROUND_DATA_DIR");
+  if (override) return override;
+
+  const home = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
+  if (Deno.build.os === "windows") {
+    const base = Deno.env.get("APPDATA") ?? [home, "AppData", "Roaming"].join(SEP);
+    return [base, "ngx-chessground"].join(SEP);
+  }
+  if (Deno.build.os === "darwin") {
+    return [home, "Library", "Application Support", "ngx-chessground"].join(SEP);
+  }
+  const base = Deno.env.get("XDG_DATA_HOME") ?? [home, ".local", "share"].join(SEP);
+  return [base, "ngx-chessground"].join(SEP);
+}
+
+const DATA_DIR = appDataDir();
+const STATE_DIR = [DATA_DIR, STATE_DIR_NAME].join(SEP);
+const CACHE_DIR = [DATA_DIR, CACHE_DIR_NAME].join(SEP);
+
+async function ensureDir(dir: string): Promise<void> {
+  try {
+    await Deno.mkdir(dir, { recursive: true });
+  } catch {
+    /* already exists */
+  }
+}
+
+/** Restricts a path segment to a safe character set (no traversal). */
+function safeSegment(value: string): string | null {
+  return /^[a-zA-Z0-9_-]{1,128}$/.test(value) ? value : null;
+}
+
+interface CacheFileInfo {
+  name: string;
+  size: number;
+  mtime: number;
+}
+
+async function listCacheFiles(): Promise<CacheFileInfo[]> {
+  const files: CacheFileInfo[] = [];
+  try {
+    for await (const entry of Deno.readDir(CACHE_DIR)) {
+      if (!entry.isFile || !entry.name.endsWith(".json")) continue;
+      const filePath = [CACHE_DIR, entry.name].join(SEP);
+      try {
+        const stat = await Deno.stat(filePath);
+        files.push({
+          name: entry.name,
+          size: stat.size,
+          mtime: stat.mtime?.getTime() ?? 0,
+        });
+      } catch {
+        /* raced with another request */
+      }
+    }
+  } catch {
+    /* cache directory does not exist yet */
+  }
+  return files;
+}
+
+/** Drops expired archives and keeps only the most recently used ones. */
+async function pruneCache(): Promise<void> {
+  const files = await listCacheFiles();
+  const now = Date.now();
+  const keep = files
+    .filter((f) => now - f.mtime <= CACHE_TTL_MS)
+    .sort((a, b) => b.mtime - a.mtime);
+  const remove = [
+    ...files.filter((f) => !keep.includes(f)),
+    ...keep.slice(MAX_CACHE_ENTRIES),
+  ];
+  for (const file of remove) {
+    try {
+      await Deno.remove([CACHE_DIR, file.name].join(SEP));
+    } catch {
+      /* already gone */
+    }
+  }
+}
+
+async function cacheInfo(): Promise<{ count: number; estimatedBytes: number }> {
+  const files = await listCacheFiles();
+  return {
+    count: files.length,
+    estimatedBytes: files.reduce((sum, f) => sum + f.size, 0),
+  };
+}
+
 
 function getBuildDirs(): string[] {
   // server.ts lives in <root>/desktop/ and the Angular bundle is embedded at
@@ -106,6 +278,158 @@ Deno.serve(async (req: Request) => {
     return Response.json({
       fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     });
+  }
+
+  // --- Durable state blobs (viewer settings, PGN source bookmarks) ---
+  // Survives the per-launch webview origin change, unlike localStorage.
+
+  if (path.startsWith(`${API_PREFIX}/state/`)) {
+    const key = safeSegment(path.slice(`${API_PREFIX}/state/`.length));
+    if (!key) return new Response("Bad key", { status: 400 });
+    const file = [STATE_DIR, `${key}.json`].join(SEP);
+
+    if (req.method === "GET") {
+      const f = await tryOpen(file);
+      if (!f) return new Response("Not Found", { status: 404 });
+      return new Response(f.readable, {
+        headers: {
+          "content-type": "application/json",
+          "cache-control": "no-store",
+        },
+      });
+    }
+
+    if (req.method === "PUT" || req.method === "POST") {
+      const body = await req.arrayBuffer();
+      if (body.byteLength > MAX_STATE_BYTES) {
+        return new Response("Payload too large", { status: 413 });
+      }
+      try {
+        await ensureDir(STATE_DIR);
+        // Write-then-rename keeps the file readable if the app quits mid-write.
+        const tmp = `${file}.tmp`;
+        await Deno.writeFile(tmp, new Uint8Array(body));
+        await Deno.rename(tmp, file);
+      } catch (e) {
+        return Response.json(
+          { error: `Failed to store state: ${e}` },
+          { status: 500 },
+        );
+      }
+      return new Response(null, { status: 204 });
+    }
+
+    if (req.method === "DELETE") {
+      try {
+        await Deno.remove(file);
+      } catch {
+        /* already gone */
+      }
+      return new Response(null, { status: 204 });
+    }
+
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+
+  // --- Parsed PGN + FEN index cache (large, streamed to/from disk) ---
+
+  if (path === `${API_PREFIX}/cache-info` && req.method === "GET") {
+    return Response.json(await cacheInfo());
+  }
+
+  if (path === `${API_PREFIX}/cache` && req.method === "DELETE") {
+    try {
+      await Deno.remove(CACHE_DIR, { recursive: true });
+    } catch {
+      /* nothing cached */
+    }
+    return new Response(null, { status: 204 });
+  }
+
+  if (path.startsWith(`${API_PREFIX}/cache/`)) {
+    const hash = safeSegment(path.slice(`${API_PREFIX}/cache/`.length));
+    if (!hash) return new Response("Bad key", { status: 400 });
+    const file = [CACHE_DIR, `${hash}.json`].join(SEP);
+
+    if (req.method === "GET") {
+      const f = await tryOpen(file);
+      if (!f) return new Response("Not Found", { status: 404 });
+      // Touch on read so the LRU pruning keeps archives that are in use.
+      const now = new Date();
+      try {
+        await Deno.utime(file, now, now);
+      } catch {
+        /* best effort */
+      }
+      return new Response(f.readable, {
+        headers: {
+          "content-type": "application/json",
+          "cache-control": "no-store",
+        },
+      });
+    }
+
+    if (req.method === "PUT" || req.method === "POST") {
+      if (!req.body) return new Response("Bad Request", { status: 400 });
+      const declared = Number(req.headers.get("content-length") ?? "0");
+      if (declared > MAX_CACHE_BYTES) {
+        return new Response("Payload too large", { status: 413 });
+      }
+
+      const tmp = `${file}.tmp`;
+      let written = 0;
+      let tooLarge = false;
+      try {
+        await ensureDir(CACHE_DIR);
+        const out = await Deno.open(tmp, {
+          create: true,
+          write: true,
+          truncate: true,
+        });
+        await req.body
+          .pipeThrough(
+            new TransformStream<Uint8Array, Uint8Array>({
+              transform(chunk, controller) {
+                written += chunk.byteLength;
+                if (written > MAX_CACHE_BYTES) {
+                  tooLarge = true;
+                  controller.error(new Error("cache entry too large"));
+                  return;
+                }
+                controller.enqueue(chunk);
+              },
+            }),
+          )
+          .pipeTo(out.writable);
+        await Deno.rename(tmp, file);
+      } catch (e) {
+        try {
+          await Deno.remove(tmp);
+        } catch {
+          /* nothing was written */
+        }
+        return tooLarge
+          ? new Response("Payload too large", { status: 413 })
+          : Response.json(
+              { error: `Failed to store cache entry: ${e}` },
+              { status: 500 },
+            );
+      }
+
+      await pruneCache();
+      return new Response(null, { status: 204 });
+    }
+
+    if (req.method === "DELETE") {
+      try {
+        await Deno.remove(file);
+      } catch {
+        /* already gone */
+      }
+      return new Response(null, { status: 204 });
+    }
+
+    return new Response("Method Not Allowed", { status: 405 });
   }
 
   // --- Lichess broadcast database (streamed remotely, not bundled) ---

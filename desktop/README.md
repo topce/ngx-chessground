@@ -46,6 +46,59 @@ network without bundling it. It's only needed on disk for the web app (served st
 To host the files elsewhere (e.g. a GitHub repo/release), change the `LICHESS_BASE`
 constant in `desktop/server.ts` and add `--allow-net` is already included in the tasks.
 
+## Persistent data (why the app writes to disk)
+
+`deno desktop` picks a **random localhost port on every launch** and points the
+webview at it. Because `localStorage` and `IndexedDB` are scoped to
+`scheme://host:port`, the webview starts with **empty web storage on every
+launch** — saved filters and the parsed-game cache would silently disappear (and
+the app would re-download and re-index the archive every time).
+
+To make persistence durable, `desktop/server.ts` exposes a small disk-backed API
+and the app uses it **only in the desktop runtime** (it detects the
+`window.__desktop__` marker injected by `desktop-adapter.js`; the browser build
+keeps using `localStorage`/`IndexedDB` exactly as before):
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET/PUT/DELETE /api/state/<key>` | Small JSON blobs: viewer filters/settings (`ngx-chessground-pgn-viewer-state`) and the URL → content-hash bookmarks (`ngx-chessground-pgn-sources`) |
+| `GET/PUT/DELETE /api/cache/<hash>` | The parsed PGN collection + FEN index for one archive, keyed by content hash |
+| `GET /api/cache-info` | Entry count and total size (shown in the Load & Cache panel) |
+| `DELETE /api/cache` | Clears every cached archive ("Clear PGN cache" button) |
+
+Data lives in a stable per-user directory:
+
+| Platform | Directory |
+|----------|-----------|
+| macOS | `~/Library/Application Support/ngx-chessground/` |
+| Windows | `%APPDATA%\ngx-chessground\` |
+| Linux | `$XDG_DATA_HOME/ngx-chessground/` (or `~/.local/share/ngx-chessground/`) |
+
+`NGX_CHESSGROUND_DATA_DIR` overrides the location (portable installs, tests).
+
+Retention: at most **3** cached archives, **1 GiB** per file, entries unused for
+**30 days** are pruned, and the least recently used file is evicted first.
+Writes use write-then-rename, so a crash mid-write cannot corrupt an entry.
+
+Because of this the desktop tasks pass `--allow-write` (the data directory) and
+`--allow-env` (to resolve `HOME`/`APPDATA`/`XDG_DATA_HOME`) in addition to
+`--allow-read` and `--allow-net`.
+
+## Maximized startup
+
+`Deno.BrowserWindow` has no maximize or fullscreen option in Deno 2.9 — the
+constructor accepts only `title`, `width`, `height`, `x`, `y`, `resizable`,
+`alwaysOnTop`, `frameless`, `noActivate` and `transparentTitlebar`. To open the
+app maximized, `desktop/server.ts` asks the webview for the available work area
+(`screen.availLeft/availTop/availWidth/availHeight`, which excludes the macOS
+menu bar and the Dock/taskbar) and then applies it with `setPosition` +
+`setSize`. The window therefore fills the screen like a maximized window while
+staying resizable — it is not fullscreen, so the title bar stays available.
+
+`executeJs` requires a live document, so the server retries for a few seconds
+while the webview boots and silently leaves the default size if the page never
+becomes ready.
+
 ## Building for Desktop
 
 ### Single platform

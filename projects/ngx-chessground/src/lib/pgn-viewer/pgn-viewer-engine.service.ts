@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import { isDesktopRuntime } from './desktop-runtime';
 import type {
 	FilterCriteria,
+	LoadFromCachePayload,
 	LoadPayload,
 	WorkerMessage,
 	WorkerResponse,
@@ -119,12 +121,15 @@ export class PgnViewerEngineService {
 	/**
 	 * Sends raw PGN text and indexing options to the parser worker for processing.
 	 *
-	 * Supports IndexedDB caching via `pgnHash`. When provided, the worker
-	 * checks its cache first and skips re-parsing if a valid entry exists.
+	 * Supports caching via `pgnHash`. When provided, the worker checks its cache
+	 * first and skips re-parsing if a valid entry exists. In the browser the
+	 * cache is IndexedDB; in the packaged desktop app it is a file on disk behind
+	 * the local server, because the webview origin (and therefore IndexedDB) is
+	 * new on every launch there.
 	 *
 	 * @param pgn — Raw PGN string (supports multi-game, compressed formats).
 	 * @param id — Correlation ID echoed back in the worker response for matching requests.
-	 * @param pgnHash — Optional SHA-256 hash for IndexedDB cache restore.
+	 * @param pgnHash — Optional SHA-256 hash for cache restore.
 	 * @param indexStartPositions — Whether to include the starting position FEN in the index.
 	 * @param maxFenPlies — Max half-moves to replay when building the FEN cache.
 	 */
@@ -139,6 +144,7 @@ export class PgnViewerEngineService {
 			pgn,
 			indexStartPositions,
 			maxFenPlies,
+			useDiskCache: isDesktopRuntime(),
 		};
 		const msg: WorkerMessage & { pgnHash?: string } = {
 			type: 'load',
@@ -149,6 +155,34 @@ export class PgnViewerEngineService {
 			msg.pgnHash = pgnHash;
 		}
 		this.pgnWorker?.postMessage(msg);
+	}
+
+	/**
+	 * Restores a previously parsed game collection from the cache without
+	 * sending the PGN text again.
+	 *
+	 * The worker answers with a `'load'` response on a cache hit, or a
+	 * `'cacheMiss'` response when no usable entry exists (in which case the
+	 * caller must fall back to {@link loadPgn} with the downloaded text).
+	 *
+	 * @param pgnHash — SHA-256 hash of the decompressed PGN content.
+	 * @param id — Correlation ID echoed back in the worker response.
+	 * @param indexStartPositions — Whether a built FEN index is required.
+	 * @param maxFenPlies — Max half-moves the caller expects to be indexed.
+	 */
+	loadFromCache(
+		pgnHash: string,
+		id: number,
+		indexStartPositions: boolean = false,
+		maxFenPlies: number = 30,
+	): void {
+		const payload: LoadFromCachePayload = {
+			pgnHash,
+			indexStartPositions,
+			maxFenPlies,
+			useDiskCache: isDesktopRuntime(),
+		};
+		this.pgnWorker?.postMessage({ type: 'loadFromCache', payload, id });
 	}
 
 	/**
@@ -221,10 +255,15 @@ export class PgnViewerEngineService {
 	}
 
 	/**
-	 * Sends a message to the PGN worker to clear all cached data from IndexedDB.
+	 * Sends a message to the PGN worker to clear all cached data — IndexedDB in
+	 * the browser, the on-disk cache files in the desktop app.
 	 */
 	clearCache(id: number): void {
-		this.pgnWorker?.postMessage({ type: 'clearCache', id });
+		this.pgnWorker?.postMessage({
+			type: 'clearCache',
+			id,
+			useDiskCache: isDesktopRuntime(),
+		});
 	}
 
 	/**

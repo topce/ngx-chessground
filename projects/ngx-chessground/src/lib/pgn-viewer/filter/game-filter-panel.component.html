@@ -106,7 +106,10 @@
           >
             <option value="">All Openings</option>
             @for (ecoData of sortedEcoCodes(); track ecoData.code) {
-              <option [value]="ecoData.code">
+              <option
+                [value]="ecoData.code"
+                [selected]="ecoData.code === filterEco()"
+              >
                 {{ ecoData.code }}
                 @if (getOpeningMovesSafe(ecoData.code)) {
                   - {{ getOpeningMovesSafe(ecoData.code) }}
@@ -177,7 +180,10 @@
           >
             <option value="">All Events</option>
             @for (evtData of sortedEvents(); track evtData.event) {
-              <option [value]="evtData.event">
+              <option
+                [value]="evtData.event"
+                [selected]="evtData.event === filterEvent()"
+              >
                 {{ evtData.event }} ({{ evtData.count }})
               </option>
             }
@@ -192,7 +198,10 @@
             >
               <option value="">All Broadcasts</option>
               @for (bcastData of sortedBroadcastNames(); track bcastData.broadcastName) {
-                <option [value]="bcastData.broadcastName">
+                <option
+                  [value]="bcastData.broadcastName"
+                  [selected]="bcastData.broadcastName === filterBroadcastName()"
+                >
                   {{ bcastData.broadcastName }} ({{ bcastData.count }})
                 </option>
               }

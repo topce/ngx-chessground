@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { PgnViewerStoreService } from './pgn-viewer-store.service';
 
 /**
  * Serialized form of the worker's cached state for IndexedDB persistence.
@@ -20,6 +21,33 @@ export interface CachedPgnData {
 	fenCache: [number, string[]][];
 	/** When this cache entry was created (epoch ms). */
 	createdAt: number;
+	/**
+	 * Whether the FEN index was actually built for this entry. `false`/absent
+	 * means {@link fenCache} holds empty sets (indexing was disabled), so
+	 * position filters cannot be served from this entry.
+	 */
+	indexed?: boolean;
+	/** Max half-moves replayed per game when the FEN index was built. */
+	maxFenPlies?: number;
+}
+
+/**
+ * Maps a PGN source (URL) to the content hash under which its parsed games and
+ * FEN index are stored in IndexedDB.
+ *
+ * The content hash alone cannot be computed without first downloading and
+ * decompressing the archive, so this bookmark lets the application detect a
+ * usable cache entry at startup and skip the download entirely.
+ */
+export interface PgnSourceCacheEntry {
+	/** SHA-256 hash of the decompressed PGN content. */
+	pgnHash: string;
+	/** Whether the cached entry contains a built FEN index. */
+	indexed: boolean;
+	/** Max half-moves replayed per game for the cached FEN index. */
+	maxFenPlies: number;
+	/** When this mapping was recorded (epoch ms). */
+	createdAt: number;
 }
 
 /**
@@ -37,6 +65,10 @@ const STORE_NAME = 'pgn_cache';
 const DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 /** Maximum number of cache entries. Oldest are evicted first. */
 const MAX_ENTRIES = 10;
+/** `localStorage` key holding the URL → content-hash bookmark map. */
+const SOURCE_MAP_STORAGE_KEY = 'ngx-chessground-pgn-sources';
+/** Maximum number of remembered sources (oldest pruned first). */
+const MAX_SOURCE_ENTRIES = 20;
 
 /**
  * Service for caching parsed PGN data (games, metadata, FEN positions) in
@@ -48,6 +80,7 @@ const MAX_ENTRIES = 10;
  */
 @Injectable({ providedIn: 'root' })
 export class PgnCacheService {
+	private readonly store = inject(PgnViewerStoreService);
 	private dbPromise: Promise<IDBDatabase> | null = null;
 
 	/**
@@ -238,8 +271,31 @@ export class PgnCacheService {
 
 	/**
 	 * Returns the number of cached entries and their total estimated size.
+	 *
+	 * On desktop the parsed archives live on disk behind the local server, so
+	 * the figures come from `/api/cache-info` instead of IndexedDB.
 	 */
 	async getCacheInfo(): Promise<{ count: number; estimatedBytes: number }> {
+		if (this.store.isDesktop) {
+			try {
+				const response = await fetch('/api/cache-info', { cache: 'no-store' });
+				if (response.ok) {
+					const info: unknown = await response.json();
+					const record = info as { count?: unknown; estimatedBytes?: unknown };
+					return {
+						count: typeof record.count === 'number' ? record.count : 0,
+						estimatedBytes:
+							typeof record.estimatedBytes === 'number'
+								? record.estimatedBytes
+								: 0,
+					};
+				}
+			} catch {
+				// Server unavailable — report an empty cache.
+			}
+			return { count: 0, estimatedBytes: 0 };
+		}
+
 		try {
 			const db = await this.getDb();
 			const tx = db.transaction(STORE_NAME, 'readonly');
@@ -272,5 +328,82 @@ export class PgnCacheService {
 		} catch {
 			return { count: 0, estimatedBytes: 0 };
 		}
+	}
+
+	/**
+	 * Looks up the cached content hash for a PGN source without touching the
+	 * content. Used to detect a cache hit before downloading the archive.
+	 *
+	 * @param source — Source identifier (typically the PGN URL).
+	 * @returns The bookmark entry, or `null` when the source is not remembered.
+	 */
+	getSourceEntry(source: string): PgnSourceCacheEntry | null {
+		const record = this.readSourceMap()[source];
+		if (record === null || typeof record !== 'object') return null;
+		const entry = record as Partial<PgnSourceCacheEntry>;
+		if (typeof entry.pgnHash !== 'string' || entry.pgnHash.length === 0) {
+			return null;
+		}
+		return {
+			pgnHash: entry.pgnHash,
+			indexed: entry.indexed === true,
+			maxFenPlies:
+				typeof entry.maxFenPlies === 'number' &&
+				Number.isFinite(entry.maxFenPlies)
+					? entry.maxFenPlies
+					: 0,
+			createdAt:
+				typeof entry.createdAt === 'number' && Number.isFinite(entry.createdAt)
+					? entry.createdAt
+					: 0,
+		};
+	}
+
+	/**
+	 * Remembers which content hash backs a PGN source, so a later session can
+	 * restore it from the cache without downloading and decompressing it again.
+	 */
+	setSourceEntry(source: string, entry: PgnSourceCacheEntry): void {
+		const map = this.readSourceMap();
+		map[source] = entry;
+		this.store.set(SOURCE_MAP_STORAGE_KEY, this.pruneSourceMap(map));
+	}
+
+	/** Removes all source bookmarks (used when the PGN cache is cleared). */
+	clearSourceEntries(): void {
+		this.store.remove(SOURCE_MAP_STORAGE_KEY);
+	}
+
+	/**
+	 * Fills the desktop snapshot with the source bookmarks from disk.
+	 *
+	 * A no-op in the browser. Hosts should await this before reading
+	 * {@link getSourceEntry} at startup on desktop.
+	 */
+	hydrateSourceEntries(): Promise<void> {
+		return this.store.hydrate([SOURCE_MAP_STORAGE_KEY]);
+	}
+
+	/** Reads the URL → hash map, tolerating absent or corrupt payloads. */
+	private readSourceMap(): Record<string, unknown> {
+		const stored = this.store.get<unknown>(SOURCE_MAP_STORAGE_KEY);
+		return stored !== null && typeof stored === 'object'
+			? (stored as Record<string, unknown>)
+			: {};
+	}
+
+	/** Keeps only the {@link MAX_SOURCE_ENTRIES} most recently recorded sources. */
+	private pruneSourceMap(
+		map: Record<string, unknown>,
+	): Record<string, unknown> {
+		const entries = Object.entries(map);
+		if (entries.length <= MAX_SOURCE_ENTRIES) return map;
+
+		const sorted = entries.sort(([, a], [, b]) => {
+			const aDate = (a as Partial<PgnSourceCacheEntry>)?.createdAt ?? 0;
+			const bDate = (b as Partial<PgnSourceCacheEntry>)?.createdAt ?? 0;
+			return bDate - aDate;
+		});
+		return Object.fromEntries(sorted.slice(0, MAX_SOURCE_ENTRIES));
 	}
 }

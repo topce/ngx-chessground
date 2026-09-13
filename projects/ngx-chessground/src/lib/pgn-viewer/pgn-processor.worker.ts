@@ -14,6 +14,27 @@ export interface LoadPayload {
 	indexStartPositions: boolean;
 	/** Maximum number of plies to replay per game when building the FEN cache. */
 	maxFenPlies: number;
+	/**
+	 * When `true`, the parsed collection is cached as a file on disk behind the
+	 * desktop app's local server instead of IndexedDB.
+	 */
+	useDiskCache: boolean;
+}
+
+/**
+ * Payload for the 'loadFromCache' message. Restores a previously parsed
+ * collection from the cache using only its content hash — the main thread does
+ * not have to download, decompress or hash the source again.
+ */
+export interface LoadFromCachePayload {
+	/** SHA-256 hash of the decompressed PGN content. */
+	pgnHash: string;
+	/** Whether the caller needs a built FEN index (starting positions). */
+	indexStartPositions: boolean;
+	/** Max half-moves the caller expects to be indexed per game. */
+	maxFenPlies: number;
+	/** Cache the collection on disk (desktop app) instead of IndexedDB. */
+	useDiskCache: boolean;
 }
 
 /**
@@ -30,12 +51,17 @@ export type WorkerMessage =
 			id: number;
 			pgnHash?: string;
 	  }
+	/**
+	 * Restore a collection from IndexedDB by content hash without sending the
+	 * PGN text. Answers with `'load'` on a hit or `'cacheMiss'` on a miss.
+	 */
+	| { type: 'loadFromCache'; payload: LoadFromCachePayload; id: number }
 	/** Filter the currently loaded games by {@link FilterCriteria}. */
 	| { type: 'filter'; payload: FilterCriteria; id: number }
 	/** Load the full move data for a game at the given index. */
 	| { type: 'loadGame'; payload: number; id: number }
-	/** Clear all cached PGN data from IndexedDB. */
-	| { type: 'clearCache'; id: number };
+	/** Clear all cached data (IndexedDB, or the desktop disk cache). */
+	| { type: 'clearCache'; id: number; useDiskCache: boolean };
 
 /**
  * Criteria for filtering a parsed game collection in the PGN processor worker.
@@ -158,6 +184,11 @@ export type WorkerResponse =
 			payload: { percent: number; status: string };
 			id: number;
 	  }
+	/**
+	 * Response to `'loadFromCache'` when no usable IndexedDB entry exists. The
+	 * main thread should fall back to downloading and parsing the source.
+	 */
+	| { type: 'cacheMiss'; payload?: undefined; id: number }
 	/** Error response for any message type. */
 	| { type: 'error'; payload: string; id: number };
 
@@ -213,8 +244,36 @@ const CACHE_DB_NAME = 'NgxChessgroundPgnCache';
 const CACHE_DB_VERSION = 1;
 const CACHE_STORE_NAME = 'pgn_cache';
 
+// ---- Desktop disk cache ----
+// Inside the packaged app the webview origin changes on every launch (Deno
+// Desktop picks a random localhost port), so IndexedDB never survives a
+// restart. Desktop builds keep the parsed collection in a file on disk behind
+// the local server instead.
+
+/** Local server endpoint for parsed-archive cache files. */
+const DISK_CACHE_URL = '/api/cache';
+/** Disk cache entries older than this are ignored (the server also prunes them). */
+const DISK_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+/** IndexedDB cache entries older than this are ignored. */
+const INDEXED_DB_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 /**
- * Serializes the FEN cache (Map<number, Set<string>>) into a JSON-safe
+ * Largest serialized cache the worker will hand to the server. Bigger
+ * collections skip disk caching and are re-parsed instead of risking a large
+ * memory spike in the webview.
+ */
+const MAX_DISK_CACHE_BYTES = 512 * 1024 * 1024;
+
+/** Shape of a cached collection, shared by IndexedDB and the disk cache. */
+interface CachedCollection {
+	games: string[];
+	gameMetadata: GameMetadata[];
+	fenCache: [number, string[]][];
+	createdAt: number;
+	indexed?: boolean;
+	maxFenPlies?: number;
+}
+
+/** Serializes the FEN cache (Map<number, Set<string>>) into a JSON-safe
  * array of [index, fen[]] tuples.
  */
 function serializeFenCache(
@@ -240,6 +299,102 @@ function deserializeFenCache(
 	return map;
 }
 
+/** Restores the worker's in-memory collection from cached data. */
+function applyCachedCollection(data: CachedCollection): void {
+	games = data.games;
+	gameMetadata = data.gameMetadata;
+	gameMovesCache.clear();
+	const restoredFenCache = deserializeFenCache(data.fenCache);
+	gameFenCache.clear();
+	for (const [k, v] of restoredFenCache) {
+		gameFenCache.set(k, v);
+	}
+}
+
+/**
+ * Whether a cached collection is fresh enough and carries a FEN index that
+ * covers the caller's request.
+ */
+function isCachedCollectionUsable(
+	data: CachedCollection,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+	ttlMs: number,
+): boolean {
+	if (Date.now() - data.createdAt > ttlMs) return false;
+	if (
+		indexStartPositions &&
+		!(data.indexed === true && (data.maxFenPlies ?? 0) >= maxFenPlies)
+	) {
+		return false;
+	}
+	return true;
+}
+
+/** Builds the cache payload as chunks so no single huge string is created. */
+function buildDiskCacheBody(indexed: boolean, maxFenPlies: number): Blob {
+	const parts: BlobPart[] = ['{"games":['];
+	for (let i = 0; i < games.length; i++) {
+		if (i > 0) parts.push(',');
+		parts.push(JSON.stringify(games[i]));
+	}
+	parts.push('],"gameMetadata":', JSON.stringify(gameMetadata));
+	parts.push(',"fenCache":[');
+	let first = true;
+	for (const [index, fens] of gameFenCache) {
+		if (!first) parts.push(',');
+		first = false;
+		parts.push(`[${index},${JSON.stringify(Array.from(fens))}]`);
+	}
+	parts.push('],"createdAt":', String(Date.now()));
+	parts.push(',"indexed":', indexed ? 'true' : 'false');
+	parts.push(',"maxFenPlies":', String(maxFenPlies), '}');
+	return new Blob(parts, { type: 'application/json' });
+}
+
+/** Reads the parsed collection from the desktop app's on-disk cache. */
+async function readDiskCache(
+	pgnHash: string,
+): Promise<CachedCollection | null> {
+	try {
+		const response = await fetch(`${DISK_CACHE_URL}/${pgnHash}`, {
+			cache: 'no-store',
+		});
+		if (!response.ok) return null;
+		return (await response.json()) as CachedCollection;
+	} catch {
+		return null;
+	}
+}
+
+/** Stores the parsed collection in the desktop app's on-disk cache. */
+async function writeDiskCache(
+	pgnHash: string,
+	indexed: boolean,
+	maxFenPlies: number,
+): Promise<void> {
+	try {
+		const body = buildDiskCacheBody(indexed, maxFenPlies);
+		if (body.size > MAX_DISK_CACHE_BYTES) return;
+		await fetch(`${DISK_CACHE_URL}/${pgnHash}`, {
+			method: 'PUT',
+			headers: { 'content-type': 'application/json' },
+			body,
+		});
+	} catch {
+		// Best effort — the archive is simply re-parsed on the next launch.
+	}
+}
+
+/** Deletes the desktop app's on-disk cache. */
+async function clearDiskCache(): Promise<void> {
+	try {
+		await fetch(DISK_CACHE_URL, { method: 'DELETE' });
+	} catch {
+		// Nothing to clear.
+	}
+}
+
 /**
  * Opens the IndexedDB cache database, creating it if needed.
  */
@@ -262,12 +417,70 @@ function openCacheDb(): Promise<IDBDatabase> {
 }
 
 /**
- * Attempts to restore worker state from an IndexedDB cache entry.
- * Returns `true` if a valid cache entry was found and restored.
+ * Attempts to restore worker state from the cache.
+ *
+ * Uses the desktop app's on-disk cache or IndexedDB depending on
+ * {@link useDiskCache}. An entry is only usable when it satisfies the caller's
+ * indexing request: a caller that needs a FEN index cannot use an entry that
+ * was cached without one (or with a shorter replay window).
+ *
+ * @returns `true` if a valid, suitable cache entry was found and restored.
  */
 async function tryRestoreFromCache(
 	pgnHash: string,
 	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+	useDiskCache: boolean,
+): Promise<boolean> {
+	return useDiskCache
+		? tryRestoreFromDiskCache(pgnHash, id, indexStartPositions, maxFenPlies)
+		: tryRestoreFromIndexedDb(pgnHash, id, indexStartPositions, maxFenPlies);
+}
+
+/** Posts the standard `'load'` response for a restored collection. */
+function postRestoredCollection(id: number): void {
+	postMessage({
+		type: 'load',
+		id,
+		payload: { count: games.length, metadata: gameMetadata },
+	});
+}
+
+/** Restores the collection from the desktop app's on-disk cache. */
+async function tryRestoreFromDiskCache(
+	pgnHash: string,
+	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
+): Promise<boolean> {
+	const data = await readDiskCache(pgnHash);
+	if (!data) return false;
+	if (
+		!isCachedCollectionUsable(
+			data,
+			indexStartPositions,
+			maxFenPlies,
+			DISK_CACHE_TTL_MS,
+		)
+	) {
+		// Drop the unusable entry so the next load starts clean.
+		void fetch(`${DISK_CACHE_URL}/${pgnHash}`, { method: 'DELETE' }).catch(
+			() => undefined,
+		);
+		return false;
+	}
+	applyCachedCollection(data);
+	postRestoredCollection(id);
+	return true;
+}
+
+/** Restores the collection from IndexedDB (the browser cache). */
+async function tryRestoreFromIndexedDb(
+	pgnHash: string,
+	id: number,
+	indexStartPositions: boolean,
+	maxFenPlies: number,
 ): Promise<boolean> {
 	try {
 		const db = await openCacheDb();
@@ -282,49 +495,26 @@ async function tryRestoreFromCache(
 
 		if (!result) return false;
 
-		const entry = result as {
-			pgnHash: string;
-			data: {
-				games: string[];
-				gameMetadata: GameMetadata[];
-				fenCache: [number, string[]][];
-				createdAt: number;
-			};
-		};
+		const entry = result as { pgnHash: string; data: CachedCollection };
 
-		// Check TTL (7 days)
-		const age = Date.now() - entry.data.createdAt;
-		if (age > 7 * 24 * 60 * 60 * 1000) {
+		if (
+			!isCachedCollectionUsable(
+				entry.data,
+				indexStartPositions,
+				maxFenPlies,
+				INDEXED_DB_TTL_MS,
+			)
+		) {
 			db.close();
-			// Delete expired entry
+			// Delete the expired/unusable entry.
 			const delTx = db.transaction(CACHE_STORE_NAME, 'readwrite');
 			delTx.objectStore(CACHE_STORE_NAME).delete(pgnHash);
 			return false;
 		}
 
-		// Restore worker state
-		games = entry.data.games;
-		gameMetadata = entry.data.gameMetadata;
-		gameMovesCache.clear();
-		// Restore FEN cache from serialized form
-		const restoredFenCache = deserializeFenCache(entry.data.fenCache);
-		gameFenCache.clear();
-		for (const [k, v] of restoredFenCache) {
-			gameFenCache.set(k, v);
-		}
-
+		applyCachedCollection(entry.data);
 		db.close();
-
-		// Post the standard 'load' response so the main thread sees the data
-		postMessage({
-			type: 'load',
-			id,
-			payload: {
-				count: games.length,
-				metadata: gameMetadata,
-			},
-		});
-
+		postRestoredCollection(id);
 		return true;
 	} catch {
 		return false;
@@ -332,9 +522,25 @@ async function tryRestoreFromCache(
 }
 
 /**
- * Persists the current worker state (games, metadata, FEN cache) to IndexedDB.
+ * Persists the current worker state (games, metadata, FEN cache) to the desktop
+ * disk cache or IndexedDB.
+ *
+ * @param pgnHash — Content hash used as the cache key.
+ * @param indexed — Whether the FEN index was built for this collection.
+ * @param maxFenPlies — Replay window used for the FEN index.
+ * @param useDiskCache — Cache on disk (desktop app) instead of IndexedDB.
  */
-async function saveToCache(pgnHash: string): Promise<void> {
+async function saveToCache(
+	pgnHash: string,
+	indexed: boolean,
+	maxFenPlies: number,
+	useDiskCache: boolean,
+): Promise<void> {
+	if (useDiskCache) {
+		await writeDiskCache(pgnHash, indexed, maxFenPlies);
+		return;
+	}
+
 	try {
 		const db = await openCacheDb();
 		const tx = db.transaction(CACHE_STORE_NAME, 'readwrite');
@@ -347,6 +553,8 @@ async function saveToCache(pgnHash: string): Promise<void> {
 				gameMetadata,
 				fenCache: serializeFenCache(gameFenCache),
 				createdAt: Date.now(),
+				indexed,
+				maxFenPlies,
 			},
 		});
 
@@ -362,9 +570,16 @@ async function saveToCache(pgnHash: string): Promise<void> {
 }
 
 /**
- * Clears all cached PGN data from IndexedDB.
+ * Clears all cached PGN data.
+ *
+ * @param useDiskCache — Clear the desktop app's on-disk cache instead of IndexedDB.
  */
-async function clearPgnCache(): Promise<void> {
+async function clearPgnCache(useDiskCache: boolean): Promise<void> {
+	if (useDiskCache) {
+		await clearDiskCache();
+		return;
+	}
+
 	try {
 		const db = await openCacheDb();
 		const tx = db.transaction(CACHE_STORE_NAME, 'readwrite');
@@ -392,20 +607,45 @@ addEventListener('message', ({ data }: { data: WorkerMessage }) => {
 						: false;
 				const maxPlies =
 					typeof data.payload === 'object' ? data.payload.maxFenPlies : 30;
-				handleLoad(pgnStr, data.id, indexStart, maxPlies, data.pgnHash).catch(
-					(e) =>
-						postMessage({ type: 'error', payload: String(e), id: data.id }),
+				const useDiskCache =
+					typeof data.payload === 'object' &&
+					data.payload.useDiskCache === true;
+				handleLoad(
+					pgnStr,
+					data.id,
+					indexStart,
+					maxPlies,
+					data.pgnHash,
+					useDiskCache,
+				).catch((e) =>
+					postMessage({ type: 'error', payload: String(e), id: data.id }),
 				);
 				break;
 			}
 			case 'filter':
 				handleFilter(data.payload, data.id);
 				break;
+			case 'loadFromCache': {
+				const { pgnHash, indexStartPositions, maxFenPlies, useDiskCache } =
+					data.payload;
+				tryRestoreFromCache(
+					pgnHash,
+					data.id,
+					indexStartPositions,
+					maxFenPlies,
+					useDiskCache,
+				)
+					.then((restored) => {
+						if (!restored) postMessage({ type: 'cacheMiss', id: data.id });
+					})
+					.catch(() => postMessage({ type: 'cacheMiss', id: data.id }));
+				break;
+			}
 			case 'loadGame':
 				handleLoadGame(data.payload, data.id);
 				break;
 			case 'clearCache':
-				clearPgnCache().then(() =>
+				clearPgnCache(data.useDiskCache === true).then(() =>
 					postMessage({
 						type: 'load',
 						payload: { count: 0, metadata: [] },
@@ -439,15 +679,16 @@ function postProgress(percent: number, status: string, id: number) {
  * extracts metadata, builds FEN position cache, and posts a `'load'` response
  * with game count and metadata. Progress updates are posted during the process.
  *
- * When `pgnHash` is provided and a cache entry exists in IndexedDB, the entire
- * parsing and FEN-indexing step is skipped — the worker state is restored directly
- * from the cached data.
+ * When `pgnHash` is provided and a cache entry exists (IndexedDB in the
+ * browser, a file on disk in the desktop app), the entire parsing and
+ * FEN-indexing step is skipped — the worker state is restored from the cache.
  *
  * @param pgn — Raw PGN string potentially containing multiple games.
  * @param id — Correlation ID echoed in the response.
  * @param indexStartPositions — Whether to build the FEN position cache.
  * @param maxFenPlies — Max half-moves to replay per game when building the FEN cache.
- * @param pgnHash — Optional SHA-256 hash for IndexedDB cache lookups.
+ * @param pgnHash — Optional SHA-256 hash for cache lookups.
+ * @param useDiskCache — Cache on disk (desktop app) instead of IndexedDB.
  */
 async function handleLoad(
 	pgn: string,
@@ -455,11 +696,18 @@ async function handleLoad(
 	indexStartPositions: boolean,
 	maxFenPlies: number,
 	pgnHash?: string,
+	useDiskCache = false,
 ) {
-	// If a pgnHash is provided, try to restore from IndexedDB cache first.
+	// If a pgnHash is provided, try to restore from the cache first.
 	// This avoids re-parsing and FEN-indexing the entire collection.
 	if (pgnHash) {
-		const restored = await tryRestoreFromCache(pgnHash, id);
+		const restored = await tryRestoreFromCache(
+			pgnHash,
+			id,
+			indexStartPositions,
+			maxFenPlies,
+			useDiskCache,
+		);
 		if (restored) {
 			return; // Worker state restored; 'load' response already posted by tryRestoreFromCache
 		}
@@ -566,7 +814,7 @@ async function handleLoad(
 	// Persist to IndexedDB cache so future loads skip re-parsing.
 	// Fire-and-forget: the 'load' response is sent immediately without waiting.
 	if (pgnHash) {
-		saveToCache(pgnHash);
+		saveToCache(pgnHash, indexStartPositions, maxFenPlies, useDiskCache);
 	}
 
 	postMessage({

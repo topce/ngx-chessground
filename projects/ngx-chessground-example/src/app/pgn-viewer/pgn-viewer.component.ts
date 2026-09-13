@@ -7,7 +7,7 @@ import {
 	viewChild,
 } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { NgxPgnViewerComponent } from 'ngx-chessground';
+import { isDesktopRuntime, NgxPgnViewerComponent } from 'ngx-chessground';
 import { SponsorDialogComponent } from './sponsor-dialog.component';
 
 @Component({
@@ -65,12 +65,13 @@ export class PgnViewerComponent {
 
 	/**
 	 * Empty until a data source is chosen: the demo game buttons below set it,
-	 * otherwise the startup flow auto-loads the newest Lichess month archive.
+	 * otherwise the startup flow reloads the last used Lichess archive (or the
+	 * newest available month on a fresh session).
 	 */
 	currentPgn = '';
 
 	constructor() {
-		afterNextRender(() => void this.loadLatestLichessMonth());
+		afterNextRender(() => void this.loadInitialSource());
 	}
 
 	loadFischer() {
@@ -82,8 +83,42 @@ export class PgnViewerComponent {
 	}
 
 	// ======================================================================
-	// Startup: newest Lichess broadcast month
+	// Startup: restored Lichess source, else newest Lichess broadcast month
 	// ======================================================================
+
+	/**
+	 * Boot-time data source.
+	 *
+	 * When the viewer restored a previous session's state, the same archive is
+	 * reloaded so the persisted filter selection applies to the exact data the
+	 * user last worked with. Otherwise the newest available Lichess broadcast
+	 * month is loaded.
+	 */
+	private async loadInitialSource(): Promise<void> {
+		const viewer = this.pgnViewer();
+		if (!viewer) return;
+		// Wait for the durable state: in the packaged desktop app the filter
+		// selection, last archive URL and cache bookmarks are fetched from the
+		// local server on startup, so they are not known synchronously.
+		await viewer.whenStateReady();
+		// The packaged desktop app has the resources to index the starting
+		// position of every game, so enable it unconditionally there. On the
+		// web the option stays off unless the user checks it manually.
+		if (isDesktopRuntime()) viewer.indexStartPositions.set(true);
+		const savedUrl = viewer.urlInput();
+		if (viewer.restoredStateFromStorage && savedUrl) {
+			// A cached source is restored from IndexedDB without any network
+			// round trip, so skip the existence probe entirely on a cache hit.
+			if (
+				viewer.canLoadFromCache(savedUrl) ||
+				(await this.monthFileExists(savedUrl))
+			) {
+				await viewer.loadFromUrl();
+				return;
+			}
+		}
+		await this.loadLatestLichessMonth();
+	}
 
 	/**
 	 * Boot-time data source: instead of defaulting to a demo game, load the
@@ -98,7 +133,8 @@ export class PgnViewerComponent {
 		if (!viewer) return;
 		for (const { year, month } of this.latestMonthCandidates()) {
 			const url = PgnViewerComponent.broadcastUrl(year, month);
-			if (await this.monthFileExists(url)) {
+			// Prefer a cached archive over probing the network.
+			if (viewer.canLoadFromCache(url) || (await this.monthFileExists(url))) {
 				// Keep the viewer's Lichess date picker in sync with the load.
 				viewer.lichessYear.set(year);
 				viewer.lichessMonth.set(month);

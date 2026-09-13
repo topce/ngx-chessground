@@ -101,6 +101,7 @@ describe('PgnViewerEngineService', () => {
 					pgn: 'test-pgn',
 					indexStartPositions: false,
 					maxFenPlies: 30,
+					useDiskCache: false,
 				},
 				id: 1,
 			},
@@ -135,6 +136,88 @@ describe('PgnViewerEngineService', () => {
 			'quit',
 		);
 		expect(stockfishWorker.terminated).toBe(true);
+	});
+
+	it('requests a cache restore without sending PGN text', () => {
+		const service = TestBed.inject(PgnViewerEngineService);
+		service.initialize({
+			onPgnMessage: vi.fn(),
+			onStockfishMessage: vi.fn(),
+		});
+
+		const [pgnWorker] = MockWorker.instances;
+		service.loadFromCache('abc123', 7, true, 40);
+		service.loadFromCache('def456', 8);
+		service.clearCache(9);
+
+		expect(pgnWorker.messages).toEqual([
+			{
+				type: 'loadFromCache',
+				payload: {
+					pgnHash: 'abc123',
+					indexStartPositions: true,
+					maxFenPlies: 40,
+					useDiskCache: false,
+				},
+				id: 7,
+			},
+			{
+				type: 'loadFromCache',
+				payload: {
+					pgnHash: 'def456',
+					indexStartPositions: false,
+					maxFenPlies: 30,
+					useDiskCache: false,
+				},
+				id: 8,
+			},
+			{ type: 'clearCache', id: 9, useDiskCache: false },
+		]);
+	});
+
+	it('routes caching through the disk API inside the desktop app', () => {
+		(window as Window & { __desktop__?: unknown }).__desktop__ = {
+			openFileDialog: () => null,
+		};
+		try {
+			const service = TestBed.inject(PgnViewerEngineService);
+			service.initialize({
+				onPgnMessage: vi.fn(),
+				onStockfishMessage: vi.fn(),
+			});
+
+			const [pgnWorker] = MockWorker.instances;
+			service.loadPgn('pgn-text', 1, 'hash-1', true, 30);
+			service.loadFromCache('hash-2', 2, true, 30);
+			service.clearCache(3);
+
+			expect(pgnWorker.messages).toEqual([
+				{
+					type: 'load',
+					payload: {
+						pgn: 'pgn-text',
+						indexStartPositions: true,
+						maxFenPlies: 30,
+						useDiskCache: true,
+					},
+					id: 1,
+					pgnHash: 'hash-1',
+				},
+				{
+					type: 'loadFromCache',
+					payload: {
+						pgnHash: 'hash-2',
+						indexStartPositions: true,
+						maxFenPlies: 30,
+						useDiskCache: true,
+					},
+					id: 2,
+				},
+				{ type: 'clearCache', id: 3, useDiskCache: true },
+			]);
+		} finally {
+			delete (window as Window & { __desktop__?: unknown }).__desktop__;
+		}
 	});
 
 	it('queues analysis until the UCI handshake completes', () => {
@@ -257,6 +340,7 @@ describe('PgnViewerEngineService', () => {
 		expect(pgnWorker.messages).toContainEqual({
 			type: 'clearCache',
 			id: 42,
+			useDiskCache: false,
 		});
 	});
 

@@ -27,7 +27,7 @@ import { ECO_MOVES } from './eco-moves';
 import { GameFilterPanelComponent } from './filter/game-filter-panel.component';
 import { LoadCachePanelComponent } from './load-cache/load-cache-panel.component';
 import { MoveListComponent } from './moves/move-list.component';
-import { PgnCacheService } from './pgn-cache.service';
+import { PgnCacheService, type PgnSourceCacheEntry } from './pgn-cache.service';
 import type {
 	FilterCriteria,
 	GameMetadata,
@@ -39,6 +39,12 @@ import type {
 	StopOnErrorSide,
 } from './pgn-viewer.types';
 import { PgnViewerEngineService } from './pgn-viewer-engine.service';
+import {
+	type PersistedFilterState,
+	type PersistedViewerState,
+	PGN_VIEWER_STATE_VERSION,
+	PgnViewerSettingsService,
+} from './pgn-viewer-settings.service';
 import { PracticePanelComponent } from './practice/practice-panel.component';
 import { ReplayPanelComponent } from './replay/replay-panel.component';
 import { highlightMatch, type TextSegment } from './text-highlight';
@@ -78,6 +84,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	private readonly snackBar = inject(MatSnackBar);
 	private readonly pgnCacheService = inject(PgnCacheService);
 	private readonly promotionService = inject(PromotionService);
+	private readonly pgnViewerSettings = inject(PgnViewerSettingsService);
 
 	// ======================================================================
 	// Inputs
@@ -404,6 +411,54 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	private clockHistory: { white: number; black: number }[] = [];
 	private readonly pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
+	// ---- Persisted state ----
+	/** State restored from a previous session, or `null` for a fresh session. */
+	private persistedState: PersistedViewerState | null = null;
+	/**
+	 * Guards the first run of the Lichess date → URL sync effect so a URL
+	 * restored from storage (which may be a custom one) is not overwritten.
+	 */
+	private urlSyncInitialized = false;
+	/**
+	 * `false` until the durable state has been read. While it is `false` the
+	 * persist effect stays quiet, so the defaults cannot overwrite the saved
+	 * state before the desktop store has been hydrated.
+	 */
+	private readonly stateHydrated = signal(false);
+	/** Resolves once the durable state has been loaded. */
+	private stateReady: Promise<void> = Promise.resolve();
+
+	/**
+	 * Resolves once the persisted filter selection, Lichess source and cache
+	 * bookmarks are available.
+	 *
+	 * In the browser this is already the case when the component is created.
+	 * In the packaged desktop app the state is fetched from the local server,
+	 * so hosts should await this before loading data — otherwise the restored
+	 * archive URL is not known yet.
+	 */
+	whenStateReady(): Promise<void> {
+		return this.stateReady;
+	}
+
+	// ---- Cached-source fast path ----
+	/**
+	 * Source URL whose `loadFromCache` request is in flight. When the worker
+	 * answers `'cacheMiss'`, the download is started for this URL.
+	 */
+	private pendingCacheSourceUrl: string | null = null;
+	/** Correlation id of the in-flight `loadFromCache` request. */
+	private currentCacheLoadId = 0;
+
+	/**
+	 * `true` when a previous session's viewer state was restored on startup.
+	 * Hosts can use this to reload the same data source before the persisted
+	 * filters are applied.
+	 */
+	get restoredStateFromStorage(): boolean {
+		return this.persistedState !== null;
+	}
+
 	// ======================================================================
 	// Computed — Run function for chessground
 	// ======================================================================
@@ -506,20 +561,45 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			onError: (message, error) => console.error(message, error),
 		});
 
-		const now = new Date();
-		const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-		this.lichessYear.set(prevMonth.getFullYear());
-		this.lichessMonth.set(prevMonth.getMonth() + 1);
+		// Restore the previous session (filter selection + Lichess data source)
+		// before defaults are applied, so a restart resumes where the user left off.
+		// In the browser this is synchronous (localStorage); in the desktop app the
+		// durable state lives on disk behind the local server, so `stateReady`
+		// resolves once the snapshot has been fetched.
+		const defaults = this.previousMonthDefaults();
+		const persisted = this.pgnViewerSettings.load();
+		if (persisted) {
+			this.persistedState = persisted;
+			this.applyPersistedState(persisted, defaults);
+		} else {
+			this.lichessYear.set(defaults.year);
+			this.lichessMonth.set(defaults.month);
+		}
+		this.stateReady = this.hydratePersistedState(defaults);
 
 		effect(() => {
 			const year = this.lichessYear();
 			const month = this.lichessMonth();
-			if (year && month) {
-				const m = month.toString().padStart(2, '0');
-				this.urlInput.set(
-					`lichess/broadcast/lichess_db_broadcast_${year}-${m}.pgn.zst`,
-				);
+			if (!year || !month) return;
+			const m = month.toString().padStart(2, '0');
+			const broadcastUrl = `lichess/broadcast/lichess_db_broadcast_${year}-${m}.pgn.zst`;
+			if (!this.urlSyncInitialized) {
+				this.urlSyncInitialized = true;
+				// Keep a URL restored from storage — it may be a custom one that
+				// is unrelated to the Lichess year/month picker.
+				if (this.persistedState?.url) return;
 			}
+			this.urlInput.set(broadcastUrl);
+		});
+
+		effect(() => {
+			// Persist the selection on every change so exiting the application
+			// never loses the applied filters or the loaded database. On desktop
+			// the durable store is fetched asynchronously, so wait for hydration
+			// first — otherwise the defaults would overwrite the saved state.
+			const state = this.buildPersistedState();
+			if (!this.stateHydrated()) return;
+			this.pgnViewerSettings.save(state);
 		});
 
 		effect(() => {
@@ -1014,7 +1094,40 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 
 	// ---- Load & Cache ----
-	async loadPgnString(pgn: string): Promise<void> {
+	/**
+	 * Parses raw PGN text in the worker.
+	 *
+	 * @param pgn — Raw PGN text.
+	 * @param sourceUrl — When the text came from a URL, the URL is remembered
+	 * alongside the content hash so the next session can restore it from
+	 * IndexedDB without downloading and decompressing it again.
+	 */
+	async loadPgnString(pgn: string, sourceUrl?: string): Promise<void> {
+		this.beginLoad('Starting PGN parser...');
+		try {
+			this.lastPgnHash = await this.pgnCacheService.hashPgn(pgn);
+		} catch {
+			/* ignore */
+		}
+		if (sourceUrl && this.lastPgnHash) {
+			this.pgnCacheService.setSourceEntry(sourceUrl, {
+				pgnHash: this.lastPgnHash,
+				indexed: this.indexStartPositions(),
+				maxFenPlies: this.maxFenPlies(),
+				createdAt: Date.now(),
+			});
+		}
+		this.pgnViewerEngine.loadPgn(
+			pgn,
+			Date.now(),
+			this.lastPgnHash ?? undefined,
+			this.indexStartPositions(),
+			this.maxFenPlies(),
+		);
+	}
+
+	/** Resets per-collection state and marks a new load as in progress. */
+	private beginLoad(status: string): void {
 		this.moves.set([]);
 		this.interactiveMoves.set([]);
 		this.currentMoveIndex.set(-1);
@@ -1025,20 +1138,8 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		);
 		this.isLoading.set(true);
 		this.loadingProgress.set(0);
-		this.loadingStatus.set('Starting PGN parser...');
+		this.loadingStatus.set(status);
 		this.lastPgnHash = null;
-		try {
-			this.lastPgnHash = await this.pgnCacheService.hashPgn(pgn);
-		} catch {
-			/* ignore */
-		}
-		this.pgnViewerEngine.loadPgn(
-			pgn,
-			Date.now(),
-			this.lastPgnHash ?? undefined,
-			this.indexStartPositions(),
-			this.maxFenPlies(),
-		);
 	}
 	async loadFromClipboard(): Promise<void> {
 		try {
@@ -1071,9 +1172,55 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		);
 		await this.loadFromUrl();
 	}
+	/**
+	 * Whether a PGN source can be restored from the IndexedDB cache with the
+	 * current indexing options, without downloading it.
+	 *
+	 * Hosts can use this to skip network probes at startup before calling
+	 * {@link loadFromUrl}.
+	 */
+	canLoadFromCache(url: string): boolean {
+		const entry = this.pgnCacheService.getSourceEntry(url);
+		return entry !== null && this.isSourceCacheUsable(entry);
+	}
+
 	async loadFromUrl(): Promise<void> {
 		const url = this.urlInput();
 		if (!url) return;
+
+		// Fast path: a previous session already parsed this source. Ask the
+		// worker to restore it straight from IndexedDB, so no download,
+		// decompression or hashing is needed. A miss falls back to the normal
+		// download path via the 'cacheMiss' worker response.
+		const cached = this.pgnCacheService.getSourceEntry(url);
+		if (cached && this.isSourceCacheUsable(cached)) {
+			this.beginLoad('Loading from cache...');
+			this.pendingCacheSourceUrl = url;
+			this.currentCacheLoadId++;
+			this.pgnViewerEngine.loadFromCache(
+				cached.pgnHash,
+				this.currentCacheLoadId,
+				this.indexStartPositions(),
+				this.maxFenPlies(),
+			);
+			return;
+		}
+
+		await this.downloadFromUrl(url);
+	}
+
+	/**
+	 * Whether a remembered source entry can satisfy the current indexing
+	 * options. A caller that needs a FEN index cannot use an entry cached
+	 * without one (or with a shorter replay window).
+	 */
+	private isSourceCacheUsable(entry: PgnSourceCacheEntry): boolean {
+		if (!this.indexStartPositions()) return true;
+		return entry.indexed && entry.maxFenPlies >= this.maxFenPlies();
+	}
+
+	/** Downloads, decompresses and parses a PGN archive from a URL. */
+	private async downloadFromUrl(url: string): Promise<void> {
 		this.isLoading.set(true);
 		this.loadingProgress.set(0);
 		this.loadingStatus.set('Starting download...');
@@ -1114,7 +1261,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				: new TextDecoder().decode(buffer);
 			this.loadingStatus.set('Processing games...');
 			this.setDeferredTimeout(() => {
-				this.loadPgnString(content);
+				this.loadPgnString(content, url);
 			});
 		} catch (e) {
 			console.error('Error loading from URL:', e);
@@ -1126,6 +1273,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	}
 	clearPgnCache(): void {
 		this.pgnViewerEngine.clearCache(Date.now());
+		this.pgnCacheService.clearSourceEntries();
 		this.lastPgnHash = null;
 		this.cacheInfo.set(null);
 		this.showMessage('PGN cache cleared.');
@@ -1194,6 +1342,112 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// ======================================================================
 	// Private methods
 	// ======================================================================
+
+	/** Year/month of the most recent Lichess archive that may already exist. */
+	private previousMonthDefaults(): { year: number; month: number } {
+		const now = new Date();
+		const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+		return { year: prevMonth.getFullYear(), month: prevMonth.getMonth() + 1 };
+	}
+
+	/**
+	 * Loads the durable state and applies it.
+	 *
+	 * In the browser this only marks the state as hydrated (localStorage was
+	 * already read synchronously in the constructor). On desktop it waits for
+	 * the local server snapshot, then restores the saved source and filters.
+	 */
+	private async hydratePersistedState(defaults: {
+		year: number;
+		month: number;
+	}): Promise<void> {
+		try {
+			await this.pgnViewerSettings.hydrate();
+			await this.pgnCacheService.hydrateSourceEntries();
+			const state = this.pgnViewerSettings.load();
+			if (state) {
+				this.persistedState = state;
+				this.applyPersistedState(state, defaults);
+			}
+		} catch {
+			// Storage unavailable — continue with the defaults.
+		} finally {
+			this.stateHydrated.set(true);
+		}
+	}
+
+	/** Applies a state restored from storage to the filter and source signals. */
+	private applyPersistedState(
+		state: PersistedViewerState,
+		defaults: { year: number; month: number },
+	): void {
+		const f = state.filters;
+		this.filterWhite.set(f.white);
+		this.filterBlack.set(f.black);
+		this.filterResult.set(f.result);
+		this.filterMoves.set(f.moves);
+		this.ignoreColor.set(f.ignoreColor);
+		this.filterUpsetEnabled.set(f.upsetEnabled);
+		this.filterUpsetWin.set(f.upsetWin);
+		this.filterUpsetDraw.set(f.upsetDraw);
+		this.filterUpsetMinDiff.set(f.upsetMinDiff);
+		this.filterRatingEnabled.set(f.ratingEnabled);
+		this.filterWhiteRating.set(f.whiteRating);
+		this.filterBlackRating.set(f.blackRating);
+		this.filterWhiteRatingMax.set(f.whiteRatingMax);
+		this.filterBlackRatingMax.set(f.blackRatingMax);
+		this.filterEco.set(f.eco);
+		this.filterTimeControl.set(f.timeControl);
+		this.filterEvent.set(f.event);
+		this.filterBroadcastName.set(f.broadcastName);
+		this.filterFen.set(f.fen);
+		this.filterByFenEnabled.set(f.byFenEnabled);
+		this.sortAscending.set(f.sortAscending);
+
+		this.lichessYear.set(
+			state.lichessYear > 0 ? state.lichessYear : defaults.year,
+		);
+		this.lichessMonth.set(
+			state.lichessMonth >= 1 && state.lichessMonth <= 12
+				? state.lichessMonth
+				: defaults.month,
+		);
+		if (state.url) this.urlInput.set(state.url);
+	}
+
+	/** Snapshots the current filter selection and data source for persistence. */
+	private buildPersistedState(): PersistedViewerState {
+		const filters: PersistedFilterState = {
+			white: this.filterWhite(),
+			black: this.filterBlack(),
+			result: this.filterResult(),
+			moves: this.filterMoves(),
+			ignoreColor: this.ignoreColor(),
+			upsetEnabled: this.filterUpsetEnabled(),
+			upsetWin: this.filterUpsetWin(),
+			upsetDraw: this.filterUpsetDraw(),
+			upsetMinDiff: this.filterUpsetMinDiff(),
+			ratingEnabled: this.filterRatingEnabled(),
+			whiteRating: this.filterWhiteRating(),
+			blackRating: this.filterBlackRating(),
+			whiteRatingMax: this.filterWhiteRatingMax(),
+			blackRatingMax: this.filterBlackRatingMax(),
+			eco: this.filterEco(),
+			timeControl: this.filterTimeControl(),
+			event: this.filterEvent(),
+			broadcastName: this.filterBroadcastName(),
+			fen: this.filterFen(),
+			byFenEnabled: this.filterByFenEnabled(),
+			sortAscending: this.sortAscending(),
+		};
+		return {
+			version: PGN_VIEWER_STATE_VERSION,
+			url: this.urlInput(),
+			lichessYear: this.lichessYear(),
+			lichessMonth: this.lichessMonth(),
+			filters,
+		};
+	}
 
 	private buildFilterLists(metadata: GameMetadata[]): void {
 		const whitePlayerElos = new Map<string, number>();
@@ -1577,7 +1831,12 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				setTimeout(() => this.buildFilterLists(meta), 0);
 			}
 			if (payload.count > 0) this.loadGame(0);
-			this.clearFilters();
+			// Apply the filter selection that is currently active — restored
+			// from the previous session or chosen by the user during this one —
+			// to the freshly loaded game collection. This is what makes the
+			// filters that were active when the application was closed show up
+			// again once the games finish loading.
+			this.applyFilter();
 		} else if (type === 'progress') {
 			this.loadingProgress.set(payload.percent);
 			this.loadingStatus.set(payload.status);
@@ -1642,6 +1901,14 @@ export class NgxPgnViewerComponent implements OnDestroy {
 				}
 			}
 			this.isLoading.set(false);
+		} else if (type === 'cacheMiss') {
+			// The remembered source is no longer in IndexedDB (evicted, expired
+			// or cleared): fall back to downloading and parsing it.
+			if (id === this.currentCacheLoadId) {
+				const url = this.pendingCacheSourceUrl;
+				this.pendingCacheSourceUrl = null;
+				if (url) void this.downloadFromUrl(url);
+			}
 		} else if (type === 'error') {
 			console.error('Worker error:', payload);
 			this.isLoading.set(false);
