@@ -146,7 +146,8 @@ release: it creates/pushes the `v<version>` tag, builds all four desktop bundles
 packages them into archives, and uploads them to a GitHub release.
 
 ```sh
-# Draft release with the portable bundles (macOS, Linux x64/arm64, Windows)
+# Draft release with the four portable bundles
+# (macOS arm64, Linux x86_64, Linux arm64, Windows x86_64)
 npm run release:desktop -- 22.5.0
 
 # Also build installers and publish immediately
@@ -155,6 +156,13 @@ npm run release:desktop -- 22.5.0 --publish \
 
 # Reuse the current build and only package + release (no rebuilds)
 npm run release:desktop -- 22.5.0 --skip-build
+
+# Only some platforms (repeatable; default is all four)
+npm run release:desktop -- 22.5.0 --publish --platform macos --platform windows
+
+# Add the Linux bundles to a release that is already published
+npm run release:desktop -- 22.5.0 --publish --skip-build \
+  --platform linux --platform linux-arm64
 
 # Dry-run: print everything it would do, execute nothing
 npm run release:desktop -- 22.5.0 --dry-run
@@ -167,6 +175,17 @@ Notes:
 - Releases are **drafts** by default — review on GitHub, then publish with
   `gh release edit v<version> --draft=false` (or pass `--publish`).
 - Use `--no-upload` to build/package locally without touching GitHub.
+- **A default run produces four assets:** `ngx-chessground-macos-arm64.zip`,
+  `ngx-chessground-linux-x86_64.tar.gz`, `ngx-chessground-linux-aarch64.tar.gz`
+  and `ngx-chessground-windows-x86_64.zip`.
+- **Re-running is safe.** If the release already exists it is updated in place
+  (title + notes refreshed, assets re-uploaded with `--clobber`) instead of
+  failing, so a partially failed run — or a platform added later — can be fixed
+  by running the same command again.
+- After uploading, the script **verifies every packaged asset is attached to the
+  release** and exits non-zero if any is missing. A GitHub API hiccup can create
+  the release without storing its assets even when the command appears to
+  succeed, so the exit code alone is not proof.
 - Requires `gh` (logged in), `deno` (>= 2.9) and `npm install --force` first.
 - Artifacts are unsigned; macOS Gatekeeper warns on first launch unless you
   codesign/notarize before distribution.

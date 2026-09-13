@@ -2,11 +2,17 @@
 #
 # Build the ngx-chessground desktop apps, package them into downloadable
 # archives, and attach everything to a GitHub release. By default all four
-# platforms are built (macOS arm64, Linux x86_64/arm64, Windows x86_64); pass
-# --platform (repeatable) to build only a subset.
+# platforms are built and packaged — macOS arm64, Linux x86_64, Linux arm64 and
+# Windows x86_64 — so a default run produces four assets; pass --platform
+# (repeatable) to build only a subset.
 #
 # Portable bundles for macOS + Windows only, published immediately:
 #   ./scripts/release-desktop.sh 22.6.0 --publish --platform macos --platform windows
+#
+# Add the Linux bundles to an existing release later (skips the tag, refreshes
+# the notes, re-uploads and verifies):
+#   ./scripts/release-desktop.sh 22.7.0 --publish --skip-build \
+#     --platform linux --platform linux-arm64
 #
 # Example flow (draft release, portable bundles only):
 #   ./scripts/release-desktop.sh 22.5.0
@@ -17,6 +23,9 @@
 #
 # Reuse an existing build (only package + release):
 #   ./scripts/release-desktop.sh 22.5.0 --skip-build
+#
+# Re-running is safe: an existing release is updated in place rather than
+# failing, and every asset is verified on GitHub after the upload.
 #
 # Options:
 #   --skip-build      Reuse existing desktop artifacts (skip deno/ng builds)
@@ -51,7 +60,7 @@ INSTALLERS=()
 PLATFORMS=()
 
 usage() {
-  sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,44p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -224,7 +233,8 @@ if [ "${#INSTALLERS[@]}" -gt 0 ]; then
     --exclude dist/ngx-chessground-example/browser/lichess
     --include dist/ngx-chessground-example/browser
     --include desktop/desktop-adapter.js --include desktop/stockfish-wasm
-    --icon desktop/icon.png --allow-read --allow-net --backend webview)
+    --icon desktop/icon.png --backend webview
+    --allow-read --allow-write --allow-env --allow-net)
 
   for type in "${INSTALLERS[@]}"; do
     case "$type" in
@@ -287,7 +297,7 @@ fi
 
 if [ "$DRY_RUN" -eq 1 ]; then
   echo
-  info "would create release: gh release create $TAG --title $TAG --notes-file <extracted notes> $([ "$PUBLISH" -eq 1 ] && echo '(published)' || echo '(--draft)')"
+  info "would create or update release $TAG (title + notes) $([ "$PUBLISH" -eq 1 ] && echo '(published)' || echo '(--draft)')"
   info "would upload:"
   for a in "${artifacts[@]}"; do printf '   - %s\n' "$(basename "$a")"; done
   echo
@@ -295,11 +305,23 @@ if [ "$DRY_RUN" -eq 1 ]; then
   exit 0
 fi
 
-info "creating $([ "$PUBLISH" -eq 1 ] && echo 'release' || echo 'draft release') $TAG"
-if [ "$PUBLISH" -eq 1 ]; then
-  gh release create "$TAG" --title "$TAG" --notes-file "$NOTES_TMP"
+# Re-running a release is expected (a build can fail, the upload can time out, a
+# platform can be added later), so an existing release is updated in place
+# instead of failing the whole run with "release already exists".
+if gh release view "$TAG" >/dev/null 2>&1; then
+  info "release $TAG already exists — refreshing title and notes"
+  if [ "$PUBLISH" -eq 1 ]; then
+    gh release edit "$TAG" --title "$TAG" --notes-file "$NOTES_TMP" --draft=false
+  else
+    gh release edit "$TAG" --title "$TAG" --notes-file "$NOTES_TMP"
+  fi
 else
-  gh release create "$TAG" --title "$TAG" --notes-file "$NOTES_TMP" --draft
+  info "creating $([ "$PUBLISH" -eq 1 ] && echo 'release' || echo 'draft release') $TAG"
+  if [ "$PUBLISH" -eq 1 ]; then
+    gh release create "$TAG" --title "$TAG" --notes-file "$NOTES_TMP"
+  else
+    gh release create "$TAG" --title "$TAG" --notes-file "$NOTES_TMP" --draft
+  fi
 fi
 
 info "uploading ${#artifacts[@]} artifact(s) to $TAG"
@@ -307,6 +329,30 @@ gh release upload "$TAG" "${artifacts[@]}" --clobber
 
 info "uploaded:"
 for a in "${artifacts[@]}"; do printf '   - %s (%s)\n' "$(basename "$a")" "$(du -h "$a" | cut -f1)"; done
+
+# --- 6. Verify ----------------------------------------------------------------
+# A GitHub API hiccup can create the release without storing its assets (or with
+# only some of them), so never trust the upload command's exit code alone.
+
+info "verifying assets on $TAG"
+remote_assets="$(gh release view "$TAG" --json assets \
+  --jq '.assets[] | select(.state == "uploaded") | .name' 2>/dev/null || true)"
+missing=0
+for a in "${artifacts[@]}"; do
+  name="$(basename "$a")"
+  if printf '%s\n' "$remote_assets" | grep -qxF "$name"; then
+    printf '   \033[1;32m✓\033[0m %s\n' "$name"
+  else
+    printf '   \033[1;31m✗\033[0m %s (missing)\n' "$name"
+    missing=1
+  fi
+done
+
+if [ "$missing" -ne 0 ]; then
+  die "verification failed — not every artifact is attached to $TAG. Re-run this script to retry the upload."
+fi
+
+info "release verified: $(gh release view "$TAG" --json url --jq '.url' 2>/dev/null || echo "$TAG")"
 
 if [ "$PUBLISH" -eq 0 ]; then
   echo
