@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import type { ReplayMode, StopOnErrorSide } from './pgn-viewer.types';
 import { PgnViewerStoreService } from './pgn-viewer-store.service';
 
 /**
@@ -54,11 +55,38 @@ export interface PersistedFilterState {
 }
 
 /**
+ * Replay options persisted across application sessions.
+ *
+ * Mirrors the replay signals owned by `NgxPgnViewerComponent` and the controls
+ * of `ReplayPanelComponent`: the timing mode and its per-mode duration plus the
+ * stop-on-error rule, so a restart resumes replaying the way the user left it
+ * instead of falling back to the built-in defaults.
+ */
+export interface PersistedReplayOptions {
+	/** Timing mode used by auto-replay. */
+	mode: ReplayMode;
+	/** Target duration in minutes for `proportional` replay. */
+	proportionalDuration: number;
+	/** Minimum seconds between moves in `realtime` replay. */
+	minSecondsBetweenMoves: number;
+	/** Seconds per move in `fixed` replay. */
+	fixedTime: number;
+	/** Seconds per move in `fast` replay. */
+	fastTime: number;
+	/** Whether replay halts on a significant evaluation drop. */
+	stopOnError: boolean;
+	/** Evaluation drop, in pawns, that counts as an error. */
+	stopOnErrorThreshold: number;
+	/** Which side's errors trigger the stop: `'both'`, `'white'` or `'black'`. */
+	stopOnErrorSide: StopOnErrorSide;
+}
+
+/**
  * Complete PGN viewer state persisted to `localStorage`.
  *
- * Besides the filters this keeps the data source the user last worked with —
- * the URL and the Lichess year/month picker — so a fresh session can reload
- * the same database and re-apply the same filter selection.
+ * Besides the filters and replay options this keeps the data source the user
+ * last worked with — the URL and the Lichess year/month picker — so a fresh
+ * session can reload the same database and re-apply the same filter selection.
  */
 export interface PersistedViewerState {
 	/** Schema version, used to discard incompatible payloads. */
@@ -71,10 +99,21 @@ export interface PersistedViewerState {
 	lichessMonth: number;
 	/** Filter selection carried over from the previous session. */
 	filters: PersistedFilterState;
+	/** Replay options carried over from the previous session. */
+	replay: PersistedReplayOptions;
 }
 
 /** Current persisted schema version. */
-export const PGN_VIEWER_STATE_VERSION = 1;
+export const PGN_VIEWER_STATE_VERSION = 2;
+
+/**
+ * Oldest persisted schema version that can still be read.
+ *
+ * Version 1 payloads predate the persisted replay options; they are migrated
+ * on load by filling the missing fields with {@link DEFAULT_PERSISTED_REPLAY_OPTIONS},
+ * so an upgrade never discards the filter selection saved by an older build.
+ */
+export const PGN_VIEWER_STATE_MIN_VERSION = 1;
 
 /** `localStorage` key holding the serialized {@link PersistedViewerState}. */
 export const PGN_VIEWER_STATE_STORAGE_KEY = 'ngx-chessground-pgn-viewer-state';
@@ -103,6 +142,38 @@ export const DEFAULT_PERSISTED_FILTER_STATE: PersistedFilterState = {
 	byFenEnabled: false,
 	sortAscending: false,
 };
+
+/**
+ * Replay-option defaults, used both for a fresh session and to fill gaps.
+ *
+ * Must stay in sync with the initial values of the replay signals in
+ * `NgxPgnViewerComponent`, which is also what version-1 payloads migrate to.
+ */
+export const DEFAULT_PERSISTED_REPLAY_OPTIONS: PersistedReplayOptions = {
+	mode: 'fixed',
+	proportionalDuration: 1,
+	minSecondsBetweenMoves: 1,
+	fixedTime: 1,
+	fastTime: 0.3,
+	stopOnError: false,
+	stopOnErrorThreshold: 1.0,
+	stopOnErrorSide: 'both',
+};
+
+/** Replay modes accepted by the viewer, used to validate stored values. */
+const REPLAY_MODES: readonly ReplayMode[] = [
+	'realtime',
+	'proportional',
+	'fixed',
+	'fast',
+];
+
+/** Stop-on-error sides accepted by the viewer, used to validate stored values. */
+const STOP_ON_ERROR_SIDES: readonly StopOnErrorSide[] = [
+	'both',
+	'white',
+	'black',
+];
 
 /**
  * Coerces a persisted value to a string.
@@ -138,6 +209,49 @@ function asNumber(value: unknown, fallback: number): number {
 }
 
 /**
+ * Coerces a persisted value to a finite, strictly positive number.
+ *
+ * Replay durations and thresholds are divisors/offsets for `setTimeout`, so a
+ * zero, negative or non-finite value stored by hand would turn replay into an
+ * unthrottled loop; such values fall back to the default instead.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @param fallback — Returned when `value` is not a positive finite number.
+ */
+function asPositiveNumber(value: unknown, fallback: number): number {
+	return typeof value === 'number' && Number.isFinite(value) && value > 0
+		? value
+		: fallback;
+}
+
+/**
+ * Coerces a persisted value to a known replay mode.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @param fallback — Returned when `value` is not one of the known modes.
+ */
+function asReplayMode(value: unknown, fallback: ReplayMode): ReplayMode {
+	return REPLAY_MODES.includes(value as ReplayMode)
+		? (value as ReplayMode)
+		: fallback;
+}
+
+/**
+ * Coerces a persisted value to a known stop-on-error side.
+ *
+ * @param value — Value read from storage; may be anything.
+ * @param fallback — Returned when `value` is not one of the known sides.
+ */
+function asStopOnErrorSide(
+	value: unknown,
+	fallback: StopOnErrorSide,
+): StopOnErrorSide {
+	return STOP_ON_ERROR_SIDES.includes(value as StopOnErrorSide)
+		? (value as StopOnErrorSide)
+		: fallback;
+}
+
+/**
  * Coerces a persisted value to an array of strings.
  *
  * Non-string entries are dropped rather than stringified, so a hand-edited
@@ -165,14 +279,15 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 /**
- * Persists the PGN viewer's filter selection and data-source picker so they
- * survive an application restart.
+ * Persists the PGN viewer's filter selection, replay options and data-source
+ * picker so they survive an application restart.
  *
  * Storage is delegated to {@link PgnViewerStoreService}: `localStorage` in the
  * browser, the desktop server's on-disk store inside the packaged app (where
  * the webview origin changes on every launch and web storage is not durable).
  *
- * Stored values are validated and merged with {@link DEFAULT_PERSISTED_FILTER_STATE}
+ * Stored values are validated and merged with
+ * {@link DEFAULT_PERSISTED_FILTER_STATE}/{@link DEFAULT_PERSISTED_REPLAY_OPTIONS}
  * on load, so a corrupt, partial or older payload degrades gracefully instead
  * of throwing.
  *
@@ -220,13 +335,17 @@ export class PgnViewerSettingsService {
 
 	/**
 	 * Validates an arbitrary parsed payload and fills missing fields with
-	 * defaults. Returns `null` for payloads that are not objects or carry an
-	 * incompatible schema version.
+	 * defaults. Returns `null` for payloads that are not objects or carry a
+	 * schema version this build can neither read nor migrate.
 	 */
 	private normalize(value: unknown): PersistedViewerState | null {
 		if (value === null || typeof value !== 'object') return null;
 		const record = asRecord(value);
-		if (asNumber(record.version, -1) !== PGN_VIEWER_STATE_VERSION) {
+		const version = asNumber(record.version, -1);
+		if (
+			version < PGN_VIEWER_STATE_MIN_VERSION ||
+			version > PGN_VIEWER_STATE_VERSION
+		) {
 			return null;
 		}
 
@@ -268,12 +387,43 @@ export class PgnViewerSettingsService {
 			),
 		};
 
+		// Version 1 payloads have no `replay` object: `asRecord` yields an empty
+		// record, so every option is filled from the defaults (the migration).
+		const rawReplay = asRecord(record.replay);
+		const replayDefaults = DEFAULT_PERSISTED_REPLAY_OPTIONS;
+		const replay: PersistedReplayOptions = {
+			mode: asReplayMode(rawReplay.mode, replayDefaults.mode),
+			proportionalDuration: asPositiveNumber(
+				rawReplay.proportionalDuration,
+				replayDefaults.proportionalDuration,
+			),
+			minSecondsBetweenMoves: asPositiveNumber(
+				rawReplay.minSecondsBetweenMoves,
+				replayDefaults.minSecondsBetweenMoves,
+			),
+			fixedTime: asPositiveNumber(
+				rawReplay.fixedTime,
+				replayDefaults.fixedTime,
+			),
+			fastTime: asPositiveNumber(rawReplay.fastTime, replayDefaults.fastTime),
+			stopOnError: asBoolean(rawReplay.stopOnError, replayDefaults.stopOnError),
+			stopOnErrorThreshold: asPositiveNumber(
+				rawReplay.stopOnErrorThreshold,
+				replayDefaults.stopOnErrorThreshold,
+			),
+			stopOnErrorSide: asStopOnErrorSide(
+				rawReplay.stopOnErrorSide,
+				replayDefaults.stopOnErrorSide,
+			),
+		};
+
 		return {
 			version: PGN_VIEWER_STATE_VERSION,
 			url: asString(record.url, ''),
 			lichessYear: asNumber(record.lichessYear, 0),
 			lichessMonth: asNumber(record.lichessMonth, 0),
 			filters,
+			replay,
 		};
 	}
 }

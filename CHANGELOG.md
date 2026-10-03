@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [22.8.0] - 2026-10-03
+
+### Added
+- PGN viewer **replay options are now persisted and restored on the next launch**: the timing mode (`fixed`, `fast`, `realtime`, `proportional`), the per-mode durations (fixed/fast seconds per move, proportional target minutes and minimum seconds between moves) and the stop-on-error rule (enabled, threshold in pawns, side) are re-applied automatically instead of resetting to the defaults. `PersistedViewerState` gained a `replay` section and the schema moved to version 2; version-1 payloads (filters + data source, no replay options) are migrated on load, so an existing filter selection survives the upgrade. `DEFAULT_PERSISTED_REPLAY_OPTIONS` and `PGN_VIEWER_STATE_MIN_VERSION` are exported from the public API, and stored replay values are validated: an unknown mode/side or a zero, negative or non-finite duration falls back to its default
+
 ## [22.7.0] - 2026-09-13
 
 ### Added

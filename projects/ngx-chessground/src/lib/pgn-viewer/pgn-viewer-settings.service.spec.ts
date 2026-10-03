@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	DEFAULT_PERSISTED_FILTER_STATE,
+	DEFAULT_PERSISTED_REPLAY_OPTIONS,
 	type PersistedViewerState,
 	PGN_VIEWER_STATE_STORAGE_KEY,
 	PGN_VIEWER_STATE_VERSION,
@@ -27,6 +28,16 @@ function fullState(): PersistedViewerState {
 			fen: 'start-fen',
 			sortAscending: true,
 		},
+		replay: {
+			mode: 'realtime',
+			proportionalDuration: 2.5,
+			minSecondsBetweenMoves: 0.4,
+			fixedTime: 0.75,
+			fastTime: 0.1,
+			stopOnError: true,
+			stopOnErrorThreshold: 2.5,
+			stopOnErrorSide: 'white',
+		},
 	};
 }
 
@@ -49,6 +60,21 @@ describe('PgnViewerSettingsService', () => {
 		service.save(state);
 
 		expect(service.load()).toEqual(state);
+	});
+
+	it('restores the replay options of the previous session', () => {
+		const state = fullState();
+		service.save(state);
+
+		const replay = service.load()?.replay;
+		expect(replay?.mode).toBe('realtime');
+		expect(replay?.proportionalDuration).toBe(2.5);
+		expect(replay?.minSecondsBetweenMoves).toBe(0.4);
+		expect(replay?.fixedTime).toBe(0.75);
+		expect(replay?.fastTime).toBe(0.1);
+		expect(replay?.stopOnError).toBe(true);
+		expect(replay?.stopOnErrorThreshold).toBe(2.5);
+		expect(replay?.stopOnErrorSide).toBe('white');
 	});
 
 	it('returns null when nothing is stored', () => {
@@ -101,6 +127,73 @@ describe('PgnViewerSettingsService', () => {
 		expect(state?.filters.black).toBe(DEFAULT_PERSISTED_FILTER_STATE.black);
 		expect(state?.filters.ratingEnabled).toBe(false);
 		expect(state?.filters.result).toEqual([]);
+	});
+
+	it('migrates a version 1 payload and keeps the stored filters', () => {
+		localStorage.setItem(
+			PGN_VIEWER_STATE_STORAGE_KEY,
+			JSON.stringify({
+				version: 1,
+				url: 'custom.pgn',
+				lichessYear: 2023,
+				lichessMonth: 11,
+				filters: { white: 'Nakamura', sortAscending: true },
+			}),
+		);
+
+		const state = service.load();
+		expect(state?.version).toBe(PGN_VIEWER_STATE_VERSION);
+		expect(state?.url).toBe('custom.pgn');
+		expect(state?.filters.white).toBe('Nakamura');
+		expect(state?.filters.sortAscending).toBe(true);
+		expect(state?.replay).toEqual(DEFAULT_PERSISTED_REPLAY_OPTIONS);
+	});
+
+	it('defaults the replay options when the payload carries none', () => {
+		localStorage.setItem(
+			PGN_VIEWER_STATE_STORAGE_KEY,
+			JSON.stringify({ version: PGN_VIEWER_STATE_VERSION, filters: {} }),
+		);
+
+		const replay = service.load()?.replay;
+		expect(replay).toEqual(DEFAULT_PERSISTED_REPLAY_OPTIONS);
+		// A copy, so a caller cannot corrupt the shared defaults.
+		expect(replay).not.toBe(DEFAULT_PERSISTED_REPLAY_OPTIONS);
+	});
+
+	it('keeps every valid replay mode and stop-on-error side', () => {
+		for (const mode of ['realtime', 'proportional', 'fixed', 'fast'] as const) {
+			for (const side of ['both', 'white', 'black'] as const) {
+				const state = fullState();
+				state.replay = { ...state.replay, mode, stopOnErrorSide: side };
+				service.save(state);
+
+				const replay = service.load()?.replay;
+				expect(replay?.mode).toBe(mode);
+				expect(replay?.stopOnErrorSide).toBe(side);
+			}
+		}
+	});
+
+	it('falls back to defaults for unknown replay values', () => {
+		localStorage.setItem(
+			PGN_VIEWER_STATE_STORAGE_KEY,
+			JSON.stringify({
+				version: PGN_VIEWER_STATE_VERSION,
+				replay: {
+					mode: 'turbo',
+					proportionalDuration: 0,
+					minSecondsBetweenMoves: -2,
+					fixedTime: 'fast',
+					fastTime: null,
+					stopOnError: 'yes',
+					stopOnErrorThreshold: 0,
+					stopOnErrorSide: 'green',
+				},
+			}),
+		);
+
+		expect(service.load()?.replay).toEqual(DEFAULT_PERSISTED_REPLAY_OPTIONS);
 	});
 
 	it('ignores invalid scalar types in a stored payload', () => {

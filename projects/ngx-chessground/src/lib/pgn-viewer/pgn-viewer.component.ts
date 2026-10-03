@@ -55,6 +55,7 @@ import {
 } from './pgn-viewer-notifier';
 import {
 	type PersistedFilterState,
+	type PersistedReplayOptions,
 	type PersistedViewerState,
 	PGN_VIEWER_STATE_VERSION,
 	PgnViewerSettingsService,
@@ -418,7 +419,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 	// ---- Replay signals ----
 	/** Active replay timing mode. */
 	replayMode = signal<'realtime' | 'proportional' | 'fixed' | 'fast'>('fixed');
-	/** Target duration in seconds for `proportional` replay. */
+	/** Target duration in minutes for `proportional` replay. */
 	proportionalDuration = signal<number>(1);
 	/** Minimum seconds between moves in `realtime` replay. */
 	minSecondsBetweenMoves = signal<number>(1);
@@ -1682,7 +1683,10 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		}
 	}
 
-	/** Applies a state restored from storage to the filter and source signals. */
+	/**
+	 * Applies a state restored from storage to the filter, replay and source
+	 * signals.
+	 */
 	private applyPersistedState(
 		state: PersistedViewerState,
 		defaults: { year: number; month: number },
@@ -1710,6 +1714,16 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		this.filterByFenEnabled.set(f.byFenEnabled);
 		this.sortAscending.set(f.sortAscending);
 
+		const r = state.replay;
+		this.replayMode.set(r.mode);
+		this.proportionalDuration.set(r.proportionalDuration);
+		this.minSecondsBetweenMoves.set(r.minSecondsBetweenMoves);
+		this.fixedTime.set(r.fixedTime);
+		this.fastTime.set(r.fastTime);
+		this.stopOnError.set(r.stopOnError);
+		this.stopOnErrorThreshold.set(r.stopOnErrorThreshold);
+		this.stopOnErrorSide.set(r.stopOnErrorSide);
+
 		this.lichessYear.set(
 			state.lichessYear > 0 ? state.lichessYear : defaults.year,
 		);
@@ -1721,7 +1735,7 @@ export class NgxPgnViewerComponent implements OnDestroy {
 		if (state.url) this.urlInput.set(state.url);
 	}
 
-	/** Snapshots the current filter selection and data source for persistence. */
+	/** Snapshots the current filters, replay options and data source. */
 	private buildPersistedState(): PersistedViewerState {
 		const filters: PersistedFilterState = {
 			white: this.filterWhite(),
@@ -1746,12 +1760,23 @@ export class NgxPgnViewerComponent implements OnDestroy {
 			byFenEnabled: this.filterByFenEnabled(),
 			sortAscending: this.sortAscending(),
 		};
+		const replay: PersistedReplayOptions = {
+			mode: this.replayMode(),
+			proportionalDuration: this.proportionalDuration(),
+			minSecondsBetweenMoves: this.minSecondsBetweenMoves(),
+			fixedTime: this.fixedTime(),
+			fastTime: this.fastTime(),
+			stopOnError: this.stopOnError(),
+			stopOnErrorThreshold: this.stopOnErrorThreshold(),
+			stopOnErrorSide: this.stopOnErrorSide(),
+		};
 		return {
 			version: PGN_VIEWER_STATE_VERSION,
 			url: this.urlInput(),
 			lichessYear: this.lichessYear(),
 			lichessMonth: this.lichessMonth(),
 			filters,
+			replay,
 		};
 	}
 

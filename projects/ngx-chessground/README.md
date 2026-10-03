@@ -172,7 +172,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 | `isReplaying` | `Signal<boolean>` | Whether auto-replay is active. |
 | `replayMode` | `Signal<'fixed' \| 'realtime' \| 'proportional'>` | Replay timing mode. |
 | `minSecondsBetweenMoves` | `Signal<number>` | Minimum seconds between moves (default: 1). |
-| `proportionalDuration` | `Signal<number>` | Target duration in seconds for proportional replay (default: 1). |
+| `proportionalDuration` | `Signal<number>` | Target duration in minutes for proportional replay (default: 1). |
 | `fixedTime` | `Signal<number>` | Seconds per move in `fixed` mode (default: 1). |
 | `fastTime` | `Signal<number>` | Seconds per move in `fast` mode (default: 0.3). |
 | `stopOnError` | `Signal<boolean>` | When true, auto-replay halts on significant evaluation drops. |
@@ -211,7 +211,7 @@ A full-featured PGN viewer with replay controls, filtering, Stockfish analysis, 
 
 | Output | Payload | Description |
 |--------|---------|-------------|
-| `stateRestored` | `void` | Fires once when durable state (persisted filters, source URL, cache bookmarks) has been restored. Reactive alternative to `await whenStateReady()`. |
+| `stateRestored` | `void` | Fires once when durable state (persisted filters, replay options, source URL, cache bookmarks) has been restored. Reactive alternative to `await whenStateReady()`. |
 | `loadStarted` | `{ status: string }` | A load has begun. |
 | `loadProgress` | `{ percent: number; status: string }` | Load progress advanced. |
 | `loadFailed` | `PgnViewerError` | A load failed. The single place to handle load errors programmatically. |
@@ -294,6 +294,8 @@ export const appConfig: ApplicationConfig = {
 - **`fixed`** — Each move is played at `minSecondsBetweenMoves` intervals.
 - **`realtime`** — Replays at the original game time (requires clock data in the PGN).
 - **`proportional`** — Scales the game duration to fit a target speed, respecting relative move timings.
+
+The replay options — mode, the per-mode durations and the stop-on-error rule below — are persisted with the rest of the viewer state (`PgnViewerSettingsService`, schema version 2) and restored on the next launch, so a restart resumes replaying the way the session was left. Payloads written by version 1 (filters and data source, no replay options) are migrated to the current defaults instead of being discarded.
 
 #### Stockfish Integration ("Stop on Error")
 
