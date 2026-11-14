@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1791045364560,
+  "timestamp": 1794650896922,
   "index": "/ngx-chessground/index.html",
   "assetGroups": [
     {
@@ -115,7 +115,7 @@
     "/ngx-chessground/icons/icon-512x512.png": "02a093a299b353b3976fcf3396b0573de38f9e3e",
     "/ngx-chessground/icons/icon-72x72.png": "8bc9678d77e08b43c9961505b336e447fdb38a0b",
     "/ngx-chessground/icons/icon-96x96.png": "206bbd70bbcf80f233a31025295a5a3b7f0f81e5",
-    "/ngx-chessground/index.html": "674942fbc002d0e0653118632498644f2e4f9256",
+    "/ngx-chessground/index.html": "45ae8fb75e6e36940451c53f3ad9fc523c4197c6",
     "/ngx-chessground/main-XOMXVXCL.js": "1f279307c0339591382e743011dfd83715168bcb",
     "/ngx-chessground/manifest.webmanifest": "afcc29920ea5841fd173b03de64abee86f3d5014",
     "/ngx-chessground/styles-4UBDQ32G.css": "d110cfa3c1cc25f41bb0a15193699b181a4bd7eb",
